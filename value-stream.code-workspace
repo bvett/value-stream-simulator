@@ -1,0 +1,34 @@
+{
+	"folders": [
+		{
+			"name" : "value-stream",
+			"path": "."
+		}
+	],
+	"settings": {
+		"python.analysis.typeCheckingMode": "standard",
+		"python.analysis.inlayHints.functionReturnTypes": true,
+		"python.analysis.inlayHints.pytestParameters": false,
+		"python.analysis.inlayHints.variableTypes": false,
+		"editor.defaultFormatter": "ms-python.black-formatter",
+		"notebook.output.scrolling": true,
+		"python.analysis.extraPaths": [
+			"src"
+		],
+		"python.analysis.importFormat": "relative",
+		"python.testing.pytestArgs": [
+			"--cov=${workspaceFolder}/src",
+			"--cov-report=xml",
+			"${workspaceFolder}/tests"
+		],
+		"python.testing.pytestEnabled": true,
+		"editor.wordWrap": "off",
+		"editor.wordWrapColumn": 72,
+		"cSpell.words": [
+			"SDLC"
+		],
+		"pylint.args": [
+			"--disable=missing-module-docstring"
+		]
+	}
+}

@@ -1,0 +1,72 @@
+import math
+import unittest
+from unittest.mock import patch
+
+from value_stream import Simulation
+from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, TaskFactory
+
+
+class TestResultViewer(unittest.TestCase):
+
+    def setUp(self):
+        simulation = Simulation()
+
+        self.num_tasks = 10
+        self.team_size = 5
+        self.max_cadence = 7
+
+        developer_factory = DeveloperFactory('equal', 1.0)
+
+        developer_teams = [developer_factory.create(
+            team_size) for team_size in range(1, self.team_size+1)]
+
+        self.num_teams = len(developer_teams)
+
+        models = ModelFactory(2, .25).create(
+            developer_teams, range(self.max_cadence, -1, -1))
+
+        tasks = TaskFactory('equal', 1.0).create(self.num_tasks)
+
+        self.model_results = simulation.execute(
+            tasks=tasks, models=models)
+
+    def test_to_json(self):
+        s = ResultViewer(self.model_results).json
+        self.assertGreater(len(s), 0)
+
+    @patch('matplotlib.pyplot.show')
+    def test_plot_loss_vs_cadence(self, mock_pyplot_show):
+        ResultViewer(self.model_results).loss_vs_cadence(
+            team_samples=self.team_size)
+
+        mock_pyplot_show.assert_called_once()
+
+    @patch('matplotlib.pyplot.show')
+    def test_plot_time_alloc_by_cadence(self, mock_pyplot_show):
+        ResultViewer(self.model_results).time_alloc_vs_cadence(
+            nrows=4, ncols=3)
+
+        mock_pyplot_show.assert_called_once()
+
+    @patch('matplotlib.pyplot.show')
+    def test_plot_delivery_timeline(self, mock_pyplot_show):
+
+        ResultViewer(self.model_results).delivery_timeline(
+            cadence=self.max_cadence, team_size=self.team_size)
+
+        mock_pyplot_show.assert_called_once()
+
+    @patch('matplotlib.pyplot.show')
+    def test_plot_delivered_value(self, mock_pyplot_show):
+
+        ResultViewer(self.model_results).delivered_value_vs_time(
+            cadence=self.max_cadence, team_samples=math.ceil(self.num_teams/2))
+
+        mock_pyplot_show.assert_called_once()
+
+    @patch('matplotlib.pyplot.show')
+    def test_plot_team_size_vs_delivery(self, mock_pyplot_show):
+        ResultViewer(self.model_results).delivered_value_vs_team_size(
+            cadence_samples=self.max_cadence)
+
+        mock_pyplot_show.assert_called_once()
