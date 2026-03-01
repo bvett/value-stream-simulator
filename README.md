@@ -13,6 +13,11 @@ Understanding where delays and disruptions occur and their impact can help organ
 ### Environment
 1. Python >= 3.9 is required 
 2. Clone this repository and cd to its root
+```shell
+git clone https://github.com/bvett/value-stream-simulator.git
+cd value-stream-simulator
+```
+
 3. Create and load a virtual environment:
   * Linux/Mac:
 ```shell
@@ -37,11 +42,11 @@ pip install -e .
 _examples/demo.py_ runs a sample simulation then presents the results as different plots
 
 ```shell
-python examples/demo.py
+python src/examples/demo.py
 ```
 
 ### Tutorial
-_examples/tutorial.ipynb_ presents a more detailed walkthrough as a Jupyter notebook.
+_src/examples/tutorial.ipynb_ presents a more detailed walkthrough as a Jupyter notebook.
 
 ## Project Status and Objectives
 This project provides a limited feature set that supports correlating delivery cadence and development team size/ability against value & loss.  Near-term objectives include:
