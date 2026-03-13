@@ -2,8 +2,12 @@ import math
 import unittest
 from unittest.mock import patch
 
+from tqdm import tqdm
+
 from value_stream import Simulation
 from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, TaskFactory
+
+# pylint:disable=missing-class-docstring,missing-function-docstring
 
 
 class TestResultViewer(unittest.TestCase):
@@ -30,16 +34,16 @@ class TestResultViewer(unittest.TestCase):
         self.model_results = simulation.execute(
             tasks=tasks, models=models)
 
-    def test_to_json(self):
-        s = ResultViewer(self.model_results).json
-        self.assertGreater(len(s), 0)
+        self.pbar = tqdm(self.model_results)
 
     @patch('matplotlib.pyplot.show')
-    def test_plot_loss_vs_cadence(self, mock_pyplot_show):
-        ResultViewer(self.model_results).loss_vs_cadence(
+    @patch('tqdm.tqdm.update')
+    def test_plot_loss_vs_cadence(self, mock_tqdm_update, mock_pyplot_show):
+        ResultViewer(self.model_results, pbar=self.pbar).loss_vs_cadence(
             team_samples=self.team_size)
 
         mock_pyplot_show.assert_called_once()
+        mock_tqdm_update.assert_called()
 
     @patch('matplotlib.pyplot.show')
     def test_plot_time_alloc_by_cadence(self, mock_pyplot_show):

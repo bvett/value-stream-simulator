@@ -3,6 +3,8 @@ from simpy import Environment, Store
 from value_stream.developer import Developer, DeveloperTeam
 from value_stream.task import Task
 
+# pylint:disable=missing-class-docstring,missing-function-docstring
+
 
 class TestDeveloperTeam(unittest.TestCase):
 

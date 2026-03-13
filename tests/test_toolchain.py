@@ -1,7 +1,11 @@
 import unittest
 from simpy import Environment, Store
+from value_stream.workflow_state_name import WorkflowStateName
 from value_stream.task import Task
 from value_stream.toolchain import Toolchain
+from value_stream.workflow_state import WorkflowState, TerminalWorkflowState
+
+# pylint:disable=missing-class-docstring,missing-function-docstring
 
 
 class TestToolchain(unittest.TestCase):
@@ -9,7 +13,8 @@ class TestToolchain(unittest.TestCase):
     def setUp(self):
         self.env = Environment()
         self.source = Store(self.env)
-        self.target = Store(self.env)
+        self.target = TerminalWorkflowState(
+            self.env, WorkflowStateName.DELIVERY)
 
     def test_validation(self):
 
@@ -22,13 +27,15 @@ class TestToolchain(unittest.TestCase):
     def test_noop_deployment(self):
         tasks = []
 
+        target = WorkflowState(self.env, WorkflowStateName.DEPLOYMENT)
+
         toolchain = Toolchain(
             self.env, deployment_duration=0, deployment_cadence=1)
-        self.env.process(toolchain._do_deployment(tasks, self.target))
+        self.env.process(toolchain._do_deployment(tasks, target))
 
         self.env.run()
 
-        self.assertEqual(len(self.target.items), 0)
+        self.assertEqual(len(target.items), 0)
 
     def test_batch_deployment(self):
 
@@ -52,8 +59,8 @@ class TestToolchain(unittest.TestCase):
         self.assertEqual(self.env.now, DEPLOYMENT_DURATION)
 
         for task in tasks:
-            self.assertEqual(task.history.delivery_end_t -
-                             task.history.delivery_start_t, DEPLOYMENT_DURATION)
+            self.assertEqual(task.history.duration(
+                WorkflowStateName.DEPLOYMENT), DEPLOYMENT_DURATION)
 
     def test_serial_deployment(self):
 
@@ -77,7 +84,10 @@ class TestToolchain(unittest.TestCase):
         for i in range(count):
             yield store.put(Task(complexity=1, initial_value=1))
 
-    def run_scenario(self, num_tasks: int, deployment_duration: float, cadence: int, concurrency: int):
+    def run_scenario(self, num_tasks: int,
+                     deployment_duration: float,
+                     cadence: int,
+                     concurrency: int):
 
         self.env.process(self.create_tasks(num_tasks, self.source))
 
@@ -103,7 +113,7 @@ class TestToolchain(unittest.TestCase):
                           concurrency=1)
 
         self.assertEqual(
-            max([i.history.delivery_end_t for i in self.target.items]), 1.25)
+            max([i.delivered_time() for i in self.target.items]), 1.25)
 
     def test_scenario_2(self):
         # Continuous delivery, with concurrency
@@ -114,7 +124,7 @@ class TestToolchain(unittest.TestCase):
                           concurrency=2)
 
         self.assertEqual(
-            max([i.history.delivery_end_t for i in self.target.items]), 0.75)
+            max([i.delivered_time() for i in self.target.items]), 0.75)
 
     def test_scenario_3(self):
         # Regular delivery, no concurrency
@@ -125,4 +135,4 @@ class TestToolchain(unittest.TestCase):
                           concurrency=1)
 
         self.assertEqual(
-            max([i.history.delivery_end_t for i in self.target.items]), 2.25)
+            max([i.delivered_time() for i in self.target.items]), 2.25)

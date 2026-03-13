@@ -1,8 +1,8 @@
-import copy
 import logging
 
 from simpy import Environment, Store
 from .task import Task
+from .workflow_state_name import WorkflowStateName
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +37,8 @@ class Developer:
             task_result (TaskResult): Task being developed
             target (Store): Queue to receive the completed task
         """
-        task = copy.deepcopy(task)
-        task.history.dev_start_t = env.now
+
+        task.history.start(WorkflowStateName.DEVELOPMENT, env.now)
 
         logging.debug(
             "%s starting development on %s at t=%i", self.name, task.task_id, env.now)
@@ -48,7 +48,7 @@ class Developer:
         logging.debug(
             "%s completed development on %s at t=%i", self.name, task.task_id, env.now)
 
-        task.history.dev_end_t = env.now
+        task.history.end(WorkflowStateName.DEVELOPMENT, env.now)
 
         yield target.put(task)
 
@@ -68,23 +68,14 @@ class DeveloperTeam(Store):
             source (Store): Origin of tasks to be developed
             target (Store): Destination of tasks after development completes
         """
-
         while True:
-            task = yield source.get()
-            logger.debug(
-                "Task %s pending assignment to developer at t=%i", task.task_id, self._env.now)
+            developer = yield self.get()
+            self._env.process(self._develop(developer, source, target))
 
-            # Create coroutine to handle development
-            self._env.process(
-                self._develop(task, target))
-
-    def _develop(self, task: Task, target: Store):
-
-        # Request developer from pool
-        developer = yield self.get()
+    def _develop(self, developer: Developer, source: Store, target: Store):
+        task = yield source.get()
         logger.debug("Task %s assigned to developer %s at t=%i",
                      task.task_id, developer.name, self._env.now)
 
-        # Wait for development to complete and return developer to pool
         yield self._env.process(developer.develop(self._env, task, target))
         yield self.put(developer)

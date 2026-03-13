@@ -2,14 +2,16 @@ import copy
 import logging
 from typing import Iterable
 
+from simpy import Environment, Event
 from tqdm import tqdm
-from simpy import Environment, Event, Store
 
+from .workflow_state_name import WorkflowStateName
 from .simulation_result import SimulationResult
 from .developer import DeveloperTeam
 from .model import Model
 from .task import Task
 from .toolchain import Toolchain
+from .workflow_state import WorkflowState, TerminalWorkflowState
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +41,7 @@ class Simulation:
             list[ModelResult]: Set of simulation outcomes, one per Model.
         """
 
-        model_results: list[SimulationResult] = []
+        simulation_results: list[SimulationResult] = []
 
         for model in models:
 
@@ -63,13 +65,14 @@ class Simulation:
             delivered_tasks: list[Task] = env.run(
                 workflow.is_complete())  # type: ignore
 
-            model_results.append(SimulationResult(
-                model, delivered_tasks))
+            for task in delivered_tasks:
+                simulation_results.append(SimulationResult(
+                    model, task, task.history.events))
 
             if pbar:
                 pbar.update()
 
-        return model_results
+        return simulation_results
 
     class Workflow:
         """Controls movement of tasks through the SDLC process
@@ -96,14 +99,17 @@ class Simulation:
             """Signals workflow completion when all tasks specified at
             initialization are in the delivered queue"""
 
-            pending = Store(self.env)
+            # ready_for_development
+            pending = WorkflowState(self.env, WorkflowStateName.PENDING)
             for task in tasks:
                 pending.put(copy.deepcopy(task))
 
             delivery_target = len(pending.items)
 
-            developed = Store(self.env)
-            delivered = Store(self.env)
+            developed = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
+
+            delivered = TerminalWorkflowState(
+                self.env, WorkflowStateName.DELIVERY)
 
             self.env.process(developer_team.start(
                 source=pending,

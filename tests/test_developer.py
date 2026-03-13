@@ -1,7 +1,12 @@
+import copy
 import unittest
-from simpy import Environment, Store
+from simpy import Environment
+from value_stream.workflow_state_name import WorkflowStateName
 from value_stream.developer import Developer
 from value_stream.task import Task
+from value_stream.workflow_state import WorkflowState
+
+# pylint:disable=missing-class-docstring,missing-function-docstring
 
 
 class TestDeveloper(unittest.TestCase):
@@ -25,14 +30,17 @@ class TestDeveloper(unittest.TestCase):
         senior_developer = Developer(1.5, name="senior")
 
         env = Environment()
-        target = Store(env)
+        target = WorkflowState(env, WorkflowStateName.DEVELOPMENT)
 
         for dev in [junior_developer, senior_developer]:
-            for task in [self.simple_task, self.complex_task]:
+            for task in [copy.deepcopy(self.simple_task), copy.deepcopy(self.complex_task)]:
                 env.process(dev.develop(env, task, target))
 
         env.run()
 
         for i, v in enumerate([0.4, 1.2, 1.3333333, 4]):
-            self.assertAlmostEqual(target.items[i].history.dev_end_t, v)
-            self.assertEqual(target.items[i].history.dev_start_t, 0)
+
+            dev_start_t, dev_end_t = target.items[i].history.event_times(
+                WorkflowStateName.DEVELOPMENT)
+            self.assertAlmostEqual(dev_end_t, v)
+            self.assertEqual(dev_start_t, 0)

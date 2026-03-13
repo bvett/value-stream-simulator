@@ -1,9 +1,9 @@
-import copy
 import logging
 
 from simpy import Environment, Resource, Store
 
 from .task import Task
+from .workflow_state_name import WorkflowStateName
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,6 @@ class Toolchain(Resource):
         if self.deployment_cadence == 0:
             while True:
                 task = yield source.get()
-                task = copy.deepcopy(task)
                 self._env.process(self._do_deployment([task], target))
 
         else:
@@ -63,7 +62,7 @@ class Toolchain(Resource):
 
                 while len(source.items) > 0:
                     task = yield source.get()
-                    task = copy.deepcopy(task)
+                    # task = copy.deepcopy(task)
                     queue.append(task)
 
                 self._env.process(self._do_deployment(
@@ -80,12 +79,14 @@ class Toolchain(Resource):
             yield req
 
             for task in tasks:
-                task.history.delivery_start_t = self._env.now
+                # task.history.delivery_start_t = self._env.now
+                task.history.start(WorkflowStateName.DEPLOYMENT, self._env.now)
             logger.debug("Deployment of %i tasks starting at %i",
                          len(tasks), self._env.now)
             yield self._env.timeout(self.deployment_duration)
             logger.debug("Deployment of %i tasks completed at %i",
                          len(tasks), self._env.now)
             for task in tasks:
-                task.history.delivery_end_t = self._env.now
+                # task.history.delivery_end_t = self._env.now
+                task.history.end(WorkflowStateName.DEPLOYMENT, self._env.now)
                 yield target.put(task)

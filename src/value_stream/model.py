@@ -1,4 +1,3 @@
-from typing import Any
 from .developer import Developer
 
 
@@ -32,23 +31,4 @@ class Model:
         self.deployment_cadence = deployment_cadence
 
         self.developer_team = developer_team
-
-    @property
-    def team_size(self) -> int:
-        """Returns the number of developers in this model"""
-        return len(self.developer_team)
-
-    def __str__(self) -> str:
-        return "Model:\n"\
-            f"\tDeployment Cadence: {self.deployment_cadence}\n"\
-            f"\tToolchain Concurrency: {self.toolchain_concurrency}\n"\
-            f"\tDeployment Duration: {self.deployment_duration}\n"\
-            f"\tTeam Size: {self.team_size}"
-
-    def to_dict(self) -> dict[str, Any]:
-        """Injects calculated properties during json serialization"""
-
-        custom_additions = {
-            "team_size": self.team_size}
-
-        return vars(self) | custom_additions
+        self.team_size = len(self.developer_team)

@@ -1,4 +1,3 @@
-from typing import Any
 from .task_history import TaskHistory
 
 
@@ -51,6 +50,9 @@ class Task:
 
         self.history = TaskHistory()
 
+        self.loss: float = 0.0
+        self.delivered_value: float = 0.0
+
     def value(self, time: float | None = None) -> float:
         """Calculates the value of the task at a specified time
 
@@ -64,41 +66,40 @@ class Task:
             return self._initial_value
 
         if time < self.creation_t:
-            raise ValueError("time must be >= self.creation_t")
+            raise ValueError("time must be >= creation_t")
 
         return self._initial_value * ((1-self.depreciation_rate) ** (time - self.creation_t))
 
+    def delivered_time(self):
+        """Returns the time the task was successfully delivered, otherwise None"""
+        last_event = self.history.last_event()
+
+        if (last_event is not None) \
+                and (last_event.status == last_event.EventStatus.SUCCESS) \
+                and last_event.event_type == last_event.EventType.TERMINAL:
+            return last_event.time
+
+        return None
+
     # can this be agnostic of the workflow? How would it know what 'delivered' is without a special value?
-    def delivered_value(self) -> float:
+    def _delivered_value(self) -> float:
         """Returns the depreciated value of the task at the time of delivery, or its initial value if undelivered.
         """
 
-        if self.history.delivery_start_t is not None and (self.history.delivery_start_t < self.creation_t):
-            raise ValueError("delivery_start_t must be >= task.creation_t")
+        delivered_t = self.delivered_time()
 
-        if self.history.delivery_start_t is not None and \
-            self.history.delivery_end_t is not None and \
-                (self.history.delivery_end_t < self.history.delivery_start_t):
-            raise ValueError("delivery_start_t must be <= delivery_end_t")
+        return 0 if delivered_t is None else self.value(delivered_t)
 
-        if self.history.delivery_end_t is not None and self.history.delivery_start_t is None:
-            raise ValueError(
-                "delivery_start_t must not be None when delivery_end_t is not None")
-
-        return self.value(self.history.delivery_end_t)
-
-    def loss(self) -> float:
+    def _loss(self) -> float:
         """Returns percentage decrease in value of a delivered task"""
         initial_value = self.value()
 
-        return (self.delivered_value() - initial_value) / initial_value
+        return (self._delivered_value() - initial_value) / initial_value
+
+    # TODO: Optimize to avoid repeat calculations
+    def update_value_and_loss(self):
+        self.delivered_value = self._delivered_value()
+        self.loss = self._loss()
 
     def __str__(self) -> str:
         return self.task_id if self.task_id else ""
-
-    def to_dict(self) -> dict[str, Any]:
-
-        custom_additions = {
-            "loss": self.loss(), "delivered_value": self.delivered_value()}
-
-        return vars(self) | custom_additions

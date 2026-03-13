@@ -2,6 +2,8 @@ import unittest
 import numpy as np
 from value_stream.utils.task_factory import TaskFactory
 
+# pylint:disable=missing-class-docstring,missing-function-docstring
+
 
 class TestTaskFactory(unittest.TestCase):
 

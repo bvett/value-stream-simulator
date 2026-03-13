@@ -2,6 +2,8 @@ import unittest
 from value_stream.utils.developer_factory import DeveloperFactory
 from value_stream.utils.model_factory import ModelFactory
 
+# pylint:disable=missing-class-docstring,missing-function-docstring
+
 
 class TestModelFactory(unittest.TestCase):
 
@@ -24,7 +26,7 @@ class TestModelFactory(unittest.TestCase):
                                 deployment_cadences=cadences)
 
         self.assertEqual(len(models), NUM_TEAMS * NUM_CADENCES)
-        for i, model in enumerate(models):
+        for _, model in enumerate(models):
             self.assertIn(model.deployment_cadence, cadences)
             self.assertEqual(model.deployment_duration, 4.5)
             self.assertEqual(model.toolchain_concurrency, 2)

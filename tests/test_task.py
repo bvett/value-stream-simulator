@@ -1,5 +1,8 @@
 import unittest
 from value_stream.task import Task
+from value_stream.workflow_state_name import WorkflowStateName
+
+# pylint:disable=protected-access,missing-function-docstring,missing-class-docstring
 
 
 class TestTask(unittest.TestCase):
@@ -79,20 +82,18 @@ class TestTask(unittest.TestCase):
         task = Task(task_id="", initial_value=50, complexity=1,
                     creation_time=0, depreciation_rate=0)
 
-        task.history.delivery_start_t = 1
-        task.history.delivery_end_t = 25
+        task.history.terminate(WorkflowStateName.DELIVERY, 25)
 
-        self.assertEqual(task.loss(), 0)
+        self.assertEqual(task._loss(), 0)
 
         # Loss
 
         task = Task(task_id="", initial_value=50, complexity=1,
                     creation_time=0, depreciation_rate=0.1)
 
-        task.history.delivery_start_t = 0
-        task.history.delivery_end_t = 2
+        task.history.terminate(WorkflowStateName.DELIVERY, 2)
 
-        self.assertEqual(task.loss(), -0.19)
+        self.assertEqual(task._loss(), -0.19)
 
     def test_delivered_value(self):
 
@@ -100,29 +101,33 @@ class TestTask(unittest.TestCase):
         task = Task(task_id="", initial_value=100,
                     complexity=1, depreciation_rate=0.1)
 
-        self.assertEqual(task.delivered_value(), 100)
+        self.assertEqual(task._delivered_value(), 0)
 
         # default creation_time
-        task.history.delivery_start_t = 2
+        task.history.start(WorkflowStateName.DELIVERY, 2)
 
         # ensure value does not change until delivered
-        self.assertEqual(task.delivered_value(), 100)
+        self.assertEqual(task._delivered_value(), 0)
 
-        task.history.delivery_end_t = 2
+        # task.history.delivery_end_t = 2
+        task.history.terminate(WorkflowStateName.DELIVERY, 2)
 
-        self.assertEqual(task.delivered_value(), 81)
+        self.assertEqual(task._delivered_value(), 81)
 
         # offset creation_time
 
         task = Task(task_id="", initial_value=100, complexity=1,
                     depreciation_rate=0.1, creation_time=5)
 
-        task.history.delivery_start_t = 5
-        task.history.delivery_end_t = 5
-        self.assertEqual(task.delivered_value(), 100)
+        task.history.terminate(WorkflowStateName.DELIVERY, 5)
 
-        task.history.delivery_end_t = 6
-        self.assertEqual(task.delivered_value(), 90)
+        self.assertEqual(task._delivered_value(), 100)
+
+        task = Task(task_id="", initial_value=100, complexity=1,
+                    depreciation_rate=0.1, creation_time=5)
+
+        task.history.terminate(WorkflowStateName.DELIVERY, 6)
+        self.assertEqual(task._delivered_value(), 90)
 
         # validation
         task = Task(task_id="", initial_value=100, complexity=1,
@@ -130,16 +135,14 @@ class TestTask(unittest.TestCase):
 
         # missing delivery_start_t
         with self.assertRaises(ValueError):
-            task.history.delivery_end_t = 5
-            task.delivered_value()
+            task.history.end(WorkflowStateName.DELIVERY, 5)
+            task._delivered_value()
 
-        # inverted start/creation times
-        with self.assertRaises(ValueError):
-            task.history.delivery_start_t = 4
-            task.delivered_value()
+        task = Task(task_id="", initial_value=100, complexity=1,
+                    depreciation_rate=0.1, creation_time=5)
 
         # inverted start/end times
         with self.assertRaises(ValueError):
-            task.history.delivery_start_t = 6
-            task.history.delivery_end_t = 5
-            task.delivered_value()
+            task.history.start(WorkflowStateName.DELIVERY, 6)
+            task.history.terminate(WorkflowStateName.DELIVERY, 5)
+            task._delivered_value()

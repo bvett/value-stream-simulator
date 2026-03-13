@@ -50,14 +50,18 @@ if __name__ == "__main__":
 
     # Run the simulation with a progress bar and collect the results
     results: list[SimulationResult] = []
-    with tqdm(total=len(models)) as pbar:
+
+    with tqdm(desc='Running Simulation', total=len(models)) as pbar:
         results.extend(Simulation().execute(tasks, models, pbar=pbar))
 
     # Showcase the results using different plots
-    viewer = ResultViewer(results)
+
+    with tqdm(desc='Processing Results', total=len(results), mininterval=1.0, miniters=0) as pbar:
+        viewer = ResultViewer(results, pbar=pbar)
+
     viewer.loss_vs_cadence(team_samples=5)
     viewer.time_alloc_vs_cadence()
-    viewer.delivery_timeline(cadence=0, team_size=3)
+    viewer.delivery_timeline(cadence=3, team_size=3)
     viewer.delivered_value_vs_time(
         cadence=1, team_samples=math.ceil(MAX_DEVELOPERS/4))
     viewer.delivered_value_vs_team_size(cadence_samples=5)
