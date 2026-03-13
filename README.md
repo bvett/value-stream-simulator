@@ -39,14 +39,14 @@ pip install -r requirements.txt
 pip install -e .
 ```
 ### Demo
-_examples/demo.py_ runs a sample simulation then presents the results as different plots
+[examples/demo.py](https://github.com/bvett/value-stream-simulator/blob/main/src/examples/demo.py) runs a sample simulation then presents the results as different plots
 
 ```shell
 python src/examples/demo.py
 ```
 
 ### Tutorial
-_src/examples/tutorial.ipynb_ presents a more detailed walkthrough as a Jupyter notebook.
+[src/examples/tutorial.ipynb](https://github.com/bvett/value-stream-simulator/blob/main/src/examples/tutorial.ipynb) presents a more detailed walkthrough as a Jupyter notebook.
 
 ## Project Status and Objectives
 This project provides a limited feature set that supports correlating delivery cadence and development team size/ability against value & loss.  Near-term objectives include:
