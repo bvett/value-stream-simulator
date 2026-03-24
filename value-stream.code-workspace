@@ -19,7 +19,8 @@
 		"python.testing.pytestArgs": [
 			"--cov=${workspaceFolder}/src",
 			"--cov-report=xml",
-			"${workspaceFolder}/tests"
+			"${workspaceFolder}/tests",
+			"-s"
 		],
 		"python.testing.pytestEnabled": true,
 		"editor.wordWrap": "off",
