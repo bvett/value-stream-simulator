@@ -137,10 +137,8 @@ class ResultViewer:
         df = df.loc[(df.index.get_level_values('model.deployment_cadence') == cadence)
                     & (df.index.get_level_values('model.team_size') == team_size)]
 
-        df = df[['event', 'event_duration', 'time']]\
-            .groupby(['task.task_id', 'event'])\
-            .mean()\
-            .unstack(-1)
+        df = df[['event', 'event_duration', 'time']].groupby(
+            ['task.task_id', 'event']).sum().unstack(-1)
 
         df = df.sort_values(
             by=[('time', WorkflowStateName.DEPLOYMENT),

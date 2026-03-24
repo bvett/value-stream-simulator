@@ -1,4 +1,4 @@
-from .developer import Developer
+from .resources import Developer
 
 
 class Model:

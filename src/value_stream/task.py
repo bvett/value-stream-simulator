@@ -1,3 +1,5 @@
+import copy
+from typing import Self
 from .task_history import TaskHistory
 
 
@@ -81,7 +83,7 @@ class Task:
 
         return None
 
-    # can this be agnostic of the workflow? How would it know what 'delivered' is without a special value?
+    # TODO: make agnostic of workflow states
     def _delivered_value(self) -> float:
         """Returns the depreciated value of the task at the time of delivery, or its initial value if undelivered.
         """
@@ -96,10 +98,19 @@ class Task:
 
         return (self._delivered_value() - initial_value) / initial_value
 
-    # TODO: Optimize to avoid repeat calculations
     def update_value_and_loss(self):
         self.delivered_value = self._delivered_value()
         self.loss = self._loss()
 
     def __str__(self) -> str:
         return self.task_id if self.task_id else ""
+
+    def reset(self) -> Self:
+        """Returns a clone of the task except history"""
+        result = copy.copy(self)
+        result.history = TaskHistory()
+
+        result.loss = 0.0
+        result.delivered_value = 0.0
+
+        return result

@@ -1,5 +1,5 @@
 import unittest
-from value_stream.developer import Developer
+from value_stream.resources import Developer
 from value_stream.model import Model
 
 # pylint:disable=missing-class-docstring,missing-function-docstring

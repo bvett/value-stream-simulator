@@ -2,27 +2,30 @@ import unittest
 from simpy import Environment, Store
 from value_stream.workflow_state_name import WorkflowStateName
 from value_stream.task import Task
-from value_stream.toolchain import Toolchain
+from value_stream.resources import Toolchain
+from value_stream.managers import ToolchainManager
 from value_stream.workflow_state import WorkflowState, TerminalWorkflowState
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
 
-class TestToolchain(unittest.TestCase):
+class TestToolchainScheduler(unittest.TestCase):
 
     def setUp(self):
         self.env = Environment()
-        self.source = Store(self.env)
+        self.source = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
         self.target = TerminalWorkflowState(
             self.env, WorkflowStateName.DELIVERY)
 
     def test_validation(self):
 
         with self.assertRaises(ValueError):
-            Toolchain(self.env, deployment_duration=-1, deployment_cadence=1)
+            ToolchainManager(
+                self.env, deployment_duration=-1, deployment_cadence=1)
 
         with self.assertRaises(ValueError):
-            Toolchain(self.env, deployment_duration=0, deployment_cadence=-1)
+            ToolchainManager(
+                self.env, deployment_duration=0, deployment_cadence=-1)
 
     def test_noop_deployment(self):
         tasks = []
@@ -30,8 +33,8 @@ class TestToolchain(unittest.TestCase):
         target = WorkflowState(self.env, WorkflowStateName.DEPLOYMENT)
 
         toolchain = Toolchain(
-            self.env, deployment_duration=0, deployment_cadence=1)
-        self.env.process(toolchain._do_deployment(tasks, target))
+            deployment_duration=0)
+        self.env.process(toolchain.operate(self.env, tasks, target))
 
         self.env.run()
 
@@ -48,10 +51,9 @@ class TestToolchain(unittest.TestCase):
             tasks.append(
                 Task(complexity=1, initial_value=1))
 
-        toolchain = Toolchain(self.env, deployment_duration=DEPLOYMENT_DURATION,
-                              deployment_cadence=1, concurrency=1)
+        toolchain = Toolchain(deployment_duration=DEPLOYMENT_DURATION)
 
-        self.env.process(toolchain._do_deployment(tasks, self.target))
+        self.env.process(toolchain.operate(self.env, tasks, self.target))
 
         self.env.run()
 
@@ -67,13 +69,19 @@ class TestToolchain(unittest.TestCase):
         NUM_TASKS = 5
         DEPLOYMENT_DURATION = 0.5
 
-        toolchain = Toolchain(self.env, deployment_duration=DEPLOYMENT_DURATION,
-                              deployment_cadence=1, concurrency=1)
+        toolchain = ToolchainManager(self.env, deployment_duration=DEPLOYMENT_DURATION,
+                                     deployment_cadence=1, concurrency=1)
 
         for _ in range(NUM_TASKS):
-            self.env.process(toolchain._do_deployment(
-                [Task(complexity=1, initial_value=1)], self.target))
+            yield self.source.put(Task(complexity=1, initial_value=1))
 
+        # for _ in range(NUM_TASKS):
+        #    self.env.process(toolchain._do_deployment(
+        #        [Task(complexity=1, initial_value=1)], self.target))
+
+        self.env.run()
+
+        toolchain.start(self.source, self.target)
         self.env.run()
 
         self.assertEqual(len(self.target.items), NUM_TASKS)
@@ -81,7 +89,7 @@ class TestToolchain(unittest.TestCase):
         self.assertEqual(self.env.now, NUM_TASKS * DEPLOYMENT_DURATION)
 
     def create_tasks(self, count: int, store: Store):
-        for i in range(count):
+        for _ in range(count):
             yield store.put(Task(complexity=1, initial_value=1))
 
     def run_scenario(self, num_tasks: int,
@@ -93,10 +101,10 @@ class TestToolchain(unittest.TestCase):
 
         self.env.run()
 
-        toolchain = Toolchain(
+        toolchain = ToolchainManager(
             self.env, deployment_duration, cadence, concurrency)
 
-        self.env.process(toolchain.start(self.source, self.target))
+        toolchain.start(self.source, self.target)
 
         self.assertEqual(len(self.source.items), num_tasks)
 

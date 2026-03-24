@@ -1,17 +1,15 @@
-import copy
 import logging
 from typing import Iterable
 
 from simpy import Environment, Event
 from tqdm import tqdm
 
-from .workflow_state_name import WorkflowStateName
-from .simulation_result import SimulationResult
-from .developer import DeveloperTeam
+from .managers import DeveloperManager, ToolchainManager
 from .model import Model
+from .simulation_result import SimulationResult
 from .task import Task
-from .toolchain import Toolchain
 from .workflow_state import WorkflowState, TerminalWorkflowState
+from .workflow_state_name import WorkflowStateName
 
 logger = logging.getLogger(__name__)
 
@@ -47,20 +45,19 @@ class Simulation:
 
             env = Environment()
 
-            developer_team = DeveloperTeam(
+            developer_manager = DeveloperManager(
                 env, model.developer_team)
 
-            toolchain = Toolchain(
-                env, concurrency=model.toolchain_concurrency,
-                deployment_duration=model.deployment_duration,
-                deployment_cadence=model.deployment_cadence)
+            toolchain_manager = ToolchainManager(env, deployment_duration=model.deployment_duration,
+                                                 deployment_cadence=model.deployment_cadence,
+                                                 concurrency=model.toolchain_concurrency)
 
             workflow = self.Workflow(env)
 
             env.process(workflow.start(
                 tasks=tasks,
-                developer_team=developer_team,
-                toolchain=toolchain))
+                developer_manager=developer_manager,
+                toolchain_manager=toolchain_manager))
 
             delivered_tasks: list[Task] = env.run(
                 workflow.is_complete())  # type: ignore
@@ -94,15 +91,14 @@ class Simulation:
             self._completion_semaphore = env.event()
 
         def start(self, tasks: list[Task],
-                  developer_team: DeveloperTeam,
-                  toolchain: Toolchain):
+                  developer_manager: DeveloperManager,
+                  toolchain_manager: ToolchainManager):
             """Signals workflow completion when all tasks specified at
             initialization are in the delivered queue"""
 
-            # ready_for_development
             pending = WorkflowState(self.env, WorkflowStateName.PENDING)
             for task in tasks:
-                pending.put(copy.deepcopy(task))
+                pending.put(task.reset())
 
             delivery_target = len(pending.items)
 
@@ -111,13 +107,13 @@ class Simulation:
             delivered = TerminalWorkflowState(
                 self.env, WorkflowStateName.DELIVERY)
 
-            self.env.process(developer_team.start(
+            developer_manager.start(
                 source=pending,
-                target=developed))
+                target=developed)
 
-            self.env.process(toolchain.start(
+            toolchain_manager.start(
                 source=developed,
-                target=delivered))
+                target=delivered)
 
             while True:
                 yield self.env.timeout(1)

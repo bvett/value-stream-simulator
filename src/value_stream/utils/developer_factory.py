@@ -1,6 +1,6 @@
 from typing import Literal
 import numpy as np
-from ..developer import Developer
+from ..resources import Developer
 
 
 class DeveloperFactory:

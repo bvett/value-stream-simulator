@@ -1,8 +1,7 @@
-import copy
 import unittest
 from simpy import Environment
 from value_stream.workflow_state_name import WorkflowStateName
-from value_stream.developer import Developer
+from value_stream.resources import Developer
 from value_stream.task import Task
 from value_stream.workflow_state import WorkflowState
 
@@ -33,8 +32,8 @@ class TestDeveloper(unittest.TestCase):
         target = WorkflowState(env, WorkflowStateName.DEVELOPMENT)
 
         for dev in [junior_developer, senior_developer]:
-            for task in [copy.deepcopy(self.simple_task), copy.deepcopy(self.complex_task)]:
-                env.process(dev.develop(env, task, target))
+            for task in [self.simple_task.reset(), self.complex_task.reset()]:
+                env.process(dev.operate(env, [task], target))
 
         env.run()
 
