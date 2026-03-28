@@ -131,7 +131,7 @@ class ResultViewer:
 
         df = self.df_workflow_stages
 
-        labels = ['waiting for dev', 'development',
+        labels = ['waiting for dev', 'development', 'waiting for qa', 'qa',
                   'waiting for delivery', 'delivery']
 
         df = df.loc[(df.index.get_level_values('model.deployment_cadence') == cadence)
@@ -149,11 +149,11 @@ class ResultViewer:
         df = df[['event_duration']]
         df.columns = df.columns.get_level_values(1)  # type: ignore
 
-        category_colors = ['lightgrey', 'orange', 'khaki', 'green']
+        # category_colors = ['lightgrey', 'orange', 'khaki', 'green']
 
-        ax = df[[WorkflowStateName.PENDING, WorkflowStateName.DEVELOPMENT,
-                 WorkflowStateName.DEV_COMPLETE, WorkflowStateName.DEPLOYMENT]].plot(
-            kind='barh', stacked=True, title='Delivery Timeline', color=category_colors)
+        ax = df[[WorkflowStateName.PENDING, WorkflowStateName.DEVELOPMENT,  WorkflowStateName.DEV_COMPLETE,
+                 WorkflowStateName.QA_TESTING, WorkflowStateName.QA_COMPLETE, WorkflowStateName.DEPLOYMENT]].plot(
+            kind='barh', stacked=True, title='Delivery Timeline')
         ax.yaxis.set_ticks([])
         ax.yaxis.set_visible(True)
         ax.set_ylabel("Task")

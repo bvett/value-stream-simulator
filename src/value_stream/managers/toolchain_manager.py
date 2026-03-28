@@ -13,7 +13,7 @@ class ToolchainManager(Manager):
 
     """
 
-    def __init__(self, env: Environment, deployment_duration: float, deployment_cadence: int, concurrency: int = 1):
+    def __init__(self, env: Environment, deployment_duration: float, deployment_cadence: int, concurrency: int):
         super().__init__(env, deployment_cadence)
 
         if deployment_duration < 0:

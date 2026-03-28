@@ -27,7 +27,7 @@ class TestResultViewer(unittest.TestCase):
         self.num_teams = len(developer_teams)
 
         models = ModelFactory(2, .25).create(
-            developer_teams, range(self.max_cadence, -1, -1))
+            developer_teams, range(self.max_cadence, -1, -1), 5)
 
         tasks = TaskFactory('equal', 1.0).create(self.num_tasks)
 

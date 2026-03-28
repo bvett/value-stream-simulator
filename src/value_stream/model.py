@@ -7,7 +7,8 @@ class Model:
     def __init__(self, developer_team: list[Developer],
                  toolchain_concurrency: int,
                  deployment_duration: float,
-                 deployment_cadence: int) -> None:
+                 deployment_cadence: int,
+                 num_qa_resources: int) -> None:
         """Describes how a simulation executes
 
         Args:
@@ -26,9 +27,13 @@ class Model:
         if deployment_cadence < 0:
             raise ValueError("deployment_cadence must be >=0")
 
+        if num_qa_resources <= 0:
+            raise ValueError("num_qa_resources must by >0")
+
         self.toolchain_concurrency = toolchain_concurrency
         self.deployment_duration = deployment_duration
         self.deployment_cadence = deployment_cadence
+        self.num_qa_resources = num_qa_resources
 
         self.developer_team = developer_team
         self.team_size = len(self.developer_team)

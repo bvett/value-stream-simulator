@@ -13,13 +13,16 @@ class TestModel(unittest.TestCase):
     def test_validation(self):
 
         _ = Model(developer_team=self.developer_team,
-                  toolchain_concurrency=0, deployment_duration=0, deployment_cadence=0)
+                  toolchain_concurrency=0, deployment_duration=0, deployment_cadence=0, num_qa_resources=5)
 
         with self.assertRaises(ValueError):
-            Model(self.developer_team, -1, 0, 0)
+            Model(self.developer_team, -1, 0, 0, 1)
 
         with self.assertRaises(ValueError):
-            Model(self.developer_team, 0, -1, 0)
+            Model(self.developer_team, 0, -1, 0, 1)
 
         with self.assertRaises(ValueError):
-            Model(self.developer_team, 0, 0, -1)
+            Model(self.developer_team, 0, 0, -1, 1)
+
+        with self.assertRaises(ValueError):
+            Model(self.developer_team, 0, 0, 0, 0)

@@ -4,7 +4,7 @@ from typing import Iterable
 from simpy import Environment, Event
 from tqdm import tqdm
 
-from .managers import DeveloperManager, ToolchainManager
+from .managers import DeveloperManager, QAManager, ToolchainManager
 from .model import Model
 from .simulation_result import SimulationResult
 from .task import Task
@@ -48,6 +48,8 @@ class Simulation:
             developer_manager = DeveloperManager(
                 env, model.developer_team)
 
+            qa_manager = QAManager(env, concurrency=model.num_qa_resources)
+
             toolchain_manager = ToolchainManager(env, deployment_duration=model.deployment_duration,
                                                  deployment_cadence=model.deployment_cadence,
                                                  concurrency=model.toolchain_concurrency)
@@ -57,6 +59,7 @@ class Simulation:
             env.process(workflow.start(
                 tasks=tasks,
                 developer_manager=developer_manager,
+                qa_manager=qa_manager,
                 toolchain_manager=toolchain_manager))
 
             delivered_tasks: list[Task] = env.run(
@@ -92,6 +95,7 @@ class Simulation:
 
         def start(self, tasks: list[Task],
                   developer_manager: DeveloperManager,
+                  qa_manager: QAManager,
                   toolchain_manager: ToolchainManager):
             """Signals workflow completion when all tasks specified at
             initialization are in the delivered queue"""
@@ -104,6 +108,9 @@ class Simulation:
 
             developed = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
 
+            qa_complete = WorkflowState(
+                self.env, WorkflowStateName.QA_COMPLETE)
+
             delivered = TerminalWorkflowState(
                 self.env, WorkflowStateName.DELIVERY)
 
@@ -111,8 +118,13 @@ class Simulation:
                 source=pending,
                 target=developed)
 
-            toolchain_manager.start(
+            qa_manager.start(
                 source=developed,
+                target=qa_complete
+            )
+
+            toolchain_manager.start(
+                source=qa_complete,
                 target=delivered)
 
             while True:

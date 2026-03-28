@@ -26,6 +26,8 @@ if __name__ == "__main__":
     # Simulations will have development team sizes between 1 and MAX_DEVELOPERS
     MAX_DEVELOPERS = 25
 
+    NUM_QA_RESOURCES = 5
+
     # Simulate deployment schedules from every MAX_CADENCE units of time to 0 (continuous)
     MAX_CADENCE = 10
 
@@ -46,7 +48,8 @@ if __name__ == "__main__":
     # Model includes the developer_teams and range of cadences
     models = ModelFactory(toolchain_concurrency=TOOLCHAIN_CONCURRENCY,
                           deployment_duration=DEPLOYMENT_DURATION).create(
-                              developer_teams, range(MAX_CADENCE, -1, -1))
+                              developer_teams, range(MAX_CADENCE, -1, -1),
+                              num_qa_resources=NUM_QA_RESOURCES)
 
     # Run the simulation with a progress bar and collect the results
     results: list[SimulationResult] = []

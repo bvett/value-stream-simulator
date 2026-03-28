@@ -18,7 +18,7 @@ class ModelFactory:
         self.deployment_duration = deployment_duration
 
     def create(self, developer_teams: list[list[Developer]],
-               deployment_cadences: range) -> list[Model]:
+               deployment_cadences: range, num_qa_resources: int) -> list[Model]:
         """Creates Model objects 
 
         Args:
@@ -38,5 +38,6 @@ class ModelFactory:
                 result.append(Model(developer_team=team,
                                     toolchain_concurrency=self.toolchain_concurrency,
                                     deployment_duration=self.deployment_duration,
-                                    deployment_cadence=cadence))
+                                    deployment_cadence=cadence,
+                                    num_qa_resources=num_qa_resources))
         return result

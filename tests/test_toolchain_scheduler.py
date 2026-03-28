@@ -21,11 +21,11 @@ class TestToolchainScheduler(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             ToolchainManager(
-                self.env, deployment_duration=-1, deployment_cadence=1)
+                self.env, deployment_duration=-1, deployment_cadence=1, concurrency=10)
 
         with self.assertRaises(ValueError):
             ToolchainManager(
-                self.env, deployment_duration=0, deployment_cadence=-1)
+                self.env, deployment_duration=0, deployment_cadence=-1, concurrency=5)
 
     def test_noop_deployment(self):
         tasks = []

@@ -23,7 +23,7 @@ class TestModelFactory(unittest.TestCase):
             team_size) for team_size in range(1, NUM_TEAMS+1)]
 
         models = factory.create(developer_teams=teams,
-                                deployment_cadences=cadences)
+                                deployment_cadences=cadences, num_qa_resources=5)
 
         self.assertEqual(len(models), NUM_TEAMS * NUM_CADENCES)
         for _, model in enumerate(models):
