@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from .managers import DeveloperManager, QAManager, ToolchainManager
 from .model import Model
+from .resources import QATester
 from .simulation_result import SimulationResult
 from .task import Task
 from .workflow_state import WorkflowState, TerminalWorkflowState
@@ -48,7 +49,8 @@ class Simulation:
             developer_manager = DeveloperManager(
                 env, model.developer_team)
 
-            qa_manager = QAManager(env, concurrency=model.num_qa_resources)
+            qa_manager = QAManager(env, QATester.create(
+                limit=model.num_qa_resources))
 
             toolchain_manager = ToolchainManager(env, deployment_duration=model.deployment_duration,
                                                  deployment_cadence=model.deployment_cadence,

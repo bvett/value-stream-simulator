@@ -1,21 +1,25 @@
+from typing import Any, Generator
 from simpy import Environment, Store
 from .manager import Manager
-from ..resources import QATester, Resource
+from ..resources import Resource
 
 
 class QAManager(Manager):
-    def __init__(self, env: Environment, concurrency):
+    def __init__(self, env: Environment, resources: Generator[Resource, Any, None]):
         super().__init__(env, cadence=0)
 
-        self.concurrency = concurrency
-
-        self.qa_operators = Store(self.env, concurrency)
-
-        for _ in range(concurrency):
-            self.qa_operators.put(QATester())
+        self.resource_pool = Store(self.env)
+        self.resource_generator = resources
 
     def request(self):
-        return self.qa_operators.get()
+        if len(self.resource_pool.items) == 0:
+
+            new_item = next(self.resource_generator, None)
+
+            if new_item is not None:
+                self.resource_pool.put(new_item)
+
+        return self.resource_pool.get()
 
     def release(self, operator: Resource):
-        return self.qa_operators.put(operator)
+        return self.resource_pool.put(operator)

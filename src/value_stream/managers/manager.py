@@ -65,7 +65,7 @@ class Manager:
             task.history.end(self.env.now)
 
         yield self.env.process(resource.operate(self.env, tasks, target))
-        yield self.release(resource)
+        self.release(resource)
 
     def request(self):
         raise NotImplementedError()
