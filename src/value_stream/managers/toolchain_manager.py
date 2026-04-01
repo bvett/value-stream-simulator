@@ -1,6 +1,7 @@
+from typing import Any, Generator
 from simpy import Environment, Store
 
-from ..resources import Resource, Toolchain
+from ..resources import Resource
 from .manager import Manager
 
 
@@ -13,25 +14,21 @@ class ToolchainManager(Manager):
 
     """
 
-    def __init__(self, env: Environment, deployment_duration: float, deployment_cadence: int, concurrency: int):
+    def __init__(self, env: Environment, resources: Generator[Resource, Any, None], deployment_cadence: int):
         super().__init__(env, deployment_cadence)
 
-        if deployment_duration < 0:
-            raise ValueError("deployment_duration must be >= 0")
-
-        self.deployment_duration = deployment_duration
-
-        if deployment_cadence < 0:
-            raise ValueError("deployment_cadence must be >= 0")
-
-        self.toolchain_opreators = Store(self.env, concurrency)
-
-        for _ in range(concurrency):
-            self.toolchain_opreators.put(
-                Toolchain(self.deployment_duration))
+        self.resource_pool = Store(self.env)
+        self.resource_generator = resources
 
     def request(self):
-        return self.toolchain_opreators.get()
+
+        if len(self.resource_pool.items) == 0:
+            new_item = next(self.resource_generator, None)
+
+            if new_item is not None:
+                self.resource_pool.put(new_item)
+
+        return self.resource_pool.get()
 
     def release(self, operator: Resource):
-        return self.toolchain_opreators.put(operator)
+        return self.resource_pool.put(operator)

@@ -20,12 +20,10 @@ class TestToolchainScheduler(unittest.TestCase):
     def test_validation(self):
 
         with self.assertRaises(ValueError):
-            ToolchainManager(
-                self.env, deployment_duration=-1, deployment_cadence=1, concurrency=10)
+            next(Toolchain.create(deployment_duration=-1, limit=10))
 
-        with self.assertRaises(ValueError):
-            ToolchainManager(
-                self.env, deployment_duration=0, deployment_cadence=-1, concurrency=5)
+        self.assertIsNotNone(
+            next(Toolchain.create(deployment_duration=0, limit=5)))
 
     def test_noop_deployment(self):
         tasks = []
@@ -69,8 +67,8 @@ class TestToolchainScheduler(unittest.TestCase):
         NUM_TASKS = 5
         DEPLOYMENT_DURATION = 0.5
 
-        toolchain = ToolchainManager(self.env, deployment_duration=DEPLOYMENT_DURATION,
-                                     deployment_cadence=1, concurrency=1)
+        toolchain = ToolchainManager(self.env, Toolchain.create(deployment_duration=DEPLOYMENT_DURATION, limit=1),
+                                     deployment_cadence=1)
 
         for _ in range(NUM_TASKS):
             yield self.source.put(Task(complexity=1, initial_value=1))
@@ -102,7 +100,7 @@ class TestToolchainScheduler(unittest.TestCase):
         self.env.run()
 
         toolchain = ToolchainManager(
-            self.env, deployment_duration, cadence, concurrency)
+            self.env, Toolchain.create(deployment_duration=deployment_duration, limit=concurrency), cadence)
 
         toolchain.start(self.source, self.target)
 

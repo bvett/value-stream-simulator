@@ -12,6 +12,10 @@ class Manager:
     def __init__(self, env: Environment, cadence: int = 0):
         self.env = env
         self._queue: list[Task] = []
+
+        if cadence < 0:
+            raise ValueError("cadence must be >= 0")
+
         self.cadence = cadence
         self.trigger = env.event()
 
