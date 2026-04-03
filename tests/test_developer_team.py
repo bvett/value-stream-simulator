@@ -15,8 +15,8 @@ class TestDeveloperTeam(unittest.TestCase):
         self.source = WorkflowState(self.env, WorkflowStateName.PENDING)
         self.target = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
 
-    def create_tasks(self, count: int, store: Store):
-        for i in range(count):
+    def create_tasks(self, limit: int, store: Store):
+        for i in range(limit):
             yield store.put(Task(task_id=f"Task {i}", complexity=1, initial_value=1))
 
     def create_developers(self, count: int):

@@ -86,8 +86,8 @@ class TestToolchainScheduler(unittest.TestCase):
 
         self.assertEqual(self.env.now, NUM_TASKS * DEPLOYMENT_DURATION)
 
-    def create_tasks(self, count: int, store: Store):
-        for _ in range(count):
+    def create_tasks(self, limit: int, store: Store):
+        for _ in range(limit):
             yield store.put(Task(complexity=1, initial_value=1))
 
     def run_scenario(self, num_tasks: int,
