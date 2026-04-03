@@ -9,7 +9,7 @@ from value_stream.workflow_state import WorkflowState, TerminalWorkflowState
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
 
-class TestToolchainScheduler(unittest.TestCase):
+class TestToolchainManager(unittest.TestCase):
 
     def setUp(self):
         self.env = Environment()
