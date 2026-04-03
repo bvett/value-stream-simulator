@@ -1,15 +1,15 @@
-from typing import Any, Generator
+from typing import Iterable
 from simpy import Environment, Store
 from .manager import Manager
 from ..resources import Resource
 
 
 class QAManager(Manager):
-    def __init__(self, env: Environment, resources: Generator[Resource, Any, None]):
+    def __init__(self, env: Environment, resources: Iterable[Resource]):
         super().__init__(env, cadence=0)
 
         self.resource_pool = Store(self.env)
-        self.resource_generator = resources
+        self.resource_generator = iter(resources)
 
     def request(self):
         if len(self.resource_pool.items) == 0:
