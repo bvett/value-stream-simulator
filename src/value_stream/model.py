@@ -1,10 +1,11 @@
+from typing import Any, Collection, Tuple
 from .resources import Developer
 
 
 class Model:
     """Set of attributes for controlling a simulation"""
 
-    def __init__(self, developer_team: list[Developer],
+    def __init__(self, developer_team: Collection[Developer],
                  toolchain_concurrency: int,
                  deployment_duration: float,
                  deployment_cadence: int,
@@ -36,4 +37,4 @@ class Model:
         self.num_qa_resources = num_qa_resources
 
         self.developer_team = developer_team
-        self.team_size = len(self.developer_team)
+        self.team_size = len(developer_team)

@@ -42,14 +42,14 @@ if __name__ == "__main__":
 
     # Create development teams with developers having efficiencies between 0.5 and 1.5
     developer_factory = DeveloperFactory('sd', (.5, 1.5))
-    developer_teams = [developer_factory.create(
-        team_size) for team_size in range(1, MAX_DEVELOPERS+1)]
 
     # Model includes the developer_teams and range of cadences
     models = ModelFactory(toolchain_concurrency=TOOLCHAIN_CONCURRENCY,
-                          deployment_duration=DEPLOYMENT_DURATION).create(
-                              developer_teams, range(MAX_CADENCE, -1, -1),
-                              num_qa_resources=NUM_QA_RESOURCES)
+                          deployment_duration=DEPLOYMENT_DURATION,
+                          developer_factory=developer_factory).create(
+        teams=range(1, MAX_DEVELOPERS+1),
+        deployment_cadences=range(MAX_CADENCE, -1, -1),
+        num_qa_resources=NUM_QA_RESOURCES)
 
     # Run the simulation with a progress bar and collect the results
     results: list[SimulationResult] = []

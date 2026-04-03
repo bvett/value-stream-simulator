@@ -16,9 +16,13 @@ class TestSimulation(unittest.TestCase):
 
         simulation = Simulation()
 
-        developer_team = DeveloperFactory('equal', 1.0).create(NUM_DEVELOPERS)
-        models = ModelFactory(2, .25).create(
-            [developer_team], range(MAX_CADENCE, -1, -1), 1)
+        models = ModelFactory(toolchain_concurrency=2,
+                              deployment_duration=.25,
+                              developer_factory=DeveloperFactory('equal', 1.0)).create(
+                                  teams=[NUM_DEVELOPERS],
+                                  deployment_cadences=range(
+                                      MAX_CADENCE, -1, -1),
+                                  num_qa_resources=1)
 
         tasks = TaskFactory('equal', 1.0).create(NUM_TASKS)
 

@@ -26,8 +26,12 @@ class TestResultViewer(unittest.TestCase):
 
         self.num_teams = len(developer_teams)
 
-        models = ModelFactory(2, .25).create(
-            developer_teams, range(self.max_cadence, -1, -1), 5)
+        models = ModelFactory(toolchain_concurrency=2,
+                              deployment_duration=.25,
+                              developer_factory=developer_factory).create(
+            teams=range(1, self.team_size+1),
+            deployment_cadences=range(self.max_cadence, -1, -1),
+            num_qa_resources=5)
 
         tasks = TaskFactory('equal', 1.0).create(self.num_tasks)
 

@@ -45,12 +45,12 @@ class DeveloperFactory:
         if count <= 0:
             raise ValueError("count must be > 0")
 
-        developers = []
+        developers: list[Developer] = []
 
         efficiencies = self.efficiencies(count)
         for i in range(count):
-            developers.append(
-                Developer(name=self._developer_name(i), efficiency=efficiencies[i]))
+            developers.append(Developer(name=self._developer_name(i),
+                                        efficiency=efficiencies[i]))
 
         return developers
 
