@@ -1,4 +1,3 @@
-import sys
 from ..resources import Resource
 from ..task import Task
 from ..workflow_state_name import WorkflowStateName
@@ -19,7 +18,12 @@ class Toolchain(Resource):
         return self.deployment_duration
 
     @classmethod
-    def create(cls, deployment_duration: float, limit: int = sys.maxsize):
+    def create(cls, deployment_duration: float, limit: int | None = None):
+
+        if limit is None:
+            while True:
+                yield Toolchain(deployment_duration=deployment_duration)
+
         if limit <= 0:
             raise ValueError("limit must be >0")
 
