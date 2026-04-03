@@ -24,12 +24,12 @@ class ModelFactory:
         self.developer_factory = developer_factory
 
     def create(self, teams: Iterable[int | Collection[Developer]],
-               deployment_cadences: range, num_qa_resources: int) -> list[Model]:
+               deployment_cadences: Iterable, num_qa_resources: int) -> list[Model]:
         """Creates Model objects
 
         Args:
             developer_teams (list[list[Developer]]): Separate collections of Developer objects
-            deployment_cadences (range): List or range of deployment cadences
+            deployment_cadences (Iterable): List or range of deployment cadences
 
         Returns:
             list[Model]: One model is returned for each combination
