@@ -8,7 +8,7 @@ from value_stream import WorkflowState, WorkflowStateName
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
 
-class TestDeveloperTeam(unittest.TestCase):
+class TestDeveloperManager(unittest.TestCase):
 
     def setUp(self):
         self.env = Environment()
@@ -22,7 +22,7 @@ class TestDeveloperTeam(unittest.TestCase):
     def create_developers(self, count: int):
         return [Developer(1) for _ in range(count)]
 
-    def test_developer_scheduler(self):
+    def test_developer_manager(self):
         self.env.process(self.create_tasks(5, self.source))
 
         self.env.run()
