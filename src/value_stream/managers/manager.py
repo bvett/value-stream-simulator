@@ -131,7 +131,14 @@ class Manager:
         self.release(resource)
 
     def request(self):
-        raise NotImplementedError()
+        if len(self.resource_pool.items) == 0:
+
+            new_item = next(self.resource_generator, None)
+
+            if new_item is not None:
+                self.resource_pool.put(new_item)
+
+        return self.resource_pool.get()
 
     def release(self, operator: Resource):
-        raise NotImplementedError()
+        return self.resource_pool.put(operator)
