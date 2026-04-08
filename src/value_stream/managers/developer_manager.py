@@ -1,4 +1,4 @@
-from typing import Collection
+from typing import Iterable
 from simpy import Environment, Store
 
 from ..resources import Resource
@@ -8,7 +8,7 @@ from .manager import Manager
 class DeveloperManager(Manager):
     """Manages a pool of developers"""
 
-    def __init__(self, env: Environment, resources: Collection[Resource]):
+    def __init__(self, env: Environment, resources: Iterable[Resource]):
         super().__init__(env, cadence=0)
 
         self.resource_pool = Store(self.env)
