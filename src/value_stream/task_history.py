@@ -5,8 +5,14 @@ from .workflow_state_name import WorkflowStateName
 class TaskHistory():
     """Tracks task progress through a simulated workflow"""
 
-    def __init__(self) -> None:
+    def __init__(self, baseline_time: float = 0) -> None:
+        """Creates new object for tracking task history
+
+        Args:
+            baseline_time (float, optional): event timestamps will be relative to this value. Defaults to 0.
+        """
         self.events: list[TaskEvent] = []
+        self.baseline_t = baseline_time
 
     def last_event(self):
         """Returns most recent event, or None if no events exist"""
@@ -17,6 +23,9 @@ class TaskHistory():
 
         Events must be empty, no events in progress, or not terminated
         """
+
+        time -= self.baseline_t
+
         last_event = self.last_event()
 
         if last_event is not None:
@@ -36,6 +45,8 @@ class TaskHistory():
 
     def end(self, time: float, event: WorkflowStateName | None = None):
         """Ends a started event"""
+
+        time -= self.baseline_t
 
         last_event = self.last_event()
 
@@ -79,6 +90,8 @@ class TaskHistory():
         """Adds a terminal event to the history.
 
         A terminal event prevents additional events from being started"""
+
+        time -= self.baseline_t
 
         last_event = self.last_event()
 

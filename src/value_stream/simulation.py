@@ -42,9 +42,10 @@ class Simulation:
 
         simulation_results: list[SimulationResult] = []
 
-        for model in models:
+        env = Environment()
+        workflow = self.Workflow(env)
 
-            env = Environment()
+        for model in models:
 
             developer_manager = DeveloperManager(
                 env, model.developer_team)
@@ -54,17 +55,16 @@ class Simulation:
 
             toolchain_manager = ToolchainManager(env, Toolchain.create(model.deployment_duration, limit=model.toolchain_concurrency),
                                                  deployment_cadence=model.deployment_cadence)
-
-            workflow = self.Workflow(env)
-
+            signal = env.event()
             env.process(workflow.start(
                 tasks=tasks,
                 developer_manager=developer_manager,
                 qa_manager=qa_manager,
-                toolchain_manager=toolchain_manager))
+                toolchain_manager=toolchain_manager,
+                signal=signal))
 
             delivered_tasks: list[Task] = env.run(
-                workflow.is_complete())  # type: ignore
+                until=signal)  # type:ignore
 
             for task in delivered_tasks:
                 simulation_results.append(SimulationResult(
@@ -91,49 +91,56 @@ class Simulation:
 
             self.env = env
 
-            # Signal for when workflow is complete
-            self._completion_semaphore = env.event()
+            self.pending = WorkflowState(self.env, WorkflowStateName.PENDING)
+
+            self.developed = WorkflowState(
+                self.env, WorkflowStateName.DEV_COMPLETE)
+
+            self.qa_complete = WorkflowState(
+                self.env, WorkflowStateName.QA_COMPLETE)
+
+            self.delivered = TerminalWorkflowState(
+                self.env, WorkflowStateName.DELIVERY)
 
         def start(self, tasks: list[Task],
                   developer_manager: DeveloperManager,
                   qa_manager: QAManager,
-                  toolchain_manager: ToolchainManager):
+                  toolchain_manager: ToolchainManager,
+                  signal: Event):
             """Signals workflow completion when all tasks specified at
             initialization are in the delivered queue"""
 
-            pending = WorkflowState(self.env, WorkflowStateName.PENDING)
+            idx = len(self.delivered.items)
+
             for task in tasks:
-                pending.put(task.reset())
+                yield self.pending.put(task.reset(self.env.now))
 
-            delivery_target = len(pending.items)
-
-            developed = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
-
-            qa_complete = WorkflowState(
-                self.env, WorkflowStateName.QA_COMPLETE)
-
-            delivered = TerminalWorkflowState(
-                self.env, WorkflowStateName.DELIVERY)
+            delivery_target = len(self.pending.items)
 
             developer_manager.start(
-                source=pending,
-                target=developed)
+                source=self.pending,
+                target=self.developed)
 
             qa_manager.start(
-                source=developed,
-                target=qa_complete
-            )
+                source=self.developed,
+                target=self.qa_complete)
 
             toolchain_manager.start(
-                source=qa_complete,
-                target=delivered)
+                source=self.qa_complete,
+                target=self.delivered)
 
             while True:
+
+                if len(self.delivered.items[idx:]) == delivery_target:
+                    if len(self.pending.items) > 0:
+                        raise RuntimeError("Pending should be empty")
+
+                    developer_manager.stop()
+                    qa_manager.stop()
+                    toolchain_manager.stop()
+
+                    yield signal.succeed(self.delivered.items[idx:])
+
+                    break
+
                 yield self.env.timeout(1)
-
-                if len(delivered.items) == delivery_target:
-                    self._completion_semaphore.succeed(delivered.items)
-
-        def is_complete(self) -> Event:
-            """Returns the event used to signal completion"""
-            return self._completion_semaphore

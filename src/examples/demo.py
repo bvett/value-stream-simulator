@@ -1,8 +1,8 @@
 # demo.py: quick demonstration that runs a simulation and plots results in a variety of formats
 # A more thorough walkthrough is available in the tutorial.ipynb notebook
+import math
 
 import logging
-import math
 
 from tqdm import tqdm
 

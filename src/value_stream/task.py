@@ -105,12 +105,14 @@ class Task:
     def __str__(self) -> str:
         return self.task_id if self.task_id else ""
 
-    def reset(self) -> Self:
+    def reset(self, baseline_time: float = 0) -> Self:
         """Returns a clone of the task except history"""
         result = copy.copy(self)
-        result.history = TaskHistory()
 
         result.loss = 0.0
         result.delivered_value = 0.0
+        result.creation_t = 0
+
+        result.history = TaskHistory(baseline_time=baseline_time)
 
         return result
