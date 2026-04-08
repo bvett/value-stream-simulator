@@ -15,10 +15,7 @@ class ToolchainManager(Manager):
     """
 
     def __init__(self, env: Environment, resources: Iterable[Resource], deployment_cadence: int):
-        super().__init__(env, deployment_cadence)
-
-        self.resource_pool = Store(self.env)
-        self.resource_generator = iter(resources)
+        super().__init__(env, resources, cadence=deployment_cadence)
 
     def request(self):
 

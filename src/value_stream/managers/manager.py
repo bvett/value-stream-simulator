@@ -1,4 +1,6 @@
-from simpy import Environment, Interrupt
+from typing import Iterable
+
+from simpy import Environment, Interrupt, Store
 
 from ..resources import Resource
 from ..task import Task
@@ -9,9 +11,12 @@ class Manager:
     """Handles the allocation of Resource objects that operate on 
     Tasks during a simulation"""
 
-    def __init__(self, env: Environment, cadence: int = 0):
+    def __init__(self, env: Environment, resources: Iterable[Resource], cadence: int = 0):
         self.env = env
         self._queue: list[Task] = []
+
+        self.resource_pool = Store(self.env)
+        self.resource_generator = iter(resources)
 
         if cadence < 0:
             raise ValueError("cadence must be >= 0")
