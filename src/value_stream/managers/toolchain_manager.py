@@ -1,5 +1,5 @@
 from typing import Iterable
-from simpy import Environment, Store
+from simpy import Environment
 
 from ..resources import Resource
 from .manager import Manager
