@@ -7,7 +7,7 @@ import logging
 from tqdm import tqdm
 
 from value_stream import Simulation, SimulationResult
-from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, TaskFactory
+from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, TaskFactory, generator_utils
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,8 @@ if __name__ == "__main__":
     DEPLOYMENT_DURATION = .25
 
     # Create tasks with complexities between 0.5 and 2.0
-    tasks = TaskFactory('sd', (.5, 2)).create(NUM_TASKS)
+    tasks = TaskFactory(
+        complexity=generator_utils.uniform(.5, 2)).create(NUM_TASKS)
 
     # Create development teams with developers having efficiencies between 0.5 and 1.5
     developer_factory = DeveloperFactory('sd', (.5, 1.5))

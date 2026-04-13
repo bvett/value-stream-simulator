@@ -33,7 +33,7 @@ class TestResultViewer(unittest.TestCase):
             deployment_cadences=range(self.max_cadence, -1, -1),
             num_qa_resources=5)
 
-        tasks = TaskFactory('equal', 1.0).create(self.num_tasks)
+        tasks = TaskFactory(complexity=1.0).create(self.num_tasks)
 
         self.model_results = simulation.execute(
             tasks=tasks, models=models)
