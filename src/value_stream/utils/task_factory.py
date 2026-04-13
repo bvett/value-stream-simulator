@@ -1,4 +1,4 @@
-from typing import Literal, Generator, Any
+from typing import Generator, Any
 import numpy as np
 from ..task import Task
 
