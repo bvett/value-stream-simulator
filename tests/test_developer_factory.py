@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 from value_stream.utils.developer_factory import DeveloperFactory
+from value_stream.utils import generator_utils
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
@@ -10,26 +11,9 @@ class TestDeveloperFactory(unittest.TestCase):
     def setUp(self):
         np.random.seed(1)
 
-    def test_validation(self):
-
-        with self.assertRaises(ValueError):
-            DeveloperFactory('_invalid_argument', efficiency=1)  # type: ignore
-
-        with self.assertRaises(ValueError):
-            factory = DeveloperFactory('equal', efficiency=(1, 2))
-            factory.create(1)
-
-        with self.assertRaises(ValueError):
-            factory = DeveloperFactory('sd', efficiency=1)
-            factory.create(1)
-
-        with self.assertRaises(ValueError):
-            factory = DeveloperFactory('equal', efficiency=1)
-            factory.create(-1)
-
     def test_create_equal(self):
 
-        factory = DeveloperFactory('equal', 1.2)
+        factory = DeveloperFactory(efficiency=1.2)
 
         devs_1 = factory.create(5)
         devs_2 = factory.create(5)
@@ -40,5 +24,5 @@ class TestDeveloperFactory(unittest.TestCase):
 
     def test_create_sd(self):
 
-        factory = DeveloperFactory('sd', (.5, 1.5))
+        factory = DeveloperFactory(generator_utils.uniform(.5, 1.5))
         factory.create(5)

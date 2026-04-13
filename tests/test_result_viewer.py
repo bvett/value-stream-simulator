@@ -19,7 +19,7 @@ class TestResultViewer(unittest.TestCase):
         self.team_size = 5
         self.max_cadence = 7
 
-        developer_factory = DeveloperFactory('equal', 1.0)
+        developer_factory = DeveloperFactory(efficiency=1.0)
 
         developer_teams = [developer_factory.create(
             team_size) for team_size in range(1, self.team_size+1)]

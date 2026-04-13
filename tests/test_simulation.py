@@ -18,7 +18,7 @@ class TestSimulation(unittest.TestCase):
 
         models = ModelFactory(toolchain_concurrency=2,
                               deployment_duration=.25,
-                              developer_factory=DeveloperFactory('equal', 1.0)).create(
+                              developer_factory=DeveloperFactory(efficiency=1.0)).create(
                                   teams=[NUM_DEVELOPERS],
                                   deployment_cadences=range(
                                       MAX_CADENCE, -1, -1),

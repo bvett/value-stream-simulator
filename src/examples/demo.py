@@ -42,7 +42,7 @@ if __name__ == "__main__":
         complexity=generator_utils.uniform(.5, 2)).create(NUM_TASKS)
 
     # Create development teams with developers having efficiencies between 0.5 and 1.5
-    developer_factory = DeveloperFactory('sd', (.5, 1.5))
+    developer_factory = DeveloperFactory(generator_utils.uniform(.5, 1.5))
 
     # Model includes the developer_teams and range of cadences
     models = ModelFactory(toolchain_concurrency=TOOLCHAIN_CONCURRENCY,

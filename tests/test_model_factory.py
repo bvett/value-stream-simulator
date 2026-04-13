@@ -9,7 +9,7 @@ class TestModelFactory(unittest.TestCase):
 
     def test_create(self):
 
-        developer_factory = DeveloperFactory('equal', 1.0)
+        developer_factory = DeveloperFactory(efficiency=1.0)
         factory = ModelFactory(toolchain_concurrency=2,
                                deployment_duration=4.5,
                                developer_factory=developer_factory)
