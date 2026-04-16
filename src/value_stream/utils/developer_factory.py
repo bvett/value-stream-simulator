@@ -1,32 +1,19 @@
-from typing import Any, Generator
+from typing import Generator
 from ..resources import Developer
 
 
 class DeveloperFactory:
     """Utility for creating Developer objects"""
 
-    def __init__(self, efficiency: float | Generator[float, Any, None]):
-        """Creates a DeveloperFactory
-
-        Args:
-
-            efficiency (float | Generator[float, Any, None]): 
-                when a float is provided, sets the efficiency of every 
-                created Developer object to this value
-
-                when a Generator is provided, call this to obtain the
-                 efficiency for each Developer
-
-
-        """
-
-        self.efficiency = efficiency
-
-    def create(self, count: int) -> list[Developer]:
+    def create(self, count: int, **kwargs) -> list[Developer]:
         """Creates Developer objects based on DeveloperFactory configuration
 
         Args:
             count (int): number of developers to create
+
+            **kwargs: key-value pairs passed to the Developer constructor. 
+                if a value is an iterable (such as a generator), the next
+                value is used when creating the Developer
 
         """
 
@@ -36,14 +23,16 @@ class DeveloperFactory:
         developers: list[Developer] = []
 
         for i in range(count):
+            args = {}
 
-            if isinstance(self.efficiency, int | float):
-                efficiency = self.efficiency
-            else:
-                efficiency = next(self.efficiency)
+            for k, v in kwargs.items():
+                if isinstance(v, Generator):
+                    args[k] = next(v)
+                else:
+                    args[k] = v
 
             developers.append(Developer(name=self._developer_name(i),
-                                        efficiency=efficiency))
+                                        **args))
 
         return developers
 

@@ -13,10 +13,10 @@ class TestDeveloperFactory(unittest.TestCase):
 
     def test_create_equal(self):
 
-        factory = DeveloperFactory(efficiency=1.2)
+        factory = DeveloperFactory()
 
-        devs_1 = factory.create(5)
-        devs_2 = factory.create(5)
+        devs_1 = factory.create(5, efficiency=1.2)
+        devs_2 = factory.create(5, efficiency=1.2)
 
         for i, dev in enumerate(devs_1):
             self.assertEqual(dev.name, devs_2[i].name)
@@ -24,5 +24,5 @@ class TestDeveloperFactory(unittest.TestCase):
 
     def test_create_sd(self):
 
-        factory = DeveloperFactory(generator_utils.uniform(.5, 1.5))
-        factory.create(5)
+        factory = DeveloperFactory()
+        factory.create(5, efficiency=generator_utils.uniform(.5, 1.5))

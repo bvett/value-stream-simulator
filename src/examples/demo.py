@@ -3,10 +3,11 @@
 import math
 
 import logging
-
+from typing import Collection
 from tqdm import tqdm
 
 from value_stream import Simulation, SimulationResult
+from value_stream.resources import Developer
 from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, TaskFactory, generator_utils
 
 logger = logging.getLogger(__name__)
@@ -42,13 +43,18 @@ if __name__ == "__main__":
         complexity=generator_utils.uniform(.5, 2)).create(NUM_TASKS)
 
     # Create development teams with developers having efficiencies between 0.5 and 1.5
-    developer_factory = DeveloperFactory(generator_utils.uniform(.5, 1.5))
+    developer_factory = DeveloperFactory()
 
-    # Model includes the developer_teams and range of cadences
+    teams: list[Collection[Developer]] = []
+
+    for i in range(1, MAX_DEVELOPERS+1):
+        teams.append(developer_factory.create(
+            count=i, efficiency=generator_utils.uniform(.5, 1.5)))
+
+    # Model includes the developer_ teams and range of cadences
     models = ModelFactory(toolchain_concurrency=TOOLCHAIN_CONCURRENCY,
-                          deployment_duration=DEPLOYMENT_DURATION,
-                          developer_factory=developer_factory).create(
-        teams=range(1, MAX_DEVELOPERS+1),
+                          deployment_duration=DEPLOYMENT_DURATION).create(
+        teams=teams,
         deployment_cadences=range(MAX_CADENCE, -1, -1),
         num_qa_resources=NUM_QA_RESOURCES)
 

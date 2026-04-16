@@ -19,17 +19,16 @@ class TestResultViewer(unittest.TestCase):
         self.team_size = 5
         self.max_cadence = 7
 
-        developer_factory = DeveloperFactory(efficiency=1.0)
+        developer_factory = DeveloperFactory()
 
         developer_teams = [developer_factory.create(
-            team_size) for team_size in range(1, self.team_size+1)]
+            team_size, efficiency=1.0) for team_size in range(1, self.team_size+1)]
 
         self.num_teams = len(developer_teams)
 
         models = ModelFactory(toolchain_concurrency=2,
-                              deployment_duration=.25,
-                              developer_factory=developer_factory).create(
-            teams=range(1, self.team_size+1),
+                              deployment_duration=.25).create(
+            teams=developer_teams,
             deployment_cadences=range(self.max_cadence, -1, -1),
             num_qa_resources=5)
 
