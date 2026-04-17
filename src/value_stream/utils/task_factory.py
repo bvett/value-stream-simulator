@@ -1,5 +1,5 @@
-from typing import Generator
 import random
+from .factory import generate_args
 from ..task import Task
 
 
@@ -32,13 +32,7 @@ class TaskFactory:
 
         for i in range(count):
 
-            args = {}
-
-            for k, v in kwargs.items():
-                if isinstance(v, Generator):
-                    args[k] = next(v)
-                else:
-                    args[k] = v
+            args = generate_args(**kwargs)
 
             tasks.append(Task(task_id=f"{i+1}",
                               initial_value=initial_value,

@@ -1,5 +1,5 @@
 from itertools import product
-from typing import Any, Dict, Iterable
+from typing import Any, Dict, Iterable, Generator
 
 
 class Factory:
@@ -13,3 +13,17 @@ class Factory:
         for r in result:
             kwargs = dict(zip(argmap.keys(), r))
             yield class_name(**kwargs)
+
+
+def generate_args(**kwargs):
+    """returns **kwargs, with any Generator being replaced by its next value
+    """
+    args = {}
+
+    for k, v in kwargs.items():
+        if isinstance(v, Generator):
+            args[k] = next(v)
+        else:
+            args[k] = v
+
+    return args

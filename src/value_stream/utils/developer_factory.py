@@ -1,4 +1,4 @@
-from typing import Generator
+from .factory import generate_args
 from ..resources import Developer
 
 
@@ -23,13 +23,7 @@ class DeveloperFactory:
         developers: list[Developer] = []
 
         for i in range(count):
-            args = {}
-
-            for k, v in kwargs.items():
-                if isinstance(v, Generator):
-                    args[k] = next(v)
-                else:
-                    args[k] = v
+            args = generate_args(**kwargs)
 
             developers.append(Developer(name=self._developer_name(i),
                                         **args))
