@@ -12,10 +12,11 @@ class TestTaskFactory(unittest.TestCase):
         np.random.seed(1)
 
     def test_create_equal(self):
-        factory = TaskFactory(complexity=2,
-                              initial_value=100, shuffle=False)
-        tasks_1 = factory.create(5)
-        tasks_2 = factory.create(5)
+        factory = TaskFactory()
+        tasks_1 = factory.create(
+            count=5, complexity=2, initial_value=100, shuffle=False)
+        tasks_2 = factory.create(
+            count=5, complexity=2, initial_value=100, shuffle=False)
 
         self.assertEqual(len(tasks_1), 5)
 
@@ -23,20 +24,21 @@ class TestTaskFactory(unittest.TestCase):
             self.assertEqual(v.task_id, tasks_2[i].task_id)
 
     def test_create_sd(self):
-        factory = TaskFactory(complexity=generator_utils.uniform(1, 10),
-                              initial_value=3, depreciation_rate=.5, shuffle=False)
+        factory = TaskFactory()
 
-        tasks = factory.create(1)
+        tasks = factory.create(count=1, complexity=generator_utils.uniform(
+            1, 10), initial_value=3, depreciation_rate=.5, shuffle=False)
 
         self.assertEqual(tasks[0]._initial_value, 3)  # pylint: disable=W0212
         self.assertEqual(tasks[0].depreciation_rate, .5)
 
     def test_shuffle(self):
-        factory = TaskFactory(complexity=2,
-                              initial_value=100, shuffle=True)
+        factory = TaskFactory()
 
-        tasks_1 = factory.create(5)
-        tasks_2 = factory.create(5)
+        tasks_1 = factory.create(count=5, complexity=2,
+                                 initial_value=100, shuffle=True)
+        tasks_2 = factory.create(count=5, complexity=2,
+                                 initial_value=100, shuffle=True)
 
         mismatch = False
         for i, task in enumerate(tasks_1):

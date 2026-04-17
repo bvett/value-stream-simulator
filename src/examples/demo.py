@@ -39,8 +39,8 @@ if __name__ == "__main__":
     DEPLOYMENT_DURATION = .25
 
     # Create tasks with complexities between 0.5 and 2.0
-    tasks = TaskFactory(
-        complexity=generator_utils.uniform(.5, 2)).create(NUM_TASKS)
+    tasks = TaskFactory().create(
+        count=NUM_TASKS, complexity=generator_utils.uniform(.5, 2))
 
     # Create development teams with developers having efficiencies between 0.5 and 1.5
     developer_factory = DeveloperFactory()

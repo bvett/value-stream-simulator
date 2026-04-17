@@ -1,62 +1,47 @@
-from typing import Generator, Any
-import numpy as np
+from typing import Generator
+import random
 from ..task import Task
 
 
 class TaskFactory:
     """Utility for creating Tasks"""
 
-    def __init__(self,
-                 complexity: float | Generator[float, Any, None],
-                 initial_value: float = 1.0,
-                 depreciation_rate: float = 0.02,
-                 shuffle: bool = True) -> None:
-        """Creates a TaskFactory
+    def create(self, count: int, shuffle: bool = True, initial_value: float = 1.0,
+               depreciation_rate: float = 0.02, **kwargs) -> list[Task]:
+        """Creates Task objects based on TaskFactory configuration
 
         Args:
-            complexity (float | Generator[float, Any, None]): 
-                Sets the complexity of the tasks.  If complexity is a float, it is used to 
-                set the complexity for all tasks created.
+            count (int): number of tasks to create
 
-                If complexity is a Generator of floats, each task created will have its 
-                complexity set by getting the next value of the provided Generator.
+            shuffle (bool, optional): Randomizes the order of the created tasks. Defaults to True.
 
             initial_value (float, optional): Starting value for all Task objects Defaults to 1.0.
 
             depreciation_rate (float, optional): Depreciation rate for all 
             Task objects. Defaults to 0.02.
 
-            shuffle (bool, optional): Randomizes the order of the created tasks. Defaults to True.
+            **kwargs: additional arguments to pass to the Task constructor
+
 
         """
-
-        self.initial_value = initial_value
-        self.depreciation_rate = depreciation_rate
-        self.complexity = complexity
-        self.shuffle = shuffle
-
-    def create(self, count: int) -> list[Task]:
-        """Creates Task objects based on TaskFactory configuration
-
-        Args:
-            count (int): number of tasks to create
-
-        """
-        tasks = []
+        tasks: list[Task] = []
 
         for i in range(count):
 
-            if isinstance(self.complexity, int | float):
-                complexity = self.complexity
-            else:
-                complexity = next(self.complexity)
+            args = {}
+
+            for k, v in kwargs.items():
+                if isinstance(v, Generator):
+                    args[k] = next(v)
+                else:
+                    args[k] = v
 
             tasks.append(Task(task_id=f"{i+1}",
-                              initial_value=self.initial_value,
-                              complexity=complexity,
-                              depreciation_rate=self.depreciation_rate))
+                              initial_value=initial_value,
+                              depreciation_rate=depreciation_rate,
+                              **args))
 
-        if self.shuffle is True:
-            np.random.shuffle(tasks)
+        if shuffle is True:
+            random.shuffle(tasks)
 
         return tasks

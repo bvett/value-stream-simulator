@@ -25,7 +25,7 @@ class TestSimulation(unittest.TestCase):
             deployment_cadences=range(MAX_CADENCE, -1, -1),
             num_qa_resources=1)
 
-        tasks = TaskFactory(complexity=1.0).create(NUM_TASKS)
+        tasks = TaskFactory().create(count=NUM_TASKS, complexity=1.0)
 
         with tqdm(total=len(models)) as pbar:
             model_results = simulation.execute(
