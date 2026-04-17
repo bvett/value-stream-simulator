@@ -24,6 +24,10 @@ class TaskFactory:
 
 
         """
+
+        if count <= 0:
+            raise ValueError("count must be > 0")
+
         tasks: list[Task] = []
 
         for i in range(count):

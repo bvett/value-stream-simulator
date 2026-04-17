@@ -11,6 +11,12 @@ class TestTaskFactory(unittest.TestCase):
     def setUp(self) -> None:
         np.random.seed(1)
 
+    def test_validation(self):
+
+        factory = TaskFactory()
+        with self.assertRaises(ValueError):
+            factory.create(0)
+
     def test_create_equal(self):
         factory = TaskFactory()
         tasks_1 = factory.create(
