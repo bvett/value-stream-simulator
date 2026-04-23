@@ -11,6 +11,16 @@ class TestDeveloperFactory(unittest.TestCase):
     def setUp(self):
         np.random.seed(1)
 
+    def test_validation(self):
+
+        factory = DeveloperFactory()
+
+        with self.assertRaises(ValueError):
+            _ = factory.create(0)
+
+        with self.assertRaises(ValueError):
+            _ = factory.create(-1)
+
     def test_create_equal(self):
 
         factory = DeveloperFactory()
