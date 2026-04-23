@@ -1,5 +1,6 @@
 import unittest
 from tqdm import tqdm
+from value_stream.resources import QATesterPool
 from value_stream.simulation import Simulation
 from value_stream.utils import DeveloperFactory, ModelFactory, TaskFactory
 
@@ -19,11 +20,13 @@ class TestSimulation(unittest.TestCase):
         teams = [DeveloperFactory().create(
             count=NUM_DEVELOPERS, efficiency=1.0)]
 
+        qa_tester_pool = QATesterPool(limit=1)
+
         models = ModelFactory(toolchain_concurrency=2,
                               deployment_duration=.25).create(
             teams=teams,
             deployment_cadences=range(MAX_CADENCE, -1, -1),
-            num_qa_resources=1)
+            qa_testers=qa_tester_pool)
 
         tasks = TaskFactory().create(count=NUM_TASKS, complexity=1.0)
 

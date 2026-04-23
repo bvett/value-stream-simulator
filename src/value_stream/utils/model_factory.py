@@ -1,6 +1,6 @@
 from typing import Collection, Iterable
 
-from ..resources import Developer
+from ..resources import Developer, QATester
 from ..model import Model
 
 
@@ -20,7 +20,7 @@ class ModelFactory:
         self.deployment_duration = deployment_duration
 
     def create(self, teams: Iterable[Collection[Developer]],
-               deployment_cadences: Iterable, num_qa_resources: int) -> list[Model]:
+               deployment_cadences: Iterable, qa_testers: Iterable[QATester]) -> list[Model]:
         """Creates Model objects
 
         Args:
@@ -40,5 +40,5 @@ class ModelFactory:
                                     toolchain_concurrency=self.toolchain_concurrency,
                                     deployment_duration=self.deployment_duration,
                                     deployment_cadence=cadence,
-                                    num_qa_resources=num_qa_resources))
+                                    qa_testers=qa_testers))
         return result

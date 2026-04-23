@@ -7,8 +7,9 @@ from typing import Collection
 from tqdm import tqdm
 
 from value_stream import Simulation, SimulationResult
-from value_stream.resources import Developer
-from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, TaskFactory, generator_utils
+from value_stream.resources import Developer, QATesterPool
+from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, \
+    TaskFactory, generator_utils
 
 logger = logging.getLogger(__name__)
 
@@ -51,12 +52,14 @@ if __name__ == "__main__":
         teams.append(developer_factory.create(
             count=i, efficiency=generator_utils.uniform(.5, 1.5)))
 
+    qa_tester_pool = QATesterPool(limit=NUM_QA_RESOURCES)
+
     # Model includes the developer_ teams and range of cadences
     models = ModelFactory(toolchain_concurrency=TOOLCHAIN_CONCURRENCY,
                           deployment_duration=DEPLOYMENT_DURATION).create(
         teams=teams,
         deployment_cadences=range(MAX_CADENCE, -1, -1),
-        num_qa_resources=NUM_QA_RESOURCES)
+        qa_testers=qa_tester_pool)
 
     # Run the simulation with a progress bar and collect the results
     results: list[SimulationResult] = []

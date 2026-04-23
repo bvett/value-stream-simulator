@@ -11,15 +11,23 @@ class QATester(Resource):
     def effort(self, tasks: list[Task]) -> float:
         return sum(task.complexity * self.time_cost for task in tasks)
 
-    @classmethod
-    def create(cls, limit: int | None = None):
 
-        if limit is None:
+class QATesterPool:
+    def __init__(self, limit: int | None = None):
+
+        if limit is not None and limit <= 0:
+            raise ValueError("limit must be None or >0")
+
+        self.limit = limit
+
+    def create(self, **kwargs):
+
+        if self.limit is None:
             while True:
-                yield QATester()
+                yield QATester(**kwargs)
 
-        if limit <= 0:
-            raise ValueError("limit must be >0")
+        for _ in range(self.limit):
+            yield QATester(**kwargs)
 
-        for _ in range(limit):
-            yield QATester()
+    def __iter__(self):
+        return iter(self.create())

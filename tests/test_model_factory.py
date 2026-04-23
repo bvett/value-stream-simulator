@@ -1,6 +1,6 @@
 from typing import Collection
 import unittest
-from value_stream.resources import Developer
+from value_stream.resources import Developer, QATesterPool
 from value_stream.utils.developer_factory import DeveloperFactory
 from value_stream.utils.model_factory import ModelFactory
 
@@ -25,8 +25,11 @@ class TestModelFactory(unittest.TestCase):
         for i in range(1, NUM_TEAMS+1):
             teams.append(developer_factory.create(i))
 
+        qa_tester_pool = QATesterPool(limit=5)
+
         models = factory.create(teams=teams,
-                                deployment_cadences=cadences, num_qa_resources=5)
+                                deployment_cadences=cadences,
+                                qa_testers=qa_tester_pool)
 
         self.assertEqual(len(models), NUM_TEAMS * NUM_CADENCES)
         for model in models:

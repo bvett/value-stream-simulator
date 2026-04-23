@@ -1,5 +1,6 @@
-from typing import Any, Collection, Tuple
+from typing import Collection, Iterable
 from .resources import Developer
+from .resources import QATester
 
 
 class Model:
@@ -9,7 +10,7 @@ class Model:
                  toolchain_concurrency: int,
                  deployment_duration: float,
                  deployment_cadence: int,
-                 num_qa_resources: int) -> None:
+                 qa_testers: Iterable[QATester]) -> None:
         """Describes how a simulation executes
 
         Args:
@@ -28,13 +29,10 @@ class Model:
         if deployment_cadence < 0:
             raise ValueError("deployment_cadence must be >=0")
 
-        if num_qa_resources <= 0:
-            raise ValueError("num_qa_resources must by >0")
-
         self.toolchain_concurrency = toolchain_concurrency
         self.deployment_duration = deployment_duration
         self.deployment_cadence = deployment_cadence
-        self.num_qa_resources = num_qa_resources
+        self.qa_testers = qa_testers
 
         self.developer_team = developer_team
         self.team_size = len(developer_team)

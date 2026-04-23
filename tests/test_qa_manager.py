@@ -4,7 +4,7 @@ from simpy import Environment, Store
 
 from value_stream import Task
 from value_stream.managers import QAManager
-from value_stream.resources import QATester
+from value_stream.resources import QATesterPool
 
 
 class TestQAManager(unittest.TestCase):
@@ -33,7 +33,7 @@ class TestQAManager(unittest.TestCase):
     def test_serial(self):
 
         # 1 QA Tester, 2 Tasks
-        manager = QAManager(self.env, QATester.create(limit=1))
+        manager = QAManager(self.env, QATesterPool(limit=1).create())
         target = Store(self.env)
 
         self._test_loop(manager, target)
@@ -45,7 +45,7 @@ class TestQAManager(unittest.TestCase):
     def test_parallel(self):
         # 2 QA Testers, 2 tasks
 
-        manager = QAManager(self.env, QATester.create(limit=2))
+        manager = QAManager(self.env, QATesterPool(limit=2).create())
         target = Store(self.env)
 
         self._test_loop(manager, target)
@@ -56,7 +56,7 @@ class TestQAManager(unittest.TestCase):
 
     def test_parallel_2(self):
         # unlimited QA Testers, 2 tasks
-        manager = QAManager(self.env, QATester.create())
+        manager = QAManager(self.env, QATesterPool().create())
         target = Store(self.env)
 
         self._test_loop(manager, target)
@@ -67,4 +67,4 @@ class TestQAManager(unittest.TestCase):
 
     def test_validation(self):
         with self.assertRaises(ValueError):
-            next(QATester.create(-1))
+            next(QATesterPool(limit=-1).create())
