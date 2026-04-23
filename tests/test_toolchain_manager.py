@@ -2,7 +2,7 @@ import unittest
 from simpy import Environment, Store
 from value_stream.workflow_state_name import WorkflowStateName
 from value_stream.task import Task
-from value_stream.resources import Toolchain, ToolchainPool
+from value_stream.resources import ResourcePool, Toolchain
 from value_stream.managers import Manager
 from value_stream.workflow_state import WorkflowState, TerminalWorkflowState
 
@@ -20,10 +20,11 @@ class TestToolchainManager(unittest.TestCase):
     def test_validation(self):
 
         with self.assertRaises(ValueError):
-            next(iter(ToolchainPool(limit=10, deployment_duration=-1)))
+            next(iter(ResourcePool(class_name=Toolchain,
+                 limit=10, deployment_duration=-1)))
 
         self.assertIsNotNone(
-            next(iter(ToolchainPool(limit=5, deployment_duration=0))))
+            next(iter(ResourcePool(class_name=Toolchain, limit=5, deployment_duration=0))))
 
     def test_noop_deployment(self):
         tasks = []
@@ -67,7 +68,7 @@ class TestToolchainManager(unittest.TestCase):
         NUM_TASKS = 5
         DEPLOYMENT_DURATION = 0.5
 
-        toolchain = Manager(self.env, ToolchainPool(limit=1, deployment_duration=DEPLOYMENT_DURATION),
+        toolchain = Manager(self.env, ResourcePool(class_name=Toolchain, limit=1, deployment_duration=DEPLOYMENT_DURATION),
                             cadence=1)
 
         for _ in range(NUM_TASKS):
@@ -96,8 +97,8 @@ class TestToolchainManager(unittest.TestCase):
         self.env.run()
 
         toolchain = Manager(
-            self.env, ToolchainPool(
-                limit=concurrency, deployment_duration=deployment_duration),
+            self.env, ResourcePool(class_name=Toolchain,
+                                   limit=concurrency, deployment_duration=deployment_duration),
             cadence=cadence)
 
         toolchain.start(self.source, self.target)

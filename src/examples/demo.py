@@ -7,7 +7,7 @@ from typing import Collection
 from tqdm import tqdm
 
 from value_stream import Simulation, SimulationResult
-from value_stream.resources import Developer, QATesterPool, ToolchainPool
+from value_stream.resources import Developer, QATesterPool, ResourcePool, Toolchain
 from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, \
     TaskFactory, generator_utils
 
@@ -54,8 +54,8 @@ if __name__ == "__main__":
 
     qa_tester_pool = QATesterPool(limit=NUM_QA_RESOURCES)
 
-    toolchain_pool = ToolchainPool(
-        limit=TOOLCHAIN_CONCURRENCY, deployment_duration=DEPLOYMENT_DURATION)
+    toolchain_pool = ResourcePool(class_name=Toolchain,
+                                  limit=TOOLCHAIN_CONCURRENCY, deployment_duration=DEPLOYMENT_DURATION)
 
     # Model includes the developer_ teams and range of cadences
     models = ModelFactory().create(
