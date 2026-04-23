@@ -1,7 +1,7 @@
 import unittest
 from simpy import Environment, Store
 from value_stream.resources import Developer
-from value_stream.managers import DeveloperManager
+from value_stream.managers import Manager
 from value_stream.task import Task
 from value_stream import WorkflowState, WorkflowStateName
 
@@ -28,7 +28,7 @@ class TestDeveloperManager(unittest.TestCase):
         self.env.run()
         self.assertEqual(len(self.source.items), 5)
 
-        team = DeveloperManager(self.env, self.create_developers(2))
+        team = Manager(self.env, self.create_developers(2))
 
         team.start(self.source, self.target)
 

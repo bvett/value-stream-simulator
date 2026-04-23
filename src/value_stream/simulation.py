@@ -4,7 +4,7 @@ from typing import Iterable
 from simpy import Environment, Event
 from tqdm import tqdm
 
-from .managers import DeveloperManager, Manager
+from .managers import Manager
 from .model import Model
 from .simulation_result import SimulationResult
 from .task import Task
@@ -46,7 +46,7 @@ class Simulation:
 
         for model in models:
 
-            developer_manager = DeveloperManager(
+            developer_manager = Manager(
                 env, model.developer_team)
 
             qa_manager = Manager(env, model.qa_testers)
@@ -102,7 +102,7 @@ class Simulation:
                 self.env, WorkflowStateName.DELIVERY)
 
         def start(self, tasks: list[Task],
-                  developer_manager: DeveloperManager,
+                  developer_manager: Manager,
                   qa_manager: Manager,
                   toolchain_manager: Manager,
                   signal: Event):
