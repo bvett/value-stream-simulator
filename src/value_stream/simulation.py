@@ -4,7 +4,7 @@ from typing import Iterable
 from simpy import Environment, Event
 from tqdm import tqdm
 
-from .managers import DeveloperManager, QAManager, Manager
+from .managers import DeveloperManager, Manager
 from .model import Model
 from .simulation_result import SimulationResult
 from .task import Task
@@ -49,7 +49,7 @@ class Simulation:
             developer_manager = DeveloperManager(
                 env, model.developer_team)
 
-            qa_manager = QAManager(env, model.qa_testers)
+            qa_manager = Manager(env, model.qa_testers)
 
             toolchain_manager = Manager(
                 env, model.toolchain_pool, model.deployment_cadence)
@@ -103,7 +103,7 @@ class Simulation:
 
         def start(self, tasks: list[Task],
                   developer_manager: DeveloperManager,
-                  qa_manager: QAManager,
+                  qa_manager: Manager,
                   toolchain_manager: Manager,
                   signal: Event):
             """Signals workflow completion when all tasks specified at
