@@ -26,13 +26,18 @@ class ToolchainPool():
         self.limit = limit
         self.kwargs = kwargs
 
-    def create(self):
-        if self.limit is None:
-            while True:
-                yield Toolchain(**self.kwargs)
+        self._i = 0
 
-        for _ in range(self.limit):
-            yield Toolchain(**self.kwargs)
+    def __next__(self):
+        if self.limit is None:
+            return Toolchain(**self.kwargs)
+
+        if self._i < self.limit:
+            self._i += 1
+            return Toolchain(**self.kwargs)
+
+        raise StopIteration
 
     def __iter__(self):
-        return iter(self.create())
+        self._i = 0
+        return self

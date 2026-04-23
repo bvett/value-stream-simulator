@@ -33,7 +33,7 @@ class TestQAManager(unittest.TestCase):
     def test_serial(self):
 
         # 1 QA Tester, 2 Tasks
-        manager = QAManager(self.env, QATesterPool(limit=1).create())
+        manager = QAManager(self.env, QATesterPool(limit=1))
         target = Store(self.env)
 
         self._test_loop(manager, target)
@@ -45,7 +45,7 @@ class TestQAManager(unittest.TestCase):
     def test_parallel(self):
         # 2 QA Testers, 2 tasks
 
-        manager = QAManager(self.env, QATesterPool(limit=2).create())
+        manager = QAManager(self.env, QATesterPool(limit=2))
         target = Store(self.env)
 
         self._test_loop(manager, target)
@@ -56,7 +56,7 @@ class TestQAManager(unittest.TestCase):
 
     def test_parallel_2(self):
         # unlimited QA Testers, 2 tasks
-        manager = QAManager(self.env, QATesterPool().create())
+        manager = QAManager(self.env, QATesterPool())
         target = Store(self.env)
 
         self._test_loop(manager, target)
@@ -67,4 +67,4 @@ class TestQAManager(unittest.TestCase):
 
     def test_validation(self):
         with self.assertRaises(ValueError):
-            next(QATesterPool(limit=-1).create())
+            next(QATesterPool(limit=-1))
