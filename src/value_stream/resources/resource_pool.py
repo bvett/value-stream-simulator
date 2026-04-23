@@ -2,6 +2,9 @@ from typing import Type
 
 
 class ResourcePool:
+    """Generates a fixed or unlimited quantity of a homogeneous resource
+    """
+
     def __init__(self, class_name: Type, limit: int | None = None, **kwargs):
 
         if limit is not None and limit <= 0:
