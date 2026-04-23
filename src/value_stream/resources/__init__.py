@@ -1,10 +1,11 @@
 from .resource import Resource
 from .developer import Developer
 from .qa_tester import QATester, QATesterPool
-from .toolchain import Toolchain
+from .toolchain import Toolchain, ToolchainPool
 
 __all__ = ["Resource",
            "Developer",
            "QATester",
            "QATesterPool",
-           "Toolchain"]
+           "Toolchain",
+           "ToolchainPool"]

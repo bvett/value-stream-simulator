@@ -1,6 +1,6 @@
 from typing import Collection
 import unittest
-from value_stream.resources import Developer, QATesterPool
+from value_stream.resources import Developer, QATesterPool, ToolchainPool
 from value_stream.utils.developer_factory import DeveloperFactory
 from value_stream.utils.model_factory import ModelFactory
 
@@ -12,8 +12,7 @@ class TestModelFactory(unittest.TestCase):
     def test_create(self):
 
         developer_factory = DeveloperFactory()
-        factory = ModelFactory(toolchain_concurrency=2,
-                               deployment_duration=4.5)
+        factory = ModelFactory()
 
         NUM_CADENCES = 3
         cadences = range(NUM_CADENCES)
@@ -26,13 +25,13 @@ class TestModelFactory(unittest.TestCase):
             teams.append(developer_factory.create(i))
 
         qa_tester_pool = QATesterPool(limit=5)
+        toolchain_pool = ToolchainPool(limit=2, deployment_duration=4.5)
 
         models = factory.create(teams=teams,
                                 deployment_cadences=cadences,
-                                qa_testers=qa_tester_pool)
+                                qa_testers=qa_tester_pool,
+                                toolchain_pool=toolchain_pool)
 
         self.assertEqual(len(models), NUM_TEAMS * NUM_CADENCES)
         for model in models:
             self.assertIn(model.deployment_cadence, cadences)
-            self.assertEqual(model.deployment_duration, 4.5)
-            self.assertEqual(model.toolchain_concurrency, 2)

@@ -1,16 +1,14 @@
 from typing import Collection, Iterable
-from .resources import Developer
-from .resources import QATester
+from .resources import Developer, QATester, Toolchain
 
 
 class Model:
     """Set of attributes for controlling a simulation"""
 
     def __init__(self, developer_team: Collection[Developer],
-                 toolchain_concurrency: int,
-                 deployment_duration: float,
                  deployment_cadence: int,
-                 qa_testers: Iterable[QATester]) -> None:
+                 qa_testers: Iterable[QATester],
+                 toolchain_pool: Iterable[Toolchain]) -> None:
         """Describes how a simulation executes
 
         Args:
@@ -20,19 +18,13 @@ class Model:
             deployment_cadence (int): Time interval between deployment activities.
         """
 
-        if toolchain_concurrency < 0:
-            raise ValueError("toolchain_concurrency must be >=0")
-
-        if deployment_duration < 0:
-            raise ValueError("deployment_duration must be >=0")
-
         if deployment_cadence < 0:
             raise ValueError("deployment_cadence must be >=0")
 
-        self.toolchain_concurrency = toolchain_concurrency
-        self.deployment_duration = deployment_duration
         self.deployment_cadence = deployment_cadence
         self.qa_testers = qa_testers
+
+        self.toolchain_pool = toolchain_pool
 
         self.developer_team = developer_team
         self.team_size = len(developer_team)

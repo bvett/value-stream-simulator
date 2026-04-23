@@ -1,14 +1,13 @@
 from typing import Collection, Iterable
 
-from ..resources import Developer, QATester
+from ..resources import Developer, QATester, Toolchain
 from ..model import Model
 
 
 class ModelFactory:
     """Utility for creating Model objects"""
 
-    def __init__(self, toolchain_concurrency: int,
-                 deployment_duration: float):
+    def __init__(self):
         """Creates a ModelFactory
 
         Args:
@@ -16,11 +15,13 @@ class ModelFactory:
             deployment_duration (float): Duration in time units of a deployment
         """
 
-        self.toolchain_concurrency = toolchain_concurrency
-        self.deployment_duration = deployment_duration
+        # self.toolchain_concurrency = toolchain_concurrency
+        # self.deployment_duration = deployment_duration
 
     def create(self, teams: Iterable[Collection[Developer]],
-               deployment_cadences: Iterable, qa_testers: Iterable[QATester]) -> list[Model]:
+               deployment_cadences: Iterable,
+               qa_testers: Iterable[QATester],
+               toolchain_pool: Iterable[Toolchain]) -> list[Model]:
         """Creates Model objects
 
         Args:
@@ -37,8 +38,7 @@ class ModelFactory:
         for team in teams:
             for cadence in deployment_cadences:
                 result.append(Model(developer_team=team,
-                                    toolchain_concurrency=self.toolchain_concurrency,
-                                    deployment_duration=self.deployment_duration,
                                     deployment_cadence=cadence,
-                                    qa_testers=qa_testers))
+                                    qa_testers=qa_testers,
+                                    toolchain_pool=toolchain_pool))
         return result

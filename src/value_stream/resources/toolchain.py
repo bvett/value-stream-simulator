@@ -17,15 +17,22 @@ class Toolchain(Resource):
     def effort(self, tasks: list[Task]) -> float:
         return self.deployment_duration
 
-    @classmethod
-    def create(cls, deployment_duration: float, limit: int | None = None):
 
-        if limit is None:
-            while True:
-                yield Toolchain(deployment_duration=deployment_duration)
-
-        if limit <= 0:
+class ToolchainPool():
+    def __init__(self, limit: int | None = None, **kwargs):
+        if limit is not None and limit <= 0:
             raise ValueError("limit must be >0")
 
-        for _ in range(limit):
-            yield Toolchain(deployment_duration=deployment_duration)
+        self.limit = limit
+        self.kwargs = kwargs
+
+    def create(self):
+        if self.limit is None:
+            while True:
+                yield Toolchain(**self.kwargs)
+
+        for _ in range(self.limit):
+            yield Toolchain(**self.kwargs)
+
+    def __iter__(self):
+        return iter(self.create())

@@ -6,7 +6,6 @@ from tqdm import tqdm
 
 from .managers import DeveloperManager, QAManager, ToolchainManager
 from .model import Model
-from .resources import Toolchain
 from .simulation_result import SimulationResult
 from .task import Task
 from .workflow_state import WorkflowState, TerminalWorkflowState
@@ -53,9 +52,7 @@ class Simulation:
             qa_manager = QAManager(env, model.qa_testers)
 
             toolchain_manager = ToolchainManager(
-                env, Toolchain.create(
-                    model.deployment_duration, limit=model.toolchain_concurrency),
-                deployment_cadence=model.deployment_cadence)
+                env, model.toolchain_pool, model.deployment_cadence)
 
             signal = env.event()
             env.process(workflow.start(
