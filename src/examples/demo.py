@@ -7,7 +7,7 @@ from typing import Collection
 from tqdm import tqdm
 
 from value_stream import Simulation, SimulationResult
-from value_stream.resources import Developer, QATesterPool, ResourcePool, Toolchain
+from value_stream.resources import Developer, QATester, ResourcePool, Toolchain
 from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, \
     TaskFactory, generator_utils
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         teams.append(developer_factory.create(
             count=i, efficiency=generator_utils.uniform(.5, 1.5)))
 
-    qa_tester_pool = QATesterPool(limit=NUM_QA_RESOURCES)
+    qa_tester_pool = ResourcePool(class_name=QATester, limit=NUM_QA_RESOURCES)
 
     toolchain_pool = ResourcePool(class_name=Toolchain,
                                   limit=TOOLCHAIN_CONCURRENCY, deployment_duration=DEPLOYMENT_DURATION)
