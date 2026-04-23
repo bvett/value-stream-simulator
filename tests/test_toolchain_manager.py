@@ -3,7 +3,7 @@ from simpy import Environment, Store
 from value_stream.workflow_state_name import WorkflowStateName
 from value_stream.task import Task
 from value_stream.resources import Toolchain, ToolchainPool
-from value_stream.managers import ToolchainManager
+from value_stream.managers import Manager
 from value_stream.workflow_state import WorkflowState, TerminalWorkflowState
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
@@ -67,15 +67,11 @@ class TestToolchainManager(unittest.TestCase):
         NUM_TASKS = 5
         DEPLOYMENT_DURATION = 0.5
 
-        toolchain = ToolchainManager(self.env, ToolchainPool(limit=1, deployment_duration=DEPLOYMENT_DURATION),
-                                     deployment_cadence=1)
+        toolchain = Manager(self.env, ToolchainPool(limit=1, deployment_duration=DEPLOYMENT_DURATION),
+                            cadence=1)
 
         for _ in range(NUM_TASKS):
             yield self.source.put(Task(complexity=1, initial_value=1))
-
-        # for _ in range(NUM_TASKS):
-        #    self.env.process(toolchain._do_deployment(
-        #        [Task(complexity=1, initial_value=1)], self.target))
 
         self.env.run()
 
@@ -99,8 +95,10 @@ class TestToolchainManager(unittest.TestCase):
 
         self.env.run()
 
-        toolchain = ToolchainManager(
-            self.env, ToolchainPool(limit=concurrency, deployment_duration=deployment_duration), cadence)
+        toolchain = Manager(
+            self.env, ToolchainPool(
+                limit=concurrency, deployment_duration=deployment_duration),
+            cadence=cadence)
 
         toolchain.start(self.source, self.target)
 
