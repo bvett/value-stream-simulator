@@ -45,3 +45,13 @@ class TestToolchainPool(unittest.TestCase):
 
         for _ in range(10):
             _ = next(toolchain_pool)
+
+    def test_kwargs(self):
+
+        deployment_duration = 4.75
+        toolchain_pool = ToolchainPool(
+            limit=3, deployment_duration=deployment_duration)
+
+        for toolchain in toolchain_pool:
+            self.assertEqual(toolchain.deployment_duration,
+                             deployment_duration)
