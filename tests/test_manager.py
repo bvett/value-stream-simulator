@@ -4,7 +4,7 @@ from simpy import Environment
 
 from value_stream import WorkflowState, WorkflowStateName
 from value_stream.utils import DeveloperFactory
-from value_stream.managers import Manager
+from value_stream.managers import ResourceOperator
 
 
 class TestManager(unittest.TestCase):
@@ -20,14 +20,14 @@ class TestManager(unittest.TestCase):
 
         # catch negative cadence
         with self.assertRaises(ValueError):
-            _ = Manager(env=self.env,
-                        resources=self.resources,
-                        cadence=-1)
+            _ = ResourceOperator(env=self.env,
+                                 resources=self.resources,
+                                 cadence=-1)
 
         # attempt to start twice in succession
         with self.assertRaises(RuntimeError):
-            manager = Manager(env=self.env,
-                              resources=self.resources)
+            manager = ResourceOperator(env=self.env,
+                                       resources=self.resources)
 
             for _ in range(2):
                 manager.start(source=self.source,
@@ -35,8 +35,8 @@ class TestManager(unittest.TestCase):
 
         # attempt to start after stopping
         with self.assertRaises(RuntimeError):
-            manager = Manager(env=self.env,
-                              resources=self.resources)
+            manager = ResourceOperator(env=self.env,
+                                       resources=self.resources)
             for _ in range(2):
                 manager.start(source=self.source,
                               target=self.target)
@@ -45,7 +45,7 @@ class TestManager(unittest.TestCase):
 
         # attempt to stop a manager that has not been started
         with self.assertRaises(RuntimeError):
-            manager = Manager(env=self.env,
-                              resources=self.resources)
+            manager = ResourceOperator(env=self.env,
+                                       resources=self.resources)
 
             manager.stop()

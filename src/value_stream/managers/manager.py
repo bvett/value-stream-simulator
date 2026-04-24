@@ -7,7 +7,7 @@ from ..task import Task
 from ..workflow_state import WorkflowState
 
 
-class Manager:
+class ResourceOperator:
     """Handles the allocation of Resource objects that operate on 
     Tasks during a simulation"""
 

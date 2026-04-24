@@ -1,3 +1,3 @@
-from .manager import Manager
+from .manager import ResourceOperator
 
-__all__ = ["Manager"]
+__all__ = ["ResourceOperator"]
