@@ -1,9 +1,9 @@
-from ..resources import Resource
+from ..resources import Resource, PooledResource
 from ..task import Task
 from ..workflow_state_name import WorkflowStateName
 
 
-class Toolchain(Resource):
+class Toolchain(Resource, PooledResource):
     """Simulates actions performed on tasks by SDLC tooling"""
 
     def __init__(self, deployment_duration: float):

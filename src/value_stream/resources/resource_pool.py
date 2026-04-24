@@ -29,3 +29,9 @@ class ResourcePool:
     def __iter__(self):
         self._i = 0
         return self
+
+
+class PooledResource:
+    @classmethod
+    def create_pool(cls, limit: int | None = None, **kwargs):
+        return ResourcePool(class_name=cls, limit=limit, **kwargs)

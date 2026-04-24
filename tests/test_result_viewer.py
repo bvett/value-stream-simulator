@@ -5,7 +5,7 @@ from unittest.mock import patch
 from tqdm import tqdm
 
 from value_stream import Simulation
-from value_stream.resources import QATester, ResourcePool, Toolchain
+from value_stream.resources import QATester, Toolchain
 from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, TaskFactory
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
@@ -27,9 +27,9 @@ class TestResultViewer(unittest.TestCase):
 
         self.num_teams = len(developer_teams)
 
-        qa_tester_pool = ResourcePool(class_name=QATester, limit=5)
-        toolchain_pool = ResourcePool(
-            class_name=Toolchain, limit=2, deployment_duration=.25)
+        qa_tester_pool = QATester.create_pool(limit=5)
+        toolchain_pool = Toolchain.create_pool(
+            limit=2, deployment_duration=.25)
 
         models = ModelFactory().create(
             teams=developer_teams,
