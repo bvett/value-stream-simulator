@@ -3,8 +3,7 @@ import unittest
 from simpy import Environment, Store
 
 from value_stream import Task
-from value_stream.managers import ResourceOperator
-from value_stream.resources import QATester
+from value_stream.resources import QATester, ResourceOperator
 
 
 class TestQAManager(unittest.TestCase):

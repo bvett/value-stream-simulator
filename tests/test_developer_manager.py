@@ -1,7 +1,6 @@
 import unittest
 from simpy import Environment, Store
-from value_stream.resources import Developer
-from value_stream.managers import ResourceOperator
+from value_stream.resources import Developer, ResourceOperator
 from value_stream.task import Task
 from value_stream import WorkflowState, WorkflowStateName
 

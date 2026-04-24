@@ -4,7 +4,7 @@ from simpy import Environment
 
 from value_stream import WorkflowState, WorkflowStateName
 from value_stream.utils import DeveloperFactory
-from value_stream.managers import ResourceOperator
+from value_stream.resources import ResourceOperator
 
 
 class TestManager(unittest.TestCase):

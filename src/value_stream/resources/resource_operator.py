@@ -2,7 +2,7 @@ from typing import Iterable
 
 from simpy import Environment, Interrupt, Store
 
-from ..resources import Resource
+from . import Resource
 from ..task import Task
 from ..workflow_state import WorkflowState
 

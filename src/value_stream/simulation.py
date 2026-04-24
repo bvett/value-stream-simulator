@@ -4,7 +4,7 @@ from typing import Iterable
 from simpy import Environment, Event
 from tqdm import tqdm
 
-from .managers import ResourceOperator
+from .resources import ResourceOperator
 from .model import Model
 from .simulation_result import SimulationResult
 from .task import Task

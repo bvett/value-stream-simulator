@@ -2,8 +2,7 @@ import unittest
 from simpy import Environment, Store
 from value_stream.workflow_state_name import WorkflowStateName
 from value_stream.task import Task
-from value_stream.resources import Toolchain
-from value_stream.managers import ResourceOperator
+from value_stream.resources import Toolchain, ResourceOperator
 from value_stream.workflow_state import WorkflowState, TerminalWorkflowState
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
