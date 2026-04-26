@@ -33,6 +33,7 @@ class TestDeveloper(unittest.TestCase):
 
         for dev in [junior_developer, senior_developer]:
             for task in [self.simple_task.reset(), self.complex_task.reset()]:
+                self.assertEqual(task.remaining_work(), task.story_points)
                 env.process(dev.operate(env, [task], target))
 
         env.run()
@@ -43,3 +44,5 @@ class TestDeveloper(unittest.TestCase):
                 WorkflowStateName.DEVELOPMENT)
             self.assertAlmostEqual(dev_end_t, v)
             self.assertEqual(dev_start_t, 0)
+
+            self.assertEqual(target.items[i].remaining_work(), 0)

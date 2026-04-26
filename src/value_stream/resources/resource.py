@@ -16,7 +16,7 @@ class Resource:
         for task in tasks:
             task.history.start(env.now, self.workflow_state)
 
-        yield env.timeout(self.effort(tasks))
+        yield env.process(self.do_work(env, tasks))
 
         for task in tasks:
             task.history.end(env.now, self.workflow_state)
@@ -26,3 +26,6 @@ class Resource:
         """Used in derived classes to provide the amount of simulation time
         spent operating on a task."""
         raise NotImplementedError()
+
+    def do_work(self, env: Environment, tasks: list[Task]):
+        yield env.timeout(self.effort(tasks))

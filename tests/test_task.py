@@ -160,3 +160,48 @@ class TestTask(unittest.TestCase):
         self.assertEqual(len(task.history.events), 2)
 
         self.assertEqual(len(task.reset().history.events), 0)
+
+    def test_completed_story_points(self):
+
+        original_story_points = 50
+
+        def create_task(story_points: int):
+            return Task(task_id="", initial_value=100,
+                        story_points=story_points)
+
+        task = create_task(original_story_points)
+
+        self.assertEqual(task.remaining_work(), original_story_points)
+
+        effort = 10
+        remainder = task.do_work(effort)
+
+        self.assertEqual(task.story_points, original_story_points)
+        self.assertEqual(task.completed_story_points, effort)
+        self.assertEqual(task.remaining_work(), original_story_points - effort)
+        self.assertEqual(remainder, 0)
+
+        task = create_task(original_story_points)
+        remainder = task.do_work(task.remaining_work())
+
+        self.assertEqual(remainder, 0)
+        self.assertEqual(task.remaining_work(), 0)
+
+        # test regression
+        task = create_task(original_story_points)
+        with self.assertRaises(ValueError):
+            task.do_work(-1)
+
+        task = create_task(original_story_points)
+        task.do_work(10)
+        task.do_work(15)
+        task.do_work(-3)
+
+        self.assertEqual(task.completed_story_points, 22)
+
+        remainder = task.do_work(40)
+        self.assertEqual(task.remaining_work(), 0)
+        self.assertEqual(remainder, 12)
+
+        task = task.reset()
+        self.assertEqual(task.remaining_work(), task.story_points)

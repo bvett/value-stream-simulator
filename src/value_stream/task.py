@@ -40,6 +40,8 @@ class Task:
 
         self.story_points = story_points
 
+        self.completed_story_points: float = 0
+
         if creation_time < 0:
             raise ValueError("creation_time must be >=0")
 
@@ -112,7 +114,27 @@ class Task:
         result.loss = 0.0
         result.delivered_value = 0.0
         result.creation_t = 0
+        result.completed_story_points = 0
 
         result.history = TaskHistory(baseline_time=baseline_time)
 
         return result
+
+    def remaining_work(self):
+        return self.story_points - self.completed_story_points
+
+    def do_work(self, story_points: float):
+
+        # negative story points are allowed to represent regression
+        remaining_work = self.remaining_work()
+
+        if story_points <= remaining_work:
+            self.completed_story_points += story_points
+
+            if self.completed_story_points < 0:
+                raise ValueError("completed_story_points cannot be negative")
+
+            return 0.0
+
+        self.completed_story_points = self.story_points
+        return story_points - remaining_work
