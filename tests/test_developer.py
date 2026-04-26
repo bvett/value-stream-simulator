@@ -12,8 +12,8 @@ class TestDeveloper(unittest.TestCase):
 
     def setUp(self):
 
-        self.simple_task = Task(task_id="", initial_value=1, complexity=.6)
-        self.complex_task = Task(task_id="", initial_value=1, complexity=2)
+        self.simple_task = Task(task_id="", initial_value=1, story_points=.6)
+        self.complex_task = Task(task_id="", initial_value=1, story_points=2)
 
     def test_validation(self):
 

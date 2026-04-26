@@ -11,37 +11,38 @@ class TestTask(unittest.TestCase):
 
         # invalid initial_value
         with self.assertRaises(ValueError):
-            Task(task_id="", initial_value=-4.2, complexity=1.0)
+            Task(task_id="", initial_value=-4.2, story_points=1.0)
 
-        # invalid complexity
+        # invalid story_points
         with self.assertRaises(ValueError):
-            Task(task_id="", initial_value=4.2, complexity=-1)
+            Task(task_id="", initial_value=4.2, story_points=-1)
 
         # invalid depreciatiom_rate
         with self.assertRaises(ValueError):
             Task(task_id="", initial_value=1,
-                 complexity=1, depreciation_rate=-1)
+                 story_points=1, depreciation_rate=-1)
 
         with self.assertRaises(ValueError):
             Task(task_id="", initial_value=1,
-                 complexity=1, depreciation_rate=1.1)
+                 story_points=1, depreciation_rate=1.1)
 
         # invalid creation_time
 
         with self.assertRaises(ValueError):
-            Task(task_id="", initial_value=100, complexity=1, creation_time=-1)
+            Task(task_id="", initial_value=100,
+                 story_points=1, creation_time=-1)
 
         # invalid time
 
         with self.assertRaises(ValueError):
             task = Task(task_id="", initial_value=100,
-                        complexity=1, creation_time=5)
+                        story_points=1, creation_time=5)
             task.value(4)
 
     def test_value(self):
         task = Task(task_id="",
                     initial_value=100,
-                    complexity=1.0)
+                    story_points=1.0)
 
         self.assertEqual(task.value(), 100)
 
@@ -49,7 +50,7 @@ class TestTask(unittest.TestCase):
 
         # no depreciation
         task = Task(task_id="", initial_value=100,
-                    complexity=1, depreciation_rate=0)
+                    story_points=1, depreciation_rate=0)
 
         for t in [0, 10, 200]:
             self.assertEqual(task.value(t), 100)
@@ -57,7 +58,7 @@ class TestTask(unittest.TestCase):
         # basic depreciation
 
         task = Task(task_id="", initial_value=100,
-                    complexity=1, depreciation_rate=0.1)
+                    story_points=1, depreciation_rate=0.1)
 
         values = [100, 90, 81, 72.9]
         for i in range(0, 4):
@@ -66,7 +67,7 @@ class TestTask(unittest.TestCase):
         # depreciation with offset creation_time
 
         task = Task(task_id="", initial_value=100,
-                    complexity=1, depreciation_rate=0.1, creation_time=5)
+                    story_points=1, depreciation_rate=0.1, creation_time=5)
 
         values = [100, 90, 81, 72.9]
         for i, v in enumerate(range(5, 9)):
@@ -74,12 +75,12 @@ class TestTask(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(
-            str(Task(task_id="foo", initial_value=0, complexity=1)), "foo")
+            str(Task(task_id="foo", initial_value=0, story_points=1)), "foo")
 
     def test_loss(self):
 
         # No loss
-        task = Task(task_id="", initial_value=50, complexity=1,
+        task = Task(task_id="", initial_value=50, story_points=1,
                     creation_time=0, depreciation_rate=0)
 
         task.history.terminate(25, WorkflowStateName.DELIVERY)
@@ -88,7 +89,7 @@ class TestTask(unittest.TestCase):
 
         # Loss
 
-        task = Task(task_id="", initial_value=50, complexity=1,
+        task = Task(task_id="", initial_value=50, story_points=1,
                     creation_time=0, depreciation_rate=0.1)
 
         task.history.terminate(2, WorkflowStateName.DELIVERY)
@@ -99,7 +100,7 @@ class TestTask(unittest.TestCase):
 
         # not delivered
         task = Task(task_id="", initial_value=100,
-                    complexity=1, depreciation_rate=0.1)
+                    story_points=1, depreciation_rate=0.1)
 
         self.assertEqual(task._delivered_value(), 0)
 
@@ -116,21 +117,21 @@ class TestTask(unittest.TestCase):
 
         # offset creation_time
 
-        task = Task(task_id="", initial_value=100, complexity=1,
+        task = Task(task_id="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
         task.history.terminate(5, WorkflowStateName.DELIVERY)
 
         self.assertEqual(task._delivered_value(), 100)
 
-        task = Task(task_id="", initial_value=100, complexity=1,
+        task = Task(task_id="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
         task.history.terminate(6, WorkflowStateName.DELIVERY)
         self.assertEqual(task._delivered_value(), 90)
 
         # validation
-        task = Task(task_id="", initial_value=100, complexity=1,
+        task = Task(task_id="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
         # missing delivery_start_t
@@ -138,7 +139,7 @@ class TestTask(unittest.TestCase):
             task.history.end(5, WorkflowStateName.DELIVERY)
             task._delivered_value()
 
-        task = Task(task_id="", initial_value=100, complexity=1,
+        task = Task(task_id="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
         # inverted start/end times
@@ -149,7 +150,7 @@ class TestTask(unittest.TestCase):
 
     def test_reset(self):
 
-        task = Task(task_id="", initial_value=100, complexity=1,
+        task = Task(task_id="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
         self.assertEqual(len(task.history.events), 0)

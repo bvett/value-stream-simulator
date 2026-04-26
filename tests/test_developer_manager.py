@@ -16,7 +16,7 @@ class TestDeveloperManager(unittest.TestCase):
 
     def create_tasks(self, limit: int, store: Store):
         for i in range(limit):
-            yield store.put(Task(task_id=f"Task {i}", complexity=1, initial_value=1))
+            yield store.put(Task(task_id=f"Task {i}", story_points=1, initial_value=1))
 
     def create_developers(self, count: int):
         return [Developer(1) for _ in range(count)]

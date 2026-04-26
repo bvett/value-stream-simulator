@@ -16,4 +16,4 @@ class Developer(Resource):
         self.efficiency: float = efficiency
 
     def effort(self, tasks: list[Task]) -> float:
-        return sum([task.complexity / self.efficiency for task in tasks])
+        return sum([task.story_points / self.efficiency for task in tasks])

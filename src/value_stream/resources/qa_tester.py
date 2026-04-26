@@ -10,4 +10,4 @@ class QATester(Resource, PooledResource):
         self.time_cost = time_cost
 
     def effort(self, tasks: list[Task]) -> float:
-        return sum(task.complexity * self.time_cost for task in tasks)
+        return sum(task.story_points * self.time_cost for task in tasks)

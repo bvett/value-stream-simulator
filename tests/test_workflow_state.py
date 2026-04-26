@@ -19,7 +19,7 @@ class TestWorkflowState(unittest.TestCase):
             self.env, WorkflowStateName.DELIVERY)
 
     def test_put(self):
-        task = Task(initial_value=50.0, complexity=1.0, creation_time=0)
+        task = Task(initial_value=50.0, story_points=1.0, creation_time=0)
 
         self.assertEqual(len(self.state.items), 0)
         self.env.run(until=1)
@@ -39,7 +39,7 @@ class TestWorkflowState(unittest.TestCase):
         self.assertEqual(event.status, TaskEvent.EventStatus.SUCCESS)
 
     def test_put_terminal(self):
-        task = Task(initial_value=50.0, complexity=1.0,
+        task = Task(initial_value=50.0, story_points=1.0,
                     creation_time=0, depreciation_rate=0.1)
 
         self.assertEqual(len(self.state.items), 0)
@@ -67,7 +67,7 @@ class TestWorkflowState(unittest.TestCase):
                 t = yield self.state.get()
                 e.succeed(t)
 
-        task = Task(initial_value=50.0, complexity=1.0,
+        task = Task(initial_value=50.0, story_points=1.0,
                     creation_time=0, depreciation_rate=0.1)
 
         self.env.run(until=1)
@@ -88,7 +88,7 @@ class TestWorkflowState(unittest.TestCase):
         self.assertEqual(event.status, TaskEvent.EventStatus.SUCCESS)
 
     def test_get_terminal(self):
-        task = Task(initial_value=50.0, complexity=1.0,
+        task = Task(initial_value=50.0, story_points=1.0,
                     creation_time=0, depreciation_rate=0.1)
 
         self.env.run(until=1)

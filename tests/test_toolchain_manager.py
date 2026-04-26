@@ -47,7 +47,7 @@ class TestToolchainManager(unittest.TestCase):
 
         for _ in range(NUM_TASKS):
             tasks.append(
-                Task(complexity=1, initial_value=1))
+                Task(story_points=1, initial_value=1))
 
         toolchain = Toolchain(deployment_duration=DEPLOYMENT_DURATION)
 
@@ -71,7 +71,7 @@ class TestToolchainManager(unittest.TestCase):
                                      cadence=1)
 
         for _ in range(NUM_TASKS):
-            yield self.source.put(Task(complexity=1, initial_value=1))
+            yield self.source.put(Task(story_points=1, initial_value=1))
 
         self.env.run()
 
@@ -84,7 +84,7 @@ class TestToolchainManager(unittest.TestCase):
 
     def create_tasks(self, limit: int, store: Store):
         for _ in range(limit):
-            yield store.put(Task(complexity=1, initial_value=1))
+            yield store.put(Task(story_points=1, initial_value=1))
 
     def run_scenario(self, num_tasks: int,
                      deployment_duration: float,

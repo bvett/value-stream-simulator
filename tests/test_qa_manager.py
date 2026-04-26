@@ -15,7 +15,7 @@ class TestQAManager(unittest.TestCase):
         self.tasks: list[Task] = []
 
         for c in self.complexities:
-            self.tasks.append(Task(initial_value=1.0, complexity=c))
+            self.tasks.append(Task(initial_value=1.0, story_points=c))
 
     def _process_task(self, task: Task, m: ResourceOperator, t: Store):
         e = m.request()

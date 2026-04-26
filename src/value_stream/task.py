@@ -8,7 +8,7 @@ class Task:
 
     def __init__(self,
                  initial_value: float,
-                 complexity: float,
+                 story_points: float,
                  depreciation_rate=0.005,
                  task_id: str | None = None,
                  creation_time: float = 0.0) -> None:
@@ -17,7 +17,7 @@ class Task:
         Args:
             initial_value (float): Relative value of the task
 
-            complexity (float): Relative complexity of the task
+            story_points (float): Relative complexity of the task
 
             depreciation_rate (float, optional): Percentage of value 
               decrease per time unit. Defaults to 0.005.
@@ -35,10 +35,10 @@ class Task:
 
         self._initial_value = initial_value
 
-        if complexity < 0:
-            raise ValueError("complexity must be >= 0")
+        if story_points < 0:
+            raise ValueError("story_points must be >= 0")
 
-        self.complexity = complexity
+        self.story_points = story_points
 
         if creation_time < 0:
             raise ValueError("creation_time must be >=0")
