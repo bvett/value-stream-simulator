@@ -207,7 +207,8 @@ class TestTaskHistory(unittest.TestCase):
         self.history.start(0, WorkflowStateName.DEVELOPMENT)
         self.history.end(1.0, WorkflowStateName.DEVELOPMENT)
         self.history.start(1.0, WorkflowStateName.QA_TESTING)
-        self.history.end(2.0, WorkflowStateName.QA_TESTING)
+        self.history.end(2.0, WorkflowStateName.QA_TESTING,
+                         TaskEvent.EventStatus.FAILURE)
         self.history.start(2.0, WorkflowStateName.DEVELOPMENT)
         self.history.end(3.0, WorkflowStateName.DEVELOPMENT)
         self.history.start(3.0, WorkflowStateName.QA_TESTING)

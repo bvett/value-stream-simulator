@@ -43,7 +43,7 @@ class TaskHistory():
 
         self.events.append(TaskEvent.start(event=event, time=time))
 
-    def end(self, time: float, event: WorkflowStateName | None = None):
+    def end(self, time: float, event: WorkflowStateName | None = None, status: TaskEvent.EventStatus = TaskEvent.EventStatus.SUCCESS):
         """Ends a started event"""
 
         time -= self.baseline_t
@@ -62,7 +62,8 @@ class TaskHistory():
                     and (last_event.status == TaskEvent.EventStatus.SUCCESS) \
                     and (last_event.event == event):
 
-                self.events.append(TaskEvent.end(event=event, time=time))
+                self.events.append(TaskEvent.end(
+                    event=event, time=time, status=status))
             else:
                 raise ValueError(
                     "Attempting to end a task from an invalid state")
@@ -86,7 +87,7 @@ class TaskHistory():
 
         del self.events[-1]
 
-    def terminate(self, time: float, event: WorkflowStateName):
+    def terminate(self, time: float, event: WorkflowStateName, status: TaskEvent.EventStatus = TaskEvent.EventStatus.SUCCESS):
         """Adds a terminal event to the history.
 
         A terminal event prevents additional events from being started"""
@@ -101,7 +102,8 @@ class TaskHistory():
         if last_event is not None and last_event.event_type == TaskEvent.EventType.TERMINAL:
             raise ValueError("Attempting to terminate a terminated task")
 
-        self.events.append(TaskEvent.terminal(event=event, time=time))
+        self.events.append(TaskEvent.terminal(
+            event=event, time=time, status=status))
 
     def event_times(self, event: WorkflowStateName) -> tuple[float, float]:
         """Returns the most recent start and end times of the event
