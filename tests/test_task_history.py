@@ -201,3 +201,15 @@ class TestTaskHistory(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             self.history.duration(WorkflowStateName.DEPLOYMENT)
+
+    def test_recurrence(self):
+        # Ensure the same workflow state can be represented multiple times
+        self.history.start(0, WorkflowStateName.DEVELOPMENT)
+        self.history.end(1.0, WorkflowStateName.DEVELOPMENT)
+        self.history.start(1.0, WorkflowStateName.QA_TESTING)
+        self.history.end(2.0, WorkflowStateName.QA_TESTING)
+        self.history.start(2.0, WorkflowStateName.DEVELOPMENT)
+        self.history.end(3.0, WorkflowStateName.DEVELOPMENT)
+        self.history.start(3.0, WorkflowStateName.QA_TESTING)
+        self.history.end(4.0, WorkflowStateName.QA_TESTING)
+        self.history.start(4.0, WorkflowStateName.QA_COMPLETE)
