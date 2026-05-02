@@ -1,3 +1,4 @@
+from simpy import Environment
 from ..resources import Resource, PooledResource
 from ..task import Task
 from ..workflow_state_name import WorkflowStateName
@@ -14,5 +15,5 @@ class Toolchain(Resource, PooledResource):
 
         self.deployment_duration = deployment_duration
 
-    def effort(self, tasks: list[Task]) -> float:
-        return self.deployment_duration
+    def do_work(self, env: Environment, tasks: list[Task]):
+        yield env.timeout(self.deployment_duration)

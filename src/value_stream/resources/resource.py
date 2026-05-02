@@ -22,10 +22,5 @@ class Resource:
             task.history.end(env.now, self.workflow_state)
             yield target.put(task)
 
-    def effort(self, tasks: list[Task]):
-        """Used in derived classes to provide the amount of simulation time
-        spent operating on a task."""
-        raise NotImplementedError()
-
     def do_work(self, env: Environment, tasks: list[Task]):
-        yield env.timeout(self.effort(tasks))
+        raise NotImplementedError()
