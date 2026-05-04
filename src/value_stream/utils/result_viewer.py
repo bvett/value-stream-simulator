@@ -25,7 +25,7 @@ class ResultViewer:
 
         self.df = json_normalize(results_dict, record_path=['events'],
                                  meta=[['model', 'deployment_cadence'],
-                                       ['model', 'toolchain_concurrency'],
+                                       ['model', 'toolchain_pool'],
                                        ['model', 'team_size'],
                                        ['task', 'task_id'],
                                        ['task', 'loss'],
