@@ -7,7 +7,7 @@ from value_stream.utils import DeveloperFactory
 from value_stream.resources import ResourceOperator
 
 
-class TestManager(unittest.TestCase):
+class TestResourceOperator(unittest.TestCase):
     def setUp(self):
         self.env = Environment()
 
