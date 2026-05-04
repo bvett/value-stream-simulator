@@ -1,4 +1,5 @@
 from .simulation_result import SimulationResult
+from .event_status import EventStatus
 from .model import Model
 from .simulation import Simulation
 from .task_event import TaskEvent
@@ -8,7 +9,8 @@ from .workflow_state_name import WorkflowStateName
 from .workflow_state import WorkflowState, TerminalWorkflowState
 
 
-__all__ = ["SimulationResult",
+__all__ = ["EventStatus",
+           "SimulationResult",
            "Model",
            "Simulation",
            "TaskEvent",

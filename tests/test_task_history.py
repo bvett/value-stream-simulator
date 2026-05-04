@@ -1,6 +1,6 @@
 import unittest
 
-from value_stream import TaskHistory, TaskEvent, WorkflowStateName
+from value_stream import EventStatus, TaskHistory, TaskEvent, WorkflowStateName
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
@@ -21,7 +21,7 @@ class TestTaskHistory(unittest.TestCase):
         self.assertEqual(start_event.event, WorkflowStateName.DEVELOPMENT)
         self.assertEqual(start_event.event_type, TaskEvent.EventType.START)
         self.assertEqual(start_event.time, 10)
-        self.assertEqual(start_event.status, TaskEvent.EventStatus.SUCCESS)
+        self.assertEqual(start_event.status, EventStatus.SUCCESS)
 
         # Error Handling
 
@@ -69,7 +69,7 @@ class TestTaskHistory(unittest.TestCase):
         self.assertEqual(end_event.event, WorkflowStateName.DEVELOPMENT)
         self.assertEqual(end_event.event_type, TaskEvent.EventType.END)
         self.assertEqual(end_event.time, 10)
-        self.assertEqual(end_event.status, TaskEvent.EventStatus.SUCCESS)
+        self.assertEqual(end_event.status, EventStatus.SUCCESS)
 
     def test_end_with_default_event(self):
         self.history.start(10, WorkflowStateName.PENDING)
@@ -80,7 +80,7 @@ class TestTaskHistory(unittest.TestCase):
         self.assertEqual(end_event.event, WorkflowStateName.PENDING)
         self.assertEqual(end_event.event_type, TaskEvent.EventType.END)
         self.assertEqual(end_event.time, 10)
-        self.assertEqual(end_event.status, TaskEvent.EventStatus.SUCCESS)
+        self.assertEqual(end_event.status, EventStatus.SUCCESS)
 
     def test_terminate(self):
         # test attempts to start/end after terminate
@@ -114,7 +114,7 @@ class TestTaskHistory(unittest.TestCase):
         self.assertEqual(terminal_event.event_type,
                          TaskEvent.EventType.TERMINAL)
         self.assertEqual(terminal_event.time, 1)
-        self.assertEqual(terminal_event.status, TaskEvent.EventStatus.SUCCESS)
+        self.assertEqual(terminal_event.status, EventStatus.SUCCESS)
 
     def test_resume(self):
 
@@ -208,7 +208,7 @@ class TestTaskHistory(unittest.TestCase):
         self.history.end(1.0, WorkflowStateName.DEVELOPMENT)
         self.history.start(1.0, WorkflowStateName.QA_TESTING)
         self.history.end(2.0, WorkflowStateName.QA_TESTING,
-                         TaskEvent.EventStatus.FAILURE)
+                         EventStatus.FAILURE)
         self.history.start(2.0, WorkflowStateName.DEVELOPMENT)
         self.history.end(3.0, WorkflowStateName.DEVELOPMENT)
         self.history.start(3.0, WorkflowStateName.QA_TESTING)

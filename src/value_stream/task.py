@@ -1,5 +1,6 @@
 import copy
 from typing import Self
+from .event_status import EventStatus
 from .task_history import TaskHistory
 
 
@@ -79,7 +80,7 @@ class Task:
         last_event = self.history.last_event()
 
         if (last_event is not None) \
-                and (last_event.status == last_event.EventStatus.SUCCESS) \
+                and (last_event.status == EventStatus.SUCCESS) \
                 and last_event.event_type == last_event.EventType.TERMINAL:
             return last_event.time
 

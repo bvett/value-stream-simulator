@@ -1,4 +1,5 @@
 from enum import StrEnum
+from .event_status import EventStatus
 from .workflow_state_name import WorkflowStateName
 
 
@@ -11,16 +12,11 @@ class TaskEvent:
         END = 'end'
         TERMINAL = 'terminal'
 
-    class EventStatus(StrEnum):
-        """Outcome status of the event."""
-        SUCCESS = 'success'
-        FAILURE = 'failure'
-
     def __init__(self, event: WorkflowStateName, event_type: EventType, time: float, status: EventStatus):
         self.event: WorkflowStateName = event
         self.event_type: TaskEvent.EventType = event_type
         self.time: float = time
-        self.status: TaskEvent.EventStatus = status
+        self.status: EventStatus = status
 
     @classmethod
     def start(cls, event: WorkflowStateName, time: float, status: EventStatus = EventStatus.SUCCESS) -> "TaskEvent":

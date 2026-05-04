@@ -5,6 +5,7 @@ from matplotlib import ticker
 import numpy as np
 from pandas import json_normalize
 from tqdm import tqdm
+from ..event_status import EventStatus
 from ..simulation_result import SimulationResult
 from ..task_event import TaskEvent
 from ..workflow_state_name import WorkflowStateName
@@ -43,11 +44,11 @@ class ResultViewer:
 
         self.df_workflow_stages = \
             self.df.loc[(self.df['event_type'] == TaskEvent.EventType.END) &
-                        (self.df['status'] == TaskEvent.EventStatus.SUCCESS)]
+                        (self.df['status'] == EventStatus.SUCCESS)]
 
         self.df_completed_tasks = \
             self.df.loc[(self.df['event_type'] == TaskEvent.EventType.TERMINAL) &
-                        (self.df['status'] == TaskEvent.EventStatus.SUCCESS)]
+                        (self.df['status'] == EventStatus.SUCCESS)]
 
     def loss_vs_cadence(self, team_samples: int | None = None):
         """shows the impact of deployment cadence on loss

@@ -1,3 +1,4 @@
+from .event_status import EventStatus
 from .task_event import TaskEvent
 from .workflow_state_name import WorkflowStateName
 
@@ -37,13 +38,13 @@ class TaskHistory():
                     "Attempting to start a task from a terminal state")
 
             if (last_event.event_type == TaskEvent.EventType.START) \
-                    and (last_event.status == TaskEvent.EventStatus.SUCCESS):
+                    and (last_event.status == EventStatus.SUCCESS):
                 raise ValueError(
                     "Attempt to start a task that is already started")
 
         self.events.append(TaskEvent.start(event=event, time=time))
 
-    def end(self, time: float, event: WorkflowStateName | None = None, status: TaskEvent.EventStatus = TaskEvent.EventStatus.SUCCESS):
+    def end(self, time: float, event: WorkflowStateName | None = None, status: EventStatus = EventStatus.SUCCESS):
         """Ends a started event"""
 
         time -= self.baseline_t
@@ -59,7 +60,7 @@ class TaskHistory():
                 event = last_event.event
 
             if (last_event.event_type == TaskEvent.EventType.START) \
-                    and (last_event.status == TaskEvent.EventStatus.SUCCESS) \
+                    and (last_event.status == EventStatus.SUCCESS) \
                     and (last_event.event == event):
 
                 self.events.append(TaskEvent.end(
@@ -87,7 +88,7 @@ class TaskHistory():
 
         del self.events[-1]
 
-    def terminate(self, time: float, event: WorkflowStateName, status: TaskEvent.EventStatus = TaskEvent.EventStatus.SUCCESS):
+    def terminate(self, time: float, event: WorkflowStateName, status: EventStatus = EventStatus.SUCCESS):
         """Adds a terminal event to the history.
 
         A terminal event prevents additional events from being started"""

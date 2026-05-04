@@ -2,7 +2,7 @@ import unittest
 
 from simpy import Environment, Event
 
-from value_stream import Task, TaskEvent
+from value_stream import EventStatus, Task, TaskEvent
 from value_stream.workflow_state import WorkflowState, TerminalWorkflowState
 
 from value_stream.workflow_state_name import WorkflowStateName
@@ -36,7 +36,7 @@ class TestWorkflowState(unittest.TestCase):
         self.assertEqual(event.time, self.env.now)
         self.assertEqual(event.event, self.state.name)
         self.assertEqual(event.event_type, TaskEvent.EventType.START)
-        self.assertEqual(event.status, TaskEvent.EventStatus.SUCCESS)
+        self.assertEqual(event.status, EventStatus.SUCCESS)
 
     def test_put_terminal(self):
         task = Task(initial_value=50.0, story_points=1.0,
@@ -57,7 +57,7 @@ class TestWorkflowState(unittest.TestCase):
         self.assertEqual(event.time, self.env.now)
         self.assertEqual(event.event, self.terminal_state.name)
         self.assertEqual(event.event_type, TaskEvent.EventType.TERMINAL)
-        self.assertEqual(event.status, TaskEvent.EventStatus.SUCCESS)
+        self.assertEqual(event.status, EventStatus.SUCCESS)
 
     def test_get(self):
 
@@ -85,7 +85,7 @@ class TestWorkflowState(unittest.TestCase):
         self.assertEqual(event.time, 6)
         self.assertEqual(event.event, self.state.name)
         self.assertEqual(event.event_type, TaskEvent.EventType.END)
-        self.assertEqual(event.status, TaskEvent.EventStatus.SUCCESS)
+        self.assertEqual(event.status, EventStatus.SUCCESS)
 
     def test_get_terminal(self):
         task = Task(initial_value=50.0, story_points=1.0,
