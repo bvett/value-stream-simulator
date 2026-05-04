@@ -1,6 +1,7 @@
 # Parent class for Developer and Toolchain
 from simpy import Environment, Store
 
+from ..event_status import EventStatus
 from ..task import Task
 from ..workflow_state_name import WorkflowStateName
 
@@ -16,10 +17,16 @@ class Resource:
         for task in tasks:
             task.history.start(env.now, self.workflow_state)
 
-        yield env.process(self.do_work(env, tasks))
+        result = env.process(self.do_work(env, tasks))
+        yield result
+
+        if result.value is not None:
+            status = result.value['result']
+        else:
+            status = EventStatus.SUCCESS
 
         for task in tasks:
-            task.history.end(env.now, self.workflow_state)
+            task.history.end(env.now, self.workflow_state, status=status)
             yield target.put(task)
 
     def do_work(self, env: Environment, tasks: list[Task]):
