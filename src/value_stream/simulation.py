@@ -141,6 +141,4 @@ class Simulation:
 
                     yield signal.succeed(self.delivered.items[idx:])
 
-                    break
-
                 yield self.env.timeout(1)
