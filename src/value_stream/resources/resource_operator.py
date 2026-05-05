@@ -29,7 +29,7 @@ class ResourceOperator:
         self._timer_p = None
         self._executor_p = None
 
-    def start(self, source: WorkflowState, target: WorkflowState):
+    def start(self, source: WorkflowState, target: WorkflowState, target_upon_failure: WorkflowState | None = None):
         """Starts processing loop that:
             1) Waits for tasks to appear in source
             2) Triggers execution on a fixed schedule or continuously
@@ -48,7 +48,8 @@ class ResourceOperator:
         if self.cadence > 0:
             self._timer_p = self.env.process(self._timer())
 
-        self._executor_p = self.env.process(self._executor(target))
+        self._executor_p = self.env.process(self._executor(
+            target, target_upon_failure=target_upon_failure))
 
     def stop(self) -> None:
         """Shutdown the manager
@@ -108,25 +109,26 @@ class ResourceOperator:
             except Interrupt:
                 break
 
-    def _executor(self, target: WorkflowState):
+    def _executor(self, target: WorkflowState, target_upon_failure: WorkflowState | None = None):
 
         while True:
             try:
                 yield self.trigger  # wait for work
-                self.env.process(self._execute(target))
+                self.env.process(self._execute(
+                    target, target_upon_failure=target_upon_failure))
             except Interrupt:
                 break
 
-    def _execute(self, target: WorkflowState):
+    def _execute(self, target: WorkflowState, target_upon_failure: WorkflowState | None = None):
 
         tasks = self._queue.copy()
         self._queue.clear()
-        resource = yield self.request()
+        resource: Resource = yield self.request()
 
         for task in tasks:
             task.history.end(self.env.now)
 
-        yield self.env.process(resource.operate(self.env, tasks, target))
+        yield self.env.process(resource.operate(self.env, tasks, target, target_upon_failure))
 
         self.release(resource)
 

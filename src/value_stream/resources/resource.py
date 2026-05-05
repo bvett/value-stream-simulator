@@ -12,7 +12,7 @@ class Resource:
     def __init__(self, workflow_state: WorkflowStateName):
         self.workflow_state = workflow_state
 
-    def operate(self, env: Environment, tasks: list[Task], target: Store):
+    def operate(self, env: Environment, tasks: list[Task], target: Store, target_upon_failure: Store | None = None):
         """Simulates an action on a task object"""
         for task in tasks:
             task.history.start(env.now, self.workflow_state)
@@ -25,9 +25,14 @@ class Resource:
         else:
             status = EventStatus.SUCCESS
 
+        destination = target
+
+        if (status == EventStatus.FAILURE) and (target_upon_failure is not None):
+            destination = target_upon_failure
+
         for task in tasks:
             task.history.end(env.now, self.workflow_state, status=status)
-            yield target.put(task)
+            yield destination.put(task)
 
     def do_work(self, env: Environment, tasks: list[Task]):
         raise NotImplementedError()

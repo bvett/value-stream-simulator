@@ -122,7 +122,8 @@ class Simulation:
 
             qa_manager.start(
                 source=self.developed,
-                target=self.qa_complete)
+                target=self.qa_complete,
+                target_upon_failure=self.pending)
 
             toolchain_manager.start(
                 source=self.qa_complete,
