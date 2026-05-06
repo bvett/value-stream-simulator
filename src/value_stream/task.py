@@ -96,7 +96,7 @@ class Task:
         return 0 if delivered_t is None else self.value(delivered_t)
 
     def _loss(self) -> float:
-        """Returns percentage decrease in value of a delivered task"""
+        """Returns percentage difference between initial value and delivered value, or 0 if undelivered."""
         initial_value = self.value()
 
         return (self._delivered_value() - initial_value) / initial_value
