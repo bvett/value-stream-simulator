@@ -133,6 +133,10 @@ class ResourceOperator:
         self.release(resource)
 
     def request(self):
+        """Returns a resource from the resource pool, or waits until one is available. 
+        If the pool is empty, generates a new resource from the resource generator 
+        and adds it to the pool before returning."""
+
         if len(self.resource_pool.items) == 0:
 
             new_item = next(self.resource_generator, None)
