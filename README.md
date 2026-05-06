@@ -1,4 +1,6 @@
 # Value Stream Simulator
+![Build Status](https://github.com/bvett/value-stream-simulator/actions/workflows/ci.yml/badge.svg)
+
 
 ## What Problem is Being Solved?
 Organizations that invest in CI/CD automation may still experience customers that are negatively impacted by delivery pace and/or quality, which can lead to chasing metrics such as release frequency and test coverage.  Doing so can be counterproductive without understanding the *value stream* of software delivery.
