@@ -36,7 +36,7 @@ class Simulation:
             Defaults to None.
 
         Returns:
-            list[ModelResult]: Set of simulation outcomes, one per Model.
+            list[SimulationResult]: Set of simulation outcomes, one per Model.
         """
 
         simulation_results: list[SimulationResult] = []
