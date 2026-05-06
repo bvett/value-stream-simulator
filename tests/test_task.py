@@ -39,6 +39,13 @@ class TestTask(unittest.TestCase):
                         story_points=1, creation_time=5)
             task.value(4)
 
+        # edge case
+
+        with self.assertRaises(ValueError):
+            task = Task(task_id="", initial_value=100,
+                        story_points=1, creation_time=5)
+            task.value(0)
+
     def test_value(self):
         task = Task(task_id="",
                     initial_value=100,

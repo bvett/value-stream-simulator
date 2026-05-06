@@ -67,7 +67,7 @@ class Task:
         Returns:
             float: depreciated value of the task
         """
-        if not time:
+        if time is None:
             return self._initial_value
 
         if time < self.creation_t:
