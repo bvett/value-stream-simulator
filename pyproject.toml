@@ -8,9 +8,22 @@ packages = ["src/value_stream"]
 [project]
 name = "value_stream"
 version = "0.0.1"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
     {name="Brian Vetter", email="bvetter@gmail.com"},
+]
+dependencies = [
+    "ipykernel>=7.2.0",
+    "matplotlib>=3.10.8",
+    "numpy>=2.4.2",
+    "pandas>=3.0.1",
+    "simpy>=4.1.0",
+    "tqdm>=4.66.0",
+    "pydantic",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "pytest-asyncio",
 ]
 
 description = "Conduct software delivery simulations to identify inefficiencies that cause delay and lost value."
