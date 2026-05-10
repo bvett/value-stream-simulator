@@ -108,7 +108,7 @@ class ResultViewer:
         df.columns = df.columns.get_level_values(1)  # type: ignore
 
         ax = df.plot(title="Loss vs Cadence", xlabel="Cadence",
-                     ylabel="Loss", grid=True)
+                     ylabel="Loss", grid=True, colormap=self.colormap)
 
         ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
 
@@ -252,7 +252,8 @@ class ResultViewer:
         df.columns = df.columns.get_level_values(1)  # type: ignore
 
         ax = df.plot(drawstyle='steps-post', title='Delivered Value vs Time',
-                     xlabel='Time', ylabel='Delivered Value', grid=True)
+                     xlabel='Time', ylabel='Delivered Value', grid=True,
+                     colormap=self.colormap)
 
         ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
         ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
@@ -292,7 +293,8 @@ class ResultViewer:
         df.columns = df.columns.get_level_values(1)  # type: ignore
 
         df.plot(title="Delivered Value vs Team Size",
-                xlabel="Team Size", ylabel='Delivered Value', grid=True)
+                xlabel="Team Size", ylabel='Delivered Value', grid=True,
+                colormap=self.colormap)
         plt.legend(title="Deployment Cadence")
         plt.show()
 
