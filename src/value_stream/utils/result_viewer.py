@@ -1,6 +1,9 @@
 from typing import Any
 from enum import Enum
+import colorsys
+import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 from matplotlib import ticker
 import numpy as np
 from pandas import json_normalize
@@ -14,9 +17,36 @@ from ..workflow_state_name import WorkflowStateName
 class ResultViewer:
     """Handles rendering of simulation results"""
 
-    def __init__(self, results: list[SimulationResult], pbar: tqdm | None = None):
+    def __init__(self, results: list[SimulationResult], pbar: tqdm | None = None, colormap='plasma'):
 
+        self.colormap = matplotlib.colormaps[colormap]
         results_dict: list[dict[str, Any]] = []
+
+        colors = iter(self.colormap(
+            np.linspace(0.1, 0.9, len(WorkflowStateName))))
+
+        self.statecolor_map = {
+            WorkflowStateName.PENDING: next(colors),
+            WorkflowStateName.DEVELOPMENT: next(colors),
+            WorkflowStateName.DEV_COMPLETE: next(colors),
+            WorkflowStateName.QA_TESTING: next(colors),
+            WorkflowStateName.QA_COMPLETE: next(colors),
+            WorkflowStateName.DEPLOYMENT: next(colors)
+        }
+
+        self.label_map = {
+            WorkflowStateName.PENDING: 'waiting for dev',
+            WorkflowStateName.DEVELOPMENT: 'development',
+            WorkflowStateName.DEV_COMPLETE: 'waiting for qa',
+            WorkflowStateName.QA_TESTING: 'qa',
+            WorkflowStateName.QA_COMPLETE: 'waiting for delivery',
+            WorkflowStateName.DEPLOYMENT: 'delivery'
+        }
+
+        self.edgecolor_map = {
+            EventStatus.SUCCESS: 'none',
+            EventStatus.FAILURE: 'red'
+        }
 
         for r in results:
             results_dict.append(_to_dict(r))
@@ -43,8 +73,7 @@ class ResultViewer:
             level=2)['event_duration'].cumsum()
 
         self.df_workflow_stages = \
-            self.df.loc[(self.df['event_type'] == TaskEvent.EventType.END) &
-                        (self.df['status'] == EventStatus.SUCCESS)]
+            self.df.loc[(self.df['event_type'] == TaskEvent.EventType.END)]
 
         self.df_completed_tasks = \
             self.df.loc[(self.df['event_type'] == TaskEvent.EventType.TERMINAL) &
@@ -54,8 +83,8 @@ class ResultViewer:
         """shows the impact of deployment cadence on loss
 
         Args:
-            team_samples (int|None):When the optional _team_samples_ parameter is provided, 
-            it limits the number of series to an even distribution of team sizes 
+            team_samples (int|None):When the optional _team_samples_ parameter is provided,
+            it limits the number of series to an even distribution of team sizes
             between the minimum and maximum, inclusive.
         """
 
@@ -89,7 +118,7 @@ class ResultViewer:
         plt.show()
 
     def time_alloc_vs_cadence(self, nrows=2, ncols=3):
-        """Plots a grid of pie charts(defined by nrows and ncols) that 
+        """Plots a grid of pie charts(defined by nrows and ncols) that
         provides a breakdown of how time was spent given a delivery cadence
 
         Args:
@@ -101,22 +130,33 @@ class ResultViewer:
 
         count = len(df)
 
+        df = df[[('event_duration', k) for k in self.statecolor_map.keys()]]
+
         fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(10, 6))
 
         row_sample = np.linspace(
             0, count-1, min(count, nrows * ncols), dtype=int)
 
+        colors = [c for c in self.statecolor_map.values()]
+
         for i, index in enumerate(row_sample):
             ax = axes[i // ncols, i % ncols]
-            ax.pie(df.iloc[index], startangle=30, autopct='%1.0f%%')
+            _, _, autotexts = ax.pie(df.iloc[index], startangle=30,
+                                     autopct=lambda p: f"{p:1.0f}%" if p > 10 else '',
+                                     colors=colors,
+                                     pctdistance=.75)
             ax.set_title(df.index[index])
+
+            for i, autotext in enumerate(autotexts):
+                autotext.set_color(self._textcolor(colors[i]))
 
         for i in range(nrows * ncols, count, -1):
             row = (i-1) // ncols
             column = (i-1) % ncols
             axes[row, column].remove()
 
-        fig.legend(df.columns.get_level_values(1))
+        fig.legend(labels=[self.label_map[k]
+                   for k in self.statecolor_map.keys()])
         fig.suptitle("Time Allocation by Cadence")
         fig.subplots_adjust(wspace=.2)
 
@@ -125,7 +165,7 @@ class ResultViewer:
     def delivery_timeline(self, cadence: int, team_size: int):
         """Provides a task-centric view of delivery
 
-        Use the cadence and team_size arguments to choose the 
+        Use the cadence and team_size arguments to choose the
         set of tasks from the simulation results.
 
         """
@@ -138,28 +178,47 @@ class ResultViewer:
         df = df.loc[(df.index.get_level_values('model.deployment_cadence') == cadence)
                     & (df.index.get_level_values('model.team_size') == team_size)]
 
-        df = df[['event', 'event_duration', 'time']].groupby(
-            ['task.task_id', 'event']).sum().unstack(-1)
+        df['start_time'] = df['time'] - df['event_duration']
 
-        df = df.sort_values(
-            by=[('time', WorkflowStateName.DEPLOYMENT),
-                ('time', WorkflowStateName.DEV_COMPLETE),
-                ('time', WorkflowStateName.DEVELOPMENT)],  # type:ignore
-            ascending=[False, False, False])  # type:ignore
+        df = df.groupby(['task.task_id', 'event'])[[
+            'time', 'start_time', 'event_duration', 'status']].agg(list)
 
-        df = df[['event_duration']]
-        df.columns = df.columns.get_level_values(1)  # type: ignore
+        df['timeline'] = [list(zip(t, d))  # type:ignore
+                          for t, d in zip(df['start_time'], df['event_duration'])]
 
-        # category_colors = ['lightgrey', 'orange', 'khaki', 'green']
+        df = df.unstack(-1)
 
-        ax = df[[WorkflowStateName.PENDING, WorkflowStateName.DEVELOPMENT,  WorkflowStateName.DEV_COMPLETE,
-                 WorkflowStateName.QA_TESTING, WorkflowStateName.QA_COMPLETE, WorkflowStateName.DEPLOYMENT]].plot(
-            kind='barh', stacked=True, title='Delivery Timeline')
-        ax.yaxis.set_ticks([])
-        ax.yaxis.set_visible(True)
-        ax.set_ylabel("Task")
-        ax.set_xlabel("Time")
-        ax.legend(labels)
+        df.sort_values(
+            by=('time', 'deployment'),
+            key=lambda x: x.apply(max), ascending=False, inplace=True)  # type:ignore
+
+        y = 1
+        for _, row in df.iterrows():
+
+            for state, facecolor in self.statecolor_map.items():
+                edgecolors = [self.edgecolor_map[s]
+                              for s in row[('status', state)]]
+
+                plt.broken_barh(xranges=row[('timeline', state)], yrange=(
+                    y, 1), facecolor=facecolor, edgecolors=edgecolors)
+
+            y += 1
+
+        custom_lines = []
+
+        for color in self.statecolor_map.values():
+            custom_lines.append(Rectangle(xy=(0, 0), width=0, height=0,
+                                          facecolor=color))
+
+        custom_lines.append(Rectangle(xy=(0, 0), width=0, height=0,
+                            facecolor='none', edgecolor='red'))
+
+        plt.yticks([])
+        plt.ylabel('Task')
+        plt.xlabel('Time')
+        labels = [self.label_map[k] for k in self.statecolor_map.keys()]
+
+        plt.legend(custom_lines, labels + ['failed event'])
         plt.show()
 
     def delivered_value_vs_time(self, cadence: int, team_samples: int | None = None):
@@ -236,6 +295,11 @@ class ResultViewer:
                 xlabel="Team Size", ylabel='Delivered Value', grid=True)
         plt.legend(title="Deployment Cadence")
         plt.show()
+
+    def _textcolor(self, color):
+        color_hls = colorsys.rgb_to_hls(color[0], color[1], color[2])
+
+        return 'white' if color_hls[1] < 0.5 else 'black'
 
 
 def _to_dict(obj: Any):
