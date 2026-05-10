@@ -18,7 +18,7 @@ class Developer(Resource):
         self.efficiency: float = efficiency
 
     def effort(self, tasks: list[Task]) -> float:
-        return sum([task.story_points / self.efficiency for task in tasks])
+        return sum([task.remaining_work() / self.efficiency for task in tasks])
 
     def do_work(self, env: Environment, tasks: list[Task]):
         start = env.now

@@ -24,12 +24,21 @@ class TestQATester(unittest.TestCase):
         _ = QATester(failure_rate=0)
         _ = QATester(failure_rate=0.5)
         _ = QATester(failure_rate=1)
+        _ = QATester(failure_cost=.15)
+        _ = QATester(failure_cost=0)
+        _ = QATester(failure_cost=1)
 
         with self.assertRaises(ValueError):
             _ = QATester(failure_rate=-0.01)
 
         with self.assertRaises(ValueError):
             _ = QATester(failure_rate=1.01)
+
+        with self.assertRaises(ValueError):
+            _ = QATester(failure_cost=-0.01)
+
+        with self.assertRaises(ValueError):
+            _ = QATester(failure_cost=1.01)
 
     def test_all_successes(self):
         time_cost = 0.2
@@ -49,6 +58,10 @@ class TestQATester(unittest.TestCase):
                              EventStatus.SUCCESS)
 
     def test_all_failures(self):
+
+        for task in self.tasks:
+            task.do_work(task.story_points)
+
         tester = QATester(failure_rate=1)
         self.env.process(tester.operate(
             self.env, self.tasks, target=self.target))
@@ -57,3 +70,21 @@ class TestQATester(unittest.TestCase):
         for task in self.target.items:
             self.assertEqual(task.history.last_event().status,  # type: ignore
                              EventStatus.FAILURE)
+            self.assertEqual(task.remaining_work(), 0)
+
+    def test_failure_cost(self):
+        failure_cost = 0.2
+
+        for task in self.tasks:
+            task.do_work(task.story_points)
+
+        tester = QATester(failure_rate=1, failure_cost=failure_cost)
+
+        self.env.process(tester.operate(
+            self.env, self.tasks, target=self.target))
+
+        self.env.run()
+
+        for task in self.target.items:
+            self.assertAlmostEqual(task.remaining_work(),
+                                   task.story_points * failure_cost)

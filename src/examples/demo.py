@@ -40,6 +40,7 @@ if __name__ == "__main__":
     DEPLOYMENT_DURATION = .25
 
     QA_TEST_FAILURE_RATE = 0.15
+    QA_TEST_FAILURE_COST = 0.25
 
     # Create tasks with complexities between 0.5 and 2.0
     tasks = TaskFactory().create(
@@ -55,7 +56,8 @@ if __name__ == "__main__":
             count=i, efficiency=generator_utils.uniform(.5, 1.5)))
 
     qa_tester_pool = QATester.create_pool(
-        limit=NUM_QA_RESOURCES, failure_rate=QA_TEST_FAILURE_RATE)
+        limit=NUM_QA_RESOURCES, failure_rate=QA_TEST_FAILURE_RATE,
+        failure_cost=QA_TEST_FAILURE_COST)
 
     toolchain_pool = Toolchain.create_pool(
         limit=TOOLCHAIN_CONCURRENCY, deployment_duration=DEPLOYMENT_DURATION)
