@@ -127,7 +127,8 @@ class Simulation:
 
             toolchain_manager.start(
                 source=self.qa_complete,
-                target=self.delivered)
+                target=self.delivered,
+                target_upon_failure=self.qa_complete)
 
             while True:
 

@@ -38,6 +38,7 @@ if __name__ == "__main__":
 
     # Duration of a deployment
     DEPLOYMENT_DURATION = .25
+    DEPLOYMENT_FAILURE_RATE = 0.1
 
     QA_TEST_FAILURE_RATE = 0.15
     QA_TEST_FAILURE_COST = 0.25
@@ -60,7 +61,9 @@ if __name__ == "__main__":
         failure_cost=QA_TEST_FAILURE_COST)
 
     toolchain_pool = Toolchain.create_pool(
-        limit=TOOLCHAIN_CONCURRENCY, deployment_duration=DEPLOYMENT_DURATION)
+        limit=TOOLCHAIN_CONCURRENCY,
+        deployment_duration=DEPLOYMENT_DURATION,
+        failure_rate=DEPLOYMENT_FAILURE_RATE)
 
     # Model includes the developer_ teams and range of cadences
     models = ModelFactory().create(
