@@ -214,6 +214,8 @@ class ResultViewer:
                             facecolor='none', edgecolor='red'))
 
         plt.yticks([])
+        plt.title(
+            f"Delivery Timeline for Cadence={cadence}, Team Size={team_size}")
         plt.ylabel('Task')
         plt.xlabel('Time')
         labels = [self.label_map[k] for k in self.statecolor_map.keys()]
