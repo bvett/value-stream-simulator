@@ -1,4 +1,7 @@
 import random
+from typing import Generator
+from simpy import Environment, Interrupt, Process, Store
+
 from .factory import generate_args
 from ..task import Task
 
@@ -17,7 +20,7 @@ class TaskFactory:
 
             initial_value (float, optional): Starting value for all Task objects Defaults to 1.0.
 
-            depreciation_rate (float, optional): Depreciation rate for all 
+            depreciation_rate (float, optional): Depreciation rate for all
             Task objects. Defaults to 0.02.
 
             **kwargs: additional arguments to pass to the Task constructor
@@ -34,8 +37,10 @@ class TaskFactory:
 
             args = generate_args(**kwargs)
 
-            tasks.append(Task(task_id=f"{i+1}",
-                              initial_value=initial_value,
+            if 'task_id' not in args:
+                args['task_id'] = f"{i+1}"
+
+            tasks.append(Task(initial_value=initial_value,
                               depreciation_rate=depreciation_rate,
                               **args))
 
@@ -43,3 +48,56 @@ class TaskFactory:
             random.shuffle(tasks)
 
         return tasks
+
+
+class TaskGenerator:
+    """creates a set of Tasks on a regular interval.  Useful for simulating task creation over time, or 
+    the creation of unexpected toil.
+    """
+
+    def __init__(self, group_size: int = 1, shuffle: bool = True, initial_value: float = 1.0, depreciation_rate: float = 0.02, **kwargs):
+        self.group_size = group_size
+        self.shuffle = shuffle
+        self.initial_value = initial_value
+        self.depreciation_rate = depreciation_rate
+        self.kwargs = kwargs
+
+        self.proc: Process | None = None
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return TaskFactory().create(count=self.group_size,
+                                    shuffle=self.shuffle,
+                                    initial_value=self.initial_value,
+                                    depreciation_rate=self.depreciation_rate,
+                                    **self.kwargs)
+
+    def start(self, env: Environment, interval: float | Generator, target: Store):
+        def gen():
+            while True:
+
+                if isinstance(interval, Generator):
+                    i = next(interval)
+                else:
+                    i = interval
+
+                try:
+                    value: list[Task] = next(self)
+                    event = env.timeout(delay=i, value=value)
+                    yield event
+
+                    if event.value is None:
+                        raise RuntimeError("Unexpected empty value")
+
+                    for v in event.value:
+                        target.put(v)
+
+                except Interrupt:
+                    break
+        self.proc = env.process(gen())
+
+    def stop(self):
+        if self.proc is not None:
+            self.proc.interrupt()
