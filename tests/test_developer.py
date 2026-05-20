@@ -38,7 +38,18 @@ class TestDeveloper(unittest.TestCase):
 
         env.run()
 
-        for i, v in enumerate([0.4, 1.2, 1.3333333, 4]):
+        # All tasks are started at t=0
+        # Each developer is assigned simple_task then complex_task
+        # Processing of simple_task is suspended until complex_task is completed.
+
+        # Expected completion times (start_time + effort)
+
+        # (senior_dev, complex_task) : 0 + (2/1.5) = 1.3333333
+        # (senior_dev, simple_task)  : 1.3333333 + (0.6/1.5) = 1.7333333
+        # (junior_dev, complex_task) : 0 + (2/0.5) = 4
+        # (junior_dev, simple_task)  : 4 + (0.6/0.5) = 5.2
+
+        for i, v in enumerate([1.3333333, 1.7333333, 4, 5.2]):
 
             dev_start_t, dev_end_t = target.items[i].history.event_times(
                 WorkflowStateName.DEVELOPMENT)
