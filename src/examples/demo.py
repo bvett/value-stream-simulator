@@ -44,8 +44,9 @@ if __name__ == "__main__":
     QA_TEST_FAILURE_COST = 0.25
 
     # Create tasks with complexities between 0.5 and 2.0
-    tasks = TaskFactory().create(
-        count=NUM_TASKS, initial_value=1, depreciation_rate=0.02, story_points=generator_utils.uniform(.5, 2))
+    tasks = TaskFactory(initial_value=1,
+                        depreciation_rate=0.02,
+                        story_points=generator_utils.uniform(.5, 2)).create(count=NUM_TASKS)
 
     # Create development teams with developers having efficiencies between 0.5 and 1.5
     developer_factory = DeveloperFactory()

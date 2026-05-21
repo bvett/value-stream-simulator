@@ -9,16 +9,16 @@ from ..task import Task
 class TaskFactory:
     """Utility for creating Tasks"""
 
-    def create(self, count: int, shuffle: bool = True, **kwargs) -> list[Task]:
+    def __init__(self, **task_kwargs):
+        self._task_kwargs = task_kwargs
+
+    def create(self, count: int, shuffle: bool = True) -> list[Task]:
         """Creates Task objects based on TaskFactory configuration
 
         Args:
             count (int): number of tasks to create
 
             shuffle (bool, optional): Randomizes the order of the created tasks. Defaults to True.
-
-            **kwargs: additional arguments to pass to the Task constructor
-
 
         """
 
@@ -29,7 +29,7 @@ class TaskFactory:
 
         for i in range(count):
 
-            args = generate_args(**kwargs)
+            args = generate_args(**self._task_kwargs)
 
             if 'task_id' not in args:
                 args['task_id'] = f"{i+1}"
@@ -60,11 +60,9 @@ class TaskGenerator:
         return self
 
     def __next__(self):
-        return TaskFactory().create(count=self.group_size,
-                                    shuffle=self.shuffle,
-                                    initial_value=self.initial_value,
-                                    depreciation_rate=self.depreciation_rate,
-                                    **self.kwargs)
+        return TaskFactory(initial_value=self.initial_value,
+                           depreciation_rate=self.depreciation_rate, **self.kwargs).create(count=self.group_size,
+                                                                                           shuffle=self.shuffle)
 
     def start(self, env: Environment, interval: float | Generator, target: Store):
         def gen():

@@ -10,8 +10,10 @@ class TestToolchain(unittest.TestCase):
     def setUp(self):
         self.env = Environment()
 
-        self.tasks: list[Task] = TaskFactory().create(
-            3, initial_value=1, depreciation_rate=0, story_points=(x for x in range(2, 8, 2)))
+        self.tasks: list[Task] = TaskFactory(
+            initial_value=1,
+            depreciation_rate=0,
+            story_points=(x for x in range(2, 8, 2))).create(3)
 
         self.env = Environment()
 
