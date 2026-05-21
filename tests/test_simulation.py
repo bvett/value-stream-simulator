@@ -30,7 +30,8 @@ class TestSimulation(unittest.TestCase):
             qa_testers=qa_tester_pool,
             toolchain_pool=toolchain_pool)
 
-        tasks = TaskFactory().create(count=NUM_TASKS, story_points=1.0)
+        tasks = TaskFactory().create(count=NUM_TASKS, initial_value=1,
+                                     depreciation_rate=0, story_points=1.0)
 
         with tqdm(total=len(models)) as pbar:
             model_results = simulation.execute(

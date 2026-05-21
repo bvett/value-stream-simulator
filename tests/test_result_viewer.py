@@ -37,7 +37,8 @@ class TestResultViewer(unittest.TestCase):
             qa_testers=qa_tester_pool,
             toolchain_pool=toolchain_pool)
 
-        tasks = TaskFactory().create(count=self.num_tasks, story_points=1.0)
+        tasks = TaskFactory().create(count=self.num_tasks, initial_value=1,
+                                     depreciation_rate=0, story_points=1.0)
 
         self.model_results = simulation.execute(
             tasks=tasks, models=models)

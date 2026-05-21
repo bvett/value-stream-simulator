@@ -11,7 +11,7 @@ class TestToolchain(unittest.TestCase):
         self.env = Environment()
 
         self.tasks: list[Task] = TaskFactory().create(
-            3, story_points=(x for x in range(2, 8, 2)))
+            3, initial_value=1, depreciation_rate=0, story_points=(x for x in range(2, 8, 2)))
 
         self.env = Environment()
 
