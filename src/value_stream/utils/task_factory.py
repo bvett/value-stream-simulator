@@ -50,7 +50,6 @@ class TaskGenerator:
 
     def __init__(self, group_size: int = 1, shuffle: bool = True, **kwargs):
         self.group_size = group_size
-        self.shuffle = shuffle
         self.kwargs = kwargs
 
         self.proc: Process | None = None
@@ -59,7 +58,7 @@ class TaskGenerator:
         return self
 
     def __next__(self):
-        return TaskFactory(**self.kwargs).create(count=self.group_size, shuffle=self.shuffle)
+        return TaskFactory(**self.kwargs).create(count=self.group_size)
 
     def start(self, env: Environment, interval: float | Generator, target: Store):
         def gen():
