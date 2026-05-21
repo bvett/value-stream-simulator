@@ -140,8 +140,7 @@ class Task:
         remaining_work = self.remaining_work()
 
         if story_points <= remaining_work:
-            self.completed_story_points = round(
-                self.completed_story_points + story_points, 8)
+            self.completed_story_points += story_points
 
             if self.completed_story_points < 0:
                 raise ValueError("completed_story_points cannot be negative")

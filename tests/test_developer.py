@@ -56,4 +56,4 @@ class TestDeveloper(unittest.TestCase):
             self.assertAlmostEqual(dev_end_t, v)
             self.assertEqual(dev_start_t, 0)
 
-            self.assertEqual(target.items[i].remaining_work(), 0)
+            self.assertAlmostEqual(target.items[i].remaining_work(), 0)
