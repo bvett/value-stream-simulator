@@ -1,7 +1,14 @@
 import copy
+from enum import StrEnum
 from typing import Self
 from .event_status import EventStatus
 from .task_history import TaskHistory
+
+
+class TaskType(StrEnum):
+    """Task Categorization."""
+    DEVELOPMENT = 'development'
+    SUPPORT = 'support'
 
 
 class Task:
@@ -12,7 +19,8 @@ class Task:
                  story_points: float,
                  depreciation_rate=0.005,
                  task_id: str | None = None,
-                 creation_time: float = 0.0) -> None:
+                 creation_time: float = 0.0,
+                 task_type: TaskType = TaskType.DEVELOPMENT) -> None:
         """Creates a Task
 
         Args:
@@ -52,6 +60,8 @@ class Task:
             raise ValueError("depreciation_rate must >=0 and <=1")
 
         self.depreciation_rate = depreciation_rate
+
+        self.task_type = task_type
 
         self.history = TaskHistory()
 
@@ -140,3 +150,17 @@ class Task:
 
         self.completed_story_points = self.story_points
         return story_points - remaining_work
+
+
+class SupportTask(Task):
+    def __init__(self,
+                 story_points: float,
+                 task_id: str | None = None,
+                 creation_time: float = 0.0):
+
+        super().__init__(initial_value=0,
+                         story_points=story_points,
+                         depreciation_rate=0,
+                         task_id=task_id,
+                         creation_time=creation_time,
+                         task_type=TaskType.SUPPORT)

@@ -4,7 +4,7 @@ from .model import Model
 from .simulation import Simulation
 from .task_event import TaskEvent
 from .task_history import TaskHistory
-from .task import Task
+from .task import SupportTask, Task, TaskType
 from .workflow_state_name import WorkflowStateName
 from .workflow_state import WorkflowState, TerminalWorkflowState
 
@@ -13,9 +13,11 @@ __all__ = ["EventStatus",
            "SimulationResult",
            "Model",
            "Simulation",
+           "SupportTask",
            "TaskEvent",
            "TaskHistory",
            "Task",
+           "TaskType",
            "TerminalWorkflowState",
            "WorkflowState",
            "WorkflowStateName"]
