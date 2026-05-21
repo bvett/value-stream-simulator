@@ -48,7 +48,7 @@ class TaskGenerator:
     the creation of unexpected toil.
     """
 
-    def __init__(self, group_size: int = 1, shuffle: bool = True, **kwargs):
+    def __init__(self, group_size: int = 1, **kwargs):
         self.group_size = group_size
         self.kwargs = kwargs
 
