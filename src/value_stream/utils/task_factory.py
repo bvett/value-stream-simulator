@@ -47,11 +47,9 @@ class TaskGenerator:
     the creation of unexpected toil.
     """
 
-    def __init__(self, group_size: int = 1, shuffle: bool = True, initial_value: float = 1.0, depreciation_rate: float = 0.02, **kwargs):
+    def __init__(self, group_size: int = 1, shuffle: bool = True, **kwargs):
         self.group_size = group_size
         self.shuffle = shuffle
-        self.initial_value = initial_value
-        self.depreciation_rate = depreciation_rate
         self.kwargs = kwargs
 
         self.proc: Process | None = None
@@ -60,9 +58,7 @@ class TaskGenerator:
         return self
 
     def __next__(self):
-        return TaskFactory(initial_value=self.initial_value,
-                           depreciation_rate=self.depreciation_rate, **self.kwargs).create(count=self.group_size,
-                                                                                           shuffle=self.shuffle)
+        return TaskFactory(**self.kwargs).create(count=self.group_size, shuffle=self.shuffle)
 
     def start(self, env: Environment, interval: float | Generator, target: Store):
         def gen():
