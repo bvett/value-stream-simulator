@@ -1,5 +1,5 @@
 import random
-from typing import Generator
+from typing import Generator, Type
 from simpy import Environment, Interrupt, Process, Store
 
 from .factory import generate_args
@@ -9,8 +9,9 @@ from ..task import Task
 class TaskFactory:
     """Utility for creating Tasks"""
 
-    def __init__(self, **task_kwargs):
+    def __init__(self, cls: Type[Task] = Task, **task_kwargs):
         self._task_kwargs = task_kwargs
+        self.cls = cls
 
     def create(self, count: int, shuffle: bool = True) -> list[Task]:
         """Creates Task objects based on TaskFactory configuration
@@ -34,7 +35,7 @@ class TaskFactory:
             if 'task_id' not in args:
                 args['task_id'] = f"{i+1}"
 
-            tasks.append(Task(**args))
+            tasks.append(self.cls(**args))
 
         if shuffle is True:
             random.shuffle(tasks)
