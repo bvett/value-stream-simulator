@@ -2,7 +2,7 @@ import unittest
 
 from simpy import Environment, Store
 
-from value_stream.utils import TaskGenerator
+from value_stream.utils import TaskFactory, TaskGenerator
 
 
 class TestTaskGenerator(unittest.TestCase):
@@ -12,7 +12,8 @@ class TestTaskGenerator(unittest.TestCase):
         self.target = Store(self.env)
 
     def test_start(self):
-        generator = TaskGenerator(story_points=1, initial_value=1)
+        generator = TaskGenerator(factory=TaskFactory(
+            story_points=1, initial_value=1))
 
         generator.start(self.env, interval=1, target=self.target)
 
@@ -24,7 +25,7 @@ class TestTaskGenerator(unittest.TestCase):
 
     def test_multi(self):
         generator = TaskGenerator(
-            group_size=3, story_points=1, initial_value=1)
+            group_size=3, factory=TaskFactory(story_points=1, initial_value=1))
 
         generator.start(self.env, interval=1, target=self.target)
 

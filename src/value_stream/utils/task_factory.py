@@ -48,9 +48,9 @@ class TaskGenerator:
     the creation of unexpected toil.
     """
 
-    def __init__(self, group_size: int = 1, **kwargs):
+    def __init__(self,  factory: TaskFactory,  group_size: int = 1):
         self.group_size = group_size
-        self.kwargs = kwargs
+        self.factory = factory
 
         self.proc: Process | None = None
 
@@ -58,7 +58,7 @@ class TaskGenerator:
         return self
 
     def __next__(self):
-        return TaskFactory(**self.kwargs).create(count=self.group_size)
+        return self.factory.create(count=self.group_size)
 
     def start(self, env: Environment, interval: float | Generator, target: Store):
         def gen():
