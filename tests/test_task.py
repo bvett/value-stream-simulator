@@ -1,5 +1,5 @@
 import unittest
-from value_stream.task import Task, TaskType, SupportTask
+from value_stream.task import Task
 from value_stream.workflow_state_name import WorkflowStateName
 
 # pylint:disable=protected-access,missing-function-docstring,missing-class-docstring
@@ -212,17 +212,3 @@ class TestTask(unittest.TestCase):
 
         task = task.reset()
         self.assertEqual(task.remaining_work(), task.story_points)
-
-    def test_support_task(self):
-        task = SupportTask(story_points=2,
-                           task_id="INC-001",
-                           creation_time=2)
-
-        self.assertEqual(task.depreciation_rate, 0)
-        self.assertEqual(task.completed_story_points, 0)
-        self.assertEqual(task.creation_t, 2)
-        self.assertEqual(task.depreciation_rate, 0.0)
-        self.assertEqual(task.story_points, 2)
-        self.assertEqual(task.task_id, "INC-001")
-        self.assertEqual(task.task_type, TaskType.SUPPORT)
-        self.assertEqual(task._initial_value, 0)

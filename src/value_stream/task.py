@@ -109,6 +109,9 @@ class Task:
         """Returns percentage difference between initial value and delivered value, or 0 if undelivered."""
         initial_value = self.value()
 
+        if initial_value == 0:
+            return 0
+
         return (self._delivered_value() - initial_value) / initial_value
 
     def update_value_and_loss(self):
