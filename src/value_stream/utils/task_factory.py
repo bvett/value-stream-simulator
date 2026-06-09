@@ -44,33 +44,50 @@ class TaskFactory:
 
 
 class TaskGenerator:
-    """creates a set of Tasks on a regular interval.  Useful for simulating task creation over time, or 
-    the creation of unexpected toil.
+    """creates a set of Tasks at a regular simulation time interval. 
+    Useful for simulating task creation over time and the creation of unexpected toil.
     """
 
-    def __init__(self,  factory: TaskFactory,  group_size: int = 1):
+    def __init__(self,  factory: TaskFactory,  interval: float | Generator, group_size: int = 1):
         self.group_size = group_size
         self.factory = factory
+        self.interval = interval
 
         self.proc: Process | None = None
+        self._batch_num = 0
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        return self.factory.create(count=self.group_size)
+        self._batch_num += 1
+        serial_num = 0
 
-    def start(self, env: Environment, interval: float | Generator, target: Store):
+        tasks = self.factory.create(count=self.group_size)
+
+        for task in tasks:
+            if self.group_size == 1:
+                task.task_id = f"S{self._batch_num}"
+            else:
+                serial_num += 1
+                task.task_id = f"S{self._batch_num}-{serial_num}"
+
+        return tasks
+
+    def start(self, env: Environment, target: Store):
+        self._batch_num = 0
+
         def gen():
             while True:
 
-                if isinstance(interval, Generator):
-                    i = next(interval)
+                if isinstance(self.interval, Generator):
+                    i = next(self.interval)
                 else:
-                    i = interval
+                    i = self.interval
 
                 try:
                     value: list[Task] = next(self)
+
                     event = env.timeout(delay=i, value=value)
                     yield event
 
@@ -78,7 +95,7 @@ class TaskGenerator:
                         raise RuntimeError("Unexpected empty value")
 
                     for v in event.value:
-                        target.put(v)
+                        yield target.put(v)
 
                 except Interrupt:
                     break

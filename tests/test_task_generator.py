@@ -13,9 +13,9 @@ class TestTaskGenerator(unittest.TestCase):
 
     def test_start(self):
         generator = TaskGenerator(factory=TaskFactory(
-            story_points=1, initial_value=1))
+            story_points=1, initial_value=1), interval=1)
 
-        generator.start(self.env, interval=1, target=self.target)
+        generator.start(self.env, target=self.target)
 
         self.env.run(10)
 
@@ -25,9 +25,9 @@ class TestTaskGenerator(unittest.TestCase):
 
     def test_multi(self):
         generator = TaskGenerator(
-            group_size=3, factory=TaskFactory(story_points=1, initial_value=1))
+            group_size=3, factory=TaskFactory(story_points=1, initial_value=1), interval=1)
 
-        generator.start(self.env, interval=1, target=self.target)
+        generator.start(self.env, target=self.target)
 
         self.env.run(10)
 

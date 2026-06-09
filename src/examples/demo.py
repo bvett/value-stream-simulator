@@ -6,10 +6,10 @@ import logging
 from typing import Collection
 from tqdm import tqdm
 
-from value_stream import Simulation, SimulationResult
+from value_stream import Simulation, SimulationResult, SupportTask
 from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, \
-    TaskFactory, generator_utils
+    TaskFactory, TaskGenerator, generator_utils
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +43,8 @@ if __name__ == "__main__":
     QA_TEST_FAILURE_RATE = 0.15
     QA_TEST_FAILURE_COST = 0.25
 
+    SUPPORT_INTERVAL = 50
+
     # Create tasks with complexities between 0.5 and 2.0
     tasks = TaskFactory(initial_value=1,
                         depreciation_rate=0.02,
@@ -73,11 +75,22 @@ if __name__ == "__main__":
         qa_testers=qa_tester_pool,
         toolchain_pool=toolchain_pool)
 
+    support_factory = TaskFactory(
+        SupportTask, story_points=1)
+
+    support_generator = None
+
+    # support_generator = TaskGenerator(
+    #    factory=support_factory, interval=SUPPORT_INTERVAL)
+
     # Run the simulation with a progress bar and collect the results
     results: list[SimulationResult] = []
 
     with tqdm(desc='Running Simulation', total=len(models)) as pbar:
-        results.extend(Simulation().execute(tasks, models, pbar=pbar))
+        results.extend(Simulation().execute(tasks=tasks,
+                                            models=models,
+                                            support_generator=support_generator,
+                                            pbar=pbar))
 
     # Showcase the results using different plots
 

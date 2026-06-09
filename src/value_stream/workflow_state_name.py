@@ -9,3 +9,5 @@ class WorkflowStateName(StrEnum):
     QA_COMPLETE = "qa_complete"
     DEPLOYMENT = "deployment"
     DELIVERY = "delivery"
+    SUPPORT_PENDING = "support_pending"
+    SUPPORT_COMPLETE = "support_complete"

@@ -7,7 +7,9 @@ from tqdm import tqdm
 from .resources import ResourceOperator
 from .model import Model
 from .simulation_result import SimulationResult
+from .support_workflow import SupportWorkflow
 from .task import Task
+from .utils.task_factory import TaskGenerator
 from .workflow_state import WorkflowState, TerminalWorkflowState
 from .workflow_state_name import WorkflowStateName
 
@@ -26,6 +28,7 @@ class Simulation:
 
     def execute(self, tasks: list[Task],
                 models: Iterable[Model],
+                support_generator: TaskGenerator | None = None,
                 pbar: tqdm | None = None) -> list[SimulationResult]:
         """Executes a simulation.
 
@@ -43,6 +46,9 @@ class Simulation:
 
         env = Environment()
         workflow = self.Workflow(env)
+        support_target = TerminalWorkflowState(
+            env, WorkflowStateName.SUPPORT_COMPLETE)
+        support_workflow = SupportWorkflow(env, support_target)
 
         for model in models:
 
@@ -62,10 +68,23 @@ class Simulation:
                 toolchain_manager=toolchain_manager,
                 signal=signal))
 
-            delivered_tasks: list[Task] = env.run(
+            if support_generator is not None:
+                env.process(support_workflow.start(
+                    generator=support_generator,
+                    developers=list(model.developer_team)))
+
+            delivered_tasks = env.run(
                 until=signal)  # type:ignore
 
-            for task in delivered_tasks:
+            if support_generator is not None:
+                support_workflow.stop()
+
+            if delivered_tasks is not None:
+                for task in delivered_tasks:
+                    simulation_results.append(SimulationResult(
+                        model, task, task.history.events))
+
+            for task in support_target.items:
                 simulation_results.append(SimulationResult(
                     model, task, task.history.events))
 
