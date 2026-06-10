@@ -34,3 +34,9 @@ class TestTaskGenerator(unittest.TestCase):
         generator.stop()
 
         self.assertEqual(len(self.target.items), 3 * 9)
+
+    def test_validation(self):
+
+        with self.assertRaises(ValueError):
+            _ = TaskGenerator(factory=TaskFactory(
+                story_points=1, initial_value=1), interval=0)
