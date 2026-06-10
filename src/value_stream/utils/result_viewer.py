@@ -50,14 +50,13 @@ class ResultViewer:
         }
 
         for r in results:
-            results_dict.append(_to_dict(r))
+            results_dict.append(_to_dict(r, ['toolchain_pool']))
 
             if pbar:
                 pbar.update()
 
         self.df = json_normalize(results_dict, record_path=['events'],
                                  meta=[['model', 'deployment_cadence'],
-                                       ['model', 'toolchain_pool'],
                                        ['model', 'team_size'],
                                        ['task', 'task_id'],
                                        ['task', 'loss'],
@@ -310,7 +309,7 @@ class ResultViewer:
         return 'white' if color_hls[1] < 0.5 else 'black'
 
 
-def _to_dict(obj: Any):
+def _to_dict(obj: Any, exclusions: list[str] = []):
 
     if isinstance(obj, list):
         return [_to_dict(o) for o in obj]
@@ -322,8 +321,8 @@ def _to_dict(obj: Any):
         result: dict[str, Any] = {}
 
         for _, (k, v) in enumerate(obj.__dict__.items()):
-
-            result[k] = _to_dict(v)
+            if k not in exclusions:
+                result[k] = _to_dict(v, exclusions)
 
         return result
     return obj
