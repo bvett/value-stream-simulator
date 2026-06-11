@@ -5,6 +5,7 @@ import unittest
 
 from simpy import Environment
 from value_stream import DefaultSimulationPolicy
+from value_stream.assignment_strategy import AssignmentStrategy
 from value_stream.support_workflow import SupportWorkflow
 from value_stream import SupportTask, Task, WorkflowState, WorkflowStateName
 from value_stream.resources import Developer
@@ -124,7 +125,7 @@ class TestSupportWorkflow(unittest.TestCase):
                 story_points=story_points, task_id=f"T{i}"))
 
         env.process(workflow._processing_loop(
-            [developer], strategy=workflow.AssignmentStrategy.RANDOM))
+            [developer], strategy=AssignmentStrategy.RANDOM))
 
         env.run(until=1)
 
@@ -220,13 +221,23 @@ class TestSupportWorkflow(unittest.TestCase):
 
                 return super().do_work(env, tasks)
 
-        def run_scenario(num_developers, developer_efficiency, interval, iterations, strategy: SupportWorkflow.AssignmentStrategy):
+        def run_scenario(num_developers, developer_efficiency, interval, iterations, strategy: AssignmentStrategy):
+
+            class MockPolicy(DefaultSimulationPolicy):
+                def __init__(self, strategy: AssignmentStrategy):
+                    super().__init__()
+                    self.strategy = strategy
+
+                def support_strategy(self):
+                    return self.strategy
+
             env = Environment()
 
             target = WorkflowState(
                 env, WorkflowStateName.SUPPORT_COMPLETE)
 
-            workflow = SupportWorkflow(env, target, policy=self.policy)
+            workflow = SupportWorkflow(
+                env, target, policy=MockPolicy(strategy))
 
             task_factory = TaskFactory(cls=SupportTask,
                                        story_points=1)
@@ -242,7 +253,7 @@ class TestSupportWorkflow(unittest.TestCase):
                     assignment_map=assignment_map, efficiency=developer_efficiency, name=f"D{i}"))
 
             env.process(workflow.start(
-                generator=task_generator, developers=developers, strategy=strategy))
+                generator=task_generator, developers=developers))
 
             env.run(until=iterations + 1)
 
@@ -256,7 +267,7 @@ class TestSupportWorkflow(unittest.TestCase):
                                       developer_efficiency=developer_efficiency,
                                       interval=interval,
                                       iterations=iterations,
-                                      strategy=SupportWorkflow.AssignmentStrategy.CYCLIC)
+                                      strategy=AssignmentStrategy.CYCLIC)
 
         print(assignment_map)
         for v in assignment_map.values():
@@ -266,7 +277,7 @@ class TestSupportWorkflow(unittest.TestCase):
                                       developer_efficiency=developer_efficiency,
                                       interval=interval,
                                       iterations=iterations,
-                                      strategy=SupportWorkflow.AssignmentStrategy.RANDOM)
+                                      strategy=AssignmentStrategy.RANDOM)
 
         print(assignment_map)
         total = 0

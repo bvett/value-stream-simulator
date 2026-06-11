@@ -1,7 +1,8 @@
-from enum import Enum
 import itertools
 import random
 from simpy import Environment, Interrupt
+
+from .assignment_strategy import AssignmentStrategy
 
 from .resources import Developer
 from .simulation_policy import SimulationPolicy
@@ -14,11 +15,6 @@ class SupportWorkflow:
     """Generates and assigns tasks to developers outside of the primary SDLC workflow.
     Used to simulate unplanned workload that results in disruption"""
 
-    class AssignmentStrategy(Enum):
-        """Specifies how support work is assigned to a set of developers"""
-        RANDOM = 1
-        CYCLIC = 2  # round-robin for a more even distribution of workload
-
     def __init__(self, env: Environment, target: WorkflowState, policy: SimulationPolicy):
         self.env = env
 
@@ -30,8 +26,7 @@ class SupportWorkflow:
 
         self.policy = policy
 
-    def start(self, generator: TaskGenerator, developers: list[Developer],
-              strategy: AssignmentStrategy = AssignmentStrategy.RANDOM):
+    def start(self, generator: TaskGenerator, developers: list[Developer]):
 
         if len(developers) == 0:
             raise ValueError("at least one developer must be provided")
@@ -39,7 +34,7 @@ class SupportWorkflow:
         generator.start(self.env, self.source)
 
         self._proc = self.env.process(
-            self._processing_loop(developers, strategy))
+            self._processing_loop(developers, self.policy.support_strategy()))
 
         yield self._proc
 
@@ -48,13 +43,13 @@ class SupportWorkflow:
     def _processing_loop(self, developers: list[Developer], strategy: AssignmentStrategy):
 
         match strategy:
-            case self.AssignmentStrategy.RANDOM:
+            case AssignmentStrategy.RANDOM:
                 def gen(developers: list[Developer]):
                     while True:
                         yield random.choice(developers)
                 support_delegator = gen(developers)
 
-            case self.AssignmentStrategy.CYCLIC:
+            case AssignmentStrategy.CYCLIC:
                 support_delegator = itertools.cycle(developers)
             case _:
                 raise ValueError("unsupported strategy")

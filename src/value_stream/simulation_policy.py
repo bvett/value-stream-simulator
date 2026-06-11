@@ -1,3 +1,4 @@
+from .assignment_strategy import AssignmentStrategy
 from .task import Task, TaskType
 
 
@@ -5,6 +6,9 @@ class SimulationPolicy:
     """encapsulates control logic for a simulation"""
 
     def priority(self, tasks_1: list[Task], tasks_2: list[Task]):
+        raise NotImplementedError
+
+    def support_strategy(self):
         raise NotImplementedError
 
 
@@ -45,3 +49,6 @@ class DefaultSimulationPolicy(SimulationPolicy):
             return 1
 
         return 0
+
+    def support_strategy(self) -> AssignmentStrategy:
+        return AssignmentStrategy.RANDOM
