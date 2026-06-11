@@ -1,17 +1,18 @@
 import logging
 from typing import Iterable
 
-from simpy import Environment, Event
+from simpy import Environment
 from tqdm import tqdm
 
 from .resources import ResourceOperator
 from .model import Model
+from .sdlc_workflow import SDLCWorkflow
 from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
 from .simulation_result import SimulationResult
 from .support_workflow import SupportWorkflow
 from .task import Task
 from .utils.task_factory import TaskGenerator
-from .workflow_state import WorkflowState, TerminalWorkflowState
+from .workflow_state import TerminalWorkflowState
 from .workflow_state_name import WorkflowStateName
 
 logger = logging.getLogger(__name__)
@@ -47,7 +48,7 @@ class Simulation:
         simulation_results: list[SimulationResult] = []
 
         env = Environment()
-        workflow = self.Workflow(env, policy=policy)
+        workflow = SDLCWorkflow(env, policy=policy)
         support_target = TerminalWorkflowState(
             env, WorkflowStateName.SUPPORT_COMPLETE)
         support_workflow = SupportWorkflow(env, support_target, policy=policy)
@@ -95,75 +96,3 @@ class Simulation:
                 pbar.update()
 
         return simulation_results
-
-    class Workflow:
-        """Controls movement of tasks through the SDLC process
-
-        At initialization, wraps each Task object in a TaskResult and
-        adds to the pending queue.   Resources, such as Developer and
-        Toolchain, move TaskResult objects between queues while
-        updating statistics to reflect processing times.
-
-        SDLC process is: pending->developed->delivered
-        """
-
-        def __init__(self, env: Environment, policy: SimulationPolicy | None) -> None:
-            """Initializes a workflow with pending tasks"""
-
-            self.env = env
-
-            self.pending = WorkflowState(self.env, WorkflowStateName.PENDING)
-
-            self.developed = WorkflowState(
-                self.env, WorkflowStateName.DEV_COMPLETE)
-
-            self.qa_complete = WorkflowState(
-                self.env, WorkflowStateName.QA_COMPLETE)
-
-            self.delivered = TerminalWorkflowState(
-                self.env, WorkflowStateName.DELIVERY)
-
-            self.policy = policy
-
-        def start(self, tasks: list[Task],
-                  developer_manager: ResourceOperator,
-                  qa_manager: ResourceOperator,
-                  toolchain_manager: ResourceOperator,
-                  signal: Event):
-            """Signals workflow completion when all tasks specified at
-            initialization are in the delivered queue"""
-
-            idx = len(self.delivered.items)
-
-            for task in tasks:
-                yield self.pending.put(task.reset(self.env.now))
-
-            delivery_target = len(self.pending.items)
-
-            developer_manager.start(
-                source=self.pending,
-                target=self.developed)
-
-            qa_manager.start(
-                source=self.developed,
-                target=self.qa_complete,
-                target_upon_failure=self.pending)
-
-            toolchain_manager.start(
-                source=self.qa_complete,
-                target=self.delivered,
-                target_upon_failure=self.qa_complete)
-
-            while True:
-
-                if len(self.delivered.items[idx:]) == delivery_target:
-                    if len(self.pending.items) > 0:
-                        raise RuntimeError("Pending should be empty")
-
-                    developer_manager.stop()
-                    qa_manager.stop()
-                    toolchain_manager.stop()
-
-                    yield signal.succeed(self.delivered.items[idx:])
-
-                yield self.env.timeout(1)
