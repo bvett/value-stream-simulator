@@ -35,6 +35,21 @@ class TestTaskGenerator(unittest.TestCase):
 
         self.assertEqual(len(self.target.items), 3 * 9)
 
+    def test_limut(self):
+        limit = 3
+        generator = TaskGenerator(
+            group_size=3, factory=TaskFactory(story_points=1, initial_value=1), interval=1, limit=3)
+
+        generator.start(self.env, target=self.target)
+
+        self.env.run()
+
+        with self.assertRaises(RuntimeError):
+            generator.stop()
+
+        self.assertEqual(self.env.now, 3)
+        self.assertEqual(len(self.target.items), 3 * limit)
+
     def test_validation(self):
 
         with self.assertRaises(ValueError):
