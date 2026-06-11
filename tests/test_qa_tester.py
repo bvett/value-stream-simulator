@@ -2,7 +2,7 @@ import unittest
 
 from simpy import Environment, Store
 
-from value_stream import EventStatus, Task
+from value_stream import DefaultSimulationPolicy, EventStatus, Task
 from value_stream.utils import TaskFactory
 from value_stream.resources import QATester
 
@@ -18,6 +18,8 @@ class TestQATester(unittest.TestCase):
         self.env = Environment()
 
         self.target = Store(self.env)
+
+        self.policy = DefaultSimulationPolicy()
 
     def test_validation(self):
         _ = QATester()
@@ -48,7 +50,7 @@ class TestQATester(unittest.TestCase):
         total_story_points = sum([t.story_points for t in self.tasks])
 
         self.env.process(tester.operate(
-            self.env, self.tasks, target=self.target))
+            self.env, self.tasks, target=self.target, policy=self.policy))
 
         self.env.run()
 
@@ -65,7 +67,7 @@ class TestQATester(unittest.TestCase):
 
         tester = QATester(failure_rate=1)
         self.env.process(tester.operate(
-            self.env, self.tasks, target=self.target))
+            self.env, self.tasks, target=self.target, policy=self.policy))
         self.env.run()
 
         for task in self.target.items:
@@ -82,7 +84,7 @@ class TestQATester(unittest.TestCase):
         tester = QATester(failure_rate=1, failure_cost=failure_cost)
 
         self.env.process(tester.operate(
-            self.env, self.tasks, target=self.target))
+            self.env, self.tasks, target=self.target, policy=self.policy))
 
         self.env.run()
 

@@ -2,6 +2,7 @@ import unittest
 
 from simpy import Environment, Store
 
+from value_stream import DefaultSimulationPolicy
 from value_stream.resources import Resource
 from value_stream import EventStatus, Task, WorkflowStateName
 
@@ -12,6 +13,7 @@ class TestResource(unittest.TestCase):
         self.env = Environment()
         self.target = Store(self.env)
         self.target_for_failures = Store(self.env)
+        self.policy = DefaultSimulationPolicy()
 
     def test_validation(self):
         resource = Resource(workflow_state=WorkflowStateName.DEVELOPMENT)
@@ -23,7 +25,8 @@ class TestResource(unittest.TestCase):
 
         self.env.process(resource.operate(
             env=self.env, tasks=[self.task], target=self.target,
-            target_upon_failure=self.target_for_failures))
+            target_upon_failure=self.target_for_failures,
+            policy=self.policy))
         self.env.run()
 
         self.assertEqual(self.env.now, 1.0)

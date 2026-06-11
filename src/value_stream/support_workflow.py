@@ -4,6 +4,7 @@ import random
 from simpy import Environment, Interrupt
 
 from .resources import Developer
+from .simulation_policy import SimulationPolicy
 from .workflow_state import WorkflowState
 from .workflow_state_name import WorkflowStateName
 from .utils import TaskGenerator
@@ -18,7 +19,7 @@ class SupportWorkflow:
         RANDOM = 1
         CYCLIC = 2  # round-robin for a more even distribution of workload
 
-    def __init__(self, env: Environment, target: WorkflowState):
+    def __init__(self, env: Environment, target: WorkflowState, policy: SimulationPolicy):
         self.env = env
 
         self.source = WorkflowState(
@@ -26,6 +27,8 @@ class SupportWorkflow:
 
         self.target = target
         self._proc = None
+
+        self.policy = policy
 
     def start(self, generator: TaskGenerator, developers: list[Developer],
               strategy: AssignmentStrategy = AssignmentStrategy.RANDOM):
@@ -64,7 +67,10 @@ class SupportWorkflow:
                 developer = next(support_delegator)
 
                 self.env.process(
-                    developer.operate(self.env, [task], self.target))
+                    developer.operate(env=self.env,
+                                      tasks=[task],
+                                      target=self.target,
+                                      policy=self.policy))
             except Interrupt:
                 break
 

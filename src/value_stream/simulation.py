@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from .resources import ResourceOperator
 from .model import Model
+from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
 from .simulation_result import SimulationResult
 from .support_workflow import SupportWorkflow
 from .task import Task
@@ -29,7 +30,8 @@ class Simulation:
     def execute(self, tasks: list[Task],
                 models: Iterable[Model],
                 support_generator: TaskGenerator | None = None,
-                pbar: tqdm | None = None) -> list[SimulationResult]:
+                pbar: tqdm | None = None,
+                policy: SimulationPolicy = DefaultSimulationPolicy()) -> list[SimulationResult]:
         """Executes a simulation.
 
         Args:
@@ -45,20 +47,21 @@ class Simulation:
         simulation_results: list[SimulationResult] = []
 
         env = Environment()
-        workflow = self.Workflow(env)
+        workflow = self.Workflow(env, policy=policy)
         support_target = TerminalWorkflowState(
             env, WorkflowStateName.SUPPORT_COMPLETE)
-        support_workflow = SupportWorkflow(env, support_target)
+        support_workflow = SupportWorkflow(env, support_target, policy=policy)
 
         for model in models:
 
             developer_manager = ResourceOperator(
-                env, model.developer_team)
+                env, model.developer_team,
+                policy=policy)
 
-            qa_manager = ResourceOperator(env, model.qa_testers)
+            qa_manager = ResourceOperator(env, model.qa_testers, policy=policy)
 
             toolchain_manager = ResourceOperator(
-                env, model.toolchain_pool, model.deployment_cadence)
+                env, model.toolchain_pool, policy=policy, cadence=model.deployment_cadence)
 
             signal = env.event()
             env.process(workflow.start(
@@ -104,7 +107,7 @@ class Simulation:
         SDLC process is: pending->developed->delivered
         """
 
-        def __init__(self, env: Environment) -> None:
+        def __init__(self, env: Environment, policy: SimulationPolicy | None) -> None:
             """Initializes a workflow with pending tasks"""
 
             self.env = env
@@ -119,6 +122,8 @@ class Simulation:
 
             self.delivered = TerminalWorkflowState(
                 self.env, WorkflowStateName.DELIVERY)
+
+            self.policy = policy
 
         def start(self, tasks: list[Task],
                   developer_manager: ResourceOperator,

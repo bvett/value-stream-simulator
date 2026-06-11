@@ -2,6 +2,7 @@ from .simulation_result import SimulationResult
 from .event_status import EventStatus
 from .model import Model
 from .simulation import Simulation
+from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
 from .task_event import TaskEvent
 from .task_history import TaskHistory
 from .task import SupportTask, Task, TaskType
@@ -9,10 +10,12 @@ from .workflow_state_name import WorkflowStateName
 from .workflow_state import WorkflowState, TerminalWorkflowState
 
 
-__all__ = ["EventStatus",
+__all__ = ["DefaultSimulationPolicy",
+           "EventStatus",
            "SimulationResult",
            "Model",
            "Simulation",
+           "SimulationPolicy",
            "SupportTask",
            "TaskEvent",
            "TaskHistory",

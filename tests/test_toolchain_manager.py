@@ -1,5 +1,6 @@
 import unittest
 from simpy import Environment, Store
+from value_stream import DefaultSimulationPolicy
 from value_stream.workflow_state_name import WorkflowStateName
 from value_stream.task import Task
 from value_stream.resources import Toolchain, ResourceOperator
@@ -15,6 +16,7 @@ class TestToolchainManager(unittest.TestCase):
         self.source = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
         self.target = TerminalWorkflowState(
             self.env, WorkflowStateName.DELIVERY)
+        self.policy = DefaultSimulationPolicy()
 
     def test_validation(self):
 
@@ -32,7 +34,8 @@ class TestToolchainManager(unittest.TestCase):
 
         toolchain = Toolchain(
             deployment_duration=0)
-        self.env.process(toolchain.operate(self.env, tasks, target))
+        self.env.process(toolchain.operate(
+            self.env, tasks, target, policy=self.policy))
 
         self.env.run()
 
@@ -51,7 +54,8 @@ class TestToolchainManager(unittest.TestCase):
 
         toolchain = Toolchain(deployment_duration=DEPLOYMENT_DURATION)
 
-        self.env.process(toolchain.operate(self.env, tasks, self.target))
+        self.env.process(toolchain.operate(
+            self.env, tasks, self.target, policy=self.policy))
 
         self.env.run()
 
@@ -68,7 +72,7 @@ class TestToolchainManager(unittest.TestCase):
         DEPLOYMENT_DURATION = 0.5
 
         toolchain = ResourceOperator(self.env, Toolchain.create_pool(limit=1, deployment_duration=DEPLOYMENT_DURATION),
-                                     cadence=1)
+                                     cadence=1, policy=self.policy)
 
         for _ in range(NUM_TASKS):
             yield self.source.put(Task(story_points=1, initial_value=1))
@@ -98,7 +102,7 @@ class TestToolchainManager(unittest.TestCase):
         toolchain = ResourceOperator(
             self.env, Toolchain.create_pool(
                 limit=concurrency, deployment_duration=deployment_duration),
-            cadence=cadence)
+            cadence=cadence, policy=self.policy)
 
         toolchain.start(self.source, self.target)
 

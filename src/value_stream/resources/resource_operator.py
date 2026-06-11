@@ -3,6 +3,7 @@ from typing import Iterable
 from simpy import Environment, Interrupt, Store
 
 from . import Resource
+from ..simulation_policy import SimulationPolicy
 from ..task import Task
 from ..workflow_state import WorkflowState
 
@@ -11,7 +12,10 @@ class ResourceOperator:
     """Handles the allocation of Resource objects that operate on 
     Tasks during a simulation"""
 
-    def __init__(self, env: Environment, resources: Iterable[Resource], cadence: int = 0):
+    def __init__(self, env: Environment,
+                 resources: Iterable[Resource],
+                 policy: SimulationPolicy,
+                 cadence: int = 0):
         self.env = env
         self._queue: list[Task] = []
 
@@ -28,6 +32,8 @@ class ResourceOperator:
         self._monitor_p = None
         self._timer_p = None
         self._executor_p = None
+
+        self.policy = policy
 
     def start(self, source: WorkflowState, target: WorkflowState, target_upon_failure: WorkflowState | None = None):
         """Starts processing loop that:
@@ -128,7 +134,11 @@ class ResourceOperator:
         for task in tasks:
             task.history.end(self.env.now)
 
-        yield self.env.process(resource.operate(self.env, tasks, target, target_upon_failure))
+        yield self.env.process(resource.operate(env=self.env,
+                                                tasks=tasks,
+                                                target=target,
+                                                target_upon_failure=target_upon_failure,
+                                                policy=self.policy))
 
         self.release(resource)
 

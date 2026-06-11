@@ -1,7 +1,9 @@
 # Parent class for Developer and Toolchain
-from simpy import Environment, Event, Interrupt, Store
+from simpy import Environment, Event, Interrupt, Process, Store
+from simpy.events import ProcessGenerator
 
 from ..event_status import EventStatus
+from ..simulation_policy import SimulationPolicy
 from ..task import Task
 from ..workflow_state_name import WorkflowStateName
 
@@ -11,12 +13,13 @@ class Resource:
 
     def __init__(self, workflow_state: WorkflowStateName, resource_id: str | None = None):
         self.workflow_state = workflow_state
-        self._process = None
+        self._process: Resource.ProcessWrapper | None = None
         self._suspended_work: list[Event] = []
         self.id = resource_id
 
     def operate(self, env: Environment, tasks: list[Task],
                 target: Store,
+                policy: SimulationPolicy,
                 target_upon_failure: Store | None = None):
         """Simulates an action on a task object"""
 
@@ -24,11 +27,16 @@ class Resource:
             task.history.start(env.now, self.workflow_state)
 
         if self._process is not None and self._process.is_alive:
-            self._process.interrupt()
+
+            if policy.priority(tasks, self._process.tasks) == -1:
+                self._process.interrupt()
+            else:
+                # if what's in progress is of higher priority, queue up current work
+                yield env.process(self._pause(env))
 
         while True:
             status = EventStatus.SUCCESS
-            self._process = env.process(self.do_work(env, tasks))
+            self._process = self._create_process(env, tasks)
 
             try:
                 yield self._process
@@ -37,17 +45,8 @@ class Resource:
                 # if do_work is interrupted, wait on a signal that will
                 # be triggered once this resource has processed all
                 # subsequent interruptions
+                yield env.process(self._pause(env))
 
-                while True:
-                    signal = env.event()
-                    self._suspended_work.append(signal)
-
-                    yield signal
-
-                    self._suspended_work.pop()
-
-                    if self._process is None:
-                        break
                 continue
 
             if self._process.value is not None:
@@ -75,3 +74,23 @@ class Resource:
 
     def do_work(self, env: Environment, tasks: list[Task]):
         raise NotImplementedError()
+
+    def _pause(self, env: Environment):
+        while True:
+            signal = env.event()
+            self._suspended_work.append(signal)
+
+            yield signal
+
+            self._suspended_work.pop()
+
+            if self._process is None:
+                break
+
+    def _create_process(self, env: Environment, tasks: list[Task]):
+        return Resource.ProcessWrapper(env, tasks, self.do_work(env, tasks))
+
+    class ProcessWrapper(Process):
+        def __init__(self, env: Environment, tasks: list[Task], generator: ProcessGenerator):
+            super().__init__(env, generator)
+            self.tasks = tasks

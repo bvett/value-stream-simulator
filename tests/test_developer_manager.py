@@ -2,7 +2,7 @@ import unittest
 from simpy import Environment, Store
 from value_stream.resources import Developer, ResourceOperator
 from value_stream.task import Task
-from value_stream import WorkflowState, WorkflowStateName
+from value_stream import DefaultSimulationPolicy, WorkflowState, WorkflowStateName
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
@@ -13,6 +13,7 @@ class TestDeveloperManager(unittest.TestCase):
         self.env = Environment()
         self.source = WorkflowState(self.env, WorkflowStateName.PENDING)
         self.target = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
+        self.policy = DefaultSimulationPolicy()
 
     def create_tasks(self, limit: int, store: Store):
         for i in range(limit):
@@ -27,7 +28,8 @@ class TestDeveloperManager(unittest.TestCase):
         self.env.run()
         self.assertEqual(len(self.source.items), 5)
 
-        team = ResourceOperator(self.env, self.create_developers(2))
+        team = ResourceOperator(
+            self.env, self.create_developers(2), policy=self.policy)
 
         team.start(self.source, self.target)
 

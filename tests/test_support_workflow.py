@@ -4,6 +4,7 @@ import random
 import unittest
 
 from simpy import Environment
+from value_stream import DefaultSimulationPolicy
 from value_stream.support_workflow import SupportWorkflow
 from value_stream import SupportTask, Task, WorkflowState, WorkflowStateName
 from value_stream.resources import Developer
@@ -17,6 +18,7 @@ class TestSupportWorkflow(unittest.TestCase):
     # pylint: disable=W0212
     def setUp(self):
         random.seed(42)
+        self.policy = DefaultSimulationPolicy()
 
     def execute_scenario(self,
                          sim_duration: float,
@@ -31,7 +33,7 @@ class TestSupportWorkflow(unittest.TestCase):
         target = WorkflowState(
             env, WorkflowStateName.SUPPORT_COMPLETE)
 
-        workflow = SupportWorkflow(env, target)
+        workflow = SupportWorkflow(env, target, policy=self.policy)
 
         developers = DeveloperFactory().create(
             count=developer_count,
@@ -114,7 +116,7 @@ class TestSupportWorkflow(unittest.TestCase):
         target = WorkflowState(
             env, WorkflowStateName.SUPPORT_COMPLETE)
 
-        workflow = SupportWorkflow(env, target)
+        workflow = SupportWorkflow(env, target, policy=self.policy)
 
         story_points = 5
         for i in range(1, 4):
@@ -150,7 +152,7 @@ class TestSupportWorkflow(unittest.TestCase):
         target = WorkflowState(
             env, WorkflowStateName.SUPPORT_COMPLETE)
 
-        workflow = SupportWorkflow(env, target)
+        workflow = SupportWorkflow(env, target, policy=self.policy)
 
         developers = [Developer(efficiency=2)]
 
@@ -188,7 +190,7 @@ class TestSupportWorkflow(unittest.TestCase):
         target = WorkflowState(
             env, WorkflowStateName.SUPPORT_COMPLETE)
 
-        workflow = SupportWorkflow(env, target)
+        workflow = SupportWorkflow(env, target, policy=self.policy)
 
         developers = []
 
@@ -224,7 +226,7 @@ class TestSupportWorkflow(unittest.TestCase):
             target = WorkflowState(
                 env, WorkflowStateName.SUPPORT_COMPLETE)
 
-            workflow = SupportWorkflow(env, target)
+            workflow = SupportWorkflow(env, target, policy=self.policy)
 
             task_factory = TaskFactory(cls=SupportTask,
                                        story_points=1)

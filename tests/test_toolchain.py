@@ -1,6 +1,6 @@
 import unittest
 from simpy import Environment, Store
-from value_stream import EventStatus, Task
+from value_stream import DefaultSimulationPolicy, EventStatus, Task
 from value_stream.resources import Toolchain
 from value_stream.utils import TaskFactory
 
@@ -18,6 +18,8 @@ class TestToolchain(unittest.TestCase):
         self.env = Environment()
 
         self.target = Store(self.env)
+
+        self.policy = DefaultSimulationPolicy()
 
     def test_validation(self):
         _ = Toolchain(deployment_duration=100)
@@ -37,7 +39,7 @@ class TestToolchain(unittest.TestCase):
         toolchain = Toolchain(deployment_duration=deployment_duration)
 
         self.env.process(toolchain.operate(
-            self.env, self.tasks, target=self.target))
+            self.env, self.tasks, target=self.target, policy=self.policy))
 
         self.env.run()
 
@@ -51,7 +53,7 @@ class TestToolchain(unittest.TestCase):
 
         toolchain = Toolchain(deployment_duration=1, failure_rate=1)
         self.env.process(toolchain.operate(
-            self.env, self.tasks, target=self.target))
+            self.env, self.tasks, target=self.target, policy=self.policy))
         self.env.run()
 
         for task in self.target.items:
