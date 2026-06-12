@@ -1,5 +1,5 @@
 import random
-from typing import Generator, Type
+from typing import Type
 from simpy import Environment, Interrupt, Process, Store
 
 from .factory import generate_args
