@@ -11,7 +11,7 @@ from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
 from .simulation_result import SimulationResult
 from .support_workflow import SupportWorkflow
 from .task import Task
-from .utils.task_factory import TaskGenerator
+from .utils import TaskGenerator
 from .workflow_state import TerminalWorkflowState
 from .workflow_state_name import WorkflowStateName
 
