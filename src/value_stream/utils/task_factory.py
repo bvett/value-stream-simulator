@@ -2,7 +2,7 @@ import random
 from typing import Type
 from simpy import Environment, Interrupt, Process, Store
 
-from .factory import generate_args
+from .generator_utils import generate_args
 from ..task import Task
 
 

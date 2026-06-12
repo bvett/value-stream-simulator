@@ -1,4 +1,4 @@
-from .factory import generate_args
+from .generator_utils import generate_args
 from ..resources import Developer
 
 
