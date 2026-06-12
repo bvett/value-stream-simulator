@@ -30,7 +30,11 @@ class TestToolchain(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             _ = Toolchain(deployment_duration=-0.01)
+
+        with self.assertRaises(ValueError):
             _ = Toolchain(deployment_duration=1, failure_rate=-0.01)
+
+        with self.assertRaises(ValueError):
             _ = Toolchain(deployment_duration=1, failure_rate=1.01)
 
     def test_all_successes(self):

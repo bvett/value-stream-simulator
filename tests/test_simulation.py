@@ -1,8 +1,10 @@
+import math
 import unittest
 from tqdm import tqdm
 from value_stream.resources import QATester, Toolchain
 from value_stream.simulation import Simulation
-from value_stream.utils import DeveloperFactory, ModelFactory, TaskFactory
+from value_stream.utils import DeveloperFactory, ModelFactory, TaskFactory, TaskGenerator
+from value_stream import SupportTask
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
@@ -34,9 +36,23 @@ class TestSimulation(unittest.TestCase):
                             depreciation_rate=0,
                             story_points=1.0).create(count=NUM_TASKS)
 
+        support_factory = TaskFactory(
+            SupportTask, story_points=1)
+
+        support_generator = TaskGenerator(
+            factory=support_factory, interval=10)
+
         with tqdm(total=len(models)) as pbar:
             model_results = simulation.execute(
-                tasks=tasks, models=models, pbar=pbar)
+                tasks=tasks,
+                models=models,
+                support_generator=support_generator,
+                pbar=pbar)
 
         # one result for every combination of task and cadence
-        self.assertEqual(len(model_results), NUM_TASKS * (MAX_CADENCE+1))
+
+        estimated_support_tasks = math.floor(
+            NUM_TASKS/NUM_DEVELOPERS)
+
+        self.assertEqual(len(model_results), (NUM_TASKS *
+                         (MAX_CADENCE+1)) + estimated_support_tasks)
