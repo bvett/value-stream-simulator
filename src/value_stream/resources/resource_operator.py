@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from simpy import Environment, Interrupt, Store
+from simpy import Environment, Interrupt, Process, Store
 
 from . import Resource
 from ..simulation_policy import SimulationPolicy
@@ -29,9 +29,9 @@ class ResourceOperator:
         self.trigger = env.event()
 
         # enables cleanup of internal processes
-        self._monitor_p = None
-        self._timer_p = None
-        self._executor_p = None
+        self._monitor_p: Process | None = None
+        self._timer_p: Process | None = None
+        self._executor_p: Process | None = None
 
         self.policy = policy
 
@@ -67,10 +67,13 @@ class ResourceOperator:
             raise RuntimeError(
                 "attempt to stop a manager that has not been started")
 
-        self._monitor_p.interrupt()
-        self._executor_p.interrupt()
+        if self._monitor_p.is_alive:
+            self._monitor_p.interrupt()
 
-        if self._timer_p is not None:
+        if self._executor_p.is_alive:
+            self._executor_p.interrupt()
+
+        if (self._timer_p is not None) and (self._timer_p.is_alive):
             self._timer_p.interrupt()
 
     def _monitor(self, source: WorkflowState):

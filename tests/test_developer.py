@@ -97,7 +97,7 @@ class TestDeveloper(unittest.TestCase):
             if (support_generator is not None) and (support_target is not None):
 
                 support_workflow = SupportWorkflow(
-                    env, support_target, policy=self.policy)
+                    env, policy=self.policy)
 
                 env.process(support_workflow.start(
                     support_generator, developers=[developer]))

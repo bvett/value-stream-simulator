@@ -1,7 +1,8 @@
 import logging
 from typing import Iterable
 
-from simpy import Environment
+from simpy import Environment, Event, Process
+from simpy.events import AllOf
 from tqdm import tqdm
 
 from .resources import ResourceOperator
@@ -12,8 +13,6 @@ from .simulation_result import SimulationResult
 from .support_workflow import SupportWorkflow
 from .task import Task
 from .utils import TaskGenerator
-from .workflow_state import TerminalWorkflowState
-from .workflow_state_name import WorkflowStateName
 
 logger = logging.getLogger(__name__)
 
@@ -48,13 +47,10 @@ class Simulation:
         simulation_results: list[SimulationResult] = []
 
         env = Environment()
-        workflow = SDLCWorkflow(env, policy=policy)
-        support_target = TerminalWorkflowState(
-            env, WorkflowStateName.SUPPORT_COMPLETE)
-        support_workflow = SupportWorkflow(env, support_target, policy=policy)
+        sdlc_workflow = SDLCWorkflow(env, policy=policy)
+        support_workflow = SupportWorkflow(env, policy=policy)
 
         for model in models:
-
             developer_manager = ResourceOperator(
                 env, model.developer_team,
                 policy=policy)
@@ -64,35 +60,45 @@ class Simulation:
             toolchain_manager = ResourceOperator(
                 env, model.toolchain_pool, policy=policy, cadence=model.deployment_cadence)
 
-            signal = env.event()
-            env.process(workflow.start(
+            delivery_complete = env.event()
+            support_workflow_p: Process | None = None
+
+            sim_termination_events = [delivery_complete]
+
+            env.process(sdlc_workflow.start(
                 tasks=tasks,
                 developer_manager=developer_manager,
                 qa_manager=qa_manager,
                 toolchain_manager=toolchain_manager,
-                signal=signal))
+                signal=delivery_complete))
 
             if support_generator is not None:
-                env.process(support_workflow.start(
+                support_workflow_p = env.process(support_workflow.start(
                     generator=support_generator,
-                    developers=list(model.developer_team)))
+                    developers=list(model.developer_team),
+                    stop_signal=delivery_complete))
+                sim_termination_events.append(support_workflow_p)
 
-            delivered_tasks = env.run(
-                until=signal)  # type:ignore
+            completed_tasks = env.run(
+                until=AllOf(env, sim_termination_events))  # type:ignore
 
-            if support_generator is not None:
-                support_workflow.stop()
+            if completed_tasks is None:
+                raise RuntimeError("unrecoverable simulation error")
 
-            if delivered_tasks is not None:
-                for task in delivered_tasks:
-                    simulation_results.append(SimulationResult(
-                        model, task, task.history.events))
-
-            for task in support_target.items:
-                simulation_results.append(SimulationResult(
-                    model, task, task.history.events))
+            simulation_results.extend(
+                self._process_results(model, completed_tasks))
 
             if pbar:
                 pbar.update()
 
         return simulation_results
+
+    def _process_results(self, model: Model, completed_tasks: dict[Event, list[Task]]):
+        result: list[SimulationResult] = []
+
+        for tasks in completed_tasks.values():
+            for task in tasks:
+                result.append(SimulationResult(
+                    model, task, task.history.events))
+
+        return result

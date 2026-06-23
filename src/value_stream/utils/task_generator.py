@@ -41,7 +41,7 @@ class TaskGenerator:
 
         return tasks
 
-    def start(self, env: Environment, target: Store):
+    def start(self, env: Environment, target: Store, baseline_time: float = 0):
         self._batch_num = 0
 
         def gen(limit: int | None):
@@ -64,6 +64,8 @@ class TaskGenerator:
                         raise RuntimeError("Unexpected empty value")
 
                     for v in event.value:
+                        v.creation_t = env.now - baseline_time
+                        v.history.baseline_t = baseline_time
                         yield target.put(v)
 
                 except Interrupt:

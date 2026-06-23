@@ -51,6 +51,9 @@ class SDLCWorkflow:
 
         delivery_target = len(self.pending.items)
 
+        self.delivered.set_alarm(
+            limit=idx + delivery_target, signal=signal)
+
         developer_manager.start(
             source=self.pending,
             target=self.developed)
@@ -65,16 +68,8 @@ class SDLCWorkflow:
             target=self.delivered,
             target_upon_failure=self.qa_complete)
 
-        while True:
+        yield signal
 
-            if len(self.delivered.items[idx:]) == delivery_target:
-                if len(self.pending.items) > 0:
-                    raise RuntimeError("Pending should be empty")
-
-                developer_manager.stop()
-                qa_manager.stop()
-                toolchain_manager.stop()
-
-                yield signal.succeed(self.delivered.items[idx:])
-
-            yield self.env.timeout(1)
+        developer_manager.stop()
+        qa_manager.stop()
+        toolchain_manager.stop()

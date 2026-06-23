@@ -1,4 +1,4 @@
-from simpy import Environment, Store
+from simpy import Environment, Event, Store
 from simpy.resources.store import StorePut, StoreGet
 
 from .workflow_state_name import WorkflowStateName
@@ -16,9 +16,31 @@ class WorkflowState(Store):
         super().__init__(env)
         self.name = name
 
+        self._limit = None
+        self._signal: Event | None = None
+        self._baseline = 0
+
     def put(self, item: Task) -> StorePut:
+
+        result = super().put(item)
+        if self._limit is not None and self._signal is not None:
+            if self._signal.processed:
+                raise ValueError("attempt to put after alarm raised")
+
+            # silently block additional items from being added
+            #   while waiting for signal to be processed
+            if self._signal.triggered:
+                self.items.pop()
+                result.cancel()
+                return result
+
         item.history.start(self._env.now, self.name)
-        return super().put(item)
+
+        if self._limit is not None and self._signal is not None:
+            if len(self.items) == self._limit:
+                self._signal.succeed(value=self.items[self._baseline:])
+
+        return result
 
     def get(self):
 
@@ -34,6 +56,20 @@ class WorkflowState(Store):
 
         return task
 
+    def set_alarm(self, limit: int, signal: Event):
+        """raises signal when limit items are in this WorkflowState.
+        value of signal is a list of Tasks that have been added since the last alarm"""
+
+        if limit <= len(self.items):
+            raise ValueError("limit has already been exceeded")
+
+        if signal.triggered:
+            raise ValueError("alarm signal has already been triggered")
+
+        self._limit = limit
+        self._signal = signal
+        self._baseline = len(self.items)
+
 
 class TerminalWorkflowState(WorkflowState):
     """Represents an end-state of a workflow.  Tasks enter, but do not exit"""
@@ -43,9 +79,24 @@ class TerminalWorkflowState(WorkflowState):
         self.name = name
 
     def put(self, item: Task) -> StorePut:
+        result = Store.put(self, item)
+        if self._limit is not None and self._signal is not None:
+            if self._signal.processed:
+                raise ValueError("attempt to put after alarm raised")
+
+            if self._signal.triggered:
+                self.items.pop()
+                result.cancel()
+                return result
+
         item.history.terminate(self._env.now, self.name)
         item.update_value_and_loss()
-        return Store.put(self, item)
+
+        if self._limit is not None and self._signal is not None:
+            if len(self.items) == self._limit:
+                self._signal.succeed(value=self.items[self._baseline:])
+
+        return result
 
     def get(self):
         raise NotImplementedError()

@@ -92,6 +92,7 @@ class Task:
         if (last_event is not None) \
                 and (last_event.status == EventStatus.SUCCESS) \
                 and last_event.event_type == last_event.EventType.TERMINAL:
+
             return last_event.time
 
         return None

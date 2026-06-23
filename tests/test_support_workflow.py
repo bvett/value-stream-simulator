@@ -31,10 +31,7 @@ class TestSupportWorkflow(unittest.TestCase):
 
         env = Environment()
 
-        target = WorkflowState(
-            env, WorkflowStateName.SUPPORT_COMPLETE)
-
-        workflow = SupportWorkflow(env, target, policy=self.policy)
+        workflow = SupportWorkflow(env, policy=self.policy)
 
         developers = DeveloperFactory().create(
             count=developer_count,
@@ -61,7 +58,10 @@ class TestSupportWorkflow(unittest.TestCase):
             if developer._process is not None:
                 num_abandoned_items += 1
 
-        return len(target.items), num_queued_items, num_abandoned_items
+        completed = workflow.completed
+        if completed is None:
+            raise ValueError("completed is None")
+        return len(completed), num_queued_items, num_abandoned_items
 
     def test_interruptions(self):
         """test ability of a team of busy developers to complete support tasks"""
@@ -88,7 +88,7 @@ class TestSupportWorkflow(unittest.TestCase):
 
             # validate that all tasks are accounted for when the simulation ends
             #  delivered_tasks: completed tasks
-            #  queued_tass: partially-completed tasks that result from interruptions
+            #  queued_tasks: partially-completed tasks that result from interruptions
             #  abandoned_tasks: tasks that the developers were working on when the simulation was terminated
             try:
 
@@ -114,18 +114,25 @@ class TestSupportWorkflow(unittest.TestCase):
         developer_efficiency = 1
         developer = Developer(efficiency=developer_efficiency)
         env = Environment()
+
+        source = WorkflowState(env,
+                               WorkflowStateName.SUPPORT_PENDING)
         target = WorkflowState(
             env, WorkflowStateName.SUPPORT_COMPLETE)
 
-        workflow = SupportWorkflow(env, target, policy=self.policy)
+        workflow = SupportWorkflow(env, policy=self.policy)
 
         story_points = 5
         for i in range(1, 4):
-            workflow.source.put(SupportTask(
+            source.put(SupportTask(
                 story_points=story_points, task_id=f"T{i}"))
 
         env.process(workflow._processing_loop(
-            [developer], strategy=AssignmentStrategy.RANDOM))
+            [developer],
+            strategy=AssignmentStrategy.RANDOM,
+            source=source,
+            target=target
+        ))
 
         env.run(until=1)
 
@@ -150,10 +157,7 @@ class TestSupportWorkflow(unittest.TestCase):
 
         env = Environment()
 
-        target = WorkflowState(
-            env, WorkflowStateName.SUPPORT_COMPLETE)
-
-        workflow = SupportWorkflow(env, target, policy=self.policy)
+        workflow = SupportWorkflow(env, policy=self.policy)
 
         developers = [Developer(efficiency=2)]
 
@@ -169,11 +173,17 @@ class TestSupportWorkflow(unittest.TestCase):
 
         env.run(until=10)
 
+        source = workflow.pending
+        target = workflow.completed
+
+        self.assertIsNotNone(source)
+        self.assertIsNotNone(target)
+
         # Validate that set of tasks were created and processed
-        self.assertEqual(9, len(target.items))
+        self.assertEqual(9, len(target))  # type: ignore
 
         # Validate that no support tasks have entered the workflow
-        self.assertEqual(0, len(workflow.source.items))
+        self.assertEqual(0, len(source))  # type: ignore
 
         # stop the workflow
         workflow.stop()
@@ -182,16 +192,13 @@ class TestSupportWorkflow(unittest.TestCase):
 
         env.run(until=20)
 
-        self.assertEqual(0, len(workflow.source.items))
-        self.assertEqual(9, len(target.items))
+        self.assertEqual(0, len(source))  # type: ignore
+        self.assertEqual(9, len(target))  # type: ignore
 
     def test_validation(self):
         env = Environment()
 
-        target = WorkflowState(
-            env, WorkflowStateName.SUPPORT_COMPLETE)
-
-        workflow = SupportWorkflow(env, target, policy=self.policy)
+        workflow = SupportWorkflow(env, policy=self.policy)
 
         developers = []
 
@@ -233,11 +240,8 @@ class TestSupportWorkflow(unittest.TestCase):
 
             env = Environment()
 
-            target = WorkflowState(
-                env, WorkflowStateName.SUPPORT_COMPLETE)
-
             workflow = SupportWorkflow(
-                env, target, policy=MockPolicy(strategy))
+                env, policy=MockPolicy(strategy))
 
             task_factory = TaskFactory(cls=SupportTask,
                                        story_points=1)

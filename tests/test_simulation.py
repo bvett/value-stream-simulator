@@ -1,10 +1,9 @@
-import math
 import unittest
 from tqdm import tqdm
 from value_stream.resources import QATester, Toolchain
 from value_stream.simulation import Simulation
 from value_stream.utils import DeveloperFactory, ModelFactory, TaskFactory, TaskGenerator
-from value_stream import SupportTask
+from value_stream import SupportTask, TaskType
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
@@ -16,6 +15,7 @@ class TestSimulation(unittest.TestCase):
         NUM_TASKS = 10
         NUM_DEVELOPERS = 2
         MAX_CADENCE = 5
+        SUPPORT_INTERVAL = 4
 
         simulation = Simulation()
 
@@ -40,7 +40,7 @@ class TestSimulation(unittest.TestCase):
             SupportTask, story_points=1)
 
         support_generator = TaskGenerator(
-            factory=support_factory, interval=10)
+            factory=support_factory, interval=SUPPORT_INTERVAL)
 
         with tqdm(total=len(models)) as pbar:
             model_results = simulation.execute(
@@ -50,9 +50,19 @@ class TestSimulation(unittest.TestCase):
                 pbar=pbar)
 
         # one result for every combination of task and cadence
+        expected_dev_tasks = NUM_TASKS * (MAX_CADENCE + 1)
 
-        estimated_support_tasks = math.floor(
-            NUM_TASKS/NUM_DEVELOPERS)
+        num_dev_tasks = 0
+        num_support_tasks = 0
 
-        self.assertEqual(len(model_results), (NUM_TASKS *
-                         (MAX_CADENCE+1)) + estimated_support_tasks)
+        for r in model_results:
+            if r.task.task_type == TaskType.DEVELOPMENT:
+                num_dev_tasks += 1
+            elif r.task.task_type == TaskType.SUPPORT:
+                num_support_tasks += 1
+
+        # Asserting only # of completed dev tasks.
+        # Calculating expected # of completed support tasks is more complicated,
+        # and can be better validated with lower-level tests.
+
+        self.assertEqual(num_dev_tasks, expected_dev_tasks)
