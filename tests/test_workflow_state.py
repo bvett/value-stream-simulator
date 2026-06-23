@@ -114,12 +114,14 @@ class TestWorkflowState(unittest.TestCase):
             # generate 1 task per tick
             factory = TaskFactory(
                 env=env, initial_value=0, story_points=1)
-            generator = TaskGenerator(factory, 1)
+            generator = TaskGenerator(factory)
 
             signal = env.event()
             limit = 10
             target.set_alarm(limit=limit, signal=signal)
-            generator.start(env, target=target)
+            generator.start(env,
+                            target=target,
+                            interval=1)
 
             env.run(until=signal)
             generator.stop()
@@ -149,12 +151,14 @@ class TestWorkflowState(unittest.TestCase):
 
         factory = TaskFactory(
             env=self.env, initial_value=0, story_points=1)
-        generator = TaskGenerator(factory, 1)
+        generator = TaskGenerator(factory)
 
         signal_1 = self.env.event()
         limit_1 = 10
         target.set_alarm(limit=limit_1, signal=signal_1)
-        generator.start(self.env, target=target)
+        generator.start(self.env,
+                        target=target,
+                        interval=1)
 
         self.env.run(until=signal_1)
         generator.stop()
@@ -175,7 +179,9 @@ class TestWorkflowState(unittest.TestCase):
 
         target.set_alarm(limit_1 + limit_2, signal_2)
 
-        generator.start(self.env, target=target)
+        generator.start(self.env,
+                        target=target,
+                        interval=1)
         self.env.run(until=signal_2)
         generator.stop()
 

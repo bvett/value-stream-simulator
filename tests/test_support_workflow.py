@@ -41,11 +41,12 @@ class TestSupportWorkflow(unittest.TestCase):
                                    story_points=story_points)
 
         task_generator = TaskGenerator(
-            factory=task_factory,
-            interval=support_interval)
+            factory=task_factory)
 
         env.process(workflow.start(
-            generator=task_generator, developers=developers))
+            generator=task_generator,
+            developers=developers,
+            interval=support_interval))
 
         signal = env.timeout(sim_duration)
 
@@ -165,11 +166,12 @@ class TestSupportWorkflow(unittest.TestCase):
                                    story_points=1)
 
         task_generator = TaskGenerator(
-            factory=task_factory,
-            interval=1)
+            factory=task_factory)
 
         env.process(workflow.start(
-            generator=task_generator, developers=developers))
+            generator=task_generator,
+            developers=developers,
+            interval=1))
 
         env.run(until=10)
 
@@ -206,12 +208,13 @@ class TestSupportWorkflow(unittest.TestCase):
                                    story_points=1)
 
         task_generator = TaskGenerator(
-            factory=task_factory,
-            interval=1)
+            factory=task_factory)
 
         with self.assertRaises(ValueError):
             next(workflow.start(
-                generator=task_generator, developers=developers))
+                generator=task_generator,
+                developers=developers,
+                interval=1))
 
     def test_assignment_strategies(self):
 
@@ -247,8 +250,7 @@ class TestSupportWorkflow(unittest.TestCase):
                                        story_points=1)
 
             task_generator = TaskGenerator(
-                factory=task_factory,
-                interval=interval)
+                factory=task_factory)
 
             developers = []
             assignment_map = {}
@@ -257,7 +259,9 @@ class TestSupportWorkflow(unittest.TestCase):
                     assignment_map=assignment_map, efficiency=developer_efficiency, name=f"D{i}"))
 
             env.process(workflow.start(
-                generator=task_generator, developers=developers))
+                generator=task_generator,
+                developers=developers,
+                interval=interval))
 
             env.run(until=iterations + 1)
 

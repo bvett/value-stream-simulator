@@ -40,13 +40,14 @@ class TestSimulation(unittest.TestCase):
             SupportTask, story_points=1)
 
         support_generator = TaskGenerator(
-            factory=support_factory, interval=SUPPORT_INTERVAL)
+            factory=support_factory)
 
         with tqdm(total=len(models)) as pbar:
             model_results = simulation.execute(
                 tasks=tasks,
                 models=models,
                 support_generator=support_generator,
+                support_interval=SUPPORT_INTERVAL,
                 pbar=pbar)
 
         # one result for every combination of task and cadence

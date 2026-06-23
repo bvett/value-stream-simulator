@@ -41,6 +41,7 @@ class SupportWorkflow:
         return self._completed.items
 
     def start(self, generator: TaskGenerator,
+              interval: float,
               developers: list[Developer],
               stop_signal: Event | None = None):
 
@@ -60,7 +61,10 @@ class SupportWorkflow:
 
         self.env.process(self._monitor())
 
-        generator.start(self.env, self._pending, self.env.now)
+        generator.start(env=self.env,
+                        target=self._pending,
+                        baseline_time=self.env.now,
+                        interval=interval)
 
         self._proc = self.env.process(
             self._processing_loop(developers=developers,

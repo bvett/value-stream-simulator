@@ -10,14 +10,9 @@ class TaskGenerator:
     Useful for simulating task creation over time and the creation of unexpected toil.
     """
 
-    def __init__(self,  factory: TaskFactory,  interval: float, group_size: int = 1, limit: int | None = None):
-
-        if interval <= 0:
-            raise ValueError("interval must be > 0")
-
+    def __init__(self,  factory: TaskFactory,  group_size: int = 1, limit: int | None = None):
         self.group_size = group_size
         self.factory = factory
-        self.interval = interval
 
         self.proc: Process | None = None
         self._batch_num = 0
@@ -41,7 +36,11 @@ class TaskGenerator:
 
         return tasks
 
-    def start(self, env: Environment, target: Store, baseline_time: float = 0):
+    def start(self, env: Environment, target: Store, interval: float, baseline_time: float = 0):
+
+        if interval <= 0:
+            raise ValueError("interval must be > 0")
+
         self._batch_num = 0
 
         def gen(limit: int | None):
@@ -57,7 +56,7 @@ class TaskGenerator:
                 try:
                     value: list[Task] = next(self)
 
-                    event = env.timeout(delay=self.interval, value=value)
+                    event = env.timeout(delay=interval, value=value)
                     yield event
 
                     if event.value is None:

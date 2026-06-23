@@ -72,7 +72,9 @@ class TestDeveloper(unittest.TestCase):
         def run_scenario(env: Environment,
                          dev_efficiency: float,
                          story_points: float,
-                         support_generator: TaskGenerator | None, support_target: WorkflowState | None):
+                         support_generator: TaskGenerator | None,
+                         support_target: WorkflowState | None,
+                         interval: float | None = None):
 
             developer = Developer(efficiency=1, name="D1")
 
@@ -94,13 +96,15 @@ class TestDeveloper(unittest.TestCase):
 
             operator.start(dev_source, dev_target)
 
-            if (support_generator is not None) and (support_target is not None):
+            if (support_generator is not None) and (support_target is not None) and (interval is not None):
 
                 support_workflow = SupportWorkflow(
                     env, policy=self.policy)
 
                 env.process(support_workflow.start(
-                    support_generator, developers=[developer]))
+                    generator=support_generator,
+                    developers=[developer],
+                    interval=interval))
 
                 sim_duration = (
                     (num_tasks * story_points + 1) / dev_efficiency) + 5
@@ -134,13 +138,14 @@ class TestDeveloper(unittest.TestCase):
             env=env, name=WorkflowStateName.SUPPORT_COMPLETE)
 
         support_generator = TaskGenerator(
-            factory=support_task_factory, interval=1.5)
+            factory=support_task_factory)
 
         dev_target = run_scenario(env,
                                   dev_efficiency=1,
                                   story_points=2,
                                   support_generator=support_generator,
-                                  support_target=support_target)
+                                  support_target=support_target,
+                                  interval=1.5)
 
         self.assertEqual(2, len(dev_target.items))
         self.assertEqual((3.0, 3.0), dev_target.items[0].history.event_times(
@@ -153,13 +158,14 @@ class TestDeveloper(unittest.TestCase):
             env=env, name=WorkflowStateName.SUPPORT_COMPLETE)
 
         support_generator = TaskGenerator(
-            factory=support_task_factory, interval=2, limit=1)
+            factory=support_task_factory, limit=1)
 
         dev_target = run_scenario(env,
                                   dev_efficiency=1,
                                   story_points=2,
                                   support_generator=support_generator,
-                                  support_target=support_target)
+                                  support_target=support_target,
+                                  interval=2)
 
         self.assertEqual(2, len(dev_target.items))
         self.assertEqual((2.0, 2.0), dev_target.items[0].history.event_times(

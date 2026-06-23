@@ -30,6 +30,7 @@ class Simulation:
     def execute(self, tasks: list[Task],
                 models: Iterable[Model],
                 support_generator: TaskGenerator | None = None,
+                support_interval: float | None = None,
                 pbar: tqdm | None = None,
                 policy: SimulationPolicy = DefaultSimulationPolicy()) -> list[SimulationResult]:
         """Executes a simulation.
@@ -72,9 +73,10 @@ class Simulation:
                 toolchain_manager=toolchain_manager,
                 signal=delivery_complete))
 
-            if support_generator is not None:
+            if (support_generator is not None) and (support_interval is not None):
                 support_workflow_p = env.process(support_workflow.start(
                     generator=support_generator,
+                    interval=support_interval,
                     developers=list(model.developer_team),
                     stop_signal=delivery_complete))
                 sim_termination_events.append(support_workflow_p)
