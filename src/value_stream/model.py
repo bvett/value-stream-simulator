@@ -8,7 +8,8 @@ class Model:
     def __init__(self, developer_team: Collection[Developer],
                  deployment_cadence: int,
                  qa_testers: Iterable[QATester],
-                 toolchain_pool: Iterable[Toolchain]) -> None:
+                 toolchain_pool: Iterable[Toolchain],
+                 support_interval: float | None) -> None:
         """Describes how a simulation executes
 
         Args:
@@ -16,6 +17,7 @@ class Model:
             toolchain_concurrency (int): Max number of deployments that can occur simultaneously
             deployment_duration (float): Duration of a deployment in time units
             deployment_cadence (int): Time interval between deployment activities.
+            support_interval (float|None): Frequency of support task generation.  
         """
 
         if deployment_cadence < 0:
@@ -28,3 +30,5 @@ class Model:
 
         self.developer_team = developer_team
         self.team_size = len(developer_team)
+
+        self.support_interval = support_interval

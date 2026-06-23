@@ -30,7 +30,8 @@ class TestSimulation(unittest.TestCase):
             teams=teams,
             deployment_cadences=range(MAX_CADENCE, -1, -1),
             qa_testers=qa_tester_pool,
-            toolchain_pool=toolchain_pool)
+            toolchain_pool=toolchain_pool,
+            support_intervals=[SUPPORT_INTERVAL])
 
         tasks = TaskFactory(initial_value=1,
                             depreciation_rate=0,
@@ -47,7 +48,6 @@ class TestSimulation(unittest.TestCase):
                 tasks=tasks,
                 models=models,
                 support_generator=support_generator,
-                support_interval=SUPPORT_INTERVAL,
                 pbar=pbar)
 
         # one result for every combination of task and cadence

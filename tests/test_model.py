@@ -19,10 +19,12 @@ class TestModel(unittest.TestCase):
         _ = Model(developer_team=self.developer_team,
                   deployment_cadence=0,
                   qa_testers=self.qa_tester_pool,
-                  toolchain_pool=self.toolchain_pool)
+                  toolchain_pool=self.toolchain_pool,
+                  support_interval=None)
 
         with self.assertRaises(ValueError):
             Model(self.developer_team,
                   deployment_cadence=-1,
                   qa_testers=self.qa_tester_pool,
-                  toolchain_pool=self.toolchain_pool)
+                  toolchain_pool=self.toolchain_pool,
+                  support_interval=None)

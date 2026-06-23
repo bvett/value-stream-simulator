@@ -35,7 +35,8 @@ class TestResultViewer(unittest.TestCase):
             teams=developer_teams,
             deployment_cadences=range(self.max_cadence, -1, -1),
             qa_testers=qa_tester_pool,
-            toolchain_pool=toolchain_pool)
+            toolchain_pool=toolchain_pool,
+            support_intervals=[None])
 
         tasks = TaskFactory(initial_value=1,
                             depreciation_rate=0, story_points=1.0).create(count=self.num_tasks)

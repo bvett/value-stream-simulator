@@ -21,7 +21,8 @@ class ModelFactory:
     def create(self, teams: Iterable[Collection[Developer]],
                deployment_cadences: Iterable,
                qa_testers: Iterable[QATester],
-               toolchain_pool: Iterable[Toolchain]) -> list[Model]:
+               toolchain_pool: Iterable[Toolchain],
+               support_intervals: Iterable) -> list[Model]:
         """Creates Model objects
 
         Args:
@@ -37,8 +38,10 @@ class ModelFactory:
 
         for team in teams:
             for cadence in deployment_cadences:
-                result.append(Model(developer_team=team,
-                                    deployment_cadence=cadence,
-                                    qa_testers=qa_testers,
-                                    toolchain_pool=toolchain_pool))
+                for interval in support_intervals:
+                    result.append(Model(developer_team=team,
+                                        deployment_cadence=cadence,
+                                        qa_testers=qa_testers,
+                                        toolchain_pool=toolchain_pool,
+                                        support_interval=interval))
         return result

@@ -73,15 +73,14 @@ if __name__ == "__main__":
         teams=teams,
         deployment_cadences=range(MAX_CADENCE, -1, -1),
         qa_testers=qa_tester_pool,
-        toolchain_pool=toolchain_pool)
+        toolchain_pool=toolchain_pool,
+        support_intervals=[None])
 
     support_factory = TaskFactory(
         SupportTask, story_points=1)
 
-    support_generator = None
-
-    # support_generator = TaskGenerator(
-    #    factory=support_factory, interval=SUPPORT_INTERVAL)
+    support_generator = TaskGenerator(
+        factory=support_factory)
 
     # Run the simulation with a progress bar and collect the results
     results: list[SimulationResult] = []

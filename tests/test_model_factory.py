@@ -19,6 +19,8 @@ class TestModelFactory(unittest.TestCase):
 
         NUM_TEAMS = 4
 
+        support_intervals = [None, 10]
+
         teams: list[Collection[Developer]] = []
 
         for i in range(1, NUM_TEAMS+1):
@@ -31,8 +33,10 @@ class TestModelFactory(unittest.TestCase):
         models = factory.create(teams=teams,
                                 deployment_cadences=cadences,
                                 qa_testers=qa_tester_pool,
-                                toolchain_pool=toolchain_pool)
+                                toolchain_pool=toolchain_pool,
+                                support_intervals=support_intervals)
 
-        self.assertEqual(len(models), NUM_TEAMS * NUM_CADENCES)
+        self.assertEqual(len(models), NUM_TEAMS *
+                         NUM_CADENCES * len(support_intervals))
         for model in models:
             self.assertIn(model.deployment_cadence, cadences)
