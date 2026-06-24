@@ -1,3 +1,4 @@
+import itertools
 from typing import Collection, Iterable
 
 from ..resources import Developer, QATester, Toolchain
@@ -36,12 +37,10 @@ class ModelFactory:
 
         result = []
 
-        for team in teams:
-            for cadence in deployment_cadences:
-                for interval in support_intervals:
-                    result.append(Model(developer_team=team,
-                                        deployment_cadence=cadence,
-                                        qa_testers=qa_testers,
-                                        toolchain_pool=toolchain_pool,
-                                        support_interval=interval))
+        for team, cadence, interval in itertools.product(teams, deployment_cadences, support_intervals):
+            result.append(Model(developer_team=team,
+                                deployment_cadence=cadence,
+                                qa_testers=qa_testers,
+                                toolchain_pool=toolchain_pool,
+                                support_interval=interval))
         return result
