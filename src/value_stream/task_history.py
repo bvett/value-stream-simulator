@@ -1,3 +1,5 @@
+from typing import Optional
+
 from .event_status import EventStatus
 from .task_event import TaskEvent
 from .workflow_state_name import WorkflowStateName
@@ -44,7 +46,7 @@ class TaskHistory():
 
         self.events.append(TaskEvent.start(event=event, time=time))
 
-    def end(self, time: float, event: WorkflowStateName | None = None, status: EventStatus = EventStatus.SUCCESS):
+    def end(self, time: float, event: Optional[WorkflowStateName] = None, status: EventStatus = EventStatus.SUCCESS):
         """Ends a started event"""
 
         time -= self.baseline_t

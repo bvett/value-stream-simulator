@@ -1,3 +1,5 @@
+from typing import Optional
+
 from simpy import Environment, Event, Store
 from simpy.resources.store import StorePut, StoreGet
 
@@ -17,7 +19,7 @@ class WorkflowState(Store):
         self.name = name
 
         self._limit = None
-        self._signal: Event | None = None
+        self._signal: Optional[Event] = None
         self._baseline = 0
 
     def put(self, item: Task) -> StorePut:
@@ -45,7 +47,7 @@ class WorkflowState(Store):
     def get(self):
 
         def record_history(event: StoreGet):
-            task: Task | None = event.value
+            task: Optional[Task] = event.value
             if task is None:
                 raise RuntimeError("value is None")
 

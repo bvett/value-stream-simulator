@@ -1,3 +1,5 @@
+from typing import Optional
+
 from simpy import Environment, Interrupt
 
 from ..event_status import EventStatus
@@ -9,7 +11,7 @@ from ..workflow_state_name import WorkflowStateName
 class Developer(Resource):
     """Simulates actions perform on a task by a software developer"""
 
-    def __init__(self, efficiency: float = 1.0, name: str | None = None):
+    def __init__(self, efficiency: float = 1.0, name: Optional[str] = None):
         super().__init__(WorkflowStateName.DEVELOPMENT, resource_id=name)
 
         if efficiency <= 0:

@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 from enum import Enum
 import colorsys
 import matplotlib
@@ -18,7 +18,7 @@ from ..workflow_state_name import WorkflowStateName
 class ResultViewer:
     """Handles rendering of simulation results"""
 
-    def __init__(self, results: list[SimulationResult], pbar: tqdm | None = None, colormap='plasma'):
+    def __init__(self, results: list[SimulationResult], pbar: Optional[tqdm] = None, colormap='plasma'):
 
         self.colormap = matplotlib.colormaps[colormap]
         results_dict: list[dict[str, Any]] = []
@@ -82,11 +82,11 @@ class ResultViewer:
                         (self.df['status'] == EventStatus.SUCCESS) &
                         (self.df['task.task_type'] == TaskType.DEVELOPMENT)]
 
-    def loss_vs_cadence(self, team_samples: int | None = None):
+    def loss_vs_cadence(self, team_samples: Optional[int] = None):
         """shows the impact of deployment cadence on loss
 
         Args:
-            team_samples (int|None):When the optional _team_samples_ parameter is provided,
+            team_samples (Optional[int]): When the optional _team_samples_ parameter is provided,
             it limits the number of series to an even distribution of team sizes
             between the minimum and maximum, inclusive.
         """
@@ -226,7 +226,7 @@ class ResultViewer:
         plt.legend(custom_lines, labels + ['failed event'])
         plt.show()
 
-    def delivered_value_vs_time(self, cadence: int, team_samples: int | None = None):
+    def delivered_value_vs_time(self, cadence: int, team_samples: Optional[int] = None):
         """Plots delivered value over time, grouped by team size
 
         Args:
@@ -268,7 +268,7 @@ class ResultViewer:
 
         plt.show()
 
-    def delivered_value_vs_team_size(self, cadence_samples: int | None = None):
+    def delivered_value_vs_team_size(self, cadence_samples: Optional[int] = None):
         """Plots delivered value over team size, grouped by cadence
         Args:
             cadence(int):  number of samples from the cadences in the simulation, 

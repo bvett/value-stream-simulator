@@ -1,11 +1,11 @@
-from typing import Type
+from typing import Type, Optional
 
 
 class ResourcePool:
     """Generates a fixed or unlimited quantity of a homogeneous resource
     """
 
-    def __init__(self, class_name: Type, limit: int | None = None, **kwargs):
+    def __init__(self, class_name: Type, limit: Optional[int] = None, **kwargs):
 
         if limit is not None and limit <= 0:
             raise ValueError("limit must be None or >0")
@@ -33,5 +33,5 @@ class ResourcePool:
 
 class PooledResource:
     @classmethod
-    def create_pool(cls, limit: int | None = None, **kwargs):
+    def create_pool(cls, limit: Optional[int] = None, **kwargs):
         return ResourcePool(class_name=cls, limit=limit, **kwargs)

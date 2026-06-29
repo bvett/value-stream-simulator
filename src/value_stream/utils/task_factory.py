@@ -1,5 +1,5 @@
 import random
-from typing import Type
+from typing import Type, Optional
 
 from simpy import Environment
 
@@ -10,12 +10,12 @@ from ..task import Task
 class TaskFactory:
     """Utility for creating Tasks"""
 
-    def __init__(self, cls: Type[Task] = Task, env: Environment | None = None, **task_kwargs):
+    def __init__(self, cls: Type[Task] = Task, env: Optional[Environment] = None, **task_kwargs):
         """Initializes a TaskFactory
 
         Args:
             cls (Type[Task], optional): Creates objects of this class. Defaults to Task.
-            env (Environment | None, optional): If provided, 
+            env (Optional[Environment], optional): If provided, 
                 used for setting creation_time of the tasks. Defaults to None.
         """
         self._task_kwargs = task_kwargs

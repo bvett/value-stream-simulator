@@ -1,5 +1,5 @@
 import logging
-from typing import Iterable
+from typing import Iterable, Optional
 
 from simpy import Environment, Event, Process
 from simpy.events import AllOf
@@ -29,15 +29,15 @@ class Simulation:
 
     def execute(self, tasks: list[Task],
                 models: Iterable[Model],
-                support_generator: TaskGenerator | None = None,
-                pbar: tqdm | None = None,
+                support_generator: Optional[TaskGenerator] = None,
+                pbar: Optional[tqdm] = None,
                 policy: SimulationPolicy = DefaultSimulationPolicy()) -> list[SimulationResult]:
         """Executes a simulation.
 
         Args:
             tasks (list[Task]): Development tasks.
             models (Iterable[Model]): Model(s) containing attributes for controlling a simulation.
-            pbar (tqdm | None, optional): Optional progress bar.
+            pbar (Optional[tqdm], optional): Optional progress bar.
             Defaults to None.
 
         Returns:
@@ -61,7 +61,7 @@ class Simulation:
                 env, model.toolchain_pool, policy=policy, cadence=model.deployment_cadence)
 
             delivery_complete = env.event()
-            support_workflow_p: Process | None = None
+            support_workflow_p: Optional[Process] = None
 
             sim_termination_events = [delivery_complete]
 

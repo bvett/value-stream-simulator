@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, Optional
 
 from simpy import Environment, Interrupt, Process, Store
 
@@ -29,13 +29,13 @@ class ResourceOperator:
         self.trigger = env.event()
 
         # enables cleanup of internal processes
-        self._monitor_p: Process | None = None
-        self._timer_p: Process | None = None
-        self._executor_p: Process | None = None
+        self._monitor_p: Optional[Process] = None
+        self._timer_p: Optional[Process] = None
+        self._executor_p: Optional[Process] = None
 
         self.policy = policy
 
-    def start(self, source: WorkflowState, target: WorkflowState, target_upon_failure: WorkflowState | None = None):
+    def start(self, source: WorkflowState, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
         """Starts processing loop that:
             1) Waits for tasks to appear in source
             2) Triggers execution on a fixed schedule or continuously
@@ -118,7 +118,7 @@ class ResourceOperator:
             except Interrupt:
                 break
 
-    def _executor(self, target: WorkflowState, target_upon_failure: WorkflowState | None = None):
+    def _executor(self, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
 
         while True:
             try:
@@ -128,7 +128,7 @@ class ResourceOperator:
             except Interrupt:
                 break
 
-    def _execute(self, target: WorkflowState, target_upon_failure: WorkflowState | None = None):
+    def _execute(self, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
 
         tasks = self._queue.copy()
         self._queue.clear()

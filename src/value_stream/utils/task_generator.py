@@ -1,6 +1,6 @@
 from ..task import Task
 from .task_factory import TaskFactory
-
+from typing import Optional
 
 from simpy import Environment, Interrupt, Process, Store
 
@@ -10,11 +10,11 @@ class TaskGenerator:
     Useful for simulating task creation over time and the creation of unexpected toil.
     """
 
-    def __init__(self,  factory: TaskFactory,  group_size: int = 1, limit: int | None = None):
+    def __init__(self,  factory: TaskFactory,  group_size: int = 1, limit: Optional[int] = None):
         self.group_size = group_size
         self.factory = factory
 
-        self.proc: Process | None = None
+        self.proc: Optional[Process] = None
         self._batch_num = 0
         self.limit = limit
 
@@ -43,7 +43,7 @@ class TaskGenerator:
 
         self._batch_num = 0
 
-        def gen(limit: int | None):
+        def gen(limit: Optional[int]):
 
             while True:
 

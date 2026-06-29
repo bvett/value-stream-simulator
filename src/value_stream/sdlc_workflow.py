@@ -1,4 +1,6 @@
 
+from typing import Optional
+
 from simpy import Environment, Event
 
 from .simulation_policy import SimulationPolicy
@@ -18,7 +20,7 @@ class SDLCWorkflow:
     SDLC process is: pending->developed->delivered
     """
 
-    def __init__(self, env: Environment, policy: SimulationPolicy | None) -> None:
+    def __init__(self, env: Environment, policy: Optional[SimulationPolicy]) -> None:
         """Initializes a workflow with pending tasks"""
 
         self.env = env

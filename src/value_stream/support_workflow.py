@@ -1,5 +1,7 @@
 import itertools
 import random
+from typing import Optional
+
 from simpy import Environment, Event, Interrupt
 
 from .assignment_strategy import AssignmentStrategy
@@ -22,19 +24,19 @@ class SupportWorkflow:
 
         self.policy = policy
 
-        self._signal: Event | None = None
-        self._pending: WorkflowState | None = None
-        self._completed: WorkflowState | None = None
+        self._signal: Optional[Event] = None
+        self._pending: Optional[WorkflowState] = None
+        self._completed: Optional[WorkflowState] = None
 
     @property
-    def pending(self) -> list[Event] | None:
+    def pending(self) -> Optional[list[Event]]:
         if not self._pending:
             return None
 
         return self._pending.items
 
     @property
-    def completed(self) -> list[Event] | None:
+    def completed(self) -> Optional[list[Event]]:
         if not self._completed:
             return None
 
@@ -43,7 +45,7 @@ class SupportWorkflow:
     def start(self, generator: TaskGenerator,
               interval: float,
               developers: list[Developer],
-              stop_signal: Event | None = None):
+              stop_signal: Optional[Event] = None):
 
         if stop_signal is None:
             self._signal = self.env.event()

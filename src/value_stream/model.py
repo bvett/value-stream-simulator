@@ -1,4 +1,4 @@
-from typing import Collection, Iterable
+from typing import Collection, Iterable, Optional
 from .resources import Developer, QATester, Toolchain
 
 
@@ -9,7 +9,7 @@ class Model:
                  deployment_cadence: int,
                  qa_testers: Iterable[QATester],
                  toolchain_pool: Iterable[Toolchain],
-                 support_interval: float | None) -> None:
+                 support_interval: Optional[float]) -> None:
         """Describes how a simulation executes
 
         Args:
