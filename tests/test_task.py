@@ -166,7 +166,9 @@ class TestTask(unittest.TestCase):
 
         self.assertEqual(len(task.history.events), 2)
 
-        self.assertEqual(len(task.reset().history.events), 0)
+        new_task = task.reset()
+        self.assertEqual(len(new_task.history.events), 0)
+        self.assertNotEqual(task.task_id, new_task.task_id)
 
     def test_completed_story_points(self):
 
@@ -212,3 +214,14 @@ class TestTask(unittest.TestCase):
 
         task = task.reset()
         self.assertEqual(task.remaining_work(), task.story_points)
+
+    def test_task_id(self):
+        task_1 = Task(task_name="", initial_value=100, story_points=1,
+                      depreciation_rate=0.1, creation_time=5)
+
+        self.assertIsNotNone(task_1.task_id)
+
+        task_2 = Task(task_name="", initial_value=100, story_points=1,
+                      depreciation_rate=0.1, creation_time=5)
+
+        self.assertNotEqual(task_1.task_id, task_2.task_id)

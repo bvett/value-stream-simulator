@@ -1,4 +1,5 @@
 import copy
+import uuid
 from enum import StrEnum
 from typing import Optional, Self
 from .event_status import EventStatus
@@ -13,6 +14,10 @@ class TaskType(StrEnum):
 
 class Task:
     """Represents a unit of delivery with depreciating value"""
+
+    @classmethod
+    def _generate_id(cls):
+        return uuid.uuid4()
 
     def __init__(self,
                  initial_value: float,
@@ -67,6 +72,12 @@ class Task:
 
         self.loss: float = 0.0
         self.delivered_value: float = 0.0
+
+        self._id = Task._generate_id()
+
+    @property
+    def task_id(self) -> uuid.UUID:
+        return self._id
 
     def value(self, time: Optional[float] = None) -> float:
         """Calculates the value of the task at a specified time
@@ -132,6 +143,7 @@ class Task:
         result.completed_story_points = 0
 
         result.history = TaskHistory(baseline_time=baseline_time)
+        result._id = Task._generate_id()
 
         return result
 
