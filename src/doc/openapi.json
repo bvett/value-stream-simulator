@@ -1,0 +1,557 @@
+{
+    "openapi":"3.1.1",
+    "info": {
+      "title":"Value Stream Simulator",
+      "version":"0.1"
+    },
+
+    "paths": {
+      "/tasks": {
+        "get": {
+          "tags": ["Tasks"],
+          "summary": "List tasks",
+          "description": "Returns tasks visible to the caller, optionally filtered by type and creation time.",
+          "operationId": "list_tasks",
+          "parameters": [
+            {
+              "name": "task_type",
+              "in": "query",
+              "required": false,
+              "description": "Filter tasks by category.",
+              "schema": {
+                "$ref": "#/components/schemas/task_type"
+              }
+            },
+            {
+              "name": "created_after",
+              "in": "query",
+              "required": false,
+              "description": "Return only tasks created strictly after this simulation time.",
+              "schema": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            {
+              "name": "created_before",
+              "in": "query",
+              "required": false,
+              "description": "Return only tasks created strictly before this simulation time.",
+              "schema": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "description": "Maximum number of tasks to return.",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "default": 50
+              }
+            },
+            {
+              "name": "cursor",
+              "in": "query",
+              "required": false,
+              "description": "Opaque pagination cursor returned by a previous request.",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A page of tasks.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/task_list_response"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            }
+          }
+        },
+        "post": {
+          "tags": ["Tasks"],
+          "summary": "Create a task",
+          "description": "Creates a new task.",
+          "operationId": "create_task",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/task_create_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Task created.",
+              "headers": {
+                "Location": {
+                  "description": "Canonical URL for the created task.",
+                  "schema": {
+                    "type": "string",
+                    "format": "uri-reference"
+                  }
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/task"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            },
+            "409": {
+              "$ref": "#/components/responses/conflict"
+            }
+          }
+        }
+      },
+      "/tasks/{taskId}": {
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/task_id"
+          }
+        ],
+        "get": {
+          "tags": ["Tasks"],
+          "summary": "Get a task",
+          "description": "Returns a single task by its identifier.",
+          "operationId": "get_task",
+          "responses": {
+            "200": {
+              "description": "Task found.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/task"
+                  }
+                }
+              }
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        },
+        "put": {
+          "tags": ["Tasks"],
+          "summary": "Replace a task",
+          "description": "Replaces the mutable representation of an existing task.",
+          "operationId": "replace_task",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/task_replace_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Task replaced.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/task"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            },
+            "409": {
+              "$ref": "#/components/responses/conflict"
+            }
+          }
+        },
+        "patch": {
+          "tags": ["Tasks"],
+          "summary": "Update a task",
+          "description": "Applies a partial update to an existing task.",
+          "operationId": "update_task",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/merge-patch+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/task_patch_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Task updated.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/task"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        },
+        "delete": {
+          "tags": ["Tasks"],
+          "summary": "Delete a task",
+          "description": "Deletes an existing task.",
+          "operationId": "delete_task",
+          "responses": {
+            "204": {
+              "description": "Task deleted."
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        }
+      }
+    },
+
+    "components": {
+      "parameters": {
+        "task_id": {
+          "name": "taskId",
+          "in": "path",
+          "required": true,
+          "description": "Unique task identifier.",
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "responses": {
+        "bad_request": {
+          "description": "The request body or parameters are invalid.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/error"
+              }
+            }
+          }
+        },
+        "not_found": {
+          "description": "The requested task does not exist.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/error"
+              }
+            }
+          }
+        },
+        "conflict": {
+          "description": "The request conflicts with the current state of the task collection.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/error"
+              }
+            }
+          }
+        }
+      },
+      "schemas": {
+        "task" : {
+          "title": "Task",
+          "description": "A unit of delivery in the simulation with depreciating value, accumulated work, and workflow history.",
+          "type" : "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "initial_value" : {
+              "type": "number",
+              "minimum": 0,
+              "description" : "Initial relative value assigned when the task is created."
+            },
+            "story_points" : {
+              "type": "number",
+              "minimum" : 0,
+              "description" : "Estimated relative effort required to complete the task."
+            },
+            "completed_story_points": {
+              "type": "number",
+              "minimum": 0,
+              "readOnly": true,
+              "description": "Amount of work already applied to the task."
+            },
+            "depreciation_rate": {
+              "type": "number",
+              "minimum" : 0,
+              "maximum" : 1,
+              "default": 0.005,
+              "description" : "Fraction of value lost per unit of simulation time."
+            },
+            "task_id" : {
+              "type": ["string", "null"],
+              "default": null,
+              "description" : "Optional public identifier for this task."
+            },
+            "creation_t" : {
+              "type" : "number",
+              "minimum" : 0,
+              "default": 0,
+              "description": "Simulation time when the task was created."
+            },
+            "task_type" : {
+              "$ref": "#/components/schemas/task_type",
+              "default": "development",
+              "description" : "Task category used by scheduling and prioritization logic."
+            },
+            "loss" : {
+              "type" : "number",
+              "description": "Delivered value expressed as a fraction of initial value minus 1. Undelivered tasks remain 0.",
+              "readOnly": true
+            },
+            "delivered_value" : {
+              "type" : "number",
+              "description" : "Depreciated value at successful delivery time. Undelivered tasks remain 0.",
+              "readOnly" : true
+            },
+            "history" :{
+              "$ref": "#/components/schemas/task_history",
+              "readOnly": true
+            }
+
+          },
+          "required": [
+            "initial_value",
+            "story_points",
+            "depreciation_rate",
+            "creation_t",
+            "task_type"
+          ],
+          "examples": [
+            {
+              "initial_value": 100,
+              "story_points": 5,
+              "completed_story_points": 2,
+              "depreciation_rate": 0.005,
+              "task_id": "42",
+              "creation_t": 3,
+              "task_type": "development",
+              "loss": 0,
+              "delivered_value": 0,
+              "history": {
+                "baseline_t": 0,
+                "events": [
+                  {
+                    "event": "pending",
+                    "event_type": "start",
+                    "time": 3,
+                    "status": "success"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "task_create_request": {
+          "title": "TaskCreateRequest",
+          "description": "Payload used to create a task.",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "initial_value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "story_points": {
+              "type": "number",
+              "minimum": 0
+            },
+            "depreciation_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.005
+            },
+            "task_id": {
+              "type": ["string", "null"],
+              "default": null
+            },
+            "creation_t": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0
+            },
+            "task_type": {
+              "$ref": "#/components/schemas/task_type",
+              "default": "development"
+            }
+          },
+          "required": ["initial_value", "story_points"]
+        },
+        "task_replace_request": {
+          "title": "TaskReplaceRequest",
+          "description": "Full mutable representation used to replace a task.",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/task_create_request"
+            }
+          ]
+        },
+        "task_patch_request": {
+          "title": "TaskPatchRequest",
+          "description": "Partial mutable representation used to update a task.",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "initial_value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "story_points": {
+              "type": "number",
+              "minimum": 0
+            },
+            "depreciation_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "task_id": {
+              "type": ["string", "null"]
+            },
+            "creation_t": {
+              "type": "number",
+              "minimum": 0
+            },
+            "task_type": {
+              "$ref": "#/components/schemas/task_type"
+            }
+          }
+        },
+        "task_list_response": {
+          "title": "TaskListResponse",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/task"
+              }
+            },
+            "next_cursor": {
+              "type": ["string", "null"],
+              "description": "Opaque cursor for the next page, or null when there are no more results."
+            }
+          },
+          "required": ["data", "next_cursor"]
+        },
+        "task_type":{
+          "type" : "string",
+          "enum": ["development", "support"]
+        },
+        "event_type": {
+          "type": "string",
+          "enum": ["start", "end", "terminal"]
+        },
+        "event_status": {
+          "type": "string",
+          "enum": ["success", "failure"]
+        },
+        "workflow_state_name":{
+          "type": "string",
+          "enum": ["pending", "development", "dev_complete", "qa_testing", "qa_complete", "deployment", "delivery", "support_pending", "support_complete"]
+        },
+        "task_event" : {
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "event": {
+              "$ref": "#/components/schemas/workflow_state_name",
+              "description": "Identifies the workflow state associated with this event"
+            },
+            "event_type": {
+              "$ref": "#/components/schemas/event_type"
+            },
+            "time": {
+              "type" : "number",
+              "description": "Simulation time of the event"
+            },
+            "status": {
+              "$ref": "#/components/schemas/event_status",
+              "description" : "Outcome of the event (success/failure)"
+            }
+          },
+          "required": ["event", "event_type", "time", "status"]
+        }, 
+        "task_history":{
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "baseline_t" : {
+              "type" : "number",
+              "default" : 0,
+              "description": "Offset subtracted from raw simulation timestamps before events are recorded."
+            },
+            "events": {
+              "type" : "array",
+              "readOnly": true,
+              "items" : {
+                "$ref" : "#/components/schemas/task_event"
+              },
+              "description": "Chronological event log for the task."
+            }
+          },
+          "required": ["baseline_t"]
+        },
+        "error": {
+          "title": "Error",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Stable, machine-readable error code."
+            },
+            "message": {
+              "type": "string",
+              "description": "Human-readable error description."
+            },
+            "details": {
+              "type": ["object", "null"],
+              "default": null,
+              "description": "Optional structured metadata describing the error.",
+              "additionalProperties": true
+            }
+          },
+          "required": ["code", "message"]
+        }
+      }
+    }
+  }
