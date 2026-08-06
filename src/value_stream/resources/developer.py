@@ -12,7 +12,7 @@ class Developer(Resource):
     """Simulates actions perform on a task by a software developer"""
 
     def __init__(self, efficiency: float = 1.0, name: Optional[str] = None):
-        super().__init__(WorkflowStateName.DEVELOPMENT, resource_id=name)
+        super().__init__(WorkflowStateName.DEVELOPMENT)
 
         if efficiency <= 0:
             raise ValueError("efficiency must be > 0")

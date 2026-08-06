@@ -1,5 +1,6 @@
 # Parent class for Developer and Toolchain
 from typing import Optional
+import uuid
 
 from simpy import Environment, Event, Interrupt, Process, Store
 from simpy.events import ProcessGenerator
@@ -13,11 +14,19 @@ from ..workflow_state_name import WorkflowStateName
 class Resource:
     """Base class for simulation objects that operate on tasks"""
 
-    def __init__(self, workflow_state: WorkflowStateName, resource_id: Optional[str] = None):
+    @classmethod
+    def _generate_id(cls) -> uuid.UUID:
+        return uuid.uuid4()
+
+    def __init__(self, workflow_state: WorkflowStateName):
         self.workflow_state = workflow_state
         self._process: Optional[Resource.ProcessWrapper] = None
         self._suspended_work: list[Event] = []
-        self.id = resource_id
+        self._id = Resource._generate_id()
+
+    @property
+    def resource_id(self):
+        return self._id
 
     def operate(self, env: Environment, tasks: list[Task],
                 target: Store,
