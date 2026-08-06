@@ -44,8 +44,8 @@ class TaskFactory:
 
             args = generate_args(**self._task_kwargs)
 
-            if 'task_id' not in args:
-                args['task_id'] = f"{i+1}"
+            if 'task_name' not in args:
+                args['task_name'] = f"{i+1}"
 
             if self.env is not None:
                 args['creation_time'] = self.env.now

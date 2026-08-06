@@ -15,8 +15,8 @@ class TestDeveloper(unittest.TestCase):
 
     def setUp(self):
 
-        self.simple_task = Task(task_id="", initial_value=1, story_points=.6)
-        self.complex_task = Task(task_id="", initial_value=1, story_points=2)
+        self.simple_task = Task(task_name="", initial_value=1, story_points=.6)
+        self.complex_task = Task(task_name="", initial_value=1, story_points=2)
         self.policy = DefaultSimulationPolicy()
 
     def test_validation(self):
@@ -85,7 +85,7 @@ class TestDeveloper(unittest.TestCase):
             for i in range(0, num_tasks):
 
                 dev_task = Task(initial_value=1,
-                                story_points=story_points, task_id=f"T{i+1}")
+                                story_points=story_points, task_name=f"T{i+1}")
                 dev_source.put(dev_task)
 
             dev_target = TerminalWorkflowState(

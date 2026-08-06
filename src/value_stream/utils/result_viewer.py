@@ -58,14 +58,14 @@ class ResultViewer:
         self.df = json_normalize(results_dict, record_path=['events'],
                                  meta=[['model', 'deployment_cadence'],
                                        ['model', 'team_size'],
-                                       ['task', 'task_id'],
+                                       ['task', 'task_name'],
                                        ['task', 'loss'],
                                        ['task', 'delivered_value'],
                                        ['task', 'task_type']],
                                  errors='ignore')
 
         self.df.set_index(['model.deployment_cadence',
-                           'model.team_size', 'task.task_id'], inplace=True)
+                           'model.team_size', 'task.task_name'], inplace=True)
 
         self.df.sort_index(inplace=True)
 
@@ -183,7 +183,7 @@ class ResultViewer:
 
         df['start_time'] = df['time'] - df['event_duration']
 
-        df = df.groupby(['task.task_id', 'event'])[[
+        df = df.groupby(['task.task_name', 'event'])[[
             'time', 'start_time', 'event_duration', 'status']].agg(list)
 
         df['timeline'] = [list(zip(t, d))  # type:ignore

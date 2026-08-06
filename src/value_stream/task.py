@@ -18,7 +18,7 @@ class Task:
                  initial_value: float,
                  story_points: float,
                  depreciation_rate=0.005,
-                 task_id: Optional[str] = None,
+                 task_name: Optional[str] = None,
                  creation_time: float = 0.0,
                  task_type: TaskType = TaskType.DEVELOPMENT) -> None:
         """Creates a Task
@@ -31,13 +31,13 @@ class Task:
             depreciation_rate (float, optional): Percentage of value 
               decrease per time unit. Defaults to 0.005.
 
-            task_id (str): Public identifier. Optional.
+            task_name (str): Public identifier. Optional.
 
             creation_time (float, optional): Relative time of task creation. Defaults to 0.0.
 
         """
 
-        self.task_id = task_id
+        self.task_name = task_name
 
         if initial_value < 0:
             raise ValueError("initial_value must be >=0")
@@ -120,7 +120,7 @@ class Task:
         self.loss = self._loss()
 
     def __str__(self) -> str:
-        return self.task_id if self.task_id else ""
+        return self.task_name if self.task_name else ""
 
     def reset(self, baseline_time: float = 0) -> Self:
         """Returns a clone of the task except history"""
@@ -158,12 +158,12 @@ class Task:
 class SupportTask(Task):
     def __init__(self,
                  story_points: float,
-                 task_id: Optional[str] = None,
+                 task_name: Optional[str] = None,
                  creation_time: float = 0.0):
 
         super().__init__(initial_value=0,
                          story_points=story_points,
                          depreciation_rate=0,
-                         task_id=task_id,
+                         task_name=task_name,
                          creation_time=creation_time,
                          task_type=TaskType.SUPPORT)

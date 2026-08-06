@@ -29,10 +29,10 @@ class TaskGenerator:
 
         for task in tasks:
             if self.group_size == 1:
-                task.task_id = f"S{self._batch_num}"
+                task.task_name = f"S{self._batch_num}"
             else:
                 serial_num += 1
-                task.task_id = f"S{self._batch_num}-{serial_num}"
+                task.task_name = f"S{self._batch_num}-{serial_num}"
 
         return tasks
 

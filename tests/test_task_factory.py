@@ -30,7 +30,7 @@ class TestTaskFactory(unittest.TestCase):
         self.assertEqual(len(tasks_1), 5)
 
         for i, v in enumerate(tasks_1):
-            self.assertEqual(v.task_id, tasks_2[i].task_id)
+            self.assertEqual(v.task_name, tasks_2[i].task_name)
 
     def test_create_sd(self):
         factory = TaskFactory(story_points=generator_utils.uniform(
@@ -50,7 +50,7 @@ class TestTaskFactory(unittest.TestCase):
 
         mismatch = False
         for i, task in enumerate(tasks_1):
-            mismatch |= task.task_id != tasks_2[i].task_id
+            mismatch |= task.task_name != tasks_2[i].task_name
 
         self.assertEqual(mismatch, True)
 

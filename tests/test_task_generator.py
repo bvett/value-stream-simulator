@@ -69,7 +69,7 @@ class TestTaskGenerator(unittest.TestCase):
 
             self.assertEqual(1, len(task_group))
             task = task_group[0]
-            self.assertEqual(f"S{index}", task.task_id)
+            self.assertEqual(f"S{index}", task.task_name)
 
             index += 1
             if index == batches:
@@ -82,7 +82,7 @@ class TestTaskGenerator(unittest.TestCase):
             self.assertEqual(3, len(task_group))
 
             for i, task in enumerate(task_group):
-                self.assertEqual(f"S{index}-{i+1}", task.task_id)
+                self.assertEqual(f"S{index}-{i+1}", task.task_name)
 
             index += 1
             if index == batches:

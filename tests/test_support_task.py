@@ -8,7 +8,7 @@ from value_stream import SupportTask, TaskType, WorkflowStateName
 class TestSupportTask(unittest.TestCase):
     def test_support_task(self):
         task = SupportTask(story_points=2,
-                           task_id="INC-001",
+                           task_name="INC-001",
                            creation_time=2)
 
         self.assertEqual(task.depreciation_rate, 0)
@@ -16,7 +16,7 @@ class TestSupportTask(unittest.TestCase):
         self.assertEqual(task.creation_t, 2)
         self.assertEqual(task.depreciation_rate, 0.0)
         self.assertEqual(task.story_points, 2)
-        self.assertEqual(task.task_id, "INC-001")
+        self.assertEqual(task.task_name, "INC-001")
         self.assertEqual(task.task_type, TaskType.SUPPORT)
         self.assertEqual(task._initial_value, 0)
 
@@ -39,7 +39,7 @@ class TestSupportTask(unittest.TestCase):
     def test_loss(self):
 
         # No loss
-        task = SupportTask(task_id="", story_points=1,
+        task = SupportTask(task_name="", story_points=1,
                            creation_time=0)
 
         task.history.terminate(25, WorkflowStateName.DELIVERY)

@@ -126,7 +126,7 @@ class TestSupportWorkflow(unittest.TestCase):
         story_points = 5
         for i in range(1, 4):
             source.put(SupportTask(
-                story_points=story_points, task_id=f"T{i}"))
+                story_points=story_points, task_name=f"T{i}"))
 
         env.process(workflow._processing_loop(
             [developer],
@@ -144,13 +144,13 @@ class TestSupportWorkflow(unittest.TestCase):
 
         # Check that T3 has been completed and the developer has 1 task queued up
         self.assertEqual(len(target.items), 1)
-        self.assertEqual(target.items[-1].task_id, "T3")
+        self.assertEqual(target.items[-1].task_name, "T3")
         self.assertEqual(len(developer._suspended_work), 1)
 
         env.run(until=(3 * story_points) + 1)
 
         self.assertEqual(len(target.items), 3)
-        self.assertEqual(target.items[-1].task_id, "T1")
+        self.assertEqual(target.items[-1].task_name, "T1")
         self.assertEqual(len(developer._suspended_work), 0)
 
     def test_termination(self):

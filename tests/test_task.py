@@ -11,43 +11,43 @@ class TestTask(unittest.TestCase):
 
         # invalid initial_value
         with self.assertRaises(ValueError):
-            Task(task_id="", initial_value=-4.2, story_points=1.0)
+            Task(task_name="", initial_value=-4.2, story_points=1.0)
 
         # invalid story_points
         with self.assertRaises(ValueError):
-            Task(task_id="", initial_value=4.2, story_points=-1)
+            Task(task_name="", initial_value=4.2, story_points=-1)
 
         # invalid depreciatiom_rate
         with self.assertRaises(ValueError):
-            Task(task_id="", initial_value=1,
+            Task(task_name="", initial_value=1,
                  story_points=1, depreciation_rate=-1)
 
         with self.assertRaises(ValueError):
-            Task(task_id="", initial_value=1,
+            Task(task_name="", initial_value=1,
                  story_points=1, depreciation_rate=1.1)
 
         # invalid creation_time
 
         with self.assertRaises(ValueError):
-            Task(task_id="", initial_value=100,
+            Task(task_name="", initial_value=100,
                  story_points=1, creation_time=-1)
 
         # invalid time
 
         with self.assertRaises(ValueError):
-            task = Task(task_id="", initial_value=100,
+            task = Task(task_name="", initial_value=100,
                         story_points=1, creation_time=5)
             task.value(4)
 
         # edge case
 
         with self.assertRaises(ValueError):
-            task = Task(task_id="", initial_value=100,
+            task = Task(task_name="", initial_value=100,
                         story_points=1, creation_time=5)
             task.value(0)
 
     def test_value(self):
-        task = Task(task_id="",
+        task = Task(task_name="",
                     initial_value=100,
                     story_points=1.0)
 
@@ -56,7 +56,7 @@ class TestTask(unittest.TestCase):
     def test_depreciation(self):
 
         # no depreciation
-        task = Task(task_id="", initial_value=100,
+        task = Task(task_name="", initial_value=100,
                     story_points=1, depreciation_rate=0)
 
         for t in [0, 10, 200]:
@@ -64,7 +64,7 @@ class TestTask(unittest.TestCase):
 
         # basic depreciation
 
-        task = Task(task_id="", initial_value=100,
+        task = Task(task_name="", initial_value=100,
                     story_points=1, depreciation_rate=0.1)
 
         values = [100, 90, 81, 72.9]
@@ -73,7 +73,7 @@ class TestTask(unittest.TestCase):
 
         # depreciation with offset creation_time
 
-        task = Task(task_id="", initial_value=100,
+        task = Task(task_name="", initial_value=100,
                     story_points=1, depreciation_rate=0.1, creation_time=5)
 
         values = [100, 90, 81, 72.9]
@@ -82,12 +82,12 @@ class TestTask(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(
-            str(Task(task_id="foo", initial_value=0, story_points=1)), "foo")
+            str(Task(task_name="foo", initial_value=0, story_points=1)), "foo")
 
     def test_loss(self):
 
         # No loss
-        task = Task(task_id="", initial_value=50, story_points=1,
+        task = Task(task_name="", initial_value=50, story_points=1,
                     creation_time=0, depreciation_rate=0)
 
         task.history.terminate(25, WorkflowStateName.DELIVERY)
@@ -96,7 +96,7 @@ class TestTask(unittest.TestCase):
 
         # Loss
 
-        task = Task(task_id="", initial_value=50, story_points=1,
+        task = Task(task_name="", initial_value=50, story_points=1,
                     creation_time=0, depreciation_rate=0.1)
 
         task.history.terminate(2, WorkflowStateName.DELIVERY)
@@ -106,7 +106,7 @@ class TestTask(unittest.TestCase):
     def test_delivered_value(self):
 
         # not delivered
-        task = Task(task_id="", initial_value=100,
+        task = Task(task_name="", initial_value=100,
                     story_points=1, depreciation_rate=0.1)
 
         self.assertEqual(task._delivered_value(), 0)
@@ -124,21 +124,21 @@ class TestTask(unittest.TestCase):
 
         # offset creation_time
 
-        task = Task(task_id="", initial_value=100, story_points=1,
+        task = Task(task_name="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
         task.history.terminate(5, WorkflowStateName.DELIVERY)
 
         self.assertEqual(task._delivered_value(), 100)
 
-        task = Task(task_id="", initial_value=100, story_points=1,
+        task = Task(task_name="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
         task.history.terminate(6, WorkflowStateName.DELIVERY)
         self.assertEqual(task._delivered_value(), 90)
 
         # validation
-        task = Task(task_id="", initial_value=100, story_points=1,
+        task = Task(task_name="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
         # missing delivery_start_t
@@ -146,7 +146,7 @@ class TestTask(unittest.TestCase):
             task.history.end(5, WorkflowStateName.DELIVERY)
             task._delivered_value()
 
-        task = Task(task_id="", initial_value=100, story_points=1,
+        task = Task(task_name="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
         # inverted start/end times
@@ -157,7 +157,7 @@ class TestTask(unittest.TestCase):
 
     def test_reset(self):
 
-        task = Task(task_id="", initial_value=100, story_points=1,
+        task = Task(task_name="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
         self.assertEqual(len(task.history.events), 0)
@@ -173,7 +173,7 @@ class TestTask(unittest.TestCase):
         original_story_points = 50
 
         def create_task(story_points: int):
-            return Task(task_id="", initial_value=100,
+            return Task(task_name="", initial_value=100,
                         story_points=story_points)
 
         task = create_task(original_story_points)
