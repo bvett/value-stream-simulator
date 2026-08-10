@@ -236,6 +236,673 @@
             }
           }
         }
+      },
+      "/developers": {
+        "get": {
+          "tags": ["Developers"],
+          "summary": "List developers",
+          "description": "Returns developers visible to the caller.",
+          "operationId": "list_developers",
+          "parameters": [
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "description": "Maximum number of developers to return.",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "default": 50
+              }
+            },
+            {
+              "name": "cursor",
+              "in": "query",
+              "required": false,
+              "description": "Opaque pagination cursor returned by a previous request.",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A page of developers.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/developer_list_response"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            }
+          }
+        },
+        "post": {
+          "tags": ["Developers"],
+          "summary": "Create a developer",
+          "description": "Creates a developer resource.",
+          "operationId": "create_developer",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/developer_create_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Developer created.",
+              "headers": {
+                "Location": {
+                  "description": "Canonical URL for the created developer.",
+                  "schema": {
+                    "type": "string",
+                    "format": "uri-reference"
+                  }
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/developer"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            },
+            "409": {
+              "$ref": "#/components/responses/conflict"
+            }
+          }
+        }
+      },
+      "/developers/{developerId}": {
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/developer_id"
+          }
+        ],
+        "get": {
+          "tags": ["Developers"],
+          "summary": "Get a developer",
+          "description": "Returns a single developer by its identifier.",
+          "operationId": "get_developer",
+          "responses": {
+            "200": {
+              "description": "Developer found.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/developer"
+                  }
+                }
+              }
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        },
+        "put": {
+          "tags": ["Developers"],
+          "summary": "Replace a developer",
+          "description": "Replaces the mutable representation of an existing developer.",
+          "operationId": "replace_developer",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/developer_replace_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Developer replaced.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/developer"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        },
+        "patch": {
+          "tags": ["Developers"],
+          "summary": "Update a developer",
+          "description": "Applies a partial update to an existing developer.",
+          "operationId": "update_developer",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/merge-patch+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/developer_patch_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Developer updated.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/developer"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        },
+        "delete": {
+          "tags": ["Developers"],
+          "summary": "Delete a developer",
+          "description": "Deletes an existing developer.",
+          "operationId": "delete_developer",
+          "responses": {
+            "204": {
+              "description": "Developer deleted."
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        }
+      },
+      "/developer_batches": {
+        "post": {
+          "tags": ["DeveloperBatches"],
+          "summary": "Create a developer batch",
+          "description": "Creates a batch of developers using server-side generation rules that mirror DeveloperFactory.create().",
+          "operationId": "create_developer_batch",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/developer_batch_create_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Developer batch created.",
+              "headers": {
+                "Location": {
+                  "description": "Canonical URL for the created developer batch.",
+                  "schema": {
+                    "type": "string",
+                    "format": "uri-reference"
+                  }
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/developer_batch"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            }
+          }
+        }
+      },
+      "/developer_batches/{developerBatchId}": {
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/developer_batch_id"
+          }
+        ],
+        "get": {
+          "tags": ["DeveloperBatches"],
+          "summary": "Get a developer batch",
+          "description": "Returns a single developer batch and the developers it generated.",
+          "operationId": "get_developer_batch",
+          "responses": {
+            "200": {
+              "description": "Developer batch found.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/developer_batch"
+                  }
+                }
+              }
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        }
+      },
+      "/qa_testers": {
+        "get": {
+          "tags": ["QATesters"],
+          "summary": "List QA testers",
+          "description": "Returns QA testers visible to the caller.",
+          "operationId": "list_qa_testers",
+          "parameters": [
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "description": "Maximum number of QA testers to return.",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "default": 50
+              }
+            },
+            {
+              "name": "cursor",
+              "in": "query",
+              "required": false,
+              "description": "Opaque pagination cursor returned by a previous request.",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A page of QA testers.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/qa_tester_list_response"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            }
+          }
+        },
+        "post": {
+          "tags": ["QATesters"],
+          "summary": "Create a QA tester",
+          "description": "Creates a QA tester resource.",
+          "operationId": "create_qa_tester",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/qa_tester_create_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "QA tester created.",
+              "headers": {
+                "Location": {
+                  "description": "Canonical URL for the created QA tester.",
+                  "schema": {
+                    "type": "string",
+                    "format": "uri-reference"
+                  }
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/qa_tester"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            },
+            "409": {
+              "$ref": "#/components/responses/conflict"
+            }
+          }
+        }
+      },
+      "/qa_testers/{qaTesterId}": {
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/qa_tester_id"
+          }
+        ],
+        "get": {
+          "tags": ["QATesters"],
+          "summary": "Get a QA tester",
+          "description": "Returns a single QA tester by its identifier.",
+          "operationId": "get_qa_tester",
+          "responses": {
+            "200": {
+              "description": "QA tester found.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/qa_tester"
+                  }
+                }
+              }
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        },
+        "put": {
+          "tags": ["QATesters"],
+          "summary": "Replace a QA tester",
+          "description": "Replaces the mutable representation of an existing QA tester.",
+          "operationId": "replace_qa_tester",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/qa_tester_replace_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "QA tester replaced.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/qa_tester"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        },
+        "patch": {
+          "tags": ["QATesters"],
+          "summary": "Update a QA tester",
+          "description": "Applies a partial update to an existing QA tester.",
+          "operationId": "update_qa_tester",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/merge-patch+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/qa_tester_patch_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "QA tester updated.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/qa_tester"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        },
+        "delete": {
+          "tags": ["QATesters"],
+          "summary": "Delete a QA tester",
+          "description": "Deletes an existing QA tester.",
+          "operationId": "delete_qa_tester",
+          "responses": {
+            "204": {
+              "description": "QA tester deleted."
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        }
+      },
+      "/toolchains": {
+        "get": {
+          "tags": ["Toolchains"],
+          "summary": "List toolchains",
+          "description": "Returns toolchains visible to the caller.",
+          "operationId": "list_toolchains",
+          "parameters": [
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "description": "Maximum number of toolchains to return.",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "default": 50
+              }
+            },
+            {
+              "name": "cursor",
+              "in": "query",
+              "required": false,
+              "description": "Opaque pagination cursor returned by a previous request.",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A page of toolchains.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/toolchain_list_response"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            }
+          }
+        },
+        "post": {
+          "tags": ["Toolchains"],
+          "summary": "Create a toolchain",
+          "description": "Creates a toolchain resource.",
+          "operationId": "create_toolchain",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/toolchain_create_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Toolchain created.",
+              "headers": {
+                "Location": {
+                  "description": "Canonical URL for the created toolchain.",
+                  "schema": {
+                    "type": "string",
+                    "format": "uri-reference"
+                  }
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/toolchain"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            },
+            "409": {
+              "$ref": "#/components/responses/conflict"
+            }
+          }
+        }
+      },
+      "/toolchains/{toolchainId}": {
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/toolchain_id"
+          }
+        ],
+        "get": {
+          "tags": ["Toolchains"],
+          "summary": "Get a toolchain",
+          "description": "Returns a single toolchain by its identifier.",
+          "operationId": "get_toolchain",
+          "responses": {
+            "200": {
+              "description": "Toolchain found.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/toolchain"
+                  }
+                }
+              }
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        },
+        "put": {
+          "tags": ["Toolchains"],
+          "summary": "Replace a toolchain",
+          "description": "Replaces the mutable representation of an existing toolchain.",
+          "operationId": "replace_toolchain",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/toolchain_replace_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Toolchain replaced.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/toolchain"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        },
+        "patch": {
+          "tags": ["Toolchains"],
+          "summary": "Update a toolchain",
+          "description": "Applies a partial update to an existing toolchain.",
+          "operationId": "update_toolchain",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/merge-patch+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/toolchain_patch_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Toolchain updated.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/toolchain"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        },
+        "delete": {
+          "tags": ["Toolchains"],
+          "summary": "Delete a toolchain",
+          "description": "Deletes an existing toolchain.",
+          "operationId": "delete_toolchain",
+          "responses": {
+            "204": {
+              "description": "Toolchain deleted."
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        }
       }
     },
 
@@ -249,6 +916,46 @@
           "schema": {
             "type": "string",
             "minLength": 1
+          }
+        },
+        "developer_id": {
+          "name": "developerId",
+          "in": "path",
+          "required": true,
+          "description": "Unique developer identifier.",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "developer_batch_id": {
+          "name": "developerBatchId",
+          "in": "path",
+          "required": true,
+          "description": "Unique developer batch identifier.",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "qa_tester_id": {
+          "name": "qaTesterId",
+          "in": "path",
+          "required": true,
+          "description": "Unique QA tester identifier.",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "toolchain_id": {
+          "name": "toolchainId",
+          "in": "path",
+          "required": true,
+          "description": "Unique toolchain identifier.",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -463,6 +1170,407 @@
               "type": "array",
               "items": {
                 "$ref": "#/components/schemas/task"
+              }
+            },
+            "next_cursor": {
+              "type": ["string", "null"],
+              "description": "Opaque cursor for the next page, or null when there are no more results."
+            }
+          },
+          "required": ["data", "next_cursor"]
+        },
+        "developer": {
+          "title": "Developer",
+          "description": "A software developer resource that performs work on tasks.",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "resource_id": {
+              "type": "string",
+              "format": "uuid",
+              "readOnly": true,
+              "description": "System-generated identifier for the developer resource."
+            },
+            "name": {
+              "type": "string",
+              "default": "",
+              "description": "Optional display name for the developer."
+            },
+            "efficiency": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 1,
+              "description": "Relative rate at which the developer converts time into completed story points."
+            }
+          },
+          "required": ["name", "efficiency"]
+        },
+        "developer_create_request": {
+          "title": "DeveloperCreateRequest",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "default": ""
+            },
+            "efficiency": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 1
+            }
+          }
+        },
+        "developer_replace_request": {
+          "title": "DeveloperReplaceRequest",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/developer_create_request"
+            }
+          ]
+        },
+        "developer_patch_request": {
+          "title": "DeveloperPatchRequest",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "efficiency": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "developer_list_response": {
+          "title": "DeveloperListResponse",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/developer"
+              }
+            },
+            "next_cursor": {
+              "type": ["string", "null"],
+              "description": "Opaque cursor for the next page, or null when there are no more results."
+            }
+          },
+          "required": ["data", "next_cursor"]
+        },
+        "developer_batch_name_strategy": {
+          "title": "DeveloperBatchNameStrategy",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "prefix": {
+              "type": "string",
+              "default": "Developer",
+              "description": "Prefix used when generating developer names."
+            },
+            "start_index": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "description": "Starting index used by the generated name sequence."
+            }
+          }
+        },
+        "developer_efficiency_uniform_strategy": {
+          "title": "DeveloperEfficiencyUniformStrategy",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "uniform"
+            },
+            "low": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "high": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": ["type", "low", "high"]
+        },
+        "developer_efficiency_sequence_strategy": {
+          "title": "DeveloperEfficiencySequenceStrategy",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "sequence"
+            },
+            "values": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "description": "Ordered efficiency values consumed one developer at a time."
+            }
+          },
+          "required": ["type", "values"]
+        },
+        "developer_efficiency_spec": {
+          "title": "DeveloperEfficiencySpec",
+          "description": "Either a fixed efficiency applied to every generated developer, or a generation strategy that produces one efficiency per developer.",
+          "oneOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "$ref": "#/components/schemas/developer_efficiency_uniform_strategy"
+            },
+            {
+              "$ref": "#/components/schemas/developer_efficiency_sequence_strategy"
+            }
+          ]
+        },
+        "developer_batch_create_request": {
+          "title": "DeveloperBatchCreateRequest",
+          "description": "Instructions for creating a batch of developers using factory-style generation rules.",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of developers to create."
+            },
+            "name_strategy": {
+              "$ref": "#/components/schemas/developer_batch_name_strategy"
+            },
+            "efficiency": {
+              "$ref": "#/components/schemas/developer_efficiency_spec"
+            }
+          },
+          "required": ["count"]
+        },
+        "developer_batch": {
+          "title": "DeveloperBatch",
+          "description": "A batch resource representing one factory-style developer generation request and its resulting developers.",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "batch_id": {
+              "type": "string",
+              "format": "uuid",
+              "readOnly": true,
+              "description": "System-generated identifier for the developer batch."
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of developers requested for creation."
+            },
+            "name_strategy": {
+              "$ref": "#/components/schemas/developer_batch_name_strategy"
+            },
+            "efficiency": {
+              "$ref": "#/components/schemas/developer_efficiency_spec"
+            },
+            "developers": {
+              "type": "array",
+              "readOnly": true,
+              "items": {
+                "$ref": "#/components/schemas/developer"
+              },
+              "description": "Developers generated by this batch."
+            }
+          },
+          "required": ["batch_id", "count", "developers"]
+        },
+        "qa_tester": {
+          "title": "QATester",
+          "description": "A QA testing resource that validates tasks and can fail or cause remediation work.",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "resource_id": {
+              "type": "string",
+              "format": "uuid",
+              "readOnly": true,
+              "description": "System-generated identifier for the QA tester resource."
+            },
+            "time_cost": {
+              "type": "number",
+              "default": 0.1,
+              "description": "Time multiplier applied to the task story points during QA work."
+            },
+            "failure_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0,
+              "description": "Probability that QA work ends in failure."
+            },
+            "failure_cost": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0,
+              "description": "Fraction of task story points removed as remediation when QA fails."
+            }
+          },
+          "required": ["time_cost", "failure_rate", "failure_cost"]
+        },
+        "qa_tester_create_request": {
+          "title": "QATesterCreateRequest",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "time_cost": {
+              "type": "number",
+              "default": 0.1
+            },
+            "failure_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0
+            },
+            "failure_cost": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0
+            }
+          }
+        },
+        "qa_tester_replace_request": {
+          "title": "QATesterReplaceRequest",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/qa_tester_create_request"
+            }
+          ]
+        },
+        "qa_tester_patch_request": {
+          "title": "QATesterPatchRequest",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "time_cost": {
+              "type": "number"
+            },
+            "failure_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "failure_cost": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "qa_tester_list_response": {
+          "title": "QATesterListResponse",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/qa_tester"
+              }
+            },
+            "next_cursor": {
+              "type": ["string", "null"],
+              "description": "Opaque cursor for the next page, or null when there are no more results."
+            }
+          },
+          "required": ["data", "next_cursor"]
+        },
+        "toolchain": {
+          "title": "Toolchain",
+          "description": "An SDLC tooling resource used for deployment-stage work.",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "resource_id": {
+              "type": "string",
+              "format": "uuid",
+              "readOnly": true,
+              "description": "System-generated identifier for the toolchain resource."
+            },
+            "deployment_duration": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Elapsed time for one deployment attempt."
+            },
+            "failure_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0,
+              "description": "Probability that a deployment attempt fails."
+            }
+          },
+          "required": ["deployment_duration", "failure_rate"]
+        },
+        "toolchain_create_request": {
+          "title": "ToolchainCreateRequest",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "deployment_duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "failure_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0
+            }
+          },
+          "required": ["deployment_duration"]
+        },
+        "toolchain_replace_request": {
+          "title": "ToolchainReplaceRequest",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/toolchain_create_request"
+            }
+          ]
+        },
+        "toolchain_patch_request": {
+          "title": "ToolchainPatchRequest",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "deployment_duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "failure_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "toolchain_list_response": {
+          "title": "ToolchainListResponse",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/toolchain"
               }
             },
             "next_cursor": {
