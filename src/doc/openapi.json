@@ -506,6 +506,146 @@
           }
         }
       },
+      "/qa_tester_pools": {
+        "post": {
+          "tags": ["QATesterPools"],
+          "summary": "Create a QA tester pool",
+          "description": "Creates a pool definition that generates homogeneous QA tester resources using server-side pool rules that mirror QATester.create_pool().",
+          "operationId": "create_qa_tester_pool",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/qa_tester_pool_create_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "QA tester pool created.",
+              "headers": {
+                "Location": {
+                  "description": "Canonical URL for the created QA tester pool.",
+                  "schema": {
+                    "type": "string",
+                    "format": "uri-reference"
+                  }
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/qa_tester_pool"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            }
+          }
+        }
+      },
+      "/qa_tester_pools/{qaTesterPoolId}": {
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/qa_tester_pool_id"
+          }
+        ],
+        "get": {
+          "tags": ["QATesterPools"],
+          "summary": "Get a QA tester pool",
+          "description": "Returns a single QA tester pool definition.",
+          "operationId": "get_qa_tester_pool",
+          "responses": {
+            "200": {
+              "description": "QA tester pool found.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/qa_tester_pool"
+                  }
+                }
+              }
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        }
+      },
+      "/toolchain_pools": {
+        "post": {
+          "tags": ["ToolchainPools"],
+          "summary": "Create a toolchain pool",
+          "description": "Creates a pool definition that generates homogeneous toolchain resources using server-side pool rules that mirror Toolchain.create_pool().",
+          "operationId": "create_toolchain_pool",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/toolchain_pool_create_request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Toolchain pool created.",
+              "headers": {
+                "Location": {
+                  "description": "Canonical URL for the created toolchain pool.",
+                  "schema": {
+                    "type": "string",
+                    "format": "uri-reference"
+                  }
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/toolchain_pool"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/bad_request"
+            }
+          }
+        }
+      },
+      "/toolchain_pools/{toolchainPoolId}": {
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/toolchain_pool_id"
+          }
+        ],
+        "get": {
+          "tags": ["ToolchainPools"],
+          "summary": "Get a toolchain pool",
+          "description": "Returns a single toolchain pool definition.",
+          "operationId": "get_toolchain_pool",
+          "responses": {
+            "200": {
+              "description": "Toolchain pool found.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/toolchain_pool"
+                  }
+                }
+              }
+            },
+            "404": {
+              "$ref": "#/components/responses/not_found"
+            }
+          }
+        }
+      },
       "/qa_testers": {
         "get": {
           "tags": ["QATesters"],
@@ -948,11 +1088,31 @@
             "format": "uuid"
           }
         },
+        "qa_tester_pool_id": {
+          "name": "qaTesterPoolId",
+          "in": "path",
+          "required": true,
+          "description": "Unique QA tester pool identifier.",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
         "toolchain_id": {
           "name": "toolchainId",
           "in": "path",
           "required": true,
           "description": "Unique toolchain identifier.",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "toolchain_pool_id": {
+          "name": "toolchainPoolId",
+          "in": "path",
+          "required": true,
+          "description": "Unique toolchain pool identifier.",
           "schema": {
             "type": "string",
             "format": "uuid"
@@ -1493,6 +1653,78 @@
           },
           "required": ["data", "next_cursor"]
         },
+        "qa_tester_pool_create_request": {
+          "title": "QATesterPoolCreateRequest",
+          "description": "Instructions for creating a QA tester pool using create_pool()-style semantics.",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "limit": {
+              "type": ["integer", "null"],
+              "minimum": 1,
+              "default": null,
+              "description": "Maximum number of QA testers the pool can generate, or null for an unbounded pool."
+            },
+            "time_cost": {
+              "type": "number",
+              "default": 0.1
+            },
+            "failure_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0
+            },
+            "failure_cost": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0
+            }
+          }
+        },
+        "qa_tester_pool": {
+          "title": "QATesterPool",
+          "description": "A pool resource representing one QA tester pool definition.",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "pool_id": {
+              "type": "string",
+              "format": "uuid",
+              "readOnly": true,
+              "description": "System-generated identifier for the QA tester pool."
+            },
+            "resource_type": {
+              "type": "string",
+              "const": "qa_tester",
+              "readOnly": true,
+              "description": "Type of resource generated by this pool."
+            },
+            "limit": {
+              "type": ["integer", "null"],
+              "minimum": 1,
+              "description": "Maximum number of QA testers the pool can generate, or null for an unbounded pool."
+            },
+            "time_cost": {
+              "type": "number",
+              "default": 0.1
+            },
+            "failure_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0
+            },
+            "failure_cost": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0
+            }
+          },
+          "required": ["pool_id", "resource_type", "limit", "time_cost", "failure_rate", "failure_cost"]
+        },
         "toolchain": {
           "title": "Toolchain",
           "description": "An SDLC tooling resource used for deployment-stage work.",
@@ -1579,6 +1811,67 @@
             }
           },
           "required": ["data", "next_cursor"]
+        },
+        "toolchain_pool_create_request": {
+          "title": "ToolchainPoolCreateRequest",
+          "description": "Instructions for creating a toolchain pool using create_pool()-style semantics.",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "limit": {
+              "type": ["integer", "null"],
+              "minimum": 1,
+              "default": null,
+              "description": "Maximum number of toolchains the pool can generate, or null for an unbounded pool."
+            },
+            "deployment_duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "failure_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0
+            }
+          },
+          "required": ["deployment_duration"]
+        },
+        "toolchain_pool": {
+          "title": "ToolchainPool",
+          "description": "A pool resource representing one toolchain pool definition.",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "pool_id": {
+              "type": "string",
+              "format": "uuid",
+              "readOnly": true,
+              "description": "System-generated identifier for the toolchain pool."
+            },
+            "resource_type": {
+              "type": "string",
+              "const": "toolchain",
+              "readOnly": true,
+              "description": "Type of resource generated by this pool."
+            },
+            "limit": {
+              "type": ["integer", "null"],
+              "minimum": 1,
+              "description": "Maximum number of toolchains the pool can generate, or null for an unbounded pool."
+            },
+            "deployment_duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "failure_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0
+            }
+          },
+          "required": ["pool_id", "resource_type", "limit", "deployment_duration", "failure_rate"]
         },
         "task_type":{
           "type" : "string",
