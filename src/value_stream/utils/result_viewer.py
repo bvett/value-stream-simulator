@@ -142,8 +142,3 @@ class ResultViewer(Viewer):
                 colormap=self.colormap)
         plt.legend(title="Deployment Cadence")
         plt.show()
-
-    def _textcolor(self, color):
-        color_hls = colorsys.rgb_to_hls(color[0], color[1], color[2])
-
-        return 'white' if color_hls[1] < 0.5 else 'black'
