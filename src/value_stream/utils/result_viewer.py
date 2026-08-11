@@ -1,7 +1,5 @@
 from typing import Optional
-import colorsys
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
 from matplotlib import ticker
 import numpy as np
 from tqdm import tqdm
