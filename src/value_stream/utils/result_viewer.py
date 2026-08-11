@@ -17,10 +17,6 @@ class ResultViewer(Viewer):
     def __init__(self, results: list[SimulationResult], pbar: Optional[tqdm] = None, colormap='plasma'):
         super().__init__(results=results, pbar=pbar, colormap=colormap)
 
-        self.df_workflow_stages = \
-            self.df.loc[(self.df['event_type'] == TaskEvent.EventType.END) &
-                        (self.df['task.task_type'] == TaskType.DEVELOPMENT)]
-
         self.df_completed_tasks = \
             self.df.loc[(self.df['event_type'] == TaskEvent.EventType.TERMINAL) &
                         (self.df['status'] == EventStatus.SUCCESS) &
