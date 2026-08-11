@@ -9,7 +9,7 @@ from tqdm import tqdm
 from value_stream import Simulation, SimulationResult, SupportTask
 from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, \
-    TaskFactory, TaskGenerator, generator_utils
+    TaskFactory, TaskGenerator, WorkflowViewer, generator_utils
 
 logger = logging.getLogger(__name__)
 
@@ -96,9 +96,12 @@ if __name__ == "__main__":
     with tqdm(desc='Processing Results', total=len(results), mininterval=1.0, miniters=0) as pbar:
         viewer = ResultViewer(results, pbar=pbar)
 
+    with tqdm(desc='Processing Workflow Metadata', total=len(results), mininterval=1.0, miniters=0) as pbar:
+        workflow_viewer = WorkflowViewer(results, pbar=pbar)
+
     viewer.loss_vs_cadence(team_samples=5)
-    viewer.time_alloc_vs_cadence()
-    viewer.delivery_timeline(cadence=3, team_size=3)
+    workflow_viewer.time_alloc_vs_cadence()
+    workflow_viewer.delivery_timeline(cadence=3, team_size=3)
     viewer.delivered_value_vs_time(
         cadence=1, team_samples=math.ceil(MAX_DEVELOPERS/4))
     viewer.delivered_value_vs_team_size(cadence_samples=5)

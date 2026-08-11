@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from value_stream import Simulation
 from value_stream.resources import QATester, Toolchain
-from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, TaskFactory
+from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, WorkflowViewer, TaskFactory
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
@@ -57,7 +57,7 @@ class TestResultViewer(unittest.TestCase):
 
     @patch('matplotlib.pyplot.show')
     def test_plot_time_alloc_by_cadence(self, mock_pyplot_show):
-        ResultViewer(self.model_results).time_alloc_vs_cadence(
+        WorkflowViewer(self.model_results).time_alloc_vs_cadence(
             nrows=4, ncols=3)
 
         mock_pyplot_show.assert_called_once()
@@ -65,7 +65,7 @@ class TestResultViewer(unittest.TestCase):
     @patch('matplotlib.pyplot.show')
     def test_plot_delivery_timeline(self, mock_pyplot_show):
 
-        ResultViewer(self.model_results).delivery_timeline(
+        WorkflowViewer(self.model_results).delivery_timeline(
             cadence=self.max_cadence, team_size=self.team_size)
 
         mock_pyplot_show.assert_called_once()
