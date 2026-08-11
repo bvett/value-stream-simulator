@@ -69,7 +69,10 @@ class Viewer:
             level=2)['event_duration'].cumsum()
 
 
-def _to_dict(obj: Any, exclusions: list[str] = []):
+def _to_dict(obj: Any, exclusions: list[str] | None = None):
+
+    if exclusions is None:
+        exclusions = []
 
     if isinstance(obj, list):
         return [_to_dict(o) for o in obj]
