@@ -191,7 +191,6 @@ class ResourceOperator:
         # EPOCH time.
         return ResourceMetadataSnapshot(time=self._epoch_time(),
                                         workflow_state=workflow_state,
-                                        tasks_waiting=len(self._queue),
                                         busy_resources=busy_resources,
                                         idle_resources=idle_resources)
 
