@@ -46,7 +46,7 @@ class TaskHistory():
 
         self.events.append(TaskEvent.start(event=event, time=time))
 
-    def end(self, time: float, event: Optional[WorkflowStateName] = None, status: EventStatus = EventStatus.SUCCESS):
+    def end(self, time: float, event: Optional[WorkflowStateName] = None, status: EventStatus = EventStatus.SUCCESS, loss: float = 0):
         """Ends a started event"""
 
         time -= self.baseline_t
@@ -66,7 +66,7 @@ class TaskHistory():
                     and (last_event.event == event):
 
                 self.events.append(TaskEvent.end(
-                    event=event, time=time, status=status))
+                    event=event, time=time, status=status, loss=loss))
             else:
                 raise ValueError(
                     "Attempting to end a task from an invalid state")

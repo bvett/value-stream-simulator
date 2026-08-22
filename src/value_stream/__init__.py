@@ -2,6 +2,7 @@ from .simulation_result import SimulationResult
 from .event_status import EventStatus
 from .model import Model
 from .simulation import Simulation
+from .simulation_metadata import SimulationMetadata
 from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
 from .task_event import TaskEvent
 from .task_history import TaskHistory
@@ -15,6 +16,7 @@ __all__ = ["DefaultSimulationPolicy",
            "SimulationResult",
            "Model",
            "Simulation",
+           "SimulationMetadata",
            "SimulationPolicy",
            "SupportTask",
            "TaskEvent",

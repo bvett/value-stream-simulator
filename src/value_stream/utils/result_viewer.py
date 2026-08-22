@@ -59,7 +59,7 @@ class ResultViewer:
                                  meta=[['model', 'deployment_cadence'],
                                        ['model', 'team_size'],
                                        ['task', 'task_id'],
-                                       ['task', 'loss'],
+                                       ['task', 'delivered_loss'],
                                        ['task', 'delivered_value'],
                                        ['task', 'task_type']],
                                  errors='ignore')
@@ -105,8 +105,8 @@ class ResultViewer:
         df = df.loc[(df.index.get_level_values(
             'model.team_size').isin(team_sample))]
 
-        df = df[['task.loss', 'task.delivered_value']].groupby(
-            ['model.deployment_cadence', 'model.team_size']).mean().unstack(-1)[['task.loss']]
+        df = df[['task.delivered_loss', 'task.delivered_value']].groupby(
+            ['model.deployment_cadence', 'model.team_size']).mean().unstack(-1)[['task.delivered_loss']]
 
         df.columns = df.columns.get_level_values(1)  # type: ignore
 

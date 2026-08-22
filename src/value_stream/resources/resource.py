@@ -26,7 +26,7 @@ class Resource:
         """Simulates an action on a task object"""
 
         for task in tasks:
-            task.history.start(env.now, self.workflow_state)
+            task.start(env.now, self.workflow_state)
 
         if self._process is not None and self._process.is_alive:
 
@@ -62,7 +62,7 @@ class Resource:
                 destination = target_upon_failure
 
             for task in tasks:
-                task.history.end(env.now, self.workflow_state, status=status)
+                task.end(env.now, self.workflow_state, status=status)
 
                 yield destination.put(task)
 
@@ -76,6 +76,9 @@ class Resource:
 
     def do_work(self, env: Environment, tasks: list[Task]):
         raise NotImplementedError()
+
+    def is_busy(self):
+        return self._process is not None
 
     def _pause(self, env: Environment):
         while True:

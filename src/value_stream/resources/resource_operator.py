@@ -3,6 +3,7 @@ from typing import Iterable, Optional
 from simpy import Environment, Interrupt, Process, Store
 
 from . import Resource
+from .resource_metadata import ResourceMetadataSnapshot
 from ..simulation_policy import SimulationPolicy
 from ..task import Task
 from ..workflow_state import WorkflowState
@@ -19,7 +20,12 @@ class ResourceOperator:
         self.env = env
         self._queue: list[Task] = []
 
+        # Tracks available resources
         self.resource_pool = Store(self.env)
+
+        # Tracks all resources - available and busy
+        self._all_resources: list[Resource] = []
+
         self.resource_generator = iter(resources)
 
         if cadence < 0:
@@ -35,6 +41,12 @@ class ResourceOperator:
 
         self.policy = policy
 
+        self.metadata: list[ResourceMetadataSnapshot] = []
+
+        self._source: Optional[WorkflowState] = None
+
+        self._epoch_start_t = 0
+
     def start(self, source: WorkflowState, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
         """Starts processing loop that:
             1) Waits for tasks to appear in source
@@ -46,6 +58,7 @@ class ResourceOperator:
         if self._monitor_p is not None:
             raise RuntimeError("manager cannot be restarted")
 
+        self._source = source
         self._monitor_p = self.env.process(self._monitor(source))
 
         # Simulates "release train" - changes are collected
@@ -87,7 +100,7 @@ class ResourceOperator:
                 source_request = source.get()
                 task: Task = yield source_request
 
-                task.history.resume(source.name)
+                task.resume(source.name)
                 self._queue.append(task)
 
                 ingested += 1
@@ -135,7 +148,7 @@ class ResourceOperator:
         resource: Resource = yield self.request()
 
         for task in tasks:
-            task.history.end(self.env.now)
+            task.end(self.env.now)
 
         yield self.env.process(resource.operate(env=self.env,
                                                 tasks=tasks,
@@ -143,7 +156,50 @@ class ResourceOperator:
                                                 target_upon_failure=target_upon_failure,
                                                 policy=self.policy))
 
+        self.metadata.append(self._snapshot())
+
         self.release(resource)
+
+    def _snapshot(self):
+
+        # processing/interruption/failure loss - calculate from resource. (need to account accross all resources, so not here)
+        # busy/idle - similar, need ability to iterate across self.resource_pool.items()
+        # this iteration returns a single snapshot.
+
+        # queuing loss - rethink.  measured from time it's added to 'source', to the time its removed from tasks. ^^^^
+
+        busy_resources = 0
+        idle_resources = 0
+        workflow_state = None
+
+        # F! only idle resources are in the pool
+        for resource in self._all_resources:
+            if resource.is_busy():
+                busy_resources += 1
+            else:
+                idle_resources += 1
+
+            workflow_state = resource.workflow_state
+
+        if workflow_state is None:
+            raise RuntimeError("operator missing resources")
+
+        if self._source is None:
+            raise RuntimeError("source queue is None")
+
+        # FIXME : - self.env.now is incorrect. Needs to be offset by the start of the epoch.
+        # EPOCH time.
+        return ResourceMetadataSnapshot(time=self._epoch_time(),
+                                        workflow_state=workflow_state,
+                                        tasks_waiting=len(self._queue),
+                                        busy_resources=busy_resources,
+                                        idle_resources=idle_resources)
+
+    def _epoch_time(self):
+        return self.env.now - self._epoch_start_t
+
+    def start_epoch(self):
+        self._epoch_start_t = self.env.now
 
     def request(self):
         """Returns a resource from the resource pool, or waits until one is available. 
@@ -156,6 +212,7 @@ class ResourceOperator:
 
             if new_item is not None:
                 self.resource_pool.put(new_item)
+                self._all_resources.append(new_item)
 
         return self.resource_pool.get()
 

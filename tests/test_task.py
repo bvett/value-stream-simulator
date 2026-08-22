@@ -90,18 +90,18 @@ class TestTask(unittest.TestCase):
         task = Task(task_id="", initial_value=50, story_points=1,
                     creation_time=0, depreciation_rate=0)
 
-        task.history.terminate(25, WorkflowStateName.DELIVERY)
+        task.terminate(25, WorkflowStateName.DELIVERY)
 
-        self.assertEqual(task._loss(), 0)
+        self.assertEqual(task.loss(), 0)
 
         # Loss
 
         task = Task(task_id="", initial_value=50, story_points=1,
                     creation_time=0, depreciation_rate=0.1)
 
-        task.history.terminate(2, WorkflowStateName.DELIVERY)
+        task.terminate(2, WorkflowStateName.DELIVERY)
 
-        self.assertEqual(task._loss(), -0.19)
+        self.assertEqual(task.loss(), -0.19)
 
     def test_delivered_value(self):
 
@@ -112,13 +112,13 @@ class TestTask(unittest.TestCase):
         self.assertEqual(task._delivered_value(), 0)
 
         # default creation_time
-        task.history.start(2, WorkflowStateName.DELIVERY)
+        task.start(2, WorkflowStateName.DELIVERY)
 
         # ensure value does not change until delivered
         self.assertEqual(task._delivered_value(), 0)
 
         # task.history.delivery_end_t = 2
-        task.history.terminate(2, WorkflowStateName.DELIVERY)
+        task.terminate(2, WorkflowStateName.DELIVERY)
 
         self.assertEqual(task._delivered_value(), 81)
 
@@ -127,14 +127,14 @@ class TestTask(unittest.TestCase):
         task = Task(task_id="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
-        task.history.terminate(5, WorkflowStateName.DELIVERY)
+        task.terminate(5, WorkflowStateName.DELIVERY)
 
         self.assertEqual(task._delivered_value(), 100)
 
         task = Task(task_id="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
-        task.history.terminate(6, WorkflowStateName.DELIVERY)
+        task.terminate(6, WorkflowStateName.DELIVERY)
         self.assertEqual(task._delivered_value(), 90)
 
         # validation
@@ -143,7 +143,7 @@ class TestTask(unittest.TestCase):
 
         # missing delivery_start_t
         with self.assertRaises(ValueError):
-            task.history.end(5, WorkflowStateName.DELIVERY)
+            task.end(5, WorkflowStateName.DELIVERY)
             task._delivered_value()
 
         task = Task(task_id="", initial_value=100, story_points=1,
@@ -151,8 +151,8 @@ class TestTask(unittest.TestCase):
 
         # inverted start/end times
         with self.assertRaises(ValueError):
-            task.history.start(6, WorkflowStateName.DELIVERY)
-            task.history.terminate(5, WorkflowStateName.DELIVERY)
+            task.start(6, WorkflowStateName.DELIVERY)
+            task.terminate(5, WorkflowStateName.DELIVERY)
             task._delivered_value()
 
     def test_reset(self):
@@ -160,9 +160,10 @@ class TestTask(unittest.TestCase):
         task = Task(task_id="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
+        # TODO: uncovered bug here - task.start(0...) should fail b/c start time is prior to creation time.
         self.assertEqual(len(task.history.events), 0)
-        task.history.start(0, WorkflowStateName.PENDING)
-        task.history.end(0, WorkflowStateName.PENDING)
+        task.start(5, WorkflowStateName.PENDING)
+        task.end(5, WorkflowStateName.PENDING)
 
         self.assertEqual(len(task.history.events), 2)
 
@@ -212,3 +213,22 @@ class TestTask(unittest.TestCase):
 
         task = task.reset()
         self.assertEqual(task.remaining_work(), task.story_points)
+
+    def test_value_2(self):
+        # test calculation of depreciated values of a collection of tasks.
+        # test total incremental loss that occurs from a collection of tasks between times t1 and t2
+        # what happens when the collection changes between t1 and t2?
+        # take a snapshot of the collection, then follow the tasks to make it independent of collection?
+        # some tasks may leave at t1.5 - their loss is fixed from that point forward.
+        # between t1 and t2 *and* has not left the collection
+        # between t1 and min (t2, leaving collection)
+
+        # what if it was added after t1?
+
+        # between (max(t1, t-added) and min(t2, t-removed))
+
+        # hey dummy.  task_history is the authoratative take on a task's progress through a workflow.
+        # use that
+        # still need a way to capture incremental loss for a task between 2 times, relative to initial value.
+
+        pass

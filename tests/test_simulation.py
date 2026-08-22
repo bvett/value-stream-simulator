@@ -44,7 +44,7 @@ class TestSimulation(unittest.TestCase):
             factory=support_factory)
 
         with tqdm(total=len(models)) as pbar:
-            model_results = simulation.execute(
+            model_results, _ = simulation.execute(
                 tasks=tasks,
                 models=models,
                 support_generator=support_generator,

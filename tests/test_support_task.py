@@ -26,13 +26,13 @@ class TestSupportTask(unittest.TestCase):
         self.assertEqual(task._delivered_value(), 0)
 
         # default creation_time
-        task.history.start(2, WorkflowStateName.DELIVERY)
+        task.start(2, WorkflowStateName.DELIVERY)
 
         # ensure value does not change until delivered
         self.assertEqual(task._delivered_value(), 0)
 
         # task.history.delivery_end_t = 2
-        task.history.terminate(2, WorkflowStateName.DELIVERY)
+        task.terminate(2, WorkflowStateName.DELIVERY)
 
         self.assertEqual(task._delivered_value(), 0)
 
@@ -42,6 +42,6 @@ class TestSupportTask(unittest.TestCase):
         task = SupportTask(task_id="", story_points=1,
                            creation_time=0)
 
-        task.history.terminate(25, WorkflowStateName.DELIVERY)
+        task.terminate(25, WorkflowStateName.DELIVERY)
 
-        self.assertEqual(task._loss(), 0)
+        self.assertEqual(task.loss(), 0)
