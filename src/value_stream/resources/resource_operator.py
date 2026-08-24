@@ -23,9 +23,6 @@ class ResourceOperator:
         # Tracks available resources
         self.resource_pool = Store(self.env)
 
-        # Tracks all resources - available and busy
-        self._all_resources: list[Resource] = []
-
         self.resource_generator = iter(resources)
 
         if cadence < 0:
@@ -168,8 +165,6 @@ class ResourceOperator:
             if new_item is not None:
                 self.resource_pool.put(new_item)
                 Tracker.get().register(new_item)
-
-                self._all_resources.append(new_item)
 
         return self.resource_pool.get()
 
