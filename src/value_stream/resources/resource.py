@@ -4,16 +4,20 @@ from typing import Optional
 from simpy import Environment, Event, Interrupt, Process, Store
 from simpy.events import ProcessGenerator
 
+from .trackable import Trackable
+from .resource_tracker import Tracker
+
 from ..event_status import EventStatus
 from ..simulation_policy import SimulationPolicy
 from ..task import Task
 from ..workflow_state_name import WorkflowStateName
 
 
-class Resource:
+class Resource(Trackable):
     """Base class for simulation objects that operate on tasks"""
 
     def __init__(self, workflow_state: WorkflowStateName, resource_id: Optional[str] = None):
+        super().__init__(workflow_state)
         self.workflow_state = workflow_state
         self._process: Optional[Resource.ProcessWrapper] = None
         self._suspended_work: list[Event] = []
@@ -40,19 +44,30 @@ class Resource:
             status = EventStatus.SUCCESS
             self._process = self._create_process(env, tasks)
 
+            start_t = env.now
             try:
+                Tracker.get().start_work(self)
                 yield self._process
             except Interrupt:
 
                 # if do_work is interrupted, wait on a signal that will
                 # be triggered once this resource has processed all
                 # subsequent interruptions
+
+                interruption_start_t = env.now
+                Tracker.get().complete_work(
+                    self, status, elapsed_t=env.now-start_t)
                 yield env.process(self._pause(env))
+                Tracker.get().interruption(
+                    self, elapsed_t=env.now - interruption_start_t)
 
                 continue
 
             if self._process.value is not None:
                 status = self._process.value['result']
+
+            Tracker.get().complete_work(
+                self, status, elapsed_t=env.now-start_t)
 
             self._process = None
 
@@ -76,9 +91,6 @@ class Resource:
 
     def do_work(self, env: Environment, tasks: list[Task]):
         raise NotImplementedError()
-
-    def is_busy(self):
-        return self._process is not None
 
     def _pause(self, env: Environment):
         while True:

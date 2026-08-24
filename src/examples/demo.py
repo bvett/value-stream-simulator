@@ -7,7 +7,7 @@ from typing import Collection
 from tqdm import tqdm
 
 from value_stream import Simulation, SimulationResult, SupportTask, SimulationMetadata
-from value_stream.resources import Developer, QATester, Toolchain, ResourceMetadataSnapshot
+from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, \
     TaskFactory, TaskGenerator, generator_utils
 

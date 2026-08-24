@@ -3,10 +3,11 @@ from typing import Optional
 
 from simpy import Environment, Event
 
+from .resources import Tracker
 from .simulation_policy import SimulationPolicy
 from .task import Task
 from .workflow_state import TerminalWorkflowState, WorkflowState, WorkflowStateName
-from .resources import ResourceOperator, ResourceMetadataSnapshot
+from .resources import ResourceOperator
 
 
 class SDLCWorkflow:
@@ -38,12 +39,6 @@ class SDLCWorkflow:
 
         self.policy = policy
 
-        self._metadata: list[ResourceMetadataSnapshot] = []
-
-    @property
-    def metadata(self) -> list[ResourceMetadataSnapshot]:
-        return self._metadata
-
     def start(self, tasks: list[Task],
               developer_manager: ResourceOperator,
               qa_manager: ResourceOperator,
@@ -52,14 +47,12 @@ class SDLCWorkflow:
         """Signals workflow completion when all tasks specified at
         initialization are in the delivered queue"""
 
-        self._metadata = []
         idx = len(self.delivered.items)
 
         for task in tasks:
             yield self.pending.put(task.reset(self.env.now))
 
-        for m in [developer_manager, qa_manager, toolchain_manager]:
-            m.start_epoch()
+        Tracker.get().start_epoch()
 
         delivery_target = len(self.pending.items)
 
@@ -81,9 +74,6 @@ class SDLCWorkflow:
             target_upon_failure=self.qa_complete)
 
         yield signal
-
-        for m in [developer_manager, qa_manager, toolchain_manager]:
-            self._metadata.extend(m.metadata)
 
         developer_manager.stop()
         qa_manager.stop()
