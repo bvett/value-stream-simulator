@@ -17,7 +17,9 @@ class TrackerData:
                  active: int = 0,
                  success_t: Optional[float] = None,
                  failure_t: Optional[float] = None,
-                 interruption_t: Optional[float] = None):
+                 interruption_t: Optional[float] = None,
+                 waiting_t: Optional[float] = None,
+                 idle_t: Optional[float] = None):
 
         self.time = time
         self.state = state
@@ -26,6 +28,8 @@ class TrackerData:
         self.success_t = success_t
         self.failure_t = failure_t
         self.interruption_t = interruption_t
+        self.waiting_t = waiting_t
+        self.idle_t = idle_t
 
 
 class Tracker:
@@ -52,13 +56,16 @@ class Tracker:
     def register(self, r: Trackable):
         pass
 
-    def start_work(self, r: Trackable):
+    def start_work(self, r: Trackable, elapsed_t: float):
         pass
 
     def complete_work(self, r: Trackable, status: EventStatus, elapsed_t: Optional[float] = None):
         pass
 
     def interruption(self, r: Trackable, elapsed_t: float):
+        pass
+
+    def waiting(self, r: Trackable, waiting_t: float):
         pass
 
 
@@ -81,9 +88,9 @@ class ResourceTracker(Tracker):
         self.data.append(TrackerData(time=self._epoch_time(),
                          state=r.workflow_state, allocated=1))
 
-    def start_work(self, r: Trackable):
+    def start_work(self, r: Trackable, elapsed_t: float):
         self.data.append(TrackerData(time=self._epoch_time(),
-                                     state=r.workflow_state, active=1))
+                                     state=r.workflow_state, active=1, idle_t=elapsed_t))
 
     def complete_work(self, r: Trackable, status: EventStatus, elapsed_t: Optional[float] = None):
 
@@ -97,3 +104,7 @@ class ResourceTracker(Tracker):
     def interruption(self, r: Trackable, elapsed_t: float):
         self.data.append(TrackerData(time=self._epoch_time(),
                          state=r.workflow_state, interruption_t=elapsed_t))
+
+    def waiting(self, r: Trackable, waiting_t: float):
+        self.data.append(TrackerData(time=self._epoch_time(),
+                         state=r.workflow_state, waiting_t=waiting_t))

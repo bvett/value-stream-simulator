@@ -137,7 +137,9 @@ class ResourceOperator:
 
         tasks = self._queue.copy()
         self._queue.clear()
+        wait_t = self.env.now
         resource: Resource = yield self.request()
+        Tracker.get().waiting(resource, self.env.now - wait_t)
 
         for task in tasks:
             task.end(self.env.now)
@@ -160,10 +162,12 @@ class ResourceOperator:
             new_item = next(self.resource_generator, None)
 
             if new_item is not None:
+                new_item.idle_t = self.env.now
                 self.resource_pool.put(new_item)
                 Tracker.get().register(new_item)
 
         return self.resource_pool.get()
 
-    def release(self, operator: Resource):
-        return self.resource_pool.put(operator)
+    def release(self, resource: Resource):
+        resource.idle_t = self.env.now
+        return self.resource_pool.put(resource)

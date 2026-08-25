@@ -22,6 +22,7 @@ class Resource(Trackable):
         self._process: Optional[Resource.ProcessWrapper] = None
         self._suspended_work: list[Event] = []
         self.id = resource_id
+        self.idle_t = 0
 
     def operate(self, env: Environment, tasks: list[Task],
                 target: Store,
@@ -46,7 +47,7 @@ class Resource(Trackable):
 
             start_t = env.now
             try:
-                Tracker.get().start_work(self)
+                Tracker.get().start_work(self, env.now-self.idle_t)
                 yield self._process
             except Interrupt:
 
@@ -68,6 +69,7 @@ class Resource(Trackable):
 
             Tracker.get().complete_work(
                 self, status, elapsed_t=env.now-start_t)
+            self.idle_t = env.now
 
             self._process = None
 
