@@ -85,7 +85,6 @@ class ResourceOperator:
             self._timer_p.interrupt()
 
     def _monitor(self, source: WorkflowState):
-        ingested: int = 0
 
         while True:
             source_request = None
@@ -97,8 +96,6 @@ class ResourceOperator:
 
                 task.resume(source.name)
                 self._queue.append(task)
-
-                ingested += 1
 
                 if self.cadence == 0:
                     self.trigger.succeed()  # do this based on cadence
