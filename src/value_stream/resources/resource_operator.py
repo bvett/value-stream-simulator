@@ -3,6 +3,7 @@ from typing import Iterable, Optional
 from simpy import Environment, Interrupt, Process, Store
 
 from . import Resource
+from .resource_tracker import Tracker
 from ..simulation_policy import SimulationPolicy
 from ..task import Task
 from ..workflow_state import WorkflowState
@@ -19,7 +20,9 @@ class ResourceOperator:
         self.env = env
         self._queue: list[Task] = []
 
+        # Tracks available resources
         self.resource_pool = Store(self.env)
+
         self.resource_generator = iter(resources)
 
         if cadence < 0:
@@ -35,6 +38,10 @@ class ResourceOperator:
 
         self.policy = policy
 
+        self._source: Optional[WorkflowState] = None
+
+        self._epoch_start_t = 0
+
     def start(self, source: WorkflowState, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
         """Starts processing loop that:
             1) Waits for tasks to appear in source
@@ -46,6 +53,7 @@ class ResourceOperator:
         if self._monitor_p is not None:
             raise RuntimeError("manager cannot be restarted")
 
+        self._source = source
         self._monitor_p = self.env.process(self._monitor(source))
 
         # Simulates "release train" - changes are collected
@@ -77,7 +85,6 @@ class ResourceOperator:
             self._timer_p.interrupt()
 
     def _monitor(self, source: WorkflowState):
-        ingested: int = 0
 
         while True:
             source_request = None
@@ -87,10 +94,8 @@ class ResourceOperator:
                 source_request = source.get()
                 task: Task = yield source_request
 
-                task.history.resume(source.name)
+                task.resume(source.name)
                 self._queue.append(task)
-
-                ingested += 1
 
                 if self.cadence == 0:
                     self.trigger.succeed()  # do this based on cadence
@@ -132,10 +137,12 @@ class ResourceOperator:
 
         tasks = self._queue.copy()
         self._queue.clear()
+        wait_t = self.env.now
         resource: Resource = yield self.request()
+        Tracker.get().waiting(resource, self.env.now - wait_t)
 
         for task in tasks:
-            task.history.end(self.env.now)
+            task.end(self.env.now)
 
         yield self.env.process(resource.operate(env=self.env,
                                                 tasks=tasks,
@@ -155,9 +162,12 @@ class ResourceOperator:
             new_item = next(self.resource_generator, None)
 
             if new_item is not None:
+                new_item.idle_t = self.env.now
                 self.resource_pool.put(new_item)
+                Tracker.get().register(new_item)
 
         return self.resource_pool.get()
 
-    def release(self, operator: Resource):
-        return self.resource_pool.put(operator)
+    def release(self, resource: Resource):
+        resource.idle_t = self.env.now
+        return self.resource_pool.put(resource)

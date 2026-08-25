@@ -6,7 +6,7 @@ import logging
 from typing import Collection
 from tqdm import tqdm
 
-from value_stream import Simulation, SimulationResult, SupportTask
+from value_stream import Simulation, SimulationResult, SupportTask, SimulationMetadata
 from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, \
     TaskFactory, TaskGenerator, WorkflowViewer, generator_utils
@@ -84,12 +84,16 @@ if __name__ == "__main__":
 
     # Run the simulation with a progress bar and collect the results
     results: list[SimulationResult] = []
+    metadata: list[SimulationMetadata] = []
 
     with tqdm(desc='Running Simulation', total=len(models)) as pbar:
-        results.extend(Simulation().execute(tasks=tasks,
-                                            models=models,
-                                            support_generator=support_generator,
-                                            pbar=pbar))
+        r, m = Simulation().execute(tasks=tasks,
+                                    models=models,
+                                    support_generator=support_generator,
+                                    pbar=pbar)
+
+        results.extend(r)
+        metadata.extend(m)
 
     # Showcase the results using different plots
 

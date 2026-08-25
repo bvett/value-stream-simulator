@@ -1,9 +1,10 @@
 import copy
 import uuid
 from enum import StrEnum
-from typing import Optional, Self
+from typing import Collection, Literal, Optional, Self
 from .event_status import EventStatus
 from .task_history import TaskHistory
+from .workflow_state_name import WorkflowStateName
 
 
 class TaskType(StrEnum):
@@ -70,7 +71,7 @@ class Task:
 
         self.history = TaskHistory()
 
-        self.loss: float = 0.0
+        self.delivered_loss: float = 0.0
         self.delivered_value: float = 0.0
 
         self._id = Task._generate_id()
@@ -91,10 +92,12 @@ class Task:
         if time is None:
             return self._initial_value
 
-        if time < self.creation_t:
+        epoch_t = time - self.history.baseline_t
+
+        if epoch_t < self.creation_t:
             raise ValueError("time must be >= creation_t")
 
-        return self._initial_value * ((1-self.depreciation_rate) ** (time - self.creation_t))
+        return self._initial_value * ((1-self.depreciation_rate) ** (epoch_t - self.creation_t))
 
     def delivered_time(self):
         """Returns the time the task was successfully delivered, otherwise None"""
@@ -115,20 +118,26 @@ class Task:
 
         delivered_t = self.delivered_time()
 
-        return 0 if delivered_t is None else self.value(delivered_t)
+        return 0 if delivered_t is None else self.value(delivered_t + self.history.baseline_t)
 
-    def _loss(self) -> float:
+    def loss(self, from_t: Optional[float] = None, to_t: Optional[float] = None) -> float:
         """Returns percentage difference between initial value and delivered value, or 0 if undelivered."""
-        initial_value = self.value()
 
-        if initial_value == 0:
+        starting_value = self.value(time=from_t)
+
+        if starting_value == 0:
             return 0
 
-        return (self._delivered_value() - initial_value) / initial_value
+        if to_t is None:
+            ending_value = self._delivered_value()
+        else:
+            ending_value = self.value(time=to_t)
+
+        return (ending_value - starting_value) / starting_value
 
     def update_value_and_loss(self):
         self.delivered_value = self._delivered_value()
-        self.loss = self._loss()
+        self.delivered_loss = self.loss()
 
     def __str__(self) -> str:
         return self.task_name if self.task_name else ""
@@ -137,7 +146,7 @@ class Task:
         """Returns a clone of the task except history"""
         result = copy.copy(self)
 
-        result.loss = 0.0
+        result.delivered_loss = 0.0
         result.delivered_value = 0.0
         result.creation_t = 0
         result.completed_story_points = 0
@@ -165,6 +174,28 @@ class Task:
 
         self.completed_story_points = self.story_points
         return story_points - remaining_work
+
+    def end(self, time: float, event: Optional[WorkflowStateName] = None, status: EventStatus = EventStatus.SUCCESS):
+
+        last_event = self.history.last_event()
+
+        loss = 0 if last_event is None else self.loss(
+            from_t=last_event.time + self.history.baseline_t, to_t=time)
+
+        self.history.end(time=time, event=event, status=status, loss=loss)
+
+    def start(self, time: float, event: WorkflowStateName):
+        self.history.start(time=time, event=event)
+
+    def resume(self, event: WorkflowStateName):
+        self.history.resume(event=event)
+
+    def terminate(self, time: float, event: WorkflowStateName, status: EventStatus = EventStatus.SUCCESS):
+        self.history.terminate(time=time, event=event, status=status)
+
+    @classmethod
+    def total_value(cls, tasks: Collection[Self], time: Optional[float] = None) -> float | Literal[0]:
+        return sum(task.value(time) for task in tasks)
 
 
 class SupportTask(Task):

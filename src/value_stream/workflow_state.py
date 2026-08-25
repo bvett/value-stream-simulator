@@ -36,7 +36,7 @@ class WorkflowState(Store):
                 result.cancel()
                 return result
 
-        item.history.start(self._env.now, self.name)
+        item.start(self._env.now, self.name)
 
         if self._limit is not None and self._signal is not None:
             if len(self.items) == self._limit:
@@ -51,7 +51,7 @@ class WorkflowState(Store):
             if task is None:
                 raise RuntimeError("value is None")
 
-            task.history.end(self._env.now, self.name)
+            task.end(self._env.now, self.name)
 
         task = super().get()
         task.callbacks = [record_history]
@@ -91,7 +91,7 @@ class TerminalWorkflowState(WorkflowState):
                 result.cancel()
                 return result
 
-        item.history.terminate(self._env.now, self.name)
+        item.terminate(self._env.now, self.name)
         item.update_value_and_loss()
 
         if self._limit is not None and self._signal is not None:

@@ -5,13 +5,15 @@ from simpy import Environment, Event, Process
 from simpy.events import AllOf
 from tqdm import tqdm
 
-from .resources import ResourceOperator
+from .resources import ResourceOperator, ResourceTracker, Tracker
 from .model import Model
 from .sdlc_workflow import SDLCWorkflow
+from .simulation_metadata import SimulationMetadata
 from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
 from .simulation_result import SimulationResult
 from .support_workflow import SupportWorkflow
 from .task import Task
+from .task_event import TaskEvent
 from .utils import TaskGenerator
 
 logger = logging.getLogger(__name__)
@@ -31,7 +33,7 @@ class Simulation:
                 models: Iterable[Model],
                 support_generator: Optional[TaskGenerator] = None,
                 pbar: Optional[tqdm] = None,
-                policy: SimulationPolicy = DefaultSimulationPolicy()) -> list[SimulationResult]:
+                policy: SimulationPolicy = DefaultSimulationPolicy()) -> tuple[list[SimulationResult], list[SimulationMetadata]]:
         """Executes a simulation.
 
         Args:
@@ -45,12 +47,16 @@ class Simulation:
         """
 
         simulation_results: list[SimulationResult] = []
+        simulation_metadata: list[SimulationMetadata] = []
 
         env = Environment()
+        Tracker.set(ResourceTracker(env))
+
         sdlc_workflow = SDLCWorkflow(env, policy=policy)
         support_workflow = SupportWorkflow(env, policy=policy)
 
         for model in models:
+
             developer_manager = ResourceOperator(
                 env, model.developer_team,
                 policy=policy)
@@ -86,20 +92,26 @@ class Simulation:
             if completed_tasks is None:
                 raise RuntimeError("unrecoverable simulation error")
 
-            simulation_results.extend(
-                self._process_results(model, completed_tasks))
+            model_results, event_metadata = self._process_results(
+                model, completed_tasks)
+            simulation_results.extend(model_results)
+
+            simulation_metadata.append(
+                SimulationMetadata(model, Tracker.get().data, event_metadata))
 
             if pbar:
                 pbar.update()
 
-        return simulation_results
+        return simulation_results, simulation_metadata
 
     def _process_results(self, model: Model, completed_tasks: dict[Event, list[Task]]):
-        result: list[SimulationResult] = []
+        simulation_results: list[SimulationResult] = []
+        event_metadata: list[TaskEvent] = []
 
         for tasks in completed_tasks.values():
             for task in tasks:
-                result.append(SimulationResult(
+                simulation_results.append(SimulationResult(
                     model, task, task.history.events))
+                event_metadata.extend(task.history.events)
 
-        return result
+        return simulation_results, event_metadata

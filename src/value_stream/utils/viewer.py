@@ -55,6 +55,7 @@ class Viewer:
                                        ['model', 'team_size'],
                                        ['task', 'task_name'],
                                        ['task', 'loss'],
+                                       ['task', 'delivered_loss'],
                                        ['task', 'delivered_value'],
                                        ['task', 'task_type']],
                                  errors='ignore')

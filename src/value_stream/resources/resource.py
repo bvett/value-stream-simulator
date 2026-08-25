@@ -5,13 +5,16 @@ import uuid
 from simpy import Environment, Event, Interrupt, Process, Store
 from simpy.events import ProcessGenerator
 
+from .trackable import Trackable
+from .resource_tracker import Tracker
+
 from ..event_status import EventStatus
 from ..simulation_policy import SimulationPolicy
 from ..task import Task
 from ..workflow_state_name import WorkflowStateName
 
 
-class Resource:
+class Resource(Trackable):
     """Base class for simulation objects that operate on tasks"""
 
     @classmethod
@@ -19,9 +22,11 @@ class Resource:
         return uuid.uuid4()
 
     def __init__(self, workflow_state: WorkflowStateName):
+        super().__init__(workflow_state)
         self.workflow_state = workflow_state
         self._process: Optional[Resource.ProcessWrapper] = None
         self._suspended_work: list[Event] = []
+        self.idle_t = 0
         self._id = Resource._generate_id()
 
     @property
@@ -35,7 +40,7 @@ class Resource:
         """Simulates an action on a task object"""
 
         for task in tasks:
-            task.history.start(env.now, self.workflow_state)
+            task.start(env.now, self.workflow_state)
 
         if self._process is not None and self._process.is_alive:
 
@@ -49,19 +54,31 @@ class Resource:
             status = EventStatus.SUCCESS
             self._process = self._create_process(env, tasks)
 
+            start_t = env.now
             try:
+                Tracker.get().start_work(self, env.now-self.idle_t)
                 yield self._process
             except Interrupt:
 
                 # if do_work is interrupted, wait on a signal that will
                 # be triggered once this resource has processed all
                 # subsequent interruptions
+
+                interruption_start_t = env.now
+                Tracker.get().complete_work(
+                    self, status, elapsed_t=env.now-start_t)
                 yield env.process(self._pause(env))
+                Tracker.get().interruption(
+                    self, elapsed_t=env.now - interruption_start_t)
 
                 continue
 
             if self._process.value is not None:
                 status = self._process.value['result']
+
+            Tracker.get().complete_work(
+                self, status, elapsed_t=env.now-start_t)
+            self.idle_t = env.now
 
             self._process = None
 
@@ -71,7 +88,7 @@ class Resource:
                 destination = target_upon_failure
 
             for task in tasks:
-                task.history.end(env.now, self.workflow_state, status=status)
+                task.end(env.now, self.workflow_state, status=status)
 
                 yield destination.put(task)
 

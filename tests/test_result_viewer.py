@@ -41,7 +41,7 @@ class TestResultViewer(unittest.TestCase):
         tasks = TaskFactory(initial_value=1,
                             depreciation_rate=0, story_points=1.0).create(count=self.num_tasks)
 
-        self.model_results = simulation.execute(
+        self.model_results, _ = simulation.execute(
             tasks=tasks, models=models)
 
         self.pbar = tqdm(self.model_results)

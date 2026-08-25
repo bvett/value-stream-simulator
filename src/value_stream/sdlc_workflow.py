@@ -3,6 +3,7 @@ from typing import Optional
 
 from simpy import Environment, Event
 
+from .resources import Tracker
 from .simulation_policy import SimulationPolicy
 from .task import Task
 from .workflow_state import TerminalWorkflowState, WorkflowState, WorkflowStateName
@@ -50,6 +51,8 @@ class SDLCWorkflow:
 
         for task in tasks:
             yield self.pending.put(task.reset(self.env.now))
+
+        Tracker.get().start_epoch()
 
         delivery_target = len(self.pending.items)
 

@@ -12,19 +12,20 @@ class TaskEvent:
         END = 'end'
         TERMINAL = 'terminal'
 
-    def __init__(self, event: WorkflowStateName, event_type: EventType, time: float, status: EventStatus):
+    def __init__(self, event: WorkflowStateName, event_type: EventType, time: float, status: EventStatus, loss: float = 0):
         self.event: WorkflowStateName = event
         self.event_type: TaskEvent.EventType = event_type
         self.time: float = time
         self.status: EventStatus = status
+        self.loss = loss
 
     @classmethod
     def start(cls, event: WorkflowStateName, time: float, status: EventStatus = EventStatus.SUCCESS) -> "TaskEvent":
         return TaskEvent(event=event, time=time, status=status, event_type=TaskEvent.EventType.START)
 
     @classmethod
-    def end(cls, event: WorkflowStateName, time: float, status: EventStatus = EventStatus.SUCCESS) -> "TaskEvent":
-        return TaskEvent(event=event, time=time, status=status, event_type=TaskEvent.EventType.END)
+    def end(cls, event: WorkflowStateName, time: float, status: EventStatus = EventStatus.SUCCESS, loss: float = 0) -> "TaskEvent":
+        return TaskEvent(event=event, time=time, status=status, event_type=TaskEvent.EventType.END, loss=loss)
 
     @classmethod
     def terminal(cls, event: WorkflowStateName, time: float, status: EventStatus = EventStatus.SUCCESS) -> "TaskEvent":
