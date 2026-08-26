@@ -1,15 +1,14 @@
 # demo.py: quick demonstration that runs a simulation and plots results in a variety of formats
 # A more thorough walkthrough is available in the tutorial.ipynb notebook
-import math
-
 import logging
 from typing import Collection
+import numpy as np
 from tqdm import tqdm
 
 from value_stream import Simulation, SimulationResult, SupportTask, SimulationMetadata
 from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, \
-    TaskFactory, TaskGenerator, WorkflowViewer, generator_utils
+    TaskFactory, TaskGenerator, MetadataViewer, generator_utils
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +54,7 @@ if __name__ == "__main__":
 
     teams: list[Collection[Developer]] = []
 
-    for i in range(1, MAX_DEVELOPERS+1):
+    for i in np.linspace(1, MAX_DEVELOPERS, 3, dtype=int):
         teams.append(developer_factory.create(
             count=i, efficiency=generator_utils.uniform(.5, 1.5)))
 
@@ -71,7 +70,7 @@ if __name__ == "__main__":
     # Model includes the developer_ teams and range of cadences
     models = ModelFactory().create(
         teams=teams,
-        deployment_cadences=range(MAX_CADENCE, -1, -1),
+        deployment_cadences=np.linspace(0, MAX_CADENCE, 3, dtype=int),
         qa_testers=qa_tester_pool,
         toolchain_pool=toolchain_pool,
         support_intervals=[None])
@@ -100,12 +99,10 @@ if __name__ == "__main__":
     with tqdm(desc='Processing Results', total=len(results), mininterval=1.0, miniters=0) as pbar:
         viewer = ResultViewer(results, pbar=pbar)
 
-    with tqdm(desc='Processing Workflow Metadata', total=len(results), mininterval=1.0, miniters=0) as pbar:
-        workflow_viewer = WorkflowViewer(results, pbar=pbar)
+    metadata_viewer = MetadataViewer(metadata, pbar=pbar)
 
-    viewer.loss_vs_cadence(team_samples=5)
-    workflow_viewer.time_alloc_vs_cadence()
-    workflow_viewer.delivery_timeline(cadence=3, team_size=3)
-    viewer.delivered_value_vs_time(
-        cadence=1, team_samples=math.ceil(MAX_DEVELOPERS/4))
-    viewer.delivered_value_vs_team_size(cadence_samples=5)
+    viewer.loss_vs_cadence()
+    metadata_viewer.mean_stage_loss()
+    metadata_viewer.resource_utilization()
+    viewer.delivered_value_vs_time(cadence=0)
+    viewer.delivered_value_vs_team_size()
