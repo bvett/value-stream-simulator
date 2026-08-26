@@ -1,7 +1,6 @@
 from typing import Optional
 import matplotlib.pyplot as plt
 from matplotlib import ticker
-import numpy as np
 from tqdm import tqdm
 from ..event_status import EventStatus
 from ..simulation_result import SimulationResult
@@ -22,7 +21,7 @@ class ResultViewer(Viewer):
                         (self.df['status'] == EventStatus.SUCCESS) &
                         (self.df['task.task_type'] == TaskType.DEVELOPMENT)]
 
-    def loss_vs_cadence(self, team_samples: Optional[int] = None):
+    def loss_vs_cadence(self):
         """shows the impact of deployment cadence on loss
 
         Args:
@@ -32,18 +31,6 @@ class ResultViewer(Viewer):
         """
 
         df = self.df_completed_tasks
-
-        min_team_size: int = df.index.get_level_values('model.team_size').min()
-        max_team_size: int = df.index.get_level_values('model.team_size').max()
-
-        num = max_team_size - min_team_size + \
-            1 if team_samples is None else min(max_team_size, team_samples)
-
-        team_sample = np.linspace(
-            min_team_size, max_team_size, min(max_team_size, num), dtype=int)
-
-        df = df.loc[(df.index.get_level_values(
-            'model.team_size').isin(team_sample))]
 
         df = df[['task.delivered_loss', 'task.delivered_value']].groupby(
             ['model.deployment_cadence', 'model.team_size']).mean().unstack(-1)[['task.delivered_loss']]
@@ -60,7 +47,7 @@ class ResultViewer(Viewer):
         ax.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=1.0))
         plt.show()
 
-    def delivered_value_vs_time(self, cadence: int, team_samples: Optional[int] = None):
+    def delivered_value_vs_time(self, cadence: int):
         """Plots delivered value over time, grouped by team size
 
         Args:
@@ -73,17 +60,8 @@ class ResultViewer(Viewer):
 
         df = self.df_completed_tasks
 
-        min_team_size: int = df.index.get_level_values('model.team_size').min()
-        max_team_size: int = df.index.get_level_values('model.team_size').max()
-
-        num = max_team_size - min_team_size + \
-            1 if not team_samples else min(max_team_size, team_samples)
-
-        team_size_sample = np.linspace(
-            min_team_size, max_team_size, num, dtype=int)
-
-        df = df.loc[(df.index.get_level_values('model.deployment_cadence') == cadence) &
-                    (df.index.get_level_values('model.team_size').isin(team_size_sample))]
+        df = df.loc[(df.index.get_level_values(
+            'model.deployment_cadence') == cadence)]
 
         df = df[['time', 'task.delivered_value']].groupby(
             ['model.team_size', 'time']).sum().unstack(0).cumsum().ffill()
@@ -102,7 +80,7 @@ class ResultViewer(Viewer):
 
         plt.show()
 
-    def delivered_value_vs_team_size(self, cadence_samples: Optional[int] = None):
+    def delivered_value_vs_team_size(self):
         """Plots delivered value over team size, grouped by cadence
         Args:
             cadence(int):  number of samples from the cadences in the simulation, 
@@ -110,21 +88,6 @@ class ResultViewer(Viewer):
 
         """
         df = self.df_completed_tasks
-
-        min_cadence: int = df.index.get_level_values(
-            'model.deployment_cadence').min()
-        max_cadence: int = df.index.get_level_values(
-            'model.deployment_cadence').max()
-
-        num = max_cadence - \
-            min_cadence + 1 if cadence_samples is None else min(
-                max_cadence, cadence_samples)
-
-        cadence_sample = np.linspace(
-            min_cadence, max_cadence, num, dtype=int)
-
-        df = df.loc[(df.index.get_level_values(
-            'model.deployment_cadence').isin(cadence_sample))]
 
         df = df[['task.delivered_value']].groupby(
             ['model.team_size', 'model.deployment_cadence']).sum().unstack(-1)

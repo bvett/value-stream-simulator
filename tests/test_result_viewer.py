@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from value_stream import Simulation
 from value_stream.resources import QATester, Toolchain
-from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, WorkflowViewer, TaskFactory
+from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, TaskFactory
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
@@ -49,38 +49,21 @@ class TestResultViewer(unittest.TestCase):
     @patch('matplotlib.pyplot.show')
     @patch('tqdm.tqdm.update')
     def test_plot_loss_vs_cadence(self, mock_tqdm_update, mock_pyplot_show):
-        ResultViewer(self.model_results, pbar=self.pbar).loss_vs_cadence(
-            team_samples=self.team_size)
+        ResultViewer(self.model_results, pbar=self.pbar).loss_vs_cadence()
 
         mock_pyplot_show.assert_called_once()
         mock_tqdm_update.assert_called()
 
     @patch('matplotlib.pyplot.show')
-    def test_plot_time_alloc_by_cadence(self, mock_pyplot_show):
-        WorkflowViewer(self.model_results).time_alloc_vs_cadence(
-            nrows=4, ncols=3)
-
-        mock_pyplot_show.assert_called_once()
-
-    @patch('matplotlib.pyplot.show')
-    def test_plot_delivery_timeline(self, mock_pyplot_show):
-
-        WorkflowViewer(self.model_results).delivery_timeline(
-            cadence=self.max_cadence, team_size=self.team_size)
-
-        mock_pyplot_show.assert_called_once()
-
-    @patch('matplotlib.pyplot.show')
     def test_plot_delivered_value(self, mock_pyplot_show):
 
         ResultViewer(self.model_results).delivered_value_vs_time(
-            cadence=self.max_cadence, team_samples=math.ceil(self.num_teams/2))
+            cadence=self.max_cadence)
 
         mock_pyplot_show.assert_called_once()
 
     @patch('matplotlib.pyplot.show')
     def test_plot_team_size_vs_delivery(self, mock_pyplot_show):
-        ResultViewer(self.model_results).delivered_value_vs_team_size(
-            cadence_samples=self.max_cadence)
+        ResultViewer(self.model_results).delivered_value_vs_team_size()
 
         mock_pyplot_show.assert_called_once()

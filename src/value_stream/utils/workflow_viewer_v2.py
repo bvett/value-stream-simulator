@@ -1,22 +1,26 @@
+import colorsys
 from enum import Enum
 import matplotlib
-import numpy as np
-from typing import Any, Optional
+from typing import Optional
 
-from pandas import json_normalize
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+import numpy as np
 from tqdm import tqdm
+from typing import Any
 
 from ..event_status import EventStatus
-from ..simulation_result import SimulationResult
+from ..task import TaskType
+from ..simulation_result import SimulationResultV2
+from ..task_event import TaskEvent
 from ..workflow_state_name import WorkflowStateName
 
 
-class Viewer:
-
-    def __init__(self, results: list[SimulationResult], pbar: Optional[tqdm] = None, colormap='plasma'):
+class WorkflowViewerV2:
+    def __init__(self, results: list[SimulationResultV2], pbar: Optional[tqdm] = None, colormap='plasma'):
 
         self.colormap = matplotlib.colormaps[colormap]
-        results_dict: list[dict[str, Any]] = []
+        self.results_dict: list[dict[str, Any]] = []
 
         colors = iter(self.colormap(
             np.linspace(0.1, 0.9, len(WorkflowStateName))))
@@ -45,32 +49,14 @@ class Viewer:
         }
 
         for r in results:
-            results_dict.append(_to_dict(r, ['toolchain_pool']))
+            for d in r.detailed_result:
+                self.results_dict.append(
+                    _to_dict(d, ['toolchain_pool', 'qa_testers', 'developer_team', 'support_interval']))
 
             if pbar:
                 pbar.update()
 
-        self.df = json_normalize(results_dict, record_path=['events'],
-                                 meta=[['model', 'deployment_cadence'],
-                                       ['model', 'team_size'],
-                                       ['task', 'task_name'],
-                                       ['task', 'loss'],
-                                       ['task', 'delivered_loss'],
-                                       ['task', 'delivered_value'],
-                                       ['task', 'task_type']],
-                                 errors='ignore')
 
-        self.df.set_index(['model.deployment_cadence',
-                           'model.team_size', 'task.task_name'], inplace=True)
-
-        self.df.sort_index(inplace=True)
-
-        self.df["event_duration"] = self.df.groupby(level=2)['time'].diff()
-        self.df["cumulative_time"] = self.df.groupby(
-            level=2)['event_duration'].cumsum()
-
-
-# -> list[list[Any] | str | dict[str, Any] | Any] | str | dict[str, Any] | Any:
 def _to_dict(obj: Any, exclusions: list[str] | None = None):
 
     if exclusions is None:
