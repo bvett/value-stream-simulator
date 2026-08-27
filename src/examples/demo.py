@@ -5,7 +5,7 @@ from typing import Collection
 import numpy as np
 from tqdm import tqdm
 
-from value_stream import Simulation, SimulationResultV2, SupportTask
+from value_stream import Simulation, SimulationResult, SupportTask
 from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, \
     TaskFactory, TaskGenerator, MetadataViewer, generator_utils
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         factory=support_factory)
 
     # Run the simulation with a progress bar and collect the results
-    results: list[SimulationResultV2] = []
+    results: list[SimulationResult] = []
     # metadata: list[SimulationMetadata] = []
 
     with tqdm(desc='Running Simulation', total=len(models)) as pbar:

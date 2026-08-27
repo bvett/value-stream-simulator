@@ -1,4 +1,4 @@
-from .simulation_result import SimulationResult, SimulationResultV2, SummaryResult
+from .simulation_result import SimulationResult, SimulationResult, SummaryResult
 from .event_status import EventStatus
 from .model import Model
 from .simulation import Simulation
@@ -14,7 +14,7 @@ from .workflow_state import WorkflowState, TerminalWorkflowState
 __all__ = ["DefaultSimulationPolicy",
            "EventStatus",
            "SimulationResult",
-           "SimulationResultV2",
+           "SimulationResult",
            "SummaryResult",
            "Model",
            "Simulation",

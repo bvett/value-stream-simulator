@@ -2,12 +2,12 @@ from typing import Any
 from matplotlib import ticker
 import matplotlib.pyplot as plt
 from pandas import json_normalize
-from ..simulation_result import SimulationResultV2
+from ..simulation_result import SimulationResult
 from .viewer import Viewer
 
 
 class ResultViewer(Viewer):
-    def __init__(self, results: list[SimulationResultV2], colormap='plasma'):
+    def __init__(self, results: list[SimulationResult], colormap='plasma'):
         super().__init__(colormap)
 
         self._results_dict: list[Any] = []

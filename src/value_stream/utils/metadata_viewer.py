@@ -3,13 +3,13 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 import numpy as np
 from pandas import json_normalize, Categorical
-from ..simulation_result import SimulationResultV2
+from ..simulation_result import SimulationResult
 from .viewer import Viewer
 from ..workflow_state_name import WorkflowStateName
 
 
 class MetadataViewer(Viewer):
-    def __init__(self, results: list[SimulationResultV2], colormap: str = 'plasma'):
+    def __init__(self, results: list[SimulationResult], colormap: str = 'plasma'):
         super().__init__(colormap)
         self._results_dict: list[Any] = []
 

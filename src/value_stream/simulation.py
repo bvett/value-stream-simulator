@@ -10,7 +10,7 @@ from .model import Model
 from .sdlc_workflow import SDLCWorkflow
 from .simulation_metadata import SimulationMetadata
 from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
-from .simulation_result import SimulationResultV2, SummaryResult
+from .simulation_result import SimulationResult, SummaryResult
 from .support_workflow import SupportWorkflow
 from .task import Task
 from .task_event import TaskEvent
@@ -24,7 +24,7 @@ class Simulation:
                 models: Iterable[Model],
                 support_generator: Optional[TaskGenerator] = None,
                 pbar: Optional[tqdm] = None,
-                policy: SimulationPolicy = DefaultSimulationPolicy()) -> list[SimulationResultV2]:
+                policy: SimulationPolicy = DefaultSimulationPolicy()) -> list[SimulationResult]:
         """Executes a simulation.
 
         Args:
@@ -37,7 +37,7 @@ class Simulation:
             list[SimulationResult]: Set of simulation outcomes, one per Model.
         """
 
-        results: list[SimulationResultV2] = []
+        results: list[SimulationResult] = []
 
         env = Environment()
         Tracker.set(ResourceTracker(env))
@@ -66,7 +66,7 @@ class Simulation:
                        policy: SimulationPolicy,
                        sdlc_workflow: SDLCWorkflow,
                        support_workflow: SupportWorkflow,
-                       support_generator: Optional[TaskGenerator] = None) -> SimulationResultV2:
+                       support_generator: Optional[TaskGenerator] = None) -> SimulationResult:
         developer_manager = ResourceOperator(
             env, model.developer_team,
             policy=policy)
@@ -109,10 +109,10 @@ class Simulation:
         summary_result, task_events = self._process_results(
             model=model, completed_tasks=completed_tasks, sim_duration=sim_duration)
 
-        return SimulationResultV2(summary_result=summary_result,
-                                  metadata=SimulationMetadata(model=model,
-                                                              resource_metadata=Tracker.get().data,
-                                                              event_metadata=task_events))
+        return SimulationResult(summary_result=summary_result,
+                                metadata=SimulationMetadata(model=model,
+                                                            resource_metadata=Tracker.get().data,
+                                                            event_metadata=task_events))
 
     def _process_results(self, model: Model,
                          completed_tasks: dict[Event, list[Task]],
