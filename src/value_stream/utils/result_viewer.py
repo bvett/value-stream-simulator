@@ -3,10 +3,10 @@ from matplotlib import ticker
 import matplotlib.pyplot as plt
 from pandas import json_normalize
 from ..simulation_result import SimulationResultV2
-from .viewer_v2 import ViewerV2
+from .viewer import Viewer
 
 
-class ResultViewer(ViewerV2):
+class ResultViewer(Viewer):
     def __init__(self, results: list[SimulationResultV2], colormap='plasma'):
         super().__init__(colormap)
 

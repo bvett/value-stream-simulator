@@ -4,11 +4,11 @@ from matplotlib import ticker
 import numpy as np
 from pandas import json_normalize, Categorical
 from ..simulation_result import SimulationResultV2
-from .viewer_v2 import ViewerV2
+from .viewer import Viewer
 from ..workflow_state_name import WorkflowStateName
 
 
-class MetadataViewer(ViewerV2):
+class MetadataViewer(Viewer):
     def __init__(self, results: list[SimulationResultV2], colormap: str = 'plasma'):
         super().__init__(colormap)
         self._results_dict: list[Any] = []
