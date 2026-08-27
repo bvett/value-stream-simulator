@@ -26,11 +26,13 @@ if __name__ == "__main__":
 
     # Simulations will have development team sizes between 1 and MAX_DEVELOPERS
     MAX_DEVELOPERS = 25
+    DEV_TEAM_SAMPLES = 3
 
     NUM_QA_RESOURCES = 5
 
     # Simulate deployment schedules from every MAX_CADENCE units of time to 0 (continuous)
     MAX_CADENCE = 10
+    CADENCE_SAMPLES = 3
 
     # Number of deployments that can happen concurrently
     TOOLCHAIN_CONCURRENCY = 20
@@ -54,7 +56,7 @@ if __name__ == "__main__":
 
     teams: list[Collection[Developer]] = []
 
-    for i in np.linspace(1, MAX_DEVELOPERS, 3, dtype=int):
+    for i in np.linspace(1, MAX_DEVELOPERS, DEV_TEAM_SAMPLES, dtype=int):
         teams.append(developer_factory.create(
             count=i, efficiency=generator_utils.uniform(.5, 1.5)))
 
@@ -70,7 +72,8 @@ if __name__ == "__main__":
     # Model includes the developer_ teams and range of cadences
     models = ModelFactory().create(
         teams=teams,
-        deployment_cadences=np.linspace(0, MAX_CADENCE, 3, dtype=int),
+        deployment_cadences=np.linspace(
+            0, MAX_CADENCE, CADENCE_SAMPLES, dtype=int),
         qa_testers=qa_tester_pool,
         toolchain_pool=toolchain_pool,
         support_intervals=[None])
