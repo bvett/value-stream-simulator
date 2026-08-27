@@ -1,39 +1,33 @@
-from typing import Optional
-import matplotlib.pyplot as plt
+from typing import Any
 from matplotlib import ticker
-from tqdm import tqdm
-from ..event_status import EventStatus
-from ..simulation_result import SimulationResult
-from ..task import TaskType
-from ..task_event import TaskEvent
-
-from .viewer import Viewer
+import matplotlib.pyplot as plt
+from pandas import json_normalize
+from ..simulation_result import SimulationResultV2
+from .viewer_v2 import ViewerV2
 
 
-class ResultViewer(Viewer):
-    """Handles rendering of simulation results"""
+class ResultViewer(ViewerV2):
+    def __init__(self, results: list[SimulationResultV2], colormap='plasma'):
+        super().__init__(colormap)
 
-    def __init__(self, results: list[SimulationResult], pbar: Optional[tqdm] = None, colormap='plasma'):
-        super().__init__(results=results, pbar=pbar, colormap=colormap)
+        self._results_dict: list[Any] = []
 
-        self.df_completed_tasks = \
-            self.df.loc[(self.df['event_type'] == TaskEvent.EventType.TERMINAL) &
-                        (self.df['status'] == EventStatus.SUCCESS) &
-                        (self.df['task.task_type'] == TaskType.DEVELOPMENT)]
+        for r in results:
+            self._results_dict.append(super()._to_dict(
+                r.summary_result, ['toolchain_pool', 'qa_testers', 'developer_team', 'support_interval']))
+
+        self.data = json_normalize(self._results_dict,
+                                   meta=[['model', 'deployment_cadence'],
+                                         ['model', 'team_size']],
+                                   errors='ignore')
+
+        self.data.set_index(['model.deployment_cadence',
+                             'model.team_size'], inplace=True)
 
     def loss_vs_cadence(self):
-        """shows the impact of deployment cadence on loss
+        df = self.data
 
-        Args:
-            team_samples (Optional[int]): When the optional _team_samples_ parameter is provided,
-            it limits the number of series to an even distribution of team sizes
-            between the minimum and maximum, inclusive.
-        """
-
-        df = self.df_completed_tasks
-
-        df = df[['task.delivered_loss', 'task.delivered_value']].groupby(
-            ['model.deployment_cadence', 'model.team_size']).mean().unstack(-1)[['task.delivered_loss']]
+        df = df[['loss', 'total_delivered_value']].unstack(-1)[['loss']]
 
         df.columns = df.columns.get_level_values(1)  # type: ignore
 
@@ -47,55 +41,18 @@ class ResultViewer(Viewer):
         ax.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=1.0))
         plt.show()
 
-    def delivered_value_vs_time(self, cadence: int):
-        """Plots delivered value over time, grouped by team size
+    def loss_vs_team_size(self):
 
-        Args:
-            cadence(int): filters to plot results from the specified cadence
-            team_samples(int): en the optional _team_samples_ parameter is provided, 
-            it limits the number of series to an even distribution of team sizes 
-            between the minimum and maximum, inclusive.
+        df = self.data
 
-        """
-
-        df = self.df_completed_tasks
-
-        df = df.loc[(df.index.get_level_values(
-            'model.deployment_cadence') == cadence)]
-
-        df = df[['time', 'task.delivered_value']].groupby(
-            ['model.team_size', 'time']).sum().unstack(0).cumsum().ffill()
+        df = df[['loss']].unstack(0)
 
         df.columns = df.columns.get_level_values(1)  # type: ignore
 
-        ax = df.plot(drawstyle='steps-post', title='Delivered Value vs Time',
-                     xlabel='Time', ylabel='Delivered Value', grid=True,
+        ax = df.plot(title="Loss vs Team Size",
+                     xlabel="Team Size", ylabel='Loss', grid=True,
                      colormap=self.colormap)
-
         ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
-        ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
-        ax.grid(visible=True, which='major', axis='y')
-
-        plt.legend(title="Team Size")
-
-        plt.show()
-
-    def delivered_value_vs_team_size(self):
-        """Plots delivered value over team size, grouped by cadence
-        Args:
-            cadence(int):  number of samples from the cadences in the simulation, 
-            or all cadences if None. Defaults to None
-
-        """
-        df = self.df_completed_tasks
-
-        df = df[['task.delivered_value']].groupby(
-            ['model.team_size', 'model.deployment_cadence']).sum().unstack(-1)
-
-        df.columns = df.columns.get_level_values(1)  # type: ignore
-
-        df.plot(title="Delivered Value vs Team Size",
-                xlabel="Team Size", ylabel='Delivered Value', grid=True,
-                colormap=self.colormap)
         plt.legend(title="Deployment Cadence")
+        ax.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=1.0))
         plt.show()

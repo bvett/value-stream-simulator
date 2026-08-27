@@ -2,8 +2,8 @@ import unittest
 from tqdm import tqdm
 from value_stream.resources import QATester, Toolchain
 from value_stream.simulation import Simulation
-from value_stream.utils import DeveloperFactory, ModelFactory, TaskFactory, TaskGenerator
-from value_stream import SupportTask, TaskType
+from value_stream.utils import DeveloperFactory, ModelFactory, TaskFactory
+from value_stream import SupportTask, TaskType, EventStatus, TaskEvent
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
@@ -40,14 +40,14 @@ class TestSimulation(unittest.TestCase):
         support_factory = TaskFactory(
             SupportTask, story_points=1)
 
-        support_generator = TaskGenerator(
-            factory=support_factory)
+        # support_generator = TaskGenerator(
+        #    factory=support_factory)
 
         with tqdm(total=len(models)) as pbar:
-            model_results, _ = simulation.execute(
+            simulation_results = simulation.execute(
                 tasks=tasks,
                 models=models,
-                support_generator=support_generator,
+                support_generator=None,
                 pbar=pbar)
 
         # one result for every combination of task and cadence
@@ -56,11 +56,12 @@ class TestSimulation(unittest.TestCase):
         num_dev_tasks = 0
         num_support_tasks = 0
 
-        for r in model_results:
-            if r.task.task_type == TaskType.DEVELOPMENT:
-                num_dev_tasks += 1
-            elif r.task.task_type == TaskType.SUPPORT:
-                num_support_tasks += 1
+        for r in simulation_results:
+            for e in r.metadata.event_metadata:
+                if (e.event == TaskType.DEVELOPMENT) and (e.status == EventStatus.SUCCESS) and (e.event_type == TaskEvent.EventType.END):
+                    num_dev_tasks += 1
+                elif e.event == TaskType.SUPPORT:
+                    num_support_tasks += 1
 
         # Asserting only # of completed dev tasks.
         # Calculating expected # of completed support tasks is more complicated,

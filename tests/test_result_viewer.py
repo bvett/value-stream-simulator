@@ -1,8 +1,5 @@
-import math
 import unittest
 from unittest.mock import patch
-
-from tqdm import tqdm
 
 from value_stream import Simulation
 from value_stream.resources import QATester, Toolchain
@@ -41,29 +38,18 @@ class TestResultViewer(unittest.TestCase):
         tasks = TaskFactory(initial_value=1,
                             depreciation_rate=0, story_points=1.0).create(count=self.num_tasks)
 
-        self.model_results, _ = simulation.execute(
+        self.simulation_results = simulation.execute(
             tasks=tasks, models=models)
 
-        self.pbar = tqdm(self.model_results)
-
     @patch('matplotlib.pyplot.show')
-    @patch('tqdm.tqdm.update')
-    def test_plot_loss_vs_cadence(self, mock_tqdm_update, mock_pyplot_show):
-        ResultViewer(self.model_results, pbar=self.pbar).loss_vs_cadence()
-
-        mock_pyplot_show.assert_called_once()
-        mock_tqdm_update.assert_called()
-
-    @patch('matplotlib.pyplot.show')
-    def test_plot_delivered_value(self, mock_pyplot_show):
-
-        ResultViewer(self.model_results).delivered_value_vs_time(
-            cadence=self.max_cadence)
+    def test_loss_vs_cadence(self, mock_pyplot_show):
+        ResultViewer(self.simulation_results).loss_vs_cadence()
 
         mock_pyplot_show.assert_called_once()
 
     @patch('matplotlib.pyplot.show')
-    def test_plot_team_size_vs_delivery(self, mock_pyplot_show):
-        ResultViewer(self.model_results).delivered_value_vs_team_size()
+    def test_loss_vs_team_size(self, mock_pyplot_show):
+
+        ResultViewer(self.simulation_results).loss_vs_team_size()
 
         mock_pyplot_show.assert_called_once()

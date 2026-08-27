@@ -5,9 +5,9 @@ from typing import Collection
 import numpy as np
 from tqdm import tqdm
 
-from value_stream import SimulationV2, SimulationResultV2, SupportTask
+from value_stream import Simulation, SimulationResultV2, SupportTask
 from value_stream.resources import Developer, QATester, Toolchain
-from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewerV2, \
+from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, \
     TaskFactory, TaskGenerator, MetadataViewer, generator_utils
 
 logger = logging.getLogger(__name__)
@@ -89,14 +89,14 @@ if __name__ == "__main__":
     # metadata: list[SimulationMetadata] = []
 
     with tqdm(desc='Running Simulation', total=len(models)) as pbar:
-        results = SimulationV2().execute(tasks=tasks,
-                                         models=models,
-                                         support_generator=support_generator,
-                                         pbar=pbar)
+        results = Simulation().execute(tasks=tasks,
+                                       models=models,
+                                       support_generator=support_generator,
+                                       pbar=pbar)
 
     # Showcase the results using different plots
 
-    viewer = ResultViewerV2(results)
+    viewer = ResultViewer(results)
 
     metadata_viewer = MetadataViewer(results)
 
