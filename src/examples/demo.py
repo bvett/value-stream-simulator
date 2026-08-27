@@ -5,9 +5,9 @@ from typing import Collection
 import numpy as np
 from tqdm import tqdm
 
-from value_stream import Simulation, SimulationResult, SupportTask, SimulationMetadata
+from value_stream import SimulationV2, SimulationResultV2, SupportTask
 from value_stream.resources import Developer, QATester, Toolchain
-from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, \
+from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewerV2, \
     TaskFactory, TaskGenerator, MetadataViewer, generator_utils
 
 logger = logging.getLogger(__name__)
@@ -26,11 +26,13 @@ if __name__ == "__main__":
 
     # Simulations will have development team sizes between 1 and MAX_DEVELOPERS
     MAX_DEVELOPERS = 25
+    DEV_TEAM_SAMPLES = 3
 
     NUM_QA_RESOURCES = 5
 
     # Simulate deployment schedules from every MAX_CADENCE units of time to 0 (continuous)
     MAX_CADENCE = 10
+    CADENCE_SAMPLES = 3
 
     # Number of deployments that can happen concurrently
     TOOLCHAIN_CONCURRENCY = 20
@@ -54,7 +56,7 @@ if __name__ == "__main__":
 
     teams: list[Collection[Developer]] = []
 
-    for i in np.linspace(1, MAX_DEVELOPERS, 3, dtype=int):
+    for i in np.linspace(1, MAX_DEVELOPERS, DEV_TEAM_SAMPLES, dtype=int):
         teams.append(developer_factory.create(
             count=i, efficiency=generator_utils.uniform(.5, 1.5)))
 
@@ -70,7 +72,8 @@ if __name__ == "__main__":
     # Model includes the developer_ teams and range of cadences
     models = ModelFactory().create(
         teams=teams,
-        deployment_cadences=np.linspace(0, MAX_CADENCE, 3, dtype=int),
+        deployment_cadences=np.linspace(
+            0, MAX_CADENCE, CADENCE_SAMPLES, dtype=int),
         qa_testers=qa_tester_pool,
         toolchain_pool=toolchain_pool,
         support_intervals=[None])
@@ -82,27 +85,23 @@ if __name__ == "__main__":
         factory=support_factory)
 
     # Run the simulation with a progress bar and collect the results
-    results: list[SimulationResult] = []
-    metadata: list[SimulationMetadata] = []
+    results: list[SimulationResultV2] = []
+    # metadata: list[SimulationMetadata] = []
 
     with tqdm(desc='Running Simulation', total=len(models)) as pbar:
-        r, m = Simulation().execute(tasks=tasks,
-                                    models=models,
-                                    support_generator=support_generator,
-                                    pbar=pbar)
-
-        results.extend(r)
-        metadata.extend(m)
+        results = SimulationV2().execute(tasks=tasks,
+                                         models=models,
+                                         support_generator=support_generator,
+                                         pbar=pbar)
 
     # Showcase the results using different plots
 
-    with tqdm(desc='Processing Results', total=len(results), mininterval=1.0, miniters=0) as pbar:
-        viewer = ResultViewer(results, pbar=pbar)
+    viewer = ResultViewerV2(results)
 
-    metadata_viewer = MetadataViewer(metadata, pbar=pbar)
+    metadata_viewer = MetadataViewer(results)
 
     viewer.loss_vs_cadence()
+    viewer.loss_vs_team_size()
+
     metadata_viewer.mean_stage_loss()
     metadata_viewer.resource_utilization()
-    viewer.delivered_value_vs_time(cadence=0)
-    viewer.delivered_value_vs_team_size()
