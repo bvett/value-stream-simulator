@@ -36,7 +36,7 @@ class MetadataViewer(ViewerV2):
         team_samples = df.groupby(['model.team_size'])
 
         fig, axs = plt.subplots(
-            nrows=len(team_samples), ncols=1, sharex=True, sharey=True, squeeze=True)
+            ncols=len(team_samples), nrows=1, sharex=True, sharey=True, squeeze=True)
 
         axs_i = 0
 
@@ -63,7 +63,6 @@ class MetadataViewer(ViewerV2):
         fig.supylabel('Mean Loss')
         fig.suptitle("Mean Stage Loss")
 
-        plt.xticks(rotation=45)
         plt.tight_layout()
         plt.show()
 
