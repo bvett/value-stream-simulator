@@ -1,75 +1,75 @@
-from typing import Any, Optional
-from enum import Enum
+from typing import Any
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 import numpy as np
 from pandas import json_normalize, Categorical
-from tqdm import tqdm
-from ..simulation_metadata import SimulationMetadata
+from ..simulation_result import SimulationResultV2
+from .viewer_v2 import ViewerV2
 from ..workflow_state_name import WorkflowStateName
 
 
-class MetadataViewer:
-    def __init__(self, metadata: list[SimulationMetadata], pbar: Optional[tqdm] = None):
+class MetadataViewer(ViewerV2):
+    def __init__(self, results: list[SimulationResultV2], colormap: str = 'plasma'):
+        super().__init__(colormap)
+        self._results_dict: list[Any] = []
 
-        self._metadata_dict: list[Any] = []
-
-        for m in metadata:
-            self._metadata_dict.append(self._to_dict(
-                m, ['toolchain_pool', 'qa_testers', 'developer_team', 'support_interval']))
-
-            if pbar:
-                pbar.update()
+        for result in results:
+            self._results_dict.append(super()._to_dict(
+                result.metadata, ['toolchain_pool', 'qa_testers', 'developer_team', 'support_interval']))
 
     def mean_stage_loss(self):
-        df_all = json_normalize(self._metadata_dict, record_path=['event_metadata'],
-                                meta=[['model', 'deployment_cadence'],
-                                      ['model', 'team_size']],
-                                errors='ignore')
+        df = json_normalize(self._results_dict, record_path=['event_metadata'],
+                            meta=[['model', 'deployment_cadence'],
+                                  ['model', 'team_size']],
+                            errors='ignore')
 
-        df_all.set_index(['model.deployment_cadence',
-                          'model.team_size'], inplace=True)
+        df.set_index(['model.deployment_cadence',
+                      'model.team_size'], inplace=True)
 
-        df_all.sort_index(inplace=True)
+        df.sort_index(inplace=True)
 
-        df_all = df_all[(df_all['event_type'] == 'end')
-                        ][['event', 'loss', 'status']]
+        df = df[(df['event_type'] == 'end')][['event', 'loss', 'status']]
 
-        df_all['event'] = Categorical(df_all['event'], categories=[
+        df['event'] = Categorical(df['event'], categories=[
             e.value for e in WorkflowStateName], ordered=True)
 
-        team_samples = df_all.groupby(['model.team_size'])
+        team_samples = df.groupby(['model.team_size'])
 
-        fig, axs = plt.subplots(len(team_samples), sharex=True, sharey=True)
+        fig, axs = plt.subplots(
+            nrows=len(team_samples), ncols=1, sharex=True, sharey=True, squeeze=True)
 
         axs_i = 0
 
         for name, team_sample in team_samples:
-            ax = axs[axs_i] if isinstance(axs, np.ndarray) else axs
+            ax = axs[axs_i]
             axs_i += 1
 
             df = team_sample.groupby(
                 ['event', 'model.deployment_cadence']).mean(numeric_only=True)['loss'].unstack(level=['model.deployment_cadence'])
 
             df.plot.bar(ax=ax,
-                        xlabel='SDLC Workflow Stage', ylabel='Mean Loss', legend=None)
+                        xlabel='', ylabel='', legend=None, colormap=self.colormap)
 
             ax.set_title(label=f"Team Size={name[0]}", fontsize=8)
+
             ax.yaxis.set_inverted(True)
             ax.yaxis.set_major_formatter(
                 ticker.PercentFormatter(xmax=1.0, decimals=1))
 
             if axs_i == 1:
-                fig.legend(title='Deployment Cadence')
+                ax.legend(title='Deployment Cadence')
 
+        fig.supxlabel('SDLC Workflow Stage')
+        fig.supylabel('Mean Loss')
         fig.suptitle("Mean Stage Loss")
 
         plt.xticks(rotation=45)
+        plt.tight_layout()
         plt.show()
 
     def resource_utilization(self):
 
-        df_all = json_normalize(self._metadata_dict, record_path=['resource_metadata'],
+        df_all = json_normalize(self._results_dict, record_path=['resource_metadata'],
                                 meta=[['model', 'deployment_cadence'],
                                       ['model', 'team_size']],
                                 errors='ignore')
@@ -90,53 +90,44 @@ class MetadataViewer:
 
         dataframes = {key: group for key, group in cadence_x_team_size_samples}
 
-        fig, axs = plt.subplots(len(dataframes.items()),
-                                sharex=True, sharey=True)
+        # detemrine the size of the subplot grid based on number of unique keys in each dimension
 
-        labels = ['Over Capacity', 'Idle',
+        all_keys = np.array(list(dataframes.keys()))
+        cadences, team_sizes = list(all_keys[:, 0]), list(all_keys[:, 1])
+
+        # deduplicate
+        cadences = list(dict.fromkeys(cadences))
+        team_sizes = list(dict.fromkeys(team_sizes))
+
+        fig, axs = plt.subplots(nrows=len(cadences), ncols=len(team_sizes),
+                                sharex=True, sharey=True, layout='constrained', squeeze=False)
+
+        labels = ['Scarce', 'Idle',
                   'Productive', 'Failure', 'Unplanned Work']
-        axs_i = 0
 
-        for key, group in dataframes.items():
+        for team_i, team_size in enumerate(team_sizes):
+            for cadence_i, cadence in enumerate(cadences):
+                group = dataframes[(cadence, team_size)]
 
-            group = group.groupby(['state']).sum()[
-                ['waiting_t', 'idle_t', 'success_t', 'failure_t', 'interruption_t']]
+                group = group.groupby(['state']).sum()[
+                    ['waiting_t', 'idle_t', 'success_t', 'failure_t', 'interruption_t']]
 
-            df = group.divide(group.sum(axis=1), axis=0)
+                df = group.divide(group.sum(axis=1), axis=0)
 
-            ax = axs[axs_i] if isinstance(axs, np.ndarray) else axs
-            axs_i += 1
-            df.plot(ax=ax, kind='bar', stacked=True,
-                    xlabel='SDLC Workflow Stage', legend=False)
-            ax.set_title(
-                label=f"Cadence={key[0]},Team Size={key[1]}", fontsize=8)
+                ax = axs[cadence_i, team_i]
+                df.plot(ax=ax, kind='bar', stacked=True,
+                        legend=False, xlabel='', ylabel='', colormap=self.colormap)
+                ax.set_title(
+                    label=f"Cadence={cadence},Team Size={team_size}", fontsize=8)
 
-            ax.yaxis.set_major_formatter(
-                ticker.PercentFormatter(xmax=1.0, decimals=1))
+                ax.yaxis.set_major_formatter(
+                    ticker.PercentFormatter(xmax=1.0, decimals=1))
 
-            if axs_i == 1:
-                fig.legend(title='Utilization Category', labels=labels)
+                plt.sca(ax)
+                plt.xticks(rotation=45)
 
+        fig.legend(title='Utilization Category', labels=labels)
+        fig.supylabel('Utilization')
+        fig.supxlabel('SDLC Workflow Stage')
         fig.suptitle("Resource Utilization")
-
-        plt.xticks(rotation=45)
         plt.show()
-
-    @classmethod
-    def _to_dict(cls, obj: Any, exclusions: list[str] = []):
-
-        if isinstance(obj, list):
-            return [cls._to_dict(o) for o in obj]
-
-        if isinstance(obj, Enum):
-            return str(obj)
-
-        if hasattr(obj, '__dict__'):
-            result: dict[str, Any] = {}
-
-            for _, (k, v) in enumerate(obj.__dict__.items()):
-                if k not in exclusions:
-                    result[k] = cls._to_dict(v, exclusions)
-
-            return result
-        return obj

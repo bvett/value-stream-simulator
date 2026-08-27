@@ -1,0 +1,104 @@
+# demo.py: quick demonstration that runs a simulation and plots results in a variety of formats
+# A more thorough walkthrough is available in the tutorial.ipynb notebook
+import logging
+from typing import Collection
+import numpy as np
+from tqdm import tqdm
+
+from value_stream import SimulationV2, SimulationResultV2, SupportTask
+from value_stream.resources import Developer, QATester, Toolchain
+from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewerV2, \
+    TaskFactory, TaskGenerator, MetadataViewer, generator_utils
+
+logger = logging.getLogger(__name__)
+
+if __name__ == "__main__":
+
+    logging.basicConfig(
+        force=True, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.INFO)
+
+    # Arguments for the simulation.  Experiment by changing these and running the script.
+
+    NUM_TASKS = 500
+    # Task value decreases 2% for every unit of time from creation to delivery
+    DEPRECIATION_RATE = 0.02
+
+    # Simulations will have development team sizes between 1 and MAX_DEVELOPERS
+    MAX_DEVELOPERS = 25
+
+    NUM_QA_RESOURCES = 5
+
+    # Simulate deployment schedules from every MAX_CADENCE units of time to 0 (continuous)
+    MAX_CADENCE = 10
+
+    # Number of deployments that can happen concurrently
+    TOOLCHAIN_CONCURRENCY = 20
+
+    # Duration of a deployment
+    DEPLOYMENT_DURATION = .25
+    DEPLOYMENT_FAILURE_RATE = 0.1
+
+    QA_TEST_FAILURE_RATE = 0.15
+    QA_TEST_FAILURE_COST = 0.25
+
+    SUPPORT_INTERVAL = 50
+
+    # Create tasks with complexities between 0.5 and 2.0
+    tasks = TaskFactory(initial_value=1,
+                        depreciation_rate=0.02,
+                        story_points=generator_utils.uniform(.5, 2)).create(count=NUM_TASKS)
+
+    # Create development teams with developers having efficiencies between 0.5 and 1.5
+    developer_factory = DeveloperFactory()
+
+    teams: list[Collection[Developer]] = []
+
+    for i in np.linspace(1, MAX_DEVELOPERS, 3, dtype=int):
+        teams.append(developer_factory.create(
+            count=i, efficiency=generator_utils.uniform(.5, 1.5)))
+
+    qa_tester_pool = QATester.create_pool(
+        limit=NUM_QA_RESOURCES, failure_rate=QA_TEST_FAILURE_RATE,
+        failure_cost=QA_TEST_FAILURE_COST)
+
+    toolchain_pool = Toolchain.create_pool(
+        limit=TOOLCHAIN_CONCURRENCY,
+        deployment_duration=DEPLOYMENT_DURATION,
+        failure_rate=DEPLOYMENT_FAILURE_RATE)
+
+    # Model includes the developer_ teams and range of cadences
+    models = ModelFactory().create(
+        teams=teams,
+        deployment_cadences=np.linspace(0, MAX_CADENCE, 3, dtype=int),
+        qa_testers=qa_tester_pool,
+        toolchain_pool=toolchain_pool,
+        support_intervals=[None])
+
+    support_factory = TaskFactory(
+        SupportTask, story_points=1)
+
+    support_generator = TaskGenerator(
+        factory=support_factory)
+
+    # Run the simulation with a progress bar and collect the results
+    results: list[SimulationResultV2] = []
+    # metadata: list[SimulationMetadata] = []
+
+    with tqdm(desc='Running Simulation', total=len(models)) as pbar:
+        results = SimulationV2().execute(tasks=tasks,
+                                         models=models,
+                                         support_generator=support_generator,
+                                         pbar=pbar)
+
+    # Showcase the results using different plots
+
+    viewer = ResultViewerV2(results)
+
+    metadata_viewer = MetadataViewer(results)
+
+    viewer.loss_vs_cadence()
+    viewer.loss_vs_team_size()
+
+    metadata_viewer.mean_stage_loss()
+    metadata_viewer.resource_utilization()

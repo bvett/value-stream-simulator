@@ -1,4 +1,4 @@
-from .simulation_result import SimulationResult, SimulationResultV2, SummaryResult, TimelineResult
+from .simulation_result import SimulationResult, SimulationResultV2, SummaryResult
 from .event_status import EventStatus
 from .model import Model
 from .simulation import Simulation
@@ -17,7 +17,6 @@ __all__ = ["DefaultSimulationPolicy",
            "SimulationResult",
            "SimulationResultV2",
            "SummaryResult",
-           "TimelineResult",
            "Model",
            "Simulation",
            "SimulationV2",

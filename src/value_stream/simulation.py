@@ -104,7 +104,7 @@ class Simulation:
 
         return simulation_results, simulation_metadata
 
-    def _process_results(self, model: Model, completed_tasks: dict[Event, list[Task]]):
+    def _process_results(self, model: Model, completed_tasks: dict[Event, list[Task]]) -> tuple[list[SimulationResult], list[TaskEvent]]:
         simulation_results: list[SimulationResult] = []
         event_metadata: list[TaskEvent] = []
 

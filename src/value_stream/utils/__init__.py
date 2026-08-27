@@ -5,7 +5,7 @@ from .result_viewer_v2 import ResultViewerV2
 from .metadata_viewer import MetadataViewer
 from .task_factory import TaskFactory
 from .task_generator import TaskGenerator
-from .workflow_viewer_v2 import WorkflowViewerV2
+from .viewer_v2 import ViewerV2
 
 
 __all__ = ["DeveloperFactory",
@@ -15,4 +15,4 @@ __all__ = ["DeveloperFactory",
            "MetadataViewer",
            "TaskFactory",
            "TaskGenerator",
-           "WorkflowViewerV2"]
+           "ViewerV2"]

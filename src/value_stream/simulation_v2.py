@@ -1,20 +1,20 @@
 import logging
-from typing import Dict, Iterable, Optional
+from typing import Iterable, Optional
 
 from simpy import Environment, Event, Process
 from simpy.events import AllOf
 from tqdm import tqdm
 
-from .resources import ResourceOperator
+from .resources import ResourceOperator, ResourceTracker, Tracker
 from .model import Model
 from .sdlc_workflow import SDLCWorkflow
+from .simulation_metadata import SimulationMetadata
 from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
-from .simulation_result import SimulationResultV2, SummaryResult, TimelineResult
+from .simulation_result import SimulationResultV2, SummaryResult
 from .support_workflow import SupportWorkflow
 from .task import Task
 from .task_event import TaskEvent
 from .utils import TaskGenerator
-from .workflow_state_name import WorkflowStateName
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +40,7 @@ class SimulationV2:
         results: list[SimulationResultV2] = []
 
         env = Environment()
+        Tracker.set(ResourceTracker(env))
         sdlc_workflow = SDLCWorkflow(env, policy=policy)
         support_workflow = SupportWorkflow(env, policy=policy)
 
@@ -105,74 +106,35 @@ class SimulationV2:
         if completed_tasks is None:
             raise RuntimeError("unrecoverable simulation error")
 
-        # This needs to return list[SimulationResult] and list[SimulationMetadata]
+        summary_result, task_events = self._process_results(
+            model=model, completed_tasks=completed_tasks, sim_duration=sim_duration)
 
-        return SimulationResultV2(summary_result=self._create_summary_result(model=model,
-                                                                             completed_tasks=completed_tasks,
-                                                                             sim_duration=sim_duration))  # ,
-        # detailed_result=self._create_timeline_results(model=model,
-        #                                               completed_tasks=completed_tasks))
+        return SimulationResultV2(summary_result=summary_result,
+                                  metadata=SimulationMetadata(model=model,
+                                                              resource_metadata=Tracker.get().data,
+                                                              event_metadata=task_events))
 
-    def _create_summary_result(self, model: Model,
-                               completed_tasks: dict[Event, list[Task]],
-                               sim_duration: float) -> SummaryResult:
+    def _process_results(self, model: Model,
+                         completed_tasks: dict[Event, list[Task]],
+                         sim_duration: float) -> tuple[SummaryResult, list[TaskEvent]]:
 
         total_initial_value = 0
         total_delivered_value = 0
+
+        task_events: list[TaskEvent] = []
 
         for tasks in completed_tasks.values():
             for task in tasks:
                 total_initial_value += task.value()
                 total_delivered_value += task.delivered_value
+                task_events.extend(task.history.events)
 
         if total_initial_value == 0:
             raise ValueError("")
 
-        return SummaryResult(model=model,
-                             completion_time=sim_duration,
-                             total_delivered_value=total_delivered_value,
-                             loss=(total_delivered_value-total_initial_value) / total_initial_value)
+        summary_result = SummaryResult(model=model,
+                                       completion_time=sim_duration,
+                                       total_delivered_value=total_delivered_value,
+                                       loss=(total_delivered_value-total_initial_value) / total_initial_value)
 
-    def _create_timeline_results(self, model: Model, completed_tasks: dict[Event, list[Task]]) -> list[TimelineResult]:
-
-        result: list[TimelineResult] = []
-
-        for tasks in completed_tasks.values():
-            for task in tasks:
-
-                start_times: Dict[WorkflowStateName, float] = {}
-
-                for event in task.history.events:
-                    if event.event_type == TaskEvent.EventType.START:
-                        start_times[event.event] = event.time
-                        continue
-
-                    if event.event_type == TaskEvent.EventType.END:
-                        start_time = start_times.pop(event.event, None)
-
-                        if start_time is None:
-                            raise RuntimeError(
-                                "Unable to determine start time for event")
-
-                    elif event.event_type == TaskEvent.EventType.TERMINAL:
-                        start_time = event.time
-
-                    else:
-                        raise RuntimeError("Unknown EventType")
-
-                    present_value = task.value(event.time)
-                    initial_value = task.value()
-                    loss = 0 if initial_value == 0 else (
-                        present_value - initial_value) / initial_value
-
-                    r = TimelineResult(model=model,
-                                       time=start_time,
-                                       duration=event.time - start_time,
-                                       workflow_state=event.event,
-                                       value=present_value,
-                                       loss=loss,
-                                       status=event.status)
-
-                    result.append(r)
-
-        return result
+        return summary_result, task_events
