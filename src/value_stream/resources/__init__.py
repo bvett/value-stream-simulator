@@ -1,6 +1,6 @@
 from .resource import Resource
 from .resource_operator import ResourceOperator
-from .resource_tracker import ResourceTracker, TrackerData, Tracker
+from .resource_tracker import ResourceTracker, ResourceHistory, Tracker
 from .resource_pool import PooledResource
 from .developer import Developer
 from .qa_tester import QATester
@@ -14,4 +14,4 @@ __all__ = ["Resource",
            "PooledResource",
            "Toolchain",
            "Tracker",
-           "TrackerData"]
+           "ResourceHistory"]

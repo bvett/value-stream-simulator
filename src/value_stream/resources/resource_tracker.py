@@ -8,7 +8,7 @@ from ..workflow_state_name import WorkflowStateName
 from ..event_status import EventStatus
 
 
-class TrackerData:
+class ResourceHistory:
 
     def __init__(self,
                  time: float,
@@ -48,7 +48,7 @@ class Tracker:
         cls._instance = instance
 
     def __init__(self):
-        self.data: list[TrackerData] = []
+        self.data: list[ResourceHistory] = []
 
     def start_epoch(self):
         pass
@@ -85,26 +85,26 @@ class ResourceTracker(Tracker):
 
     def register(self, r: Trackable):
         r.tracker_id = uuid.uuid4()
-        self.data.append(TrackerData(time=self._epoch_time(),
+        self.data.append(ResourceHistory(time=self._epoch_time(),
                          state=r.workflow_state, allocated=1))
 
     def start_work(self, r: Trackable, elapsed_t: float):
-        self.data.append(TrackerData(time=self._epoch_time(),
-                                     state=r.workflow_state, active=1, idle_t=elapsed_t))
+        self.data.append(ResourceHistory(time=self._epoch_time(),
+                                         state=r.workflow_state, active=1, idle_t=elapsed_t))
 
     def complete_work(self, r: Trackable, status: EventStatus, elapsed_t: Optional[float] = None):
 
         if status == EventStatus.FAILURE:
-            self.data.append(TrackerData(time=self._epoch_time(),
-                                         state=r.workflow_state, active=-1, failure_t=elapsed_t))
+            self.data.append(ResourceHistory(time=self._epoch_time(),
+                                             state=r.workflow_state, active=-1, failure_t=elapsed_t))
         else:
-            self.data.append(TrackerData(time=self._epoch_time(),
-                                         state=r.workflow_state, active=-1, success_t=elapsed_t))
+            self.data.append(ResourceHistory(time=self._epoch_time(),
+                                             state=r.workflow_state, active=-1, success_t=elapsed_t))
 
     def interruption(self, r: Trackable, elapsed_t: float):
-        self.data.append(TrackerData(time=self._epoch_time(),
+        self.data.append(ResourceHistory(time=self._epoch_time(),
                          state=r.workflow_state, interruption_t=elapsed_t))
 
     def waiting(self, r: Trackable, waiting_t: float):
-        self.data.append(TrackerData(time=self._epoch_time(),
+        self.data.append(ResourceHistory(time=self._epoch_time(),
                          state=r.workflow_state, waiting_t=waiting_t))
