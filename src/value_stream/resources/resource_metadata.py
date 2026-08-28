@@ -2,7 +2,7 @@ from typing import Optional
 from value_stream.core import WorkflowStateName
 
 
-class ResourceHistory:
+class ResourceMetadata:
 
     def __init__(self,
                  time: float,
