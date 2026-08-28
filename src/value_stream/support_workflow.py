@@ -5,10 +5,10 @@ from typing import Optional
 from simpy import Environment, Event, Interrupt
 
 from value_stream.core import WorkflowStateName
+from value_stream.resources import Developer, ResourcePolicy
+from value_stream.workflow import WorkflowPolicy
 
 from .assignment_strategy import AssignmentStrategy
-from .resources import Developer
-from .simulation_policy import SimulationPolicy
 from .workflow_state import WorkflowState, TerminalWorkflowState
 from .utils import TaskGenerator
 
@@ -17,12 +17,13 @@ class SupportWorkflow:
     """Generates and assigns tasks to developers outside of the primary SDLC workflow.
     Used to simulate unplanned workload that results in disruption"""
 
-    def __init__(self, env: Environment, policy: SimulationPolicy):
+    def __init__(self, env: Environment, workflow_policy: WorkflowPolicy, resource_policy: ResourcePolicy):
         self.env = env
 
         self._proc = None
 
-        self.policy = policy
+        self._workflow_policy = workflow_policy
+        self._resource_policy = resource_policy
 
         self._signal: Optional[Event] = None
         self._pending: Optional[WorkflowState] = None
@@ -70,7 +71,7 @@ class SupportWorkflow:
 
         self._proc = self.env.process(
             self._processing_loop(developers=developers,
-                                  strategy=self.policy.support_strategy(),
+                                  strategy=self._workflow_policy.support_strategy(),
                                   source=self._pending,
                                   target=self._completed))
 
@@ -108,7 +109,7 @@ class SupportWorkflow:
                     developer.operate(env=self.env,
                                       tasks=[task],
                                       target=target,
-                                      policy=self.policy))
+                                      policy=self._resource_policy))
             except Interrupt:
                 break
 

@@ -99,7 +99,7 @@ class TestDeveloper(unittest.TestCase):
             if (support_generator is not None) and (support_target is not None) and (interval is not None):
 
                 support_workflow = SupportWorkflow(
-                    env, policy=self.policy)
+                    env, resource_policy=self.policy, workflow_policy=self.policy)
 
                 env.process(support_workflow.start(
                     generator=support_generator,

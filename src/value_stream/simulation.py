@@ -42,7 +42,8 @@ class Simulation:
         env = Environment()
         Tracker.set(ResourceTracker(env))
         sdlc_workflow = SDLCWorkflow(env, policy=policy)
-        support_workflow = SupportWorkflow(env, policy=policy)
+        support_workflow = SupportWorkflow(
+            env, resource_policy=policy, workflow_policy=policy)
 
         for model in models:
 

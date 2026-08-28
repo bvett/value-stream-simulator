@@ -32,7 +32,8 @@ class TestSupportWorkflow(unittest.TestCase):
 
         env = Environment()
 
-        workflow = SupportWorkflow(env, policy=self.policy)
+        workflow = SupportWorkflow(
+            env, resource_policy=self.policy, workflow_policy=self.policy)
 
         developers = DeveloperFactory().create(
             count=developer_count,
@@ -122,7 +123,8 @@ class TestSupportWorkflow(unittest.TestCase):
         target = WorkflowState(
             env, WorkflowStateName.SUPPORT_COMPLETE)
 
-        workflow = SupportWorkflow(env, policy=self.policy)
+        workflow = SupportWorkflow(
+            env, workflow_policy=self.policy, resource_policy=self.policy)
 
         story_points = 5
         for i in range(1, 4):
@@ -159,7 +161,8 @@ class TestSupportWorkflow(unittest.TestCase):
 
         env = Environment()
 
-        workflow = SupportWorkflow(env, policy=self.policy)
+        workflow = SupportWorkflow(
+            env, resource_policy=self.policy, workflow_policy=self.policy)
 
         developers = [Developer(efficiency=2)]
 
@@ -201,7 +204,8 @@ class TestSupportWorkflow(unittest.TestCase):
     def test_validation(self):
         env = Environment()
 
-        workflow = SupportWorkflow(env, policy=self.policy)
+        workflow = SupportWorkflow(
+            env, resource_policy=self.policy, workflow_policy=self.policy)
 
         developers = []
 
@@ -245,7 +249,7 @@ class TestSupportWorkflow(unittest.TestCase):
             env = Environment()
 
             workflow = SupportWorkflow(
-                env, policy=MockPolicy(strategy))
+                env, workflow_policy=MockPolicy(strategy), resource_policy=MockPolicy(strategy))
 
             task_factory = TaskFactory(cls=SupportTask,
                                        story_points=1)
