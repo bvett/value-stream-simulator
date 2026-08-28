@@ -2,9 +2,11 @@ import copy
 import uuid
 from enum import StrEnum
 from typing import Optional, Self
+
+from value_stream.core import WorkflowStateName
+
 from .event_status import EventStatus
 from .task_history import TaskHistory
-from .workflow_state_name import WorkflowStateName
 
 
 class TaskType(StrEnum):

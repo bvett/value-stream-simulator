@@ -5,13 +5,14 @@ import uuid
 from simpy import Environment, Event, Interrupt, Process, Store
 from simpy.events import ProcessGenerator
 
+from value_stream.core import WorkflowStateName
+
 from .trackable import Trackable
 from .resource_tracker import Tracker
 
 from ..event_status import EventStatus
 from ..simulation_policy import SimulationPolicy
 from ..task import Task
-from ..workflow_state_name import WorkflowStateName
 
 
 class Resource(Trackable):

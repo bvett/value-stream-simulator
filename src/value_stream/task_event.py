@@ -1,6 +1,8 @@
 from enum import StrEnum
+
+from value_stream.core import WorkflowStateName
+
 from .event_status import EventStatus
-from .workflow_state_name import WorkflowStateName
 
 
 class TaskEvent:

@@ -3,8 +3,9 @@ import uuid
 from simpy import Environment
 from typing import Optional, Self
 
+from value_stream.core import WorkflowStateName
+
 from .trackable import Trackable
-from ..workflow_state_name import WorkflowStateName
 from ..event_status import EventStatus
 
 

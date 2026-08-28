@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 from matplotlib import colormaps
 
-from ..workflow_state_name import WorkflowStateName
+from value_stream.core import WorkflowStateName
 
 
 class Viewer:

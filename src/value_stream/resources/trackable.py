@@ -1,6 +1,6 @@
 from uuid import UUID
 from typing import Optional
-from ..workflow_state_name import WorkflowStateName
+from value_stream.core import WorkflowStateName
 
 
 class Trackable:

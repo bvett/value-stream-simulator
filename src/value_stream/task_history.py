@@ -1,8 +1,9 @@
 from typing import Optional
 
+from value_stream.core import WorkflowStateName
+
 from .event_status import EventStatus
 from .task_event import TaskEvent
-from .workflow_state_name import WorkflowStateName
 
 
 class TaskHistory():

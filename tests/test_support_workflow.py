@@ -1,13 +1,13 @@
 import math
-import numpy as np
 import random
 import unittest
+import numpy as np
 
 from simpy import Environment
-from value_stream import DefaultSimulationPolicy
+from value_stream import DefaultSimulationPolicy, SupportTask, Task, WorkflowState
 from value_stream.assignment_strategy import AssignmentStrategy
+from value_stream.core import WorkflowStateName
 from value_stream.support_workflow import SupportWorkflow
-from value_stream import SupportTask, Task, WorkflowState, WorkflowStateName
 from value_stream.resources import Developer
 from value_stream.utils import DeveloperFactory, TaskFactory, TaskGenerator
 

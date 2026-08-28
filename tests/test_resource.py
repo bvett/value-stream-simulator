@@ -2,9 +2,9 @@ import unittest
 
 from simpy import Environment, Store
 
-from value_stream import DefaultSimulationPolicy
+from value_stream import DefaultSimulationPolicy, EventStatus, Task
+from value_stream.core import WorkflowStateName
 from value_stream.resources import Resource
-from value_stream import EventStatus, Task, WorkflowStateName
 
 
 class TestResource(unittest.TestCase):

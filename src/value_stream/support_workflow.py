@@ -4,12 +4,12 @@ from typing import Optional
 
 from simpy import Environment, Event, Interrupt
 
-from .assignment_strategy import AssignmentStrategy
+from value_stream.core import WorkflowStateName
 
+from .assignment_strategy import AssignmentStrategy
 from .resources import Developer
 from .simulation_policy import SimulationPolicy
 from .workflow_state import WorkflowState, TerminalWorkflowState
-from .workflow_state_name import WorkflowStateName
 from .utils import TaskGenerator
 
 

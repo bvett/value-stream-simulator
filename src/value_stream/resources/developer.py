@@ -2,10 +2,11 @@ from typing import Optional
 
 from simpy import Environment, Interrupt
 
+from value_stream.core import WorkflowStateName
+
 from ..event_status import EventStatus
 from .resource import Resource
 from ..task import Task
-from ..workflow_state_name import WorkflowStateName
 
 
 class Developer(Resource):

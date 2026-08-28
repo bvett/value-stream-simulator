@@ -3,7 +3,7 @@ from typing import Optional
 from simpy import Environment, Event, Store
 from simpy.resources.store import StorePut, StoreGet
 
-from .workflow_state_name import WorkflowStateName
+from value_stream.core import WorkflowStateName
 
 from .task import Task
 

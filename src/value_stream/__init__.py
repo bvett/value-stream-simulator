@@ -7,7 +7,6 @@ from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
 from .task_event import TaskEvent
 from .task_history import TaskHistory
 from .task import SupportTask, Task, TaskType
-from .workflow_state_name import WorkflowStateName
 from .workflow_state import WorkflowState, TerminalWorkflowState
 
 
@@ -26,5 +25,4 @@ __all__ = ["DefaultSimulationPolicy",
            "Task",
            "TaskType",
            "TerminalWorkflowState",
-           "WorkflowState",
-           "WorkflowStateName"]
+           "WorkflowState"]
