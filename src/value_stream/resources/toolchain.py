@@ -3,9 +3,10 @@ import random
 from simpy import Environment
 
 from value_stream.core import EventStatus, WorkflowStateName
+from value_stream.task import Task
 
-from ..resources import Resource, PooledResource
-from ..task import Task
+from .resource_pool import PooledResource
+from .resource import Resource
 
 
 class Toolchain(Resource, PooledResource):
