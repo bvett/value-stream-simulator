@@ -3,9 +3,8 @@ import uuid
 from enum import StrEnum
 from typing import Optional, Self
 
-from value_stream.core import WorkflowStateName
+from value_stream.core import EventStatus, WorkflowStateName
 
-from .event_status import EventStatus
 from .task_history import TaskHistory
 
 

@@ -1,6 +1,7 @@
 import unittest
 from simpy import Environment, Store
-from value_stream import DefaultSimulationPolicy, EventStatus, Task
+from value_stream import DefaultSimulationPolicy, Task
+from value_stream.core import EventStatus
 from value_stream.resources import Toolchain
 from value_stream.utils import TaskFactory
 

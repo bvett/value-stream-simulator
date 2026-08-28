@@ -2,9 +2,8 @@ import random
 
 from simpy import Environment
 
-from value_stream.core import WorkflowStateName
+from value_stream.core import EventStatus, WorkflowStateName
 
-from ..event_status import EventStatus
 from ..resources import Resource, PooledResource
 from ..task import Task
 

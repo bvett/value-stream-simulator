@@ -3,10 +3,9 @@ import uuid
 from simpy import Environment
 from typing import Optional, Self
 
-from value_stream.core import WorkflowStateName
+from value_stream.core import EventStatus, WorkflowStateName
 
 from .trackable import Trackable
-from ..event_status import EventStatus
 
 
 class ResourceHistory:

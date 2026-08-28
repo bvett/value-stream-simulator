@@ -1,5 +1,4 @@
-from .simulation_result import SimulationResult, SimulationResult, SummaryResult
-from .event_status import EventStatus
+from .simulation_result import SimulationResult, SummaryResult
 from .model import Model
 from .simulation import Simulation
 from .simulation_metadata import SimulationMetadata
@@ -11,7 +10,6 @@ from .workflow_state import WorkflowState, TerminalWorkflowState
 
 
 __all__ = ["DefaultSimulationPolicy",
-           "EventStatus",
            "SimulationResult",
            "SimulationResult",
            "SummaryResult",
