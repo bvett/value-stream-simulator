@@ -1,14 +1,9 @@
-
-from typing import Optional
-
 from simpy import Environment, Event
 
 from value_stream.core import WorkflowStateName
 from value_stream.resources import ResourceOperator, Tracker
 from value_stream.task import Task
 from value_stream.workflow import TerminalWorkflowState, WorkflowState
-
-from .simulation_policy import SimulationPolicy
 
 
 class SDLCWorkflow:
@@ -22,7 +17,7 @@ class SDLCWorkflow:
     SDLC process is: pending->developed->delivered
     """
 
-    def __init__(self, env: Environment, policy: Optional[SimulationPolicy]) -> None:
+    def __init__(self, env: Environment) -> None:
         """Initializes a workflow with pending tasks"""
 
         self.env = env
@@ -37,8 +32,6 @@ class SDLCWorkflow:
 
         self.delivered = TerminalWorkflowState(
             self.env, WorkflowStateName.DELIVERY)
-
-        self.policy = policy
 
     def start(self, tasks: list[Task],
               developer_manager: ResourceOperator,
