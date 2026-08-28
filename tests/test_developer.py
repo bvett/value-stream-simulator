@@ -4,7 +4,7 @@ from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourceOperator
 from value_stream.task import SupportTask, Task
 from value_stream.utils import TaskFactory, TaskGenerator
-from value_stream.workflow_state import TerminalWorkflowState, WorkflowState
+from value_stream.workflow import TerminalWorkflowState, WorkflowState
 from value_stream.support_workflow import SupportWorkflow
 from value_stream.simulation_policy import DefaultSimulationPolicy
 

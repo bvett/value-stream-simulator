@@ -2,10 +2,11 @@ import unittest
 
 from simpy import Environment
 
-from value_stream import DefaultSimulationPolicy, WorkflowState
+from value_stream import DefaultSimulationPolicy
 from value_stream.core import WorkflowStateName
 from value_stream.utils import DeveloperFactory
 from value_stream.resources import ResourceOperator
+from value_stream.workflow import WorkflowState
 
 
 class TestResourceOperator(unittest.TestCase):

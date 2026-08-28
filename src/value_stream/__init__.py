@@ -3,8 +3,6 @@ from .model import Model
 from .simulation import Simulation
 from .simulation_metadata import SimulationMetadata
 from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
-from .workflow_state import WorkflowState, TerminalWorkflowState
-
 
 __all__ = ["DefaultSimulationPolicy",
            "SimulationResult",
@@ -13,6 +11,4 @@ __all__ = ["DefaultSimulationPolicy",
            "Model",
            "Simulation",
            "SimulationMetadata",
-           "SimulationPolicy",
-           "TerminalWorkflowState",
-           "WorkflowState"]
+           "SimulationPolicy"]

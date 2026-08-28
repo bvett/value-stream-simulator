@@ -6,7 +6,7 @@ from simpy import AnyOf, Environment, Event
 from value_stream.task import Task, TaskEvent
 from value_stream.core import EventStatus, WorkflowStateName
 from value_stream.utils import TaskFactory, TaskGenerator
-from value_stream.workflow_state import WorkflowState, TerminalWorkflowState
+from value_stream.workflow import WorkflowState, TerminalWorkflowState
 
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
