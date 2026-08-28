@@ -1,9 +1,11 @@
 from simpy import Environment, Event
 
 from value_stream.core import WorkflowStateName
-from value_stream.resources import ResourceOperator, Tracker
+from value_stream.resources import Tracker
 from value_stream.task import Task
-from value_stream.workflow import TerminalWorkflowState, WorkflowState
+
+from .resource_operator import ResourceOperator
+from .workflow_state import TerminalWorkflowState, WorkflowState
 
 
 class SDLCWorkflow:

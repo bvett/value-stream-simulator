@@ -2,12 +2,9 @@ from typing import Iterable, Optional
 
 from simpy import Environment, Interrupt, Process, Store
 
+from value_stream.resources import Resource, ResourcePolicy, Tracker
 from value_stream.task import Task
-from value_stream.workflow import WorkflowState
-
-from .resource import Resource
-from .resource import ResourcePolicy
-from .resource_tracker import Tracker
+from .workflow_state import WorkflowState
 
 
 class ResourceOperator:

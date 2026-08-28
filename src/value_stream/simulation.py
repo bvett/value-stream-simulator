@@ -6,10 +6,11 @@ from simpy.events import AllOf
 from tqdm import tqdm
 
 from value_stream.task import Task, TaskEvent
+from value_stream.resources import ResourceTracker, Tracker
+from value_stream.workflow import ResourceOperator, SDLCWorkflow
 
-from .resources import ResourceOperator, ResourceTracker, Tracker
+
 from .model import Model
-from .sdlc_workflow import SDLCWorkflow
 from .simulation_metadata import SimulationMetadata
 from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
 from .simulation_result import SimulationResult, SummaryResult
