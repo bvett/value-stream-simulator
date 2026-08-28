@@ -2,16 +2,22 @@ import unittest
 
 from value_stream import SimulationPolicy, DefaultSimulationPolicy
 from value_stream.assignment_strategy import AssignmentStrategy
+from value_stream.resources import ResourcePolicy
 from value_stream.task import Task, SupportTask
 
 
-class TestSimulationPolicy(unittest.TestCase):
+class TestResourcePolicy(unittest.TestCase):
 
-    def test_simulation_policy(self):
+    def test_resource_policy(self):
 
-        policy = SimulationPolicy()
+        policy = ResourcePolicy()
         with self.assertRaises(NotImplementedError):
-            policy.priority([], [])
+            policy.task_priority([], [])
+
+
+class TestSimulationPolicy(unittest.TestCase):
+    def test_simulation_policy(self):
+        policy = SimulationPolicy()
 
         with self.assertRaises(NotImplementedError):
             _ = policy.support_strategy()
@@ -46,4 +52,4 @@ class TestDefaultSimulationPolicy(unittest.TestCase):
         ]
 
         for t1, t2, result in scenarios:
-            self.assertEqual(result, policy.priority(t1, t2))
+            self.assertEqual(result, policy.task_priority(t1, t2))

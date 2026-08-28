@@ -1,12 +1,10 @@
+from value_stream.resources import ResourcePolicy
 from value_stream.task import Task, TaskType
 from .assignment_strategy import AssignmentStrategy
 
 
-class SimulationPolicy:
+class SimulationPolicy(ResourcePolicy):
     """encapsulates control logic for a simulation"""
-
-    def priority(self, tasks_1: list[Task], tasks_2: list[Task]):
-        raise NotImplementedError
 
     def support_strategy(self):
         raise NotImplementedError
@@ -15,7 +13,7 @@ class SimulationPolicy:
 class DefaultSimulationPolicy(SimulationPolicy):
     """encapsulates control logic for a simulation"""
 
-    def priority(self, tasks_1: list[Task], tasks_2: list[Task]):
+    def task_priority(self, tasks_1: list[Task], tasks_2: list[Task]):
         """Compares two Task lists and returns an indicator of which has higher priority
 
         Returns:

@@ -9,9 +9,8 @@ from value_stream.core import EventStatus, WorkflowStateName
 from value_stream.task import Task
 
 from .trackable import Trackable
+from .resource_policy import ResourcePolicy
 from .resource_tracker import Tracker
-
-from ..simulation_policy import SimulationPolicy
 
 
 class Resource(Trackable):
@@ -35,7 +34,7 @@ class Resource(Trackable):
 
     def operate(self, env: Environment, tasks: list[Task],
                 target: Store,
-                policy: SimulationPolicy,
+                policy: ResourcePolicy,
                 target_upon_failure: Optional[Store] = None):
         """Simulates an action on a task object"""
 
@@ -44,7 +43,7 @@ class Resource(Trackable):
 
         if self._process is not None and self._process.is_alive:
 
-            if policy.priority(tasks, self._process.tasks) == -1:
+            if policy.task_priority(tasks, self._process.tasks) == -1:
                 self._process.interrupt()
             else:
                 # if what's in progress is of higher priority, queue up current work

@@ -5,8 +5,8 @@ from simpy import Environment, Interrupt, Process, Store
 from value_stream.task import Task
 
 from .resource import Resource
+from .resource import ResourcePolicy
 from .resource_tracker import Tracker
-from ..simulation_policy import SimulationPolicy
 
 from ..workflow_state import WorkflowState
 
@@ -17,7 +17,7 @@ class ResourceOperator:
 
     def __init__(self, env: Environment,
                  resources: Iterable[Resource],
-                 policy: SimulationPolicy,
+                 policy: ResourcePolicy,
                  cadence: int = 0):
         self.env = env
         self._queue: list[Task] = []
