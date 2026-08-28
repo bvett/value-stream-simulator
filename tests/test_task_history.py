@@ -1,6 +1,6 @@
 import unittest
 
-from value_stream import TaskHistory, TaskEvent
+from value_stream.task import TaskHistory, TaskEvent
 from value_stream.core import EventStatus, WorkflowStateName
 
 # pylint:disable=missing-class-docstring,missing-function-docstring

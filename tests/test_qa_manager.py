@@ -2,8 +2,9 @@ import unittest
 
 from simpy import Environment, Store
 
-from value_stream import DefaultSimulationPolicy, Task
+from value_stream import DefaultSimulationPolicy
 from value_stream.resources import QATester, ResourceOperator
+from value_stream.task import Task
 
 
 class TestQAManager(unittest.TestCase):

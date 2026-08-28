@@ -1,6 +1,7 @@
+from value_stream.task import TaskEvent
+
 from .model import Model
 from .resources import ResourceHistory
-from .task_event import TaskEvent
 
 
 class SimulationMetadata:

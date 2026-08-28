@@ -1,7 +1,8 @@
 import unittest
 
-from value_stream import SimulationPolicy, DefaultSimulationPolicy, Task, SupportTask
+from value_stream import SimulationPolicy, DefaultSimulationPolicy
 from value_stream.assignment_strategy import AssignmentStrategy
+from value_stream.task import Task, SupportTask
 
 
 class TestSimulationPolicy(unittest.TestCase):

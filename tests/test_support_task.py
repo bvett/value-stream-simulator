@@ -1,6 +1,6 @@
 import unittest
 
-from value_stream import SupportTask, TaskType
+from value_stream.task import SupportTask, TaskType
 from value_stream.core import WorkflowStateName
 
 # pylint:disable=protected-access,missing-function-docstring,missing-class-docstring

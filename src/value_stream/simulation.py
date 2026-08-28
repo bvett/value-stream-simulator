@@ -5,6 +5,8 @@ from simpy import Environment, Event, Process
 from simpy.events import AllOf
 from tqdm import tqdm
 
+from value_stream.task import Task, TaskEvent
+
 from .resources import ResourceOperator, ResourceTracker, Tracker
 from .model import Model
 from .sdlc_workflow import SDLCWorkflow
@@ -12,8 +14,6 @@ from .simulation_metadata import SimulationMetadata
 from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
 from .simulation_result import SimulationResult, SummaryResult
 from .support_workflow import SupportWorkflow
-from .task import Task
-from .task_event import TaskEvent
 from .utils import TaskGenerator
 
 logger = logging.getLogger(__name__)
