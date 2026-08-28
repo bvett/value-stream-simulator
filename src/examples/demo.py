@@ -6,10 +6,11 @@ import numpy as np
 from tqdm import tqdm
 
 from value_stream import Simulation, SimulationResult
+from value_stream.client.views import ResultViewer, MetadataViewer
 from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.task import SupportTask
-from value_stream.utils import DeveloperFactory, ModelFactory, ResultViewer, \
-    TaskFactory, TaskGenerator, MetadataViewer, generator_utils
+from value_stream.utils import DeveloperFactory, ModelFactory, \
+    TaskFactory, TaskGenerator, generator_utils
 
 logger = logging.getLogger(__name__)
 
