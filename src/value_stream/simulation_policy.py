@@ -1,5 +1,5 @@
+from value_stream.task import Task, TaskType
 from .assignment_strategy import AssignmentStrategy
-from .task import Task, TaskType
 
 
 class SimulationPolicy:

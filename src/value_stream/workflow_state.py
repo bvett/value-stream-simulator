@@ -4,8 +4,7 @@ from simpy import Environment, Event, Store
 from simpy.resources.store import StorePut, StoreGet
 
 from value_stream.core import WorkflowStateName
-
-from .task import Task
+from value_stream.task import Task
 
 
 class WorkflowState(Store):

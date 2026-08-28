@@ -3,11 +3,11 @@ from typing import Optional
 
 from simpy import Environment, Event
 
-from .resources import Tracker
+from value_stream.resources import ResourceOperator, Tracker
+from value_stream.task import Task
+
 from .simulation_policy import SimulationPolicy
-from .task import Task
 from .workflow_state import TerminalWorkflowState, WorkflowState, WorkflowStateName
-from .resources import ResourceOperator
 
 
 class SDLCWorkflow:
