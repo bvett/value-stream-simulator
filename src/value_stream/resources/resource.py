@@ -6,12 +6,12 @@ from simpy import Environment, Event, Interrupt, Process, Store
 from simpy.events import ProcessGenerator
 
 from value_stream.core import EventStatus, WorkflowStateName
+from value_stream.task import Task
 
 from .trackable import Trackable
 from .resource_tracker import Tracker
 
 from ..simulation_policy import SimulationPolicy
-from ..task import Task
 
 
 class Resource(Trackable):

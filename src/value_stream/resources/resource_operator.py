@@ -2,10 +2,12 @@ from typing import Iterable, Optional
 
 from simpy import Environment, Interrupt, Process, Store
 
-from . import Resource
+from value_stream.task import Task
+
+from .resource import Resource
 from .resource_tracker import Tracker
 from ..simulation_policy import SimulationPolicy
-from ..task import Task
+
 from ..workflow_state import WorkflowState
 
 

@@ -2,10 +2,10 @@ import random
 from simpy import Environment
 
 from value_stream.core import EventStatus, WorkflowStateName
+from value_stream.task import Task
 
 from .resource import Resource
 from .resource_pool import PooledResource
-from ..task import Task
 
 
 class QATester(Resource, PooledResource):

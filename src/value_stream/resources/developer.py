@@ -3,9 +3,9 @@ from typing import Optional
 from simpy import Environment, Interrupt
 
 from value_stream.core import EventStatus, WorkflowStateName
+from value_stream.task import Task
 
 from .resource import Resource
-from ..task import Task
 
 
 class Developer(Resource):
