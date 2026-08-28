@@ -40,8 +40,6 @@ class ResourceOperator:
 
         self._source: Optional[WorkflowState] = None
 
-        self._epoch_start_t = 0
-
     def start(self, source: WorkflowState, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
         """Starts processing loop that:
             1) Waits for tasks to appear in source
