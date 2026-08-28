@@ -193,10 +193,6 @@ class Task:
     def terminate(self, time: float, event: WorkflowStateName, status: EventStatus = EventStatus.SUCCESS):
         self.history.terminate(time=time, event=event, status=status)
 
-    @classmethod
-    def total_value(cls, tasks: Collection[Self], time: Optional[float] = None) -> float | Literal[0]:
-        return sum(task.value(time) for task in tasks)
-
 
 class SupportTask(Task):
     def __init__(self,
