@@ -6,10 +6,6 @@ class ResourcePool:
     """Generates a fixed or unlimited quantity of a homogeneous resource
     """
 
-    @classmethod
-    def _generate_id(cls) -> uuid.UUID:
-        return uuid.uuid4()
-
     def __init__(self, class_name: Type, limit: Optional[int] = None, **kwargs):
 
         if limit is not None and limit <= 0:
@@ -20,10 +16,6 @@ class ResourcePool:
         self.kwargs = kwargs
         self._i = 0
         self._pool_id = uuid.uuid4()
-
-    @property
-    def pool_id(self):
-        return self._pool_id
 
     def __next__(self):
 
