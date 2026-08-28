@@ -1,7 +1,7 @@
 import copy
 import uuid
 from enum import StrEnum
-from typing import Collection, Literal, Optional, Self
+from typing import Optional, Self
 from .event_status import EventStatus
 from .task_history import TaskHistory
 from .workflow_state_name import WorkflowStateName
