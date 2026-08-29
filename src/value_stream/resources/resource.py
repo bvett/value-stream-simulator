@@ -8,12 +8,11 @@ from simpy.events import ProcessGenerator
 from value_stream.core import EventStatus, WorkflowStateName
 from value_stream.task import Task
 
-from .trackable import Trackable
 from .resource_policy import ResourcePolicy
-from .resource_tracker import Tracker
+from .resource_tracker import ResourceTracker
 
 
-class Resource(Trackable):
+class Resource:
     """Base class for simulation objects that operate on tasks"""
 
     @classmethod
@@ -21,7 +20,6 @@ class Resource(Trackable):
         return uuid.uuid4()
 
     def __init__(self, workflow_state: WorkflowStateName):
-        super().__init__(workflow_state)
         self.workflow_state = workflow_state
         self._process: Optional[Resource.ProcessWrapper] = None
         self._suspended_work: list[Event] = []
@@ -55,7 +53,8 @@ class Resource(Trackable):
 
             start_t = env.now
             try:
-                Tracker.get().start_work(self, env.now-self.idle_t)
+                ResourceTracker.start_work(
+                    self.workflow_state, env.now-self.idle_t)
                 yield self._process
             except Interrupt:
 
@@ -64,19 +63,19 @@ class Resource(Trackable):
                 # subsequent interruptions
 
                 interruption_start_t = env.now
-                Tracker.get().complete_work(
-                    self, status, elapsed_t=env.now-start_t)
+                ResourceTracker.complete_work(
+                    self.workflow_state, status, elapsed_t=env.now-start_t)
                 yield env.process(self._pause(env))
-                Tracker.get().interruption(
-                    self, elapsed_t=env.now - interruption_start_t)
+                ResourceTracker.interruption(
+                    self.workflow_state, elapsed_t=env.now - interruption_start_t)
 
                 continue
 
             if self._process.value is not None:
                 status = self._process.value['result']
 
-            Tracker.get().complete_work(
-                self, status, elapsed_t=env.now-start_t)
+            ResourceTracker.complete_work(
+                self.workflow_state, status, elapsed_t=env.now-start_t)
             self.idle_t = env.now
 
             self._process = None

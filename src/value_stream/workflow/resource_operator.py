@@ -2,7 +2,7 @@ from typing import Iterable, Optional
 
 from simpy import Environment, Interrupt, Process, Store
 
-from value_stream.resources import Resource, ResourcePolicy, Tracker
+from value_stream.resources import Resource, ResourcePolicy, ResourceTracker
 from value_stream.task import Task
 from .workflow_state import WorkflowState
 
@@ -135,7 +135,8 @@ class ResourceOperator:
         self._queue.clear()
         wait_t = self.env.now
         resource: Resource = yield self.request()
-        Tracker.get().waiting(resource, self.env.now - wait_t)
+        ResourceTracker.waiting(resource.workflow_state, self.env.now - wait_t)
+        # self.tracker.waiting(resource.workflow_state, self.env.now - wait_t)
 
         for task in tasks:
             task.end(self.env.now)
@@ -160,7 +161,8 @@ class ResourceOperator:
             if new_item is not None:
                 new_item.idle_t = self.env.now
                 self.resource_pool.put(new_item)
-                Tracker.get().register(new_item)
+                ResourceTracker.register(new_item.workflow_state)
+                # self.tracker.register(new_item.workflow_state)
 
         return self.resource_pool.get()
 

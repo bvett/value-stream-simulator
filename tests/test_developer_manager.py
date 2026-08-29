@@ -1,7 +1,7 @@
 import unittest
 from simpy import Environment, Store
 from value_stream.core import WorkflowStateName
-from value_stream.resources import Developer
+from value_stream.resources import Developer, ResourceTracker
 from value_stream.task import Task
 from value_stream.workflow import ResourceOperator, WorkflowState
 from value_stream import DefaultSimulationPolicy
@@ -13,6 +13,7 @@ class TestDeveloperManager(unittest.TestCase):
 
     def setUp(self):
         self.env = Environment()
+        ResourceTracker.init(self.env)
         self.source = WorkflowState(self.env, WorkflowStateName.PENDING)
         self.target = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
         self.policy = DefaultSimulationPolicy()

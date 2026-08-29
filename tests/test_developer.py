@@ -1,7 +1,7 @@
 import unittest
 from simpy import Environment
 from value_stream.core import WorkflowStateName
-from value_stream.resources import Developer
+from value_stream.resources import Developer, ResourceTracker
 from value_stream.task import SupportTask, Task
 from value_stream.utils import TaskFactory, TaskGenerator
 from value_stream.workflow import ResourceOperator, TerminalWorkflowState, WorkflowState
@@ -18,6 +18,8 @@ class TestDeveloper(unittest.TestCase):
         self.simple_task = Task(task_name="", initial_value=1, story_points=.6)
         self.complex_task = Task(task_name="", initial_value=1, story_points=2)
         self.policy = DefaultSimulationPolicy()
+        self.env = Environment()
+        ResourceTracker.init(self.env)
 
     def test_validation(self):
 
@@ -32,16 +34,15 @@ class TestDeveloper(unittest.TestCase):
         junior_developer = Developer(.5, name="junior")
         senior_developer = Developer(1.5, name="senior")
 
-        env = Environment()
-        target = WorkflowState(env, WorkflowStateName.DEVELOPMENT)
+        target = WorkflowState(self.env, WorkflowStateName.DEVELOPMENT)
 
         for dev in [junior_developer, senior_developer]:
             for task in [self.simple_task.reset(), self.complex_task.reset()]:
                 self.assertEqual(task.remaining_work(), task.story_points)
-                env.process(dev.operate(
-                    env, [task], target, policy=self.policy))
+                self.env.process(dev.operate(
+                    self.env, [task], target, policy=self.policy))
 
-        env.run()
+        self.env.run()
 
         # All tasks are started at t=0
         # Each developer is assigned simple_task then complex_task

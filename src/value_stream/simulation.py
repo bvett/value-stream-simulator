@@ -6,7 +6,7 @@ from simpy.events import AllOf
 from tqdm import tqdm
 
 from value_stream.task import Task, TaskEvent
-from value_stream.resources import ResourceHistory, ResourceTracker, Tracker
+from value_stream.resources import ResourceTracker
 from value_stream.workflow import ResourceOperator, SDLCWorkflow
 
 
@@ -41,7 +41,7 @@ class Simulation:
         results: list[SimulationResult] = []
 
         env = Environment()
-        Tracker.set(ResourceTracker(env))
+        ResourceTracker.init(env)
         sdlc_workflow = SDLCWorkflow(env)
         support_workflow = SupportWorkflow(
             env, resource_policy=policy, workflow_policy=policy)
@@ -113,7 +113,7 @@ class Simulation:
 
         return SimulationResult(summary_result=summary_result,
                                 metadata=SimulationMetadata(model=model,
-                                                            resource_metadata=ResourceHistory.get(),
+                                                            resource_metadata=ResourceTracker.get().data.copy(),
                                                             event_metadata=task_events))
 
     def _process_results(self, model: Model,

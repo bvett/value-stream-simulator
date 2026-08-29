@@ -1,7 +1,6 @@
 from .resource import Resource
-from .resource_history import ResourceHistory
 from .resource_metadata import ResourceMetadata
-from .resource_tracker import ResourceTracker, Tracker
+from .resource_tracker import ResourceTracker
 from .resource_policy import ResourcePolicy
 from .resource_pool import PooledResource
 from .developer import Developer
@@ -15,6 +14,4 @@ __all__ = ["Resource",
            "PooledResource",
            "ResourcePolicy",
            "Toolchain",
-           "Tracker",
-           "ResourceMetadata",
-           "ResourceHistory"]
+           "ResourceMetadata"]
