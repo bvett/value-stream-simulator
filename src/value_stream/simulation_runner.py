@@ -20,7 +20,7 @@ from .utils import TaskGenerator
 logger = logging.getLogger(__name__)
 
 
-class Simulation:
+class SimulationRunner:
     def execute(self, tasks: list[Task],
                 models: Iterable[Model],
                 support_generator: Optional[TaskGenerator] = None,

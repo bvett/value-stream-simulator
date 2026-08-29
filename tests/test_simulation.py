@@ -1,8 +1,8 @@
 import unittest
 from tqdm import tqdm
+from value_stream import SimulationRunner
 from value_stream.core import EventStatus
 from value_stream.resources import QATester, Toolchain
-from value_stream.simulation import Simulation
 from value_stream.utils import DeveloperFactory, ModelFactory, TaskFactory
 from value_stream.task import SupportTask, TaskType, TaskEvent
 
@@ -18,7 +18,7 @@ class TestSimulation(unittest.TestCase):
         MAX_CADENCE = 5
         SUPPORT_INTERVAL = 4
 
-        simulation = Simulation()
+        simulation = SimulationRunner()
 
         teams = [DeveloperFactory().create(
             count=NUM_DEVELOPERS, efficiency=1.0)]

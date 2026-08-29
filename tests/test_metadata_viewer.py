@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from value_stream import Simulation
+from value_stream import SimulationRunner
 from value_stream.client.views import MetadataViewer
 from value_stream.resources import QATester, Toolchain
 from value_stream.utils import DeveloperFactory, ModelFactory, TaskFactory
@@ -9,7 +9,7 @@ from value_stream.utils import DeveloperFactory, ModelFactory, TaskFactory
 
 class TestMetadataViewer(unittest.TestCase):
     def setUp(self):
-        simulation = Simulation()
+        simulation = SimulationRunner()
 
         self.num_tasks = 10
         self.team_size = 5

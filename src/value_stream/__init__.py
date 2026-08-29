@@ -1,14 +1,14 @@
 from .model import Model
-from .simulation import Simulation
+from .simulation_runner import SimulationRunner
 from .simulation_metadata import SimulationMetadata
 from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
 from .simulation_result import SimulationResult, SummaryResult
 
 __all__ = ["DefaultSimulationPolicy",
            "SimulationResult",
-           "SimulationResult",
+           "SimulationRunner",
            "SummaryResult",
            "Model",
-           "Simulation",
+           "SimulationRunner",
            "SimulationMetadata",
            "SimulationPolicy"]

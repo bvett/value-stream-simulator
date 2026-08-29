@@ -5,7 +5,7 @@ from typing import Collection
 import numpy as np
 from tqdm import tqdm
 
-from value_stream import Simulation, SimulationResult
+from value_stream import SimulationRunner, SimulationResult
 from value_stream.client.views import ResultViewer, MetadataViewer
 from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.task import SupportTask
@@ -91,10 +91,10 @@ if __name__ == "__main__":
     # metadata: list[SimulationMetadata] = []
 
     with tqdm(desc='Running Simulation', total=len(models)) as pbar:
-        results = Simulation().execute(tasks=tasks,
-                                       models=models,
-                                       support_generator=support_generator,
-                                       pbar=pbar)
+        results = SimulationRunner().execute(tasks=tasks,
+                                             models=models,
+                                             support_generator=support_generator,
+                                             pbar=pbar)
 
     # Showcase the results using different plots
 
