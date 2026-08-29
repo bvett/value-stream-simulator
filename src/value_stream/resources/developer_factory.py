@@ -1,5 +1,5 @@
-from value_stream.resources import Developer
-from .generator_utils import generate_args
+from value_stream.utils import generate_args
+from .developer import Developer
 
 
 class DeveloperFactory:

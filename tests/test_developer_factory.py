@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from value_stream.utils.developer_factory import DeveloperFactory
+from value_stream.resources import DeveloperFactory
 from value_stream.utils import generator_utils
 
 # pylint:disable=missing-class-docstring,missing-function-docstring

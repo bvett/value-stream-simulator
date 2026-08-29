@@ -1,8 +1,7 @@
 from typing import Collection
 import unittest
-from value_stream.resources import Developer, QATester, Toolchain
+from value_stream.resources import Developer, QATester, Toolchain, DeveloperFactory
 from value_stream.simulation import ModelFactory
-from value_stream.utils.developer_factory import DeveloperFactory
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
