@@ -1,7 +1,7 @@
 import itertools
 from typing import Collection, Iterable
 
-from ..resources import Developer, QATester, Toolchain
+from value_stream.resources import Developer, QATester, Toolchain
 from ..model import Model
 
 
