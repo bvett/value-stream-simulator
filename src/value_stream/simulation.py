@@ -6,7 +6,7 @@ from simpy.events import AllOf
 from tqdm import tqdm
 
 from value_stream.task import Task, TaskEvent
-from value_stream.resources import ResourceTracker, Tracker
+from value_stream.resources import ResourceHistory, ResourceTracker, Tracker
 from value_stream.workflow import ResourceOperator, SDLCWorkflow
 
 
@@ -113,7 +113,7 @@ class Simulation:
 
         return SimulationResult(summary_result=summary_result,
                                 metadata=SimulationMetadata(model=model,
-                                                            resource_metadata=Tracker.get().data,
+                                                            resource_metadata=ResourceHistory.get(),
                                                             event_metadata=task_events))
 
     def _process_results(self, model: Model,
