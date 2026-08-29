@@ -2,7 +2,7 @@ from typing import Any
 from matplotlib import ticker
 import matplotlib.pyplot as plt
 from pandas import json_normalize
-from value_stream import SimulationResult
+from value_stream.simulation import SimulationResult
 from .viewer import Viewer
 
 

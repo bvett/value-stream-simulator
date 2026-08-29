@@ -6,9 +6,11 @@ from simpy import Environment, Event, Interrupt
 
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourcePolicy, ResourceTracker
-from value_stream.workflow import AssignmentStrategy, WorkflowPolicy, WorkflowState, TerminalWorkflowState
+from value_stream.utils import TaskGenerator
 
-from .utils import TaskGenerator
+from .assignment_strategy import AssignmentStrategy
+from .workflow_policy import WorkflowPolicy
+from .workflow_state import WorkflowState, TerminalWorkflowState
 
 
 class SupportWorkflow:

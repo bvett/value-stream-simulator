@@ -5,7 +5,7 @@ from typing import Collection
 import numpy as np
 from tqdm import tqdm
 
-from value_stream import SimulationRunner, SimulationResult
+from value_stream.simulation import SimulationRunner, SimulationResult
 from value_stream.client.views import ResultViewer, MetadataViewer
 from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.task import SupportTask

@@ -4,14 +4,13 @@ import unittest
 import numpy as np
 
 from simpy import Environment
-from value_stream import DefaultSimulationPolicy
 from value_stream.workflow import AssignmentStrategy
 from value_stream.core import WorkflowStateName
-from value_stream.support_workflow import SupportWorkflow
 from value_stream.resources import Developer, ResourceTracker
+from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import SupportTask, Task
 from value_stream.utils import DeveloperFactory, TaskFactory, TaskGenerator
-from value_stream.workflow import WorkflowState
+from value_stream.workflow import WorkflowState, SupportWorkflow
 
 
 # pylint:disable=missing-class-docstring,missing-function-docstring

@@ -1,6 +1,6 @@
 import unittest
 from value_stream.resources import Developer, QATester, Toolchain
-from value_stream.model import Model
+from value_stream.simulation import Model
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 

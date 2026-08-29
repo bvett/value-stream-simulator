@@ -1,8 +1,8 @@
 import unittest
 
-from value_stream import SimulationPolicy, DefaultSimulationPolicy
 from value_stream.workflow import AssignmentStrategy
 from value_stream.resources import ResourcePolicy
+from value_stream.simulation import SimulationPolicy, DefaultSimulationPolicy
 from value_stream.task import Task, SupportTask
 
 

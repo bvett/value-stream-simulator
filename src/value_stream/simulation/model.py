@@ -1,5 +1,5 @@
 from typing import Collection, Iterable, Optional
-from .resources import Developer, QATester, Toolchain
+from value_stream.resources import Developer, QATester, Toolchain
 
 
 class Model:

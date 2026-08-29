@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import patch
 
-from value_stream import SimulationRunner
 from value_stream.client.views import ResultViewer
 from value_stream.resources import QATester, Toolchain
+from value_stream.simulation import SimulationRunner
 from value_stream.utils import DeveloperFactory, ModelFactory, TaskFactory
 
 # pylint:disable=missing-class-docstring,missing-function-docstring

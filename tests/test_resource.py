@@ -2,9 +2,9 @@ import unittest
 
 from simpy import Environment, Store
 
-from value_stream import DefaultSimulationPolicy
 from value_stream.core import EventStatus, WorkflowStateName
 from value_stream.resources import Resource, ResourceTracker
+from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import Task
 
 

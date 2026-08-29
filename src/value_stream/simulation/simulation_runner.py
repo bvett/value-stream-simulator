@@ -7,15 +7,14 @@ from tqdm import tqdm
 
 from value_stream.task import Task, TaskEvent
 from value_stream.resources import ResourceTracker
-from value_stream.workflow import ResourceOperator, SDLCWorkflow
-
+from value_stream.workflow import ResourceOperator, SDLCWorkflow, SupportWorkflow
+from value_stream.utils import TaskGenerator
 
 from .model import Model
 from .simulation_metadata import SimulationMetadata
 from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
 from .simulation_result import SimulationResult, SummaryResult
-from .support_workflow import SupportWorkflow
-from .utils import TaskGenerator
+
 
 logger = logging.getLogger(__name__)
 

@@ -3,8 +3,9 @@ from simpy import Environment, Store
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourceTracker
 from value_stream.task import Task
+from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.workflow import ResourceOperator, WorkflowState
-from value_stream import DefaultSimulationPolicy
+
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 

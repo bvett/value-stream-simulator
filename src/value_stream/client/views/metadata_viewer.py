@@ -4,7 +4,7 @@ from matplotlib import ticker
 import numpy as np
 from pandas import json_normalize, Categorical
 
-from value_stream import SimulationResult
+from value_stream.simulation import SimulationResult
 from value_stream.core import WorkflowStateName
 from .viewer import Viewer
 

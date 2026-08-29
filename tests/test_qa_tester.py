@@ -2,10 +2,10 @@ import unittest
 
 from simpy import Environment, Store
 
-from value_stream import DefaultSimulationPolicy
 from value_stream.core import EventStatus
 from value_stream.utils import TaskFactory
 from value_stream.resources import QATester, ResourceTracker
+from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import Task
 
 

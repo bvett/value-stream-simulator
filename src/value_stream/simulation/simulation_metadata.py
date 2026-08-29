@@ -1,7 +1,7 @@
 from value_stream.task import TaskEvent
 
+from value_stream.resources import ResourceMetadata
 from .model import Model
-from .resources import ResourceMetadata
 
 
 class SimulationMetadata:
