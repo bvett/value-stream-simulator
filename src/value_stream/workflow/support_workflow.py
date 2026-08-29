@@ -6,7 +6,7 @@ from simpy import Environment, Event, Interrupt
 
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourcePolicy, ResourceTracker
-from value_stream.utils import TaskGenerator
+from value_stream.task import TaskGenerator
 
 from .assignment_strategy import AssignmentStrategy
 from .workflow_policy import WorkflowPolicy

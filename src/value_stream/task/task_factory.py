@@ -3,8 +3,8 @@ from typing import Type, Optional
 
 from simpy import Environment
 
-from value_stream.task import Task
-from .generator_utils import generate_args
+from value_stream.utils import generate_args
+from .task import Task
 
 
 class TaskFactory:

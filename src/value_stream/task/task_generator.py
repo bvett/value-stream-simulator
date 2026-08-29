@@ -1,7 +1,7 @@
 from typing import Optional
 
 from simpy import Environment, Interrupt, Process, Store
-from value_stream.task import Task
+from .task import Task
 from .task_factory import TaskFactory
 
 

@@ -3,8 +3,7 @@ from simpy import Environment, Store
 from value_stream.core import EventStatus
 from value_stream.resources import Toolchain, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
-from value_stream.task import Task
-from value_stream.utils import TaskFactory
+from value_stream.task import Task, TaskFactory
 
 
 class TestToolchain(unittest.TestCase):

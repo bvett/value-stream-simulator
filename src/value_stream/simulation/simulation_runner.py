@@ -5,10 +5,9 @@ from simpy import Environment, Event, Process
 from simpy.events import AllOf
 from tqdm import tqdm
 
-from value_stream.task import Task, TaskEvent
+from value_stream.task import Task, TaskEvent, TaskGenerator
 from value_stream.resources import ResourceTracker
 from value_stream.workflow import ResourceOperator, SDLCWorkflow, SupportWorkflow
-from value_stream.utils import TaskGenerator
 
 from .model import Model
 from .simulation_metadata import SimulationMetadata

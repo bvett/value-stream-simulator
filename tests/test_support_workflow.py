@@ -8,8 +8,7 @@ from value_stream.workflow import AssignmentStrategy
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourceTracker, DeveloperFactory
 from value_stream.simulation import DefaultSimulationPolicy
-from value_stream.task import SupportTask, Task
-from value_stream.utils import TaskFactory, TaskGenerator
+from value_stream.task import SupportTask, Task, TaskFactory, TaskGenerator
 from value_stream.workflow import WorkflowState, SupportWorkflow
 
 

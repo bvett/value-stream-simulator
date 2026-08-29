@@ -4,7 +4,7 @@ from unittest.mock import patch
 from value_stream.client.views import MetadataViewer
 from value_stream.resources import QATester, Toolchain, DeveloperFactory
 from value_stream.simulation import SimulationRunner, ModelFactory
-from value_stream.utils import TaskFactory
+from value_stream.task import TaskFactory
 
 
 class TestMetadataViewer(unittest.TestCase):

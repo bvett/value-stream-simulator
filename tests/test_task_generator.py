@@ -2,7 +2,7 @@ import unittest
 
 from simpy import Environment, Store
 
-from value_stream.utils import TaskFactory, TaskGenerator
+from value_stream.task import TaskFactory, TaskGenerator
 
 
 class TestTaskGenerator(unittest.TestCase):
