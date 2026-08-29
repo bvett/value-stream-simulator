@@ -33,6 +33,7 @@ class Resource:
     def operate(self, env: Environment, tasks: list[Task],
                 target: Store,
                 policy: ResourcePolicy,
+                tracker: Optional[ResourceTracker] = None,
                 target_upon_failure: Optional[Store] = None):
         """Simulates an action on a task object"""
 
@@ -53,8 +54,9 @@ class Resource:
 
             start_t = env.now
             try:
-                ResourceTracker.start_work(
-                    self.workflow_state, env.now-self.idle_t)
+                if tracker is not None:
+                    tracker.start_work(
+                        self.workflow_state, env.now-self.idle_t)
                 yield self._process
             except Interrupt:
 
@@ -63,19 +65,22 @@ class Resource:
                 # subsequent interruptions
 
                 interruption_start_t = env.now
-                ResourceTracker.complete_work(
-                    self.workflow_state, status, elapsed_t=env.now-start_t)
+                if tracker is not None:
+                    tracker.complete_work(
+                        self.workflow_state, status, elapsed_t=env.now-start_t)
                 yield env.process(self._pause(env))
-                ResourceTracker.interruption(
-                    self.workflow_state, elapsed_t=env.now - interruption_start_t)
+                if tracker is not None:
+                    tracker.interruption(
+                        self.workflow_state, elapsed_t=env.now - interruption_start_t)
 
                 continue
 
             if self._process.value is not None:
                 status = self._process.value['result']
 
-            ResourceTracker.complete_work(
-                self.workflow_state, status, elapsed_t=env.now-start_t)
+            if tracker is not None:
+                tracker.complete_work(
+                    self.workflow_state, status, elapsed_t=env.now-start_t)
             self.idle_t = env.now
 
             self._process = None

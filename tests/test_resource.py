@@ -4,7 +4,7 @@ from simpy import Environment, Store
 
 from value_stream import DefaultSimulationPolicy
 from value_stream.core import EventStatus, WorkflowStateName
-from value_stream.resources import Resource
+from value_stream.resources import Resource, ResourceTracker
 from value_stream.task import Task
 
 
@@ -12,6 +12,7 @@ class TestResource(unittest.TestCase):
     def setUp(self):
         self.task = Task(initial_value=2.0, story_points=1.0)
         self.env = Environment()
+        self.tracker = ResourceTracker(self.env)
         self.target = Store(self.env)
         self.target_for_failures = Store(self.env)
         self.policy = DefaultSimulationPolicy()
@@ -27,7 +28,7 @@ class TestResource(unittest.TestCase):
         self.env.process(resource.operate(
             env=self.env, tasks=[self.task], target=self.target,
             target_upon_failure=self.target_for_failures,
-            policy=self.policy))
+            policy=self.policy, tracker=self.tracker))
         self.env.run()
 
         self.assertEqual(self.env.now, 1.0)

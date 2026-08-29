@@ -14,6 +14,7 @@ class ResourceOperator:
     def __init__(self, env: Environment,
                  resources: Iterable[Resource],
                  policy: ResourcePolicy,
+                 tracker: Optional[ResourceTracker] = None,
                  cadence: int = 0):
         self.env = env
         self._queue: list[Task] = []
@@ -37,6 +38,8 @@ class ResourceOperator:
         self.policy = policy
 
         self._source: Optional[WorkflowState] = None
+
+        self._tracker = tracker
 
     def start(self, source: WorkflowState, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
         """Starts processing loop that:
@@ -135,8 +138,10 @@ class ResourceOperator:
         self._queue.clear()
         wait_t = self.env.now
         resource: Resource = yield self.request()
-        ResourceTracker.waiting(resource.workflow_state, self.env.now - wait_t)
-        # self.tracker.waiting(resource.workflow_state, self.env.now - wait_t)
+
+        if self._tracker is not None:
+            self._tracker.waiting(resource.workflow_state,
+                                  self.env.now - wait_t)
 
         for task in tasks:
             task.end(self.env.now)
@@ -145,7 +150,8 @@ class ResourceOperator:
                                                 tasks=tasks,
                                                 target=target,
                                                 target_upon_failure=target_upon_failure,
-                                                policy=self.policy))
+                                                policy=self.policy,
+                                                tracker=self._tracker))
 
         self.release(resource)
 
@@ -161,8 +167,8 @@ class ResourceOperator:
             if new_item is not None:
                 new_item.idle_t = self.env.now
                 self.resource_pool.put(new_item)
-                ResourceTracker.register(new_item.workflow_state)
-                # self.tracker.register(new_item.workflow_state)
+                if self._tracker is not None:
+                    self._tracker.register(new_item.workflow_state)
 
         return self.resource_pool.get()
 

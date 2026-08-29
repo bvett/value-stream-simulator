@@ -19,7 +19,7 @@ class TestDeveloper(unittest.TestCase):
         self.complex_task = Task(task_name="", initial_value=1, story_points=2)
         self.policy = DefaultSimulationPolicy()
         self.env = Environment()
-        ResourceTracker.init(self.env)
+        self.tracker = ResourceTracker(self.env)
 
     def test_validation(self):
 
@@ -40,7 +40,7 @@ class TestDeveloper(unittest.TestCase):
             for task in [self.simple_task.reset(), self.complex_task.reset()]:
                 self.assertEqual(task.remaining_work(), task.story_points)
                 self.env.process(dev.operate(
-                    self.env, [task], target, policy=self.policy))
+                    self.env, [task], target, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 
@@ -93,7 +93,7 @@ class TestDeveloper(unittest.TestCase):
                 env=env, name=WorkflowStateName.DEV_COMPLETE)
 
             operator = ResourceOperator(
-                env=env, resources=[developer], policy=self.policy)
+                env=env, resources=[developer], policy=self.policy, tracker=self.tracker)
 
             operator.start(dev_source, dev_target)
 
@@ -105,7 +105,7 @@ class TestDeveloper(unittest.TestCase):
                 env.process(support_workflow.start(
                     generator=support_generator,
                     developers=[developer],
-                    interval=interval))
+                    interval=interval, tracker=self.tracker))
 
                 sim_duration = (
                     (num_tasks * story_points + 1) / dev_efficiency) + 5

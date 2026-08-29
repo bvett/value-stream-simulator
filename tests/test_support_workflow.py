@@ -8,7 +8,7 @@ from value_stream import DefaultSimulationPolicy
 from value_stream.workflow import AssignmentStrategy
 from value_stream.core import WorkflowStateName
 from value_stream.support_workflow import SupportWorkflow
-from value_stream.resources import Developer
+from value_stream.resources import Developer, ResourceTracker
 from value_stream.task import SupportTask, Task
 from value_stream.utils import DeveloperFactory, TaskFactory, TaskGenerator
 from value_stream.workflow import WorkflowState
@@ -32,6 +32,7 @@ class TestSupportWorkflow(unittest.TestCase):
         """ helper function that executes a scenario and returns the number of tasks processed"""
 
         env = Environment()
+        tracker = ResourceTracker(env)
 
         workflow = SupportWorkflow(
             env, resource_policy=self.policy, workflow_policy=self.policy)
@@ -49,7 +50,8 @@ class TestSupportWorkflow(unittest.TestCase):
         env.process(workflow.start(
             generator=task_generator,
             developers=developers,
-            interval=support_interval))
+            interval=support_interval,
+            tracker=tracker))
 
         signal = env.timeout(sim_duration)
 
@@ -118,6 +120,7 @@ class TestSupportWorkflow(unittest.TestCase):
         developer_efficiency = 1
         developer = Developer(efficiency=developer_efficiency)
         env = Environment()
+        tracker = ResourceTracker(env)
 
         source = WorkflowState(env,
                                WorkflowStateName.SUPPORT_PENDING)
@@ -136,7 +139,8 @@ class TestSupportWorkflow(unittest.TestCase):
             [developer],
             strategy=AssignmentStrategy.RANDOM,
             source=source,
-            target=target
+            target=target,
+            tracker=tracker
         ))
 
         env.run(until=1)
@@ -161,6 +165,7 @@ class TestSupportWorkflow(unittest.TestCase):
         """ensure SupportWorkflow stops cleanly, including its internal task generator"""
 
         env = Environment()
+        tracker = ResourceTracker(env)
 
         workflow = SupportWorkflow(
             env, resource_policy=self.policy, workflow_policy=self.policy)
@@ -176,7 +181,7 @@ class TestSupportWorkflow(unittest.TestCase):
         env.process(workflow.start(
             generator=task_generator,
             developers=developers,
-            interval=1))
+            interval=1, tracker=tracker))
 
         env.run(until=10)
 
@@ -204,6 +209,7 @@ class TestSupportWorkflow(unittest.TestCase):
 
     def test_validation(self):
         env = Environment()
+        tracker = ResourceTracker(env)
 
         workflow = SupportWorkflow(
             env, resource_policy=self.policy, workflow_policy=self.policy)
@@ -220,7 +226,7 @@ class TestSupportWorkflow(unittest.TestCase):
             next(workflow.start(
                 generator=task_generator,
                 developers=developers,
-                interval=1))
+                interval=1, tracker=tracker))
 
     def test_assignment_strategies(self):
 
@@ -248,6 +254,7 @@ class TestSupportWorkflow(unittest.TestCase):
                     return self.strategy
 
             env = Environment()
+            tracker = ResourceTracker(env)
 
             workflow = SupportWorkflow(
                 env, workflow_policy=MockPolicy(strategy), resource_policy=MockPolicy(strategy))
@@ -267,7 +274,8 @@ class TestSupportWorkflow(unittest.TestCase):
             env.process(workflow.start(
                 generator=task_generator,
                 developers=developers,
-                interval=interval))
+                interval=interval,
+                tracker=tracker))
 
             env.run(until=iterations + 1)
 

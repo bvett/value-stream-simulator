@@ -3,7 +3,7 @@ import unittest
 from simpy import Environment, Store
 
 from value_stream import DefaultSimulationPolicy
-from value_stream.resources import QATester
+from value_stream.resources import QATester, ResourceTracker
 from value_stream.task import Task
 from value_stream.workflow import ResourceOperator
 
@@ -12,6 +12,7 @@ class TestQAManager(unittest.TestCase):
 
     def setUp(self):
         self.env = Environment()
+        self.tracker = ResourceTracker(self.env)
 
         self.complexities = [1.0, 3.0]
         self.tasks: list[Task] = []
@@ -26,7 +27,7 @@ class TestQAManager(unittest.TestCase):
 
         operator = yield e
 
-        yield self.env.process(operator.operate(self.env, [task], t, policy=self.policy))
+        yield self.env.process(operator.operate(self.env, [task], t, policy=self.policy, tracker=self.tracker))
         yield m.release(operator)
 
     def _test_loop(self, m: ResourceOperator, t: Store):
@@ -37,7 +38,7 @@ class TestQAManager(unittest.TestCase):
 
         # 1 QA Tester, 2 Tasks
         manager = ResourceOperator(
-            self.env, QATester.create_pool(limit=1), policy=self.policy)
+            self.env, tracker=self.tracker, resources=QATester.create_pool(limit=1), policy=self.policy)
         target = Store(self.env)
 
         self._test_loop(manager, target)
@@ -50,7 +51,7 @@ class TestQAManager(unittest.TestCase):
         # 2 QA Testers, 2 tasks
 
         manager = ResourceOperator(
-            self.env, QATester.create_pool(limit=2), policy=self.policy)
+            self.env, tracker=self.tracker, resources=QATester.create_pool(limit=2), policy=self.policy)
         target = Store(self.env)
 
         self._test_loop(manager, target)
@@ -62,7 +63,7 @@ class TestQAManager(unittest.TestCase):
     def test_parallel_2(self):
         # unlimited QA Testers, 2 tasks
         manager = ResourceOperator(
-            self.env, QATester.create_pool(), policy=self.policy)
+            self.env, tracker=self.tracker, resources=QATester.create_pool(), policy=self.policy)
         target = Store(self.env)
 
         self._test_loop(manager, target)

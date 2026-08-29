@@ -2,7 +2,7 @@ import unittest
 from simpy import Environment, Store
 from value_stream import DefaultSimulationPolicy
 from value_stream.core import EventStatus
-from value_stream.resources import Toolchain
+from value_stream.resources import Toolchain, ResourceTracker
 from value_stream.task import Task
 from value_stream.utils import TaskFactory
 
@@ -11,6 +11,7 @@ class TestToolchain(unittest.TestCase):
 
     def setUp(self):
         self.env = Environment()
+        self.tracker = ResourceTracker(self.env)
 
         self.tasks: list[Task] = TaskFactory(
             initial_value=1,
@@ -45,7 +46,7 @@ class TestToolchain(unittest.TestCase):
         toolchain = Toolchain(deployment_duration=deployment_duration)
 
         self.env.process(toolchain.operate(
-            self.env, self.tasks, target=self.target, policy=self.policy))
+            self.env, self.tasks, target=self.target, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 
@@ -59,7 +60,7 @@ class TestToolchain(unittest.TestCase):
 
         toolchain = Toolchain(deployment_duration=1, failure_rate=1)
         self.env.process(toolchain.operate(
-            self.env, self.tasks, target=self.target, policy=self.policy))
+            self.env, self.tasks, target=self.target, policy=self.policy, tracker=self.tracker))
         self.env.run()
 
         for task in self.target.items:

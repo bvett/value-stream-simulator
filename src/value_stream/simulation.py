@@ -41,7 +41,6 @@ class Simulation:
         results: list[SimulationResult] = []
 
         env = Environment()
-        ResourceTracker.init(env)
         sdlc_workflow = SDLCWorkflow(env)
         support_workflow = SupportWorkflow(
             env, resource_policy=policy, workflow_policy=policy)
@@ -69,14 +68,19 @@ class Simulation:
                        sdlc_workflow: SDLCWorkflow,
                        support_workflow: SupportWorkflow,
                        support_generator: Optional[TaskGenerator] = None) -> SimulationResult:
+
+        tracker = ResourceTracker(env)
+
         developer_manager = ResourceOperator(
             env, model.developer_team,
-            policy=policy)
+            policy=policy,
+            tracker=tracker)
 
-        qa_manager = ResourceOperator(env, model.qa_testers, policy=policy)
+        qa_manager = ResourceOperator(
+            env, model.qa_testers, policy=policy, tracker=tracker)
 
         toolchain_manager = ResourceOperator(
-            env, model.toolchain_pool, policy=policy, cadence=model.deployment_cadence)
+            env, model.toolchain_pool, policy=policy, cadence=model.deployment_cadence, tracker=tracker)
 
         delivery_complete = env.event()
         support_workflow_p: Optional[Process] = None
@@ -95,7 +99,8 @@ class Simulation:
                 generator=support_generator,
                 interval=model.support_interval,
                 developers=list(model.developer_team),
-                stop_signal=delivery_complete))
+                stop_signal=delivery_complete,
+                tracker=tracker))
             sim_termination_events.append(support_workflow_p)
 
         start_t = env.now
@@ -113,7 +118,7 @@ class Simulation:
 
         return SimulationResult(summary_result=summary_result,
                                 metadata=SimulationMetadata(model=model,
-                                                            resource_metadata=ResourceTracker.get().data.copy(),
+                                                            resource_metadata=tracker.data,
                                                             event_metadata=task_events))
 
     def _process_results(self, model: Model,

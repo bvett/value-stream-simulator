@@ -5,7 +5,7 @@ from simpy import Environment, Store
 from value_stream import DefaultSimulationPolicy
 from value_stream.core import EventStatus
 from value_stream.utils import TaskFactory
-from value_stream.resources import QATester
+from value_stream.resources import QATester, ResourceTracker
 from value_stream.task import Task
 
 
@@ -18,6 +18,7 @@ class TestQATester(unittest.TestCase):
                                              story_points=(x for x in range(2, 8, 2))).create(3)
 
         self.env = Environment()
+        self.tracker = ResourceTracker(self.env)
 
         self.target = Store(self.env)
 
@@ -52,7 +53,7 @@ class TestQATester(unittest.TestCase):
         total_story_points = sum([t.story_points for t in self.tasks])
 
         self.env.process(tester.operate(
-            self.env, self.tasks, target=self.target, policy=self.policy))
+            self.env, self.tasks, target=self.target, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 
@@ -69,7 +70,7 @@ class TestQATester(unittest.TestCase):
 
         tester = QATester(failure_rate=1)
         self.env.process(tester.operate(
-            self.env, self.tasks, target=self.target, policy=self.policy))
+            self.env, self.tasks, target=self.target, policy=self.policy, tracker=self.tracker))
         self.env.run()
 
         for task in self.target.items:
@@ -86,7 +87,7 @@ class TestQATester(unittest.TestCase):
         tester = QATester(failure_rate=1, failure_cost=failure_cost)
 
         self.env.process(tester.operate(
-            self.env, self.tasks, target=self.target, policy=self.policy))
+            self.env, self.tasks, target=self.target, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 

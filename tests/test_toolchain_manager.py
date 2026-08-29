@@ -3,7 +3,7 @@ from simpy import Environment, Store
 from value_stream import DefaultSimulationPolicy
 from value_stream.core import WorkflowStateName
 from value_stream.task import Task
-from value_stream.resources import Toolchain
+from value_stream.resources import Toolchain, ResourceTracker
 from value_stream.workflow import ResourceOperator, WorkflowState, TerminalWorkflowState
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
@@ -13,6 +13,7 @@ class TestToolchainManager(unittest.TestCase):
 
     def setUp(self):
         self.env = Environment()
+        self.tracker = ResourceTracker(self.env)
         self.source = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
         self.target = TerminalWorkflowState(
             self.env, WorkflowStateName.DELIVERY)
@@ -35,7 +36,7 @@ class TestToolchainManager(unittest.TestCase):
         toolchain = Toolchain(
             deployment_duration=0)
         self.env.process(toolchain.operate(
-            self.env, tasks, target, policy=self.policy))
+            self.env, tasks, target, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 
@@ -55,7 +56,7 @@ class TestToolchainManager(unittest.TestCase):
         toolchain = Toolchain(deployment_duration=DEPLOYMENT_DURATION)
 
         self.env.process(toolchain.operate(
-            self.env, tasks, self.target, policy=self.policy))
+            self.env, tasks, self.target, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 
@@ -72,7 +73,7 @@ class TestToolchainManager(unittest.TestCase):
         DEPLOYMENT_DURATION = 0.5
 
         toolchain = ResourceOperator(self.env, Toolchain.create_pool(limit=1, deployment_duration=DEPLOYMENT_DURATION),
-                                     cadence=1, policy=self.policy)
+                                     cadence=1, policy=self.policy, tracker=self.tracker)
 
         for _ in range(NUM_TASKS):
             yield self.source.put(Task(story_points=1, initial_value=1))
@@ -102,7 +103,7 @@ class TestToolchainManager(unittest.TestCase):
         toolchain = ResourceOperator(
             self.env, Toolchain.create_pool(
                 limit=concurrency, deployment_duration=deployment_duration),
-            cadence=cadence, policy=self.policy)
+            cadence=cadence, policy=self.policy, tracker=self.tracker)
 
         toolchain.start(self.source, self.target)
 

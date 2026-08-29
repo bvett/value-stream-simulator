@@ -1,7 +1,6 @@
 from simpy import Environment, Event
 
 from value_stream.core import WorkflowStateName
-from value_stream.resources import ResourceTracker
 from value_stream.task import Task
 
 from .resource_operator import ResourceOperator
@@ -47,9 +46,6 @@ class SDLCWorkflow:
 
         for task in tasks:
             yield self.pending.put(task.reset(self.env.now))
-
-        ResourceTracker.start_epoch()
-        # resource_tracker.start.epoch(env)
 
         delivery_target = len(self.pending.items)
 
