@@ -8,14 +8,14 @@ from .task_event import TaskEvent
 class TaskHistory():
     """Tracks task progress through a simulated workflow"""
 
-    def __init__(self, baseline_time: float = 0) -> None:
+    def __init__(self, epoch_start_t: float = 0) -> None:
         """Creates new object for tracking task history
 
         Args:
-            baseline_time (float, optional): event timestamps will be relative to this value. Defaults to 0.
+            epoch_start_t (float, optional): event timestamps will be relative to this value. Defaults to 0.
         """
         self.events: list[TaskEvent] = []
-        self.baseline_t = baseline_time
+        self.epoch_start_t = epoch_start_t
 
     def last_event(self):
         """Returns most recent event, or None if no events exist"""
@@ -27,7 +27,7 @@ class TaskHistory():
         Events must be empty, no events in progress, or not terminated
         """
 
-        time -= self.baseline_t
+        time -= self.epoch_start_t
 
         last_event = self.last_event()
 
@@ -49,7 +49,7 @@ class TaskHistory():
     def end(self, time: float, event: Optional[WorkflowStateName] = None, status: EventStatus = EventStatus.SUCCESS, loss: float = 0):
         """Ends a started event"""
 
-        time -= self.baseline_t
+        time -= self.epoch_start_t
 
         last_event = self.last_event()
 
@@ -95,7 +95,7 @@ class TaskHistory():
 
         A terminal event prevents additional events from being started"""
 
-        time -= self.baseline_t
+        time -= self.epoch_start_t
 
         last_event = self.last_event()
 

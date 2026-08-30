@@ -93,7 +93,7 @@ class Task:
         if time is None:
             return self._initial_value
 
-        epoch_t = time - self.history.baseline_t
+        epoch_t = time - self.history.epoch_start_t
 
         if epoch_t < self.creation_t:
             raise ValueError("time must be >= creation_t")
@@ -119,7 +119,7 @@ class Task:
 
         delivered_t = self.delivered_time()
 
-        return 0 if delivered_t is None else self.value(delivered_t + self.history.baseline_t)
+        return 0 if delivered_t is None else self.value(delivered_t + self.history.epoch_start_t)
 
     def loss(self, from_t: Optional[float] = None, to_t: Optional[float] = None) -> float:
         """Returns percentage difference between initial value and delivered value, or 0 if undelivered."""
@@ -139,7 +139,7 @@ class Task:
     def __str__(self) -> str:
         return self.task_name if self.task_name else ""
 
-    def reset(self, baseline_time: float = 0) -> Self:
+    def reset(self, epoch_start_t: float = 0) -> Self:
         """Returns a clone of the task except history"""
         result = copy.copy(self)
 
@@ -148,7 +148,7 @@ class Task:
         result.creation_t = 0
         result.completed_story_points = 0
 
-        result.history = TaskHistory(baseline_time=baseline_time)
+        result.history = TaskHistory(epoch_start_t=epoch_start_t)
         result._id = Task._generate_id()
 
         return result
@@ -177,7 +177,7 @@ class Task:
         last_event = self.history.last_event()
 
         loss = 0 if last_event is None else self.loss(
-            from_t=last_event.time + self.history.baseline_t, to_t=time)
+            from_t=last_event.time + self.history.epoch_start_t, to_t=time)
 
         self.history.end(time=time, event=event, status=status, loss=loss)
 

@@ -67,7 +67,7 @@ class SupportWorkflow:
 
         generator.start(env=self.env,
                         target=self._pending,
-                        baseline_time=self.env.now,
+                        epoch_start_t=self.env.now,
                         interval=interval)
 
         self._proc = self.env.process(
