@@ -10,7 +10,7 @@ class TestSupportTask(unittest.TestCase):
     def test_support_task(self):
         task = SupportTask(story_points=2,
                            task_name="INC-001",
-                           creation_time=2)
+                           creation_sim_t=2)
 
         self.assertEqual(task.depreciation_rate, 0)
         self.assertEqual(task.completed_story_points, 0)
@@ -26,7 +26,7 @@ class TestSupportTask(unittest.TestCase):
 
         self.assertEqual(task._delivered_value(), 0)
 
-        # default creation_time
+        # default creation_sim_t
         task.start(2, WorkflowStateName.DELIVERY)
 
         # ensure value does not change until delivered
@@ -41,7 +41,7 @@ class TestSupportTask(unittest.TestCase):
 
         # No loss
         task = SupportTask(task_name="", story_points=1,
-                           creation_time=0)
+                           creation_sim_t=0)
 
         task.terminate(25, WorkflowStateName.DELIVERY)
 

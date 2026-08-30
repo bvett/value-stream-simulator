@@ -20,7 +20,7 @@ class TestTaskFactory(unittest.TestCase):
 
         env = Environment()
         with self.assertRaises(ValueError):
-            factory = TaskFactory(env=env, creation_time=3)
+            factory = TaskFactory(env=env, creation_sim_t=3)
 
     def test_create_equal(self):
         factory = TaskFactory(story_points=2, initial_value=100)
@@ -56,7 +56,7 @@ class TestTaskFactory(unittest.TestCase):
 
     def test_creation_time(self):
         factory = TaskFactory(
-            story_points=1, initial_value=0, creation_time=42)
+            story_points=1, initial_value=0, creation_sim_t=42)
         task = factory.create(1)[0]
         self.assertEqual(42, task.creation_sim_t)
 

@@ -16,14 +16,14 @@ class TaskFactory:
         Args:
             cls (Type[Task], optional): Creates objects of this class. Defaults to Task.
             env (Optional[Environment], optional): If provided, 
-                used for setting creation_time of the tasks. Defaults to None.
+                used for setting creation_sim_t of the tasks. Defaults to None.
         """
         self._task_kwargs = task_kwargs
         self.cls = cls
         self.env = env
 
-        if (env is not None) and ('creation_time' in task_kwargs):
-            raise ValueError("env and creation_time are mutually exclusive")
+        if (env is not None) and ('creation_sim_t' in task_kwargs):
+            raise ValueError("env and creation_sim_t are mutually exclusive")
 
     def create(self, count: int, shuffle: bool = True) -> list[Task]:
         """Creates Task objects based on TaskFactory configuration
@@ -48,7 +48,7 @@ class TaskFactory:
                 args['task_name'] = f"{i+1}"
 
             if self.env is not None:
-                args['creation_time'] = self.env.now
+                args['creation_sim_t'] = self.env.now
 
             tasks.append(self.cls(**args))
 

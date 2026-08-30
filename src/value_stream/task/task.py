@@ -26,7 +26,7 @@ class Task:
                  story_points: float,
                  depreciation_rate=0.005,
                  task_name: Optional[str] = None,
-                 creation_time: float = 0.0,
+                 creation_sim_t: float = 0.0,
                  task_type: TaskType = TaskType.DEVELOPMENT) -> None:
         """Creates a Task
 
@@ -58,10 +58,10 @@ class Task:
 
         self.completed_story_points: float = 0
 
-        if creation_time < 0:
-            raise ValueError("creation_time must be >=0")
+        if creation_sim_t < 0:
+            raise ValueError("creation_sim_t must be >=0")
 
-        self.creation_sim_t = creation_time
+        self.creation_sim_t = creation_sim_t
 
         if not 0 <= depreciation_rate <= 1:
             raise ValueError("depreciation_rate must >=0 and <=1")
@@ -96,7 +96,7 @@ class Task:
         sim_t = self.history.epoch.to_sim_time(epoch_t)
 
         if sim_t < self.creation_sim_t:
-            raise ValueError("time must be >= creation_t")
+            raise ValueError("time must be >= creation_sim_t")
 
         return self._initial_value * ((1-self.depreciation_rate) ** (sim_t - self.creation_sim_t))
 
@@ -198,11 +198,11 @@ class SupportTask(Task):
     def __init__(self,
                  story_points: float,
                  task_name: Optional[str] = None,
-                 creation_time: float = 0.0):
+                 creation_sim_t: float = 0.0):
 
         super().__init__(initial_value=0,
                          story_points=story_points,
                          depreciation_rate=0,
                          task_name=task_name,
-                         creation_time=creation_time,
+                         creation_sim_t=creation_sim_t,
                          task_type=TaskType.SUPPORT)

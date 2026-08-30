@@ -172,3 +172,10 @@ cython_debug/
 
 # Synology DSM
 .DS_Store
+AGENTS.md
+experiments.ipynb
+PLANS.md
+SPEC.md
+.codex/config.toml
+src/doc/er.md
+src/value_stream/Notes.md
