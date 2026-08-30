@@ -17,6 +17,10 @@ class TaskHistory():
         self.events: list[TaskEvent] = []
         self.epoch = Epoch(epoch_start_t)
 
+        self.delivered_loss: Optional[float] = None
+        self.delivered_value: Optional[float] = None
+        self.delivered_epoch_t: Optional[float] = None
+
     def last_event(self):
         """Returns most recent event, or None if no events exist"""
         return None if not self.events else self.events[-1]

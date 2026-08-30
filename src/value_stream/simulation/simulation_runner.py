@@ -132,8 +132,8 @@ class SimulationRunner:
             for task in tasks:
                 total_initial_value += task.value()
 
-                if task.delivered_value is not None:
-                    total_delivered_value += task.delivered_value
+                if task.history.delivered_value is not None:
+                    total_delivered_value += task.history.delivered_value
 
                 task_events.extend(task.history.events)
 

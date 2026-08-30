@@ -124,7 +124,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
                           concurrency=1)
 
         self.assertEqual(
-            max([i.delivered_epoch_t for i in self.target.items]), 1.25)
+            max([i.history.delivered_epoch_t for i in self.target.items]), 1.25)
 
     def test_scenario_2(self):
         # Continuous delivery, with concurrency
@@ -135,7 +135,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
                           concurrency=2)
 
         self.assertEqual(
-            max([i.delivered_epoch_t for i in self.target.items]), 0.75)
+            max([i.history.delivered_epoch_t for i in self.target.items]), 0.75)
 
     def test_scenario_3(self):
         # Regular delivery, no concurrency
@@ -146,4 +146,4 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
                           concurrency=1)
 
         self.assertEqual(
-            max([i.delivered_epoch_t for i in self.target.items]), 2.25)
+            max([i.history.delivered_epoch_t for i in self.target.items]), 2.25)

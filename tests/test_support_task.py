@@ -24,18 +24,18 @@ class TestSupportTask(unittest.TestCase):
     def test_delivered_value(self):
         task = SupportTask(story_points=1)
 
-        self.assertIsNone(task.delivered_value)
+        self.assertIsNone(task.history.delivered_value)
 
         # default creation_sim_t
         task.start(2, WorkflowStateName.DELIVERY)
 
         # ensure value does not change until delivered
-        self.assertIsNone(task.delivered_value)
+        self.assertIsNone(task.history.delivered_value)
 
         # task.history.delivery_end_t = 2
         task.terminate(2, WorkflowStateName.DELIVERY)
 
-        self.assertEqual(task.delivered_value, 0)
+        self.assertEqual(task.history.delivered_value, 0)
 
     def test_loss(self):
 

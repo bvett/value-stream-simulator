@@ -101,18 +101,18 @@ class TestTask(unittest.TestCase):
         task = Task(task_name="", initial_value=100,
                     story_points=1, depreciation_rate=0.1)
 
-        self.assertIsNone(task.delivered_value)
+        self.assertIsNone(task.history.delivered_value)
 
         # default creation_time
         task.start(2, WorkflowStateName.DELIVERY)
 
         # ensure value does not change until delivered
-        self.assertIsNone(task.delivered_value)
+        self.assertIsNone(task.history.delivered_value)
 
         # task.history.delivery_end_t = 2
         task.terminate(2, WorkflowStateName.DELIVERY)
 
-        self.assertEqual(task.delivered_value, 81)
+        self.assertEqual(task.history.delivered_value, 81)
 
         # offset creation_time
 
@@ -121,13 +121,13 @@ class TestTask(unittest.TestCase):
 
         task.terminate(5, WorkflowStateName.DELIVERY)
 
-        self.assertEqual(task.delivered_value, 100)
+        self.assertEqual(task.history.delivered_value, 100)
 
         task = Task(task_name="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_sim_t=5)
 
         task.terminate(6, WorkflowStateName.DELIVERY)
-        self.assertEqual(task.delivered_value, 90)
+        self.assertEqual(task.history.delivered_value, 90)
 
         # validation
         task = Task(task_name="", initial_value=100, story_points=1,

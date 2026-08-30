@@ -27,7 +27,7 @@ class TestWorkflowState(unittest.TestCase):
         self.state.put(task)
         self.assertEqual(len(self.state.items), 1)
 
-        self.assertIsNone(task.delivered_value)
+        self.assertIsNone(task.history.delivered_value)
 
         self.assertEqual(len(task.history.events), 1)
 
@@ -48,7 +48,7 @@ class TestWorkflowState(unittest.TestCase):
         self.terminal_state.put(task)
         self.assertEqual(len(self.terminal_state.items), 1)
 
-        self.assertEqual(task.delivered_value, 45.0)
+        self.assertEqual(task.history.delivered_value, 45.0)
 
         self.assertEqual(len(task.history.events), 1)
 

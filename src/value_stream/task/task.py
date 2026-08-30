@@ -72,10 +72,6 @@ class Task:
 
         self.history = TaskHistory(epoch_start_t=self.creation_sim_t)
 
-        self.delivered_loss: Optional[float] = None
-        self.delivered_value: Optional[float] = None
-        self.delivered_epoch_t: Optional[float] = None
-
         self._id = Task._generate_id()
 
     @property
@@ -120,8 +116,6 @@ class Task:
         """Returns a clone of the task except history"""
         result = copy.copy(self)
 
-        result.delivered_loss = None
-        result.delivered_value = None
         result.creation_sim_t = epoch_start_t
         result.completed_story_points = 0
 
@@ -167,11 +161,13 @@ class Task:
     def terminate(self, sim_t: float, event: WorkflowStateName, status: EventStatus = EventStatus.SUCCESS):
         self.history.terminate(sim_time=sim_t, event=event, status=status)
 
-        self.delivered_epoch_t = self.history.epoch.to_epoch_time(sim_t)
+        self.history.delivered_epoch_t = self.history.epoch.to_epoch_time(
+            sim_t)
 
-        self.delivered_value = self.value(self.delivered_epoch_t)
-        self.delivered_loss = self.loss(from_epoch_t=self.history.epoch.to_epoch_time(
-            self.creation_sim_t), to_epoch_t=self.delivered_epoch_t)
+        self.history.delivered_value = self.value(
+            self.history.delivered_epoch_t)
+        self.history.delivered_loss = self.loss(from_epoch_t=self.history.epoch.to_epoch_time(
+            self.creation_sim_t), to_epoch_t=self.history.delivered_epoch_t)
 
 
 class SupportTask(Task):
