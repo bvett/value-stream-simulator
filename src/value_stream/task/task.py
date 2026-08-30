@@ -143,8 +143,8 @@ class Task:
         """Returns a clone of the task except history"""
         result = copy.copy(self)
 
-        result.delivered_loss = 0.0
-        result.delivered_value = 0.0
+        result.delivered_loss = None
+        result.delivered_value = None
         result.creation_sim_t = epoch_start_t
         result.completed_story_points = 0
 
