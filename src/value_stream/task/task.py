@@ -74,6 +74,7 @@ class Task:
 
         self.delivered_loss: Optional[float] = None
         self.delivered_value: Optional[float] = None
+        self.delivered_epoch_t: Optional[float] = None
 
         self._id = Task._generate_id()
 
@@ -100,28 +101,7 @@ class Task:
 
         return self._initial_value * ((1-self.depreciation_rate) ** (sim_t - self.creation_sim_t))
 
-    def delivered_time(self):
-        """Returns the time the task was successfully delivered, otherwise None"""
-        last_event = self.history.last_event()
-
-        if (last_event is not None) \
-                and (last_event.status == EventStatus.SUCCESS) \
-                and last_event.event_type == last_event.EventType.TERMINAL:
-
-            return last_event.time
-
-        return None
-
-    # TODO: make agnostic of workflow states
-    def _delivered_value(self) -> float:
-        """Returns the depreciated value of the task at the time of delivery, or its initial value if undelivered.
-        """
-
-        delivered_epoch_t = self.delivered_time()
-
-        return 0 if delivered_epoch_t is None else self.value(delivered_epoch_t)
-
-    def loss(self, from_epoch_t: Optional[float] = None, to_epoch_t: Optional[float] = None) -> float:
+    def loss(self, from_epoch_t: float, to_epoch_t: float) -> float:
         """Returns percentage difference between initial value and delivered value, or 0 if undelivered."""
 
         starting_value = self.value(epoch_t=from_epoch_t)
@@ -129,10 +109,7 @@ class Task:
         if starting_value == 0:
             return 0
 
-        if to_epoch_t is None:
-            ending_value = self._delivered_value()
-        else:
-            ending_value = self.value(epoch_t=to_epoch_t)
+        ending_value = self.value(epoch_t=to_epoch_t)
 
         return (ending_value - starting_value) / starting_value
 
@@ -190,8 +167,11 @@ class Task:
     def terminate(self, sim_t: float, event: WorkflowStateName, status: EventStatus = EventStatus.SUCCESS):
         self.history.terminate(sim_time=sim_t, event=event, status=status)
 
-        self.delivered_value = self._delivered_value()
-        self.delivered_loss = self.loss()
+        self.delivered_epoch_t = self.history.epoch.to_epoch_time(sim_t)
+
+        self.delivered_value = self.value(self.delivered_epoch_t)
+        self.delivered_loss = self.loss(from_epoch_t=self.history.epoch.to_epoch_time(
+            self.creation_sim_t), to_epoch_t=self.delivered_epoch_t)
 
 
 class SupportTask(Task):

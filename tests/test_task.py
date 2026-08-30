@@ -78,16 +78,22 @@ class TestTask(unittest.TestCase):
 
         task.terminate(25, WorkflowStateName.DELIVERY)
 
-        self.assertEqual(task.loss(), 0)
+        epoch = task.history.epoch
+
+        self.assertEqual(task.loss(from_epoch_t=epoch.to_epoch_time(
+            task.creation_sim_t), to_epoch_t=epoch.to_epoch_time(25)), 0)
 
         # Loss
 
         task = Task(task_name="", initial_value=50, story_points=1,
                     creation_sim_t=0, depreciation_rate=0.1)
 
+        epoch = task.history.epoch
+
         task.terminate(2, WorkflowStateName.DELIVERY)
 
-        self.assertEqual(task.loss(), -0.19)
+        self.assertEqual(task.loss(from_epoch_t=epoch.to_epoch_time(
+            task.creation_sim_t), to_epoch_t=epoch.to_epoch_time(2)), -0.19)
 
     def test_delivered_value(self):
 
@@ -95,18 +101,18 @@ class TestTask(unittest.TestCase):
         task = Task(task_name="", initial_value=100,
                     story_points=1, depreciation_rate=0.1)
 
-        self.assertEqual(task._delivered_value(), 0)
+        self.assertIsNone(task.delivered_value)
 
         # default creation_time
         task.start(2, WorkflowStateName.DELIVERY)
 
         # ensure value does not change until delivered
-        self.assertEqual(task._delivered_value(), 0)
+        self.assertIsNone(task.delivered_value)
 
         # task.history.delivery_end_t = 2
         task.terminate(2, WorkflowStateName.DELIVERY)
 
-        self.assertEqual(task._delivered_value(), 81)
+        self.assertEqual(task.delivered_value, 81)
 
         # offset creation_time
 
@@ -115,13 +121,13 @@ class TestTask(unittest.TestCase):
 
         task.terminate(5, WorkflowStateName.DELIVERY)
 
-        self.assertEqual(task._delivered_value(), 100)
+        self.assertEqual(task.delivered_value, 100)
 
         task = Task(task_name="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_sim_t=5)
 
         task.terminate(6, WorkflowStateName.DELIVERY)
-        self.assertEqual(task._delivered_value(), 90)
+        self.assertEqual(task.delivered_value, 90)
 
         # validation
         task = Task(task_name="", initial_value=100, story_points=1,
@@ -130,7 +136,6 @@ class TestTask(unittest.TestCase):
         # missing delivery_start_t
         with self.assertRaises(ValueError):
             task.end(5, WorkflowStateName.DELIVERY)
-            task._delivered_value()
 
         task = Task(task_name="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_sim_t=5)
@@ -139,7 +144,6 @@ class TestTask(unittest.TestCase):
         with self.assertRaises(ValueError):
             task.start(6, WorkflowStateName.DELIVERY)
             task.terminate(5, WorkflowStateName.DELIVERY)
-            task._delivered_value()
 
     def test_reset(self):
 
