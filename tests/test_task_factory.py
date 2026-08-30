@@ -58,11 +58,11 @@ class TestTaskFactory(unittest.TestCase):
         factory = TaskFactory(
             story_points=1, initial_value=0, creation_time=42)
         task = factory.create(1)[0]
-        self.assertEqual(42, task.creation_t)
+        self.assertEqual(42, task.creation_sim_t)
 
         env = Environment()
         factory = TaskFactory(env=env, story_points=1, initial_value=1)
         for t in [1, 5, 7.5, 100]:
             env.run(t)
             task = factory.create(1)[0]
-            self.assertEqual(t, task.creation_t)
+            self.assertEqual(t, task.creation_sim_t)

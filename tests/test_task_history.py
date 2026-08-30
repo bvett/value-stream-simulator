@@ -41,7 +41,7 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
             self.history.start(10, WorkflowStateName.DEPLOYMENT)
 
         # Start after previous event ended
-        self.history.end(time=15, event=WorkflowStateName.DEVELOPMENT)
+        self.history.end(sim_time=15, event=WorkflowStateName.DEVELOPMENT)
         self.history.start(16, WorkflowStateName.DEVELOPMENT)
 
         self.assertEqual(len(self.history.events), 3)
@@ -50,20 +50,20 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
 
         # ending w/o corresponding start:
         with self.assertRaises(ValueError):
-            self.history.end(time=10, event=WorkflowStateName.DEVELOPMENT)
+            self.history.end(sim_time=10, event=WorkflowStateName.DEVELOPMENT)
 
         self.history.start(10, WorkflowStateName.DEVELOPMENT)
 
         # decreasing time
         with self.assertRaises(ValueError):
-            self.history.end(time=9, event=WorkflowStateName.DEVELOPMENT)
+            self.history.end(sim_time=9, event=WorkflowStateName.DEVELOPMENT)
 
         # mismatch between start/end events
         with self.assertRaises(ValueError):
-            self.history.end(time=11, event=WorkflowStateName.DEPLOYMENT)
+            self.history.end(sim_time=11, event=WorkflowStateName.DEPLOYMENT)
 
         # Happy path
-        self.history.end(time=10, event=WorkflowStateName.DEVELOPMENT)
+        self.history.end(sim_time=10, event=WorkflowStateName.DEVELOPMENT)
 
         self.assertEqual(len(self.history.events), 2)
 
@@ -76,7 +76,7 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
 
     def test_end_with_default_event(self):
         self.history.start(10, WorkflowStateName.PENDING)
-        self.history.end(time=10)
+        self.history.end(sim_time=10)
 
         end_event = self.history.events[1]
 
@@ -91,7 +91,7 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
         with self.assertRaises(ValueError):
             self.history.start(1, WorkflowStateName.DEVELOPMENT)
             self.history.terminate(2, WorkflowStateName.DELIVERY)
-            self.history.end(time=3, event=WorkflowStateName.DEVELOPMENT)
+            self.history.end(sim_time=3, event=WorkflowStateName.DEVELOPMENT)
 
         # terminate right away
         history = TaskHistory()
@@ -104,7 +104,7 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
             history.start(2, WorkflowStateName.DEVELOPMENT)
 
         with self.assertRaises(ValueError):
-            history.end(time=2, event=WorkflowStateName.DEVELOPMENT)
+            history.end(sim_time=2, event=WorkflowStateName.DEVELOPMENT)
 
         with self.assertRaises(ValueError):
             history.terminate(0, WorkflowStateName.DELIVERY)
@@ -180,7 +180,7 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
         with self.assertRaises(ValueError):
             self.event_times(history, WorkflowStateName.PENDING)
 
-        history.end(time=2, event=WorkflowStateName.PENDING)
+        history.end(sim_time=2, event=WorkflowStateName.PENDING)
 
         with self.assertRaises(ValueError):
             self.event_times(history, WorkflowStateName.DEVELOPMENT)
@@ -197,7 +197,7 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
 
     def test_duration(self):
         self.history.start(3, WorkflowStateName.DEV_COMPLETE)
-        self.history.end(time=7, event=WorkflowStateName.DEV_COMPLETE)
+        self.history.end(sim_time=7, event=WorkflowStateName.DEV_COMPLETE)
 
         self.assertEqual(self.duration(
             self.history, WorkflowStateName.DEV_COMPLETE), 4)

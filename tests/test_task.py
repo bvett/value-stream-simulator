@@ -32,20 +32,6 @@ class TestTask(unittest.TestCase):
             Task(task_name="", initial_value=100,
                  story_points=1, creation_time=-1)
 
-        # invalid time
-
-        with self.assertRaises(ValueError):
-            task = Task(task_name="", initial_value=100,
-                        story_points=1, creation_time=5)
-            task.value(4)
-
-        # edge case
-
-        with self.assertRaises(ValueError):
-            task = Task(task_name="", initial_value=100,
-                        story_points=1, creation_time=5)
-            task.value(0)
-
     def test_value(self):
         task = Task(task_name="",
                     initial_value=100,
@@ -68,8 +54,8 @@ class TestTask(unittest.TestCase):
                     story_points=1, depreciation_rate=0.1)
 
         values = [100, 90, 81, 72.9]
-        for i in range(0, 4):
-            self.assertEqual(task.value(i), values[i])
+        for i, v in enumerate(values):
+            self.assertEqual(task.value(i), v)
 
         # depreciation with offset creation_time
 
@@ -77,8 +63,8 @@ class TestTask(unittest.TestCase):
                     story_points=1, depreciation_rate=0.1, creation_time=5)
 
         values = [100, 90, 81, 72.9]
-        for i, v in enumerate(range(5, 9)):
-            self.assertEqual(task.value(v), values[i])
+        for i, v in enumerate(values):
+            self.assertEqual(task.value(i), v)
 
     def test_str(self):
         self.assertEqual(
@@ -160,7 +146,6 @@ class TestTask(unittest.TestCase):
         task = Task(task_name="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_time=5)
 
-        # TODO: uncovered bug here - task.start(0...) should fail b/c start time is prior to creation time.
         self.assertEqual(len(task.history.events), 0)
         task.start(5, WorkflowStateName.PENDING)
         task.end(5, WorkflowStateName.PENDING)

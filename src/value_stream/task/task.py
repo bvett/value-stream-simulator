@@ -61,7 +61,7 @@ class Task:
         if creation_time < 0:
             raise ValueError("creation_time must be >=0")
 
-        self.creation_t = creation_time
+        self.creation_sim_t = creation_time
 
         if not 0 <= depreciation_rate <= 1:
             raise ValueError("depreciation_rate must >=0 and <=1")
@@ -70,7 +70,7 @@ class Task:
 
         self.task_type = task_type
 
-        self.history = TaskHistory()
+        self.history = TaskHistory(epoch_start_t=self.creation_sim_t)
 
         self.delivered_loss: Optional[float] = None
         self.delivered_value: Optional[float] = None
@@ -81,7 +81,7 @@ class Task:
     def task_id(self) -> uuid.UUID:
         return self._id
 
-    def value(self, time: Optional[float] = None) -> float:
+    def value(self, epoch_t: Optional[float] = None) -> float:
         """Calculates the value of the task at a specified time
 
         Args:
@@ -90,15 +90,15 @@ class Task:
         Returns:
             float: depreciated value of the task
         """
-        if time is None:
+        if epoch_t is None:
             return self._initial_value
 
-        epoch_t = time - self.history.epoch_start_t
+        sim_t = self.history.epoch.to_sim_time(epoch_t)
 
-        if epoch_t < self.creation_t:
+        if sim_t < self.creation_sim_t:
             raise ValueError("time must be >= creation_t")
 
-        return self._initial_value * ((1-self.depreciation_rate) ** (epoch_t - self.creation_t))
+        return self._initial_value * ((1-self.depreciation_rate) ** (sim_t - self.creation_sim_t))
 
     def delivered_time(self):
         """Returns the time the task was successfully delivered, otherwise None"""
@@ -117,22 +117,22 @@ class Task:
         """Returns the depreciated value of the task at the time of delivery, or its initial value if undelivered.
         """
 
-        delivered_t = self.delivered_time()
+        delivered_epoch_t = self.delivered_time()
 
-        return 0 if delivered_t is None else self.value(delivered_t + self.history.epoch_start_t)
+        return 0 if delivered_epoch_t is None else self.value(delivered_epoch_t)
 
-    def loss(self, from_t: Optional[float] = None, to_t: Optional[float] = None) -> float:
+    def loss(self, from_epoch_t: Optional[float] = None, to_epoch_t: Optional[float] = None) -> float:
         """Returns percentage difference between initial value and delivered value, or 0 if undelivered."""
 
-        starting_value = self.value(time=from_t)
+        starting_value = self.value(epoch_t=from_epoch_t)
 
         if starting_value == 0:
             return 0
 
-        if to_t is None:
+        if to_epoch_t is None:
             ending_value = self._delivered_value()
         else:
-            ending_value = self.value(time=to_t)
+            ending_value = self.value(epoch_t=to_epoch_t)
 
         return (ending_value - starting_value) / starting_value
 
@@ -145,7 +145,7 @@ class Task:
 
         result.delivered_loss = 0.0
         result.delivered_value = 0.0
-        result.creation_t = 0
+        result.creation_sim_t = epoch_start_t
         result.completed_story_points = 0
 
         result.history = TaskHistory(epoch_start_t=epoch_start_t)
@@ -172,23 +172,23 @@ class Task:
         self.completed_story_points = self.story_points
         return story_points - remaining_work
 
-    def end(self, time: float, event: Optional[WorkflowStateName] = None, status: EventStatus = EventStatus.SUCCESS):
+    def end(self, sim_t: float, event: Optional[WorkflowStateName] = None, status: EventStatus = EventStatus.SUCCESS):
 
         last_event = self.history.last_event()
 
         loss = 0 if last_event is None else self.loss(
-            from_t=last_event.time + self.history.epoch_start_t, to_t=time)
+            from_epoch_t=last_event.time, to_epoch_t=self.history.epoch.to_epoch_time(sim_t))
 
-        self.history.end(time=time, event=event, status=status, loss=loss)
+        self.history.end(sim_time=sim_t, event=event, status=status, loss=loss)
 
-    def start(self, time: float, event: WorkflowStateName):
-        self.history.start(time=time, event=event)
+    def start(self, sim_t: float, event: WorkflowStateName):
+        self.history.start(sim_time=sim_t, event=event)
 
     def resume(self, event: WorkflowStateName):
         self.history.resume(event=event)
 
-    def terminate(self, time: float, event: WorkflowStateName, status: EventStatus = EventStatus.SUCCESS):
-        self.history.terminate(time=time, event=event, status=status)
+    def terminate(self, sim_t: float, event: WorkflowStateName, status: EventStatus = EventStatus.SUCCESS):
+        self.history.terminate(sim_time=sim_t, event=event, status=status)
 
         self.delivered_value = self._delivered_value()
         self.delivered_loss = self.loss()
