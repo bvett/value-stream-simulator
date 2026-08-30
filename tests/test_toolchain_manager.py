@@ -6,10 +6,12 @@ from value_stream.resources import Toolchain, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.workflow import ResourceOperator, WorkflowState, TerminalWorkflowState
 
+from .testutils import TestUtils
+
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
 
-class TestToolchainManager(unittest.TestCase):
+class TestToolchainManager(unittest.TestCase, TestUtils):
 
     def setUp(self):
         self.env = Environment()
@@ -64,8 +66,8 @@ class TestToolchainManager(unittest.TestCase):
         self.assertEqual(self.env.now, DEPLOYMENT_DURATION)
 
         for task in tasks:
-            self.assertEqual(task.history.duration(
-                WorkflowStateName.DEPLOYMENT), DEPLOYMENT_DURATION)
+            self.assertEqual(self.duration(task.history,
+                                           WorkflowStateName.DEPLOYMENT), DEPLOYMENT_DURATION)
 
     def test_serial_deployment(self):
 

@@ -6,10 +6,12 @@ from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import SupportTask, Task, TaskFactory, TaskGenerator
 from value_stream.workflow import ResourceOperator, SupportWorkflow, TerminalWorkflowState, WorkflowState
 
+from .testutils import TestUtils
+
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
 
-class TestDeveloper(unittest.TestCase):
+class TestDeveloper(unittest.TestCase, TestUtils):
 
     def setUp(self):
 
@@ -57,8 +59,8 @@ class TestDeveloper(unittest.TestCase):
 
         for i, v in enumerate([0.4, 1.2, 1.7333333, 5.2]):
 
-            dev_start_t, dev_end_t = target.items[i].history.event_times(
-                WorkflowStateName.DEVELOPMENT)
+            dev_start_t, dev_end_t = self.event_times(
+                target.items[i].history, WorkflowStateName.DEVELOPMENT)
             self.assertAlmostEqual(dev_end_t, v)
             self.assertEqual(dev_start_t, 0)
 
@@ -126,8 +128,8 @@ class TestDeveloper(unittest.TestCase):
 
         self.assertEqual(2, len(dev_target.items))
 
-        self.assertEqual((2.0, 2.0), dev_target.items[0].history.event_times(
-            WorkflowStateName.DEV_COMPLETE))
+        self.assertEqual((2.0, 2.0), self.event_times(
+            dev_target.items[0].history, WorkflowStateName.DEV_COMPLETE))
 
         # Scenario 2: Support that arrives mid-task (non-aligned interval)
         env = Environment()
@@ -147,8 +149,8 @@ class TestDeveloper(unittest.TestCase):
                                   interval=1.5)
 
         self.assertEqual(2, len(dev_target.items))
-        self.assertEqual((3.0, 3.0), dev_target.items[0].history.event_times(
-            WorkflowStateName.DEV_COMPLETE))
+        self.assertEqual((3.0, 3.0), self.event_times(
+            dev_target.items[0].history, WorkflowStateName.DEV_COMPLETE))
 
         # Scenario 3: Support that arrives as development task ends/begins
         env = Environment()
@@ -167,9 +169,9 @@ class TestDeveloper(unittest.TestCase):
                                   interval=2)
 
         self.assertEqual(2, len(dev_target.items))
-        self.assertEqual((2.0, 2.0), dev_target.items[0].history.event_times(
-            WorkflowStateName.DEV_COMPLETE))
+        self.assertEqual((2.0, 2.0), self.event_times(
+            dev_target.items[0].history, WorkflowStateName.DEV_COMPLETE))
 
         # Second task should have been delayed by support
-        self.assertEqual((5.0, 5.0), dev_target.items[-1].history.event_times(
-            WorkflowStateName.DEV_COMPLETE))
+        self.assertEqual((5.0, 5.0), self.event_times(
+            dev_target.items[-1].history, WorkflowStateName.DEV_COMPLETE))

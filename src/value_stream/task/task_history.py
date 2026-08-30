@@ -107,36 +107,3 @@ class TaskHistory():
 
         self.events.append(TaskEvent.terminal(
             event=event, time=time, status=status))
-
-    def event_times(self, event: WorkflowStateName) -> tuple[float, float]:
-        """Returns the most recent start and end times of the event
-        Returns as tuple (start_t, end_t)"""
-
-        end_t = None
-        start_t = None
-
-        for e in reversed(self.events):
-            if e.event == event:
-                if e.event_type == TaskEvent.EventType.TERMINAL:
-                    start_t = e.time
-                    end_t = e.time
-
-                if e.event_type == TaskEvent.EventType.END:
-                    end_t = e.time
-
-                if e.event_type == TaskEvent.EventType.START:
-                    start_t = e.time
-
-        if (start_t is None) or (end_t is None):
-            raise ValueError(
-                "Unable to find matching end and start times for event " + event)
-
-        return (start_t, end_t)
-
-    def duration(self, event: WorkflowStateName):
-        """Returns the difference between the most recent end and start times for the event.
-        Returns 0 for TERMINAL events"""
-
-        start_t, end_t = self.event_times(event)
-
-        return end_t - start_t

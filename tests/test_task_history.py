@@ -3,10 +3,12 @@ import unittest
 from value_stream.task import TaskHistory, TaskEvent
 from value_stream.core import EventStatus, WorkflowStateName
 
+from .testutils import TestUtils
+
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
 
-class TestTaskHistory(unittest.TestCase):
+class TestTaskHistory(unittest.TestCase, TestUtils):
 
     def setUp(self):
         self.history = TaskHistory()
@@ -158,36 +160,38 @@ class TestTaskHistory(unittest.TestCase):
         history.start(1, WorkflowStateName.DEVELOPMENT)
         history.end(5, WorkflowStateName.DEVELOPMENT)
 
-        self.assertEqual(history.duration(WorkflowStateName.DEVELOPMENT), 4)
+        self.assertEqual(self.duration(
+            history, WorkflowStateName.DEVELOPMENT), 4)
 
         history.resume(WorkflowStateName.DEVELOPMENT)
         history.end(9, WorkflowStateName.DEVELOPMENT)
 
-        self.assertEqual(history.duration(WorkflowStateName.DEVELOPMENT), 8)
+        self.assertEqual(self.duration(
+            history, WorkflowStateName.DEVELOPMENT), 8)
 
     def test_event_times(self):
         history = TaskHistory()
 
         with self.assertRaises(ValueError):
-            history.event_times(WorkflowStateName.PENDING)
+            self.event_times(history, WorkflowStateName.PENDING)
 
         history.start(1, WorkflowStateName.PENDING)
 
         with self.assertRaises(ValueError):
-            history.event_times(WorkflowStateName.PENDING)
+            self.event_times(history, WorkflowStateName.PENDING)
 
         history.end(time=2, event=WorkflowStateName.PENDING)
 
         with self.assertRaises(ValueError):
-            history.event_times(WorkflowStateName.DEVELOPMENT)
+            self.event_times(history, WorkflowStateName.DEVELOPMENT)
 
-        start, end = history.event_times(WorkflowStateName.PENDING)
+        start, end = self.event_times(history, WorkflowStateName.PENDING)
         self.assertEqual(start, 1)
         self.assertEqual(end, 2)
 
         history.terminate(3, WorkflowStateName.DELIVERY)
 
-        start, end = history.event_times(WorkflowStateName.DELIVERY)
+        start, end = self.event_times(history, WorkflowStateName.DELIVERY)
 
         self.assertEqual(end-start, 0)
 
@@ -195,13 +199,13 @@ class TestTaskHistory(unittest.TestCase):
         self.history.start(3, WorkflowStateName.DEV_COMPLETE)
         self.history.end(time=7, event=WorkflowStateName.DEV_COMPLETE)
 
-        self.assertEqual(self.history.duration(
-            WorkflowStateName.DEV_COMPLETE), 4)
+        self.assertEqual(self.duration(
+            self.history, WorkflowStateName.DEV_COMPLETE), 4)
 
         self.history.start(10, WorkflowStateName.DEPLOYMENT)
 
         with self.assertRaises(ValueError):
-            self.history.duration(WorkflowStateName.DEPLOYMENT)
+            self.duration(self.history, WorkflowStateName.DEPLOYMENT)
 
     def test_recurrence(self):
         # Ensure the same workflow state can be represented multiple times
