@@ -8,13 +8,13 @@ class TestEpoch(unittest.TestCase):
     def test_init(self):
         env = Environment()
 
-        epoch_1 = Epoch(env)
+        epoch_1 = Epoch(env.now)
 
         self.assertEqual(0, epoch_1._offset_t)
 
         env.run(until=10)
 
-        epoch_2 = Epoch(env)
+        epoch_2 = Epoch(env.now)
 
         self.assertEqual(0, epoch_1._offset_t)
         self.assertEqual(10, epoch_2._offset_t)
@@ -22,9 +22,9 @@ class TestEpoch(unittest.TestCase):
     def test_time(self):
 
         env = Environment()
-        epoch_1 = Epoch(env)
+        epoch_1 = Epoch(env.now)
         env.run(until=50)
-        epoch_2 = Epoch(env)
+        epoch_2 = Epoch(env.now)
 
         with self.assertRaises(ValueError):
             epoch_1.to_epoch_time(-1)

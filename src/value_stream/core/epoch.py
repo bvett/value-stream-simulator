@@ -1,9 +1,6 @@
-from simpy import Environment
-
-
 class Epoch:
-    def __init__(self, env: Environment):
-        self._offset_t: float = env.now
+    def __init__(self, offset: float):
+        self._offset_t: float = offset
 
     def to_sim_time(self, epoch_t: float):
         if epoch_t < 0:
