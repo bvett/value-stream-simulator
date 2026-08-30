@@ -17,7 +17,6 @@ class TaskHistory():
         self.events: list[TaskEvent] = []
         self.epoch = Epoch(epoch_start_t)
 
-        self.delivered_loss: Optional[float] = None
         self.delivered_value: Optional[float] = None
         self.delivered_epoch_t: Optional[float] = None
 

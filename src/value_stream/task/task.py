@@ -166,8 +166,6 @@ class Task:
 
         self.history.delivered_value = self.value(
             self.history.delivered_epoch_t)
-        self.history.delivered_loss = self.loss(from_epoch_t=self.history.epoch.to_epoch_time(
-            self.creation_sim_t), to_epoch_t=self.history.delivered_epoch_t)
 
 
 class SupportTask(Task):
