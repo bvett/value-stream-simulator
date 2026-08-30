@@ -91,7 +91,6 @@ class TerminalWorkflowState(WorkflowState):
                 return result
 
         item.terminate(self._env.now, self.name)
-        item.update_value_and_loss()
 
         if self._limit is not None and self._signal is not None:
             if len(self.items) == self._limit:

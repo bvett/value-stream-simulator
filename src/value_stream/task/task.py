@@ -72,8 +72,8 @@ class Task:
 
         self.history = TaskHistory()
 
-        self.delivered_loss: float = 0.0
-        self.delivered_value: float = 0.0
+        self.delivered_loss: Optional[float] = None
+        self.delivered_value: Optional[float] = None
 
         self._id = Task._generate_id()
 
@@ -136,10 +136,6 @@ class Task:
 
         return (ending_value - starting_value) / starting_value
 
-    def update_value_and_loss(self):
-        self.delivered_value = self._delivered_value()
-        self.delivered_loss = self.loss()
-
     def __str__(self) -> str:
         return self.task_name if self.task_name else ""
 
@@ -193,6 +189,9 @@ class Task:
 
     def terminate(self, time: float, event: WorkflowStateName, status: EventStatus = EventStatus.SUCCESS):
         self.history.terminate(time=time, event=event, status=status)
+
+        self.delivered_value = self._delivered_value()
+        self.delivered_loss = self.loss()
 
 
 class SupportTask(Task):
