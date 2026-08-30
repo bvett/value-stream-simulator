@@ -18,7 +18,6 @@ class TaskHistory():
         self.epoch = Epoch(epoch_start_t)
 
         self.delivered_value: Optional[float] = None
-        self.delivered_epoch_t: Optional[float] = None
 
     def last_event(self):
         """Returns most recent event, or None if no events exist"""

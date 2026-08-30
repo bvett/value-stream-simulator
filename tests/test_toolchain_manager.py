@@ -1,7 +1,10 @@
+from typing import Optional
 import unittest
+
 from simpy import Environment, Store
-from value_stream.core import WorkflowStateName
-from value_stream.task import Task
+
+from value_stream.core import WorkflowStateName, EventStatus
+from value_stream.task import Task, TaskEvent, TaskHistory
 from value_stream.resources import Toolchain, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.workflow import ResourceOperator, WorkflowState, TerminalWorkflowState
@@ -115,6 +118,22 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
 
         self.assertEqual(len(self.target.items), num_tasks)
 
+    def delivered_time(self, history: TaskHistory):
+        # Helper function to get the delivered time
+        result: Optional[float] = None
+
+        for event in reversed(history.events):
+            if ((event.event == WorkflowStateName.DELIVERY) and
+                (event.event_type == TaskEvent.EventType.TERMINAL) and
+                    (event.status == EventStatus.SUCCESS)):
+                result = event.time
+                break
+
+        if result is None:
+            raise ValueError("could not locate delivery event for ")
+
+        return result
+
     def test_scenario_1(self):
         # Continuous delivery, no concurrency
 
@@ -124,7 +143,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
                           concurrency=1)
 
         self.assertEqual(
-            max([i.history.delivered_epoch_t for i in self.target.items]), 1.25)
+            max([self.delivered_time(i.history) for i in self.target.items]), 1.25)
 
     def test_scenario_2(self):
         # Continuous delivery, with concurrency
@@ -135,7 +154,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
                           concurrency=2)
 
         self.assertEqual(
-            max([i.history.delivered_epoch_t for i in self.target.items]), 0.75)
+            max([self.delivered_time(i.history) for i in self.target.items]), 0.75)
 
     def test_scenario_3(self):
         # Regular delivery, no concurrency
@@ -146,4 +165,4 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
                           concurrency=1)
 
         self.assertEqual(
-            max([i.history.delivered_epoch_t for i in self.target.items]), 2.25)
+            max([self.delivered_time(i.history) for i in self.target.items]), 2.25)

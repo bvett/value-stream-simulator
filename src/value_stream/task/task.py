@@ -161,11 +161,8 @@ class Task:
     def terminate(self, sim_t: float, event: WorkflowStateName, status: EventStatus = EventStatus.SUCCESS):
         self.history.terminate(sim_time=sim_t, event=event, status=status)
 
-        self.history.delivered_epoch_t = self.history.epoch.to_epoch_time(
-            sim_t)
-
-        self.history.delivered_value = self.value(
-            self.history.delivered_epoch_t)
+        delivered_epoch_t = self.history.epoch.to_epoch_time(sim_t)
+        self.history.delivered_value = self.value(delivered_epoch_t)
 
 
 class SupportTask(Task):
