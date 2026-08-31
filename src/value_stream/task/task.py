@@ -68,7 +68,7 @@ class Task:
 
         self.task_type = task_type
 
-        self.history = TaskHistory(epoch_start_t=creation_sim_t)
+        self.history = TaskHistory(epoch_start_sim_t=creation_sim_t)
 
         self._id = Task._generate_id()
 
@@ -78,7 +78,7 @@ class Task:
 
     @property
     def creation_sim_t(self):
-        return self.history.creation_sim_t
+        return self.history.epoch_start_sim_t
 
     def value(self, epoch_t: Optional[float] = None) -> float:
         """Calculates the value of the task at a specified time
@@ -120,7 +120,7 @@ class Task:
 
         result.completed_story_points = 0
 
-        result.history = TaskHistory(epoch_start_t=epoch_start_t)
+        result.history = TaskHistory(epoch_start_sim_t=epoch_start_t)
         result._id = Task._generate_id()
 
         return result

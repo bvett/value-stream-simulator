@@ -1,7 +1,7 @@
 from typing import Optional
 
 from simpy import Environment, Interrupt, Process, Store
-from .task import Task
+from .task import Task, TaskHistory
 from .task_factory import TaskFactory
 
 
@@ -63,7 +63,7 @@ class TaskGenerator:
                         raise RuntimeError("Unexpected empty value")
 
                     for v in event.value:
-                        v.history.epoch_start_t = epoch_start_t
+                        v.history = TaskHistory(epoch_start_t)
                         yield target.put(v)
 
                 except Interrupt:

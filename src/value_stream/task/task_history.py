@@ -8,16 +8,16 @@ from .task_event import TaskEvent
 class TaskHistory():
     """Tracks task progress through a simulated workflow"""
 
-    def __init__(self, epoch_start_t: float = 0) -> None:
+    def __init__(self, epoch_start_sim_t: float = 0) -> None:
         """Creates new object for tracking task history
 
         Args:
-            epoch_start_t (float, optional): event timestamps will be relative to this value. Defaults to 0.
+            epoch_start_sim_t (float, optional): event timestamps will be relative to this value. Defaults to 0.
         """
         self.events: list[TaskEvent] = []
-        self.epoch = Epoch(epoch_start_t)
+        self.epoch = Epoch(epoch_start_sim_t)
 
-        self.creation_sim_t = epoch_start_t
+        self.epoch_start_sim_t = epoch_start_sim_t
 
         self.delivered_value: Optional[float] = None
 
