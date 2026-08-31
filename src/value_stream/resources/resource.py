@@ -85,15 +85,13 @@ class Resource:
 
             self._process = None
 
-            destination = target
-
-            if (status == EventStatus.FAILURE) and (target_upon_failure is not None):
-                destination = target_upon_failure
-
             for task in tasks:
                 task.end(env.now, self.workflow_state, status=status)
 
-                yield destination.put(task)
+                if (status == EventStatus.FAILURE) and (target_upon_failure is not None):
+                    yield target_upon_failure.put(task.as_rework())
+                else:
+                    yield target.put(task)
 
             # once work is complete, check for previously interrupted work
             # and trigger resumption

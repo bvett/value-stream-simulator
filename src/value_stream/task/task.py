@@ -1,19 +1,12 @@
 import copy
 import uuid
-from enum import StrEnum
 from typing import Collection, Optional, Self
 
 from simpy import Environment
 
-from value_stream.core import EventStatus, WorkflowStateName
+from value_stream.core import EventStatus, WorkflowStateName, TaskType
 
 from .task_history import TaskHistory
-
-
-class TaskType(StrEnum):
-    """Task Categorization."""
-    DEVELOPMENT = 'development'
-    SUPPORT = 'support'
 
 
 class Task:
@@ -75,6 +68,8 @@ class Task:
         self.history = TaskHistory(epoch_start_sim_t=creation_sim_t)
 
         self._id = Task._generate_id()
+
+        self.is_rework = False
 
     @property
     def task_id(self) -> uuid.UUID:
@@ -153,19 +148,26 @@ class Task:
         loss = 0 if last_event is None else self.loss(
             from_epoch_t=last_event.time, to_epoch_t=self.history.epoch.to_epoch_time(sim_t))
 
-        self.history.end(sim_time=sim_t, event=event, status=status, loss=loss)
+        self.history.end(sim_time=sim_t, event=event, status=status,
+                         loss=loss, task_type=self.task_type, is_rework=self.is_rework)
 
     def start(self, sim_t: float, event: WorkflowStateName):
-        self.history.start(sim_time=sim_t, event=event)
+        self.history.start(sim_time=sim_t, event=event,
+                           task_type=self.task_type, is_rework=self.is_rework)
 
     def resume(self, event: WorkflowStateName):
         self.history.resume(event=event)
 
     def terminate(self, sim_t: float, event: WorkflowStateName, status: EventStatus = EventStatus.SUCCESS):
-        self.history.terminate(sim_time=sim_t, event=event, status=status)
+        self.history.terminate(sim_time=sim_t, event=event, status=status,
+                               task_type=self.task_type, is_rework=self.is_rework)
 
         delivered_epoch_t = self.history.epoch.to_epoch_time(sim_t)
         self.history.delivered_value = self.value(delivered_epoch_t)
+
+    def as_rework(self) -> Self:
+        self.is_rework = True
+        return self
 
 
 class SupportTask(Task):

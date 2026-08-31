@@ -1,10 +1,10 @@
 import unittest
 from tqdm import tqdm
 from value_stream.client import SimulationRunner
-from value_stream.core import EventStatus
+from value_stream.core import EventStatus, WorkflowStateName
 from value_stream.resources import QATester, Toolchain, DeveloperFactory
 from value_stream.simulation import ModelFactory
-from value_stream.task import SupportTask, TaskType, TaskEvent, TaskFactory
+from value_stream.task import SupportTask, TaskType, TaskEvent, TaskFactory, TaskGenerator
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
@@ -41,31 +41,33 @@ class TestSimulation(unittest.TestCase):
         support_factory = TaskFactory(
             SupportTask, story_points=1)
 
-        # support_generator = TaskGenerator(
-        #    factory=support_factory)
+        support_generator = TaskGenerator(
+            factory=support_factory)
 
         with tqdm(total=len(models)) as pbar:
             simulation_results = simulation.execute(
                 tasks=tasks,
                 models=models,
-                support_generator=None,
+                support_generator=support_generator,
                 pbar=pbar)
 
         # one result for every combination of task and cadence
         expected_dev_tasks = NUM_TASKS * (MAX_CADENCE + 1)
 
+        # hard-coding this to an arbitrary value for now to guard against regression
+        # will evolve to something more calculated when this tests individual simulations instead of the runner
+        expected_support_tasks = 8
+
         num_dev_tasks = 0
         num_support_tasks = 0
 
+        # The problem here is that we don't have access to the TaskType anymore.....
         for r in simulation_results:
             for e in r.metadata.event_metadata:
-                if (e.event == TaskType.DEVELOPMENT) and (e.status == EventStatus.SUCCESS) and (e.event_type == TaskEvent.EventType.END):
+                if (e.event == WorkflowStateName.DEVELOPMENT) and (e.status == EventStatus.SUCCESS) and (e.event_type == TaskEvent.EventType.END) and (e.task_type == TaskType.DEVELOPMENT):
                     num_dev_tasks += 1
-                elif e.event == TaskType.SUPPORT:
+                elif (e.event == WorkflowStateName.DEVELOPMENT) and (e.status == EventStatus.SUCCESS) and (e.event_type == TaskEvent.EventType.END) and (e.task_type == TaskType.SUPPORT):
                     num_support_tasks += 1
 
-        # Asserting only # of completed dev tasks.
-        # Calculating expected # of completed support tasks is more complicated,
-        # and can be better validated with lower-level tests.
-
         self.assertEqual(num_dev_tasks, expected_dev_tasks)
+        self.assertEqual(num_support_tasks, expected_support_tasks)

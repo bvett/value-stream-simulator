@@ -10,7 +10,7 @@ from .task import Task
 class TaskFactory:
     """Utility for creating Tasks"""
 
-    def __init__(self, cls: Type[Task] = Task, env: Optional[Environment] = None, **task_kwargs):
+    def __init__(self, cls: Type[Task] = Task,  **task_kwargs):
         """Initializes a TaskFactory
 
         Args:
@@ -20,12 +20,8 @@ class TaskFactory:
         """
         self._task_kwargs = task_kwargs
         self.cls = cls
-        self.env = env
 
-        if (env is not None) and ('creation_sim_t' in task_kwargs):
-            raise ValueError("env and creation_sim_t are mutually exclusive")
-
-    def create(self, count: int, shuffle: bool = True) -> list[Task]:
+    def create(self, count: int, env: Optional[Environment] = None, shuffle: bool = True) -> list[Task]:
         """Creates Task objects based on TaskFactory configuration
 
         Args:
@@ -38,6 +34,9 @@ class TaskFactory:
         if count <= 0:
             raise ValueError("count must be > 0")
 
+        if (env is not None) and ('creation_sim_t' in self._task_kwargs):
+            raise ValueError("env and creation_sim_t are mutually exclusive")
+
         tasks: list[Task] = []
 
         for i in range(count):
@@ -47,8 +46,8 @@ class TaskFactory:
             if 'task_name' not in args:
                 args['task_name'] = f"{i+1}"
 
-            if self.env is not None:
-                args['creation_sim_t'] = self.env.now
+            if env is not None:
+                args['creation_sim_t'] = env.now
 
             tasks.append(self.cls(**args))
 

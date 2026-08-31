@@ -1,7 +1,7 @@
 from typing import Optional
 
 from simpy import Environment, Interrupt, Process, Store
-from .task import Task, TaskHistory
+from .task import Task
 from .task_factory import TaskFactory
 
 
@@ -18,14 +18,11 @@ class TaskGenerator:
         self._batch_num = 0
         self.limit = limit
 
-    def __iter__(self):
-        return self
-
-    def __next__(self):
+    def _get_tasks(self, env: Environment) -> list[Task]:
         self._batch_num += 1
         serial_num = 0
 
-        tasks = self.factory.create(count=self.group_size)
+        tasks = self.factory.create(env=env, count=self.group_size)
 
         for task in tasks:
             if self.group_size == 1:
@@ -58,7 +55,7 @@ class TaskGenerator:
                     event = env.timeout(delay=interval)
                     yield event
 
-                    value: list[Task] = next(self)
+                    value: list[Task] = self._get_tasks(env)
 
                     for v in value:
                         yield target.put(v)

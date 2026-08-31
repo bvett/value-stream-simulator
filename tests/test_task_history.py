@@ -1,6 +1,6 @@
 import unittest
 
-from value_stream.task import TaskHistory, TaskEvent
+from value_stream.task import TaskHistory, TaskEvent, TaskType
 from value_stream.core import EventStatus, WorkflowStateName
 
 from .testutils import TestUtils
@@ -15,7 +15,8 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
 
     def test_start(self):
         # Happy path
-        self.history.start(10, WorkflowStateName.DEVELOPMENT)
+        self.history.start(10, WorkflowStateName.DEVELOPMENT,
+                           task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         self.assertEqual(len(self.history.events), 1)
 
@@ -30,19 +31,24 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
 
         # Time is earlier than previous event
         with self.assertRaises(ValueError):
-            self.history.start(9, WorkflowStateName.DEVELOPMENT)
+            self.history.start(9, WorkflowStateName.DEVELOPMENT,
+                               task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         # Starting an event before prior ended
         with self.assertRaises(ValueError):
-            self.history.start(10, WorkflowStateName.DEVELOPMENT)
+            self.history.start(10, WorkflowStateName.DEVELOPMENT,
+                               task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         # Starting nested event of same type
         with self.assertRaises(ValueError):
-            self.history.start(10, WorkflowStateName.DEPLOYMENT)
+            self.history.start(10, WorkflowStateName.DEPLOYMENT,
+                               task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         # Start after previous event ended
-        self.history.end(sim_time=15, event=WorkflowStateName.DEVELOPMENT)
-        self.history.start(16, WorkflowStateName.DEVELOPMENT)
+        self.history.end(sim_time=15, event=WorkflowStateName.DEVELOPMENT,
+                         task_type=TaskType.DEVELOPMENT, is_rework=False)
+        self.history.start(16, WorkflowStateName.DEVELOPMENT,
+                           task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         self.assertEqual(len(self.history.events), 3)
 
@@ -50,20 +56,25 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
 
         # ending w/o corresponding start:
         with self.assertRaises(ValueError):
-            self.history.end(sim_time=10, event=WorkflowStateName.DEVELOPMENT)
+            self.history.end(sim_time=10, event=WorkflowStateName.DEVELOPMENT,
+                             task_type=TaskType.DEVELOPMENT, is_rework=False)
 
-        self.history.start(10, WorkflowStateName.DEVELOPMENT)
+        self.history.start(10, WorkflowStateName.DEVELOPMENT,
+                           task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         # decreasing time
         with self.assertRaises(ValueError):
-            self.history.end(sim_time=9, event=WorkflowStateName.DEVELOPMENT)
+            self.history.end(sim_time=9, event=WorkflowStateName.DEVELOPMENT,
+                             task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         # mismatch between start/end events
         with self.assertRaises(ValueError):
-            self.history.end(sim_time=11, event=WorkflowStateName.DEPLOYMENT)
+            self.history.end(sim_time=11, event=WorkflowStateName.DEPLOYMENT,
+                             task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         # Happy path
-        self.history.end(sim_time=10, event=WorkflowStateName.DEVELOPMENT)
+        self.history.end(sim_time=10, event=WorkflowStateName.DEVELOPMENT,
+                         task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         self.assertEqual(len(self.history.events), 2)
 
@@ -75,8 +86,10 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
         self.assertEqual(end_event.status, EventStatus.SUCCESS)
 
     def test_end_with_default_event(self):
-        self.history.start(10, WorkflowStateName.PENDING)
-        self.history.end(sim_time=10)
+        self.history.start(10, WorkflowStateName.PENDING,
+                           task_type=TaskType.DEVELOPMENT, is_rework=False)
+        self.history.end(sim_time=10,
+                         task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         end_event = self.history.events[1]
 
@@ -89,25 +102,33 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
         # test attempts to start/end after terminate
 
         with self.assertRaises(ValueError):
-            self.history.start(1, WorkflowStateName.DEVELOPMENT)
-            self.history.terminate(2, WorkflowStateName.DELIVERY)
-            self.history.end(sim_time=3, event=WorkflowStateName.DEVELOPMENT)
+            self.history.start(1, WorkflowStateName.DEVELOPMENT,
+                               task_type=TaskType.DEVELOPMENT, is_rework=False)
+            self.history.terminate(2, WorkflowStateName.DELIVERY,
+                                   task_type=TaskType.DEVELOPMENT, is_rework=False)
+            self.history.end(sim_time=3, event=WorkflowStateName.DEVELOPMENT,
+                             task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         # terminate right away
         history = TaskHistory()
-        history.terminate(1, WorkflowStateName.DELIVERY)
+        history.terminate(1, WorkflowStateName.DELIVERY,
+                          task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         with self.assertRaises(ValueError):
-            history.terminate(2, WorkflowStateName.DELIVERY)
+            history.terminate(2, WorkflowStateName.DELIVERY,
+                              task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         with self.assertRaises(ValueError):
-            history.start(2, WorkflowStateName.DEVELOPMENT)
+            history.start(2, WorkflowStateName.DEVELOPMENT,
+                          task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         with self.assertRaises(ValueError):
-            history.end(sim_time=2, event=WorkflowStateName.DEVELOPMENT)
+            history.end(sim_time=2, event=WorkflowStateName.DEVELOPMENT,
+                        task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         with self.assertRaises(ValueError):
-            history.terminate(0, WorkflowStateName.DELIVERY)
+            history.terminate(0, WorkflowStateName.DELIVERY,
+                              task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         self.assertEqual(len(history.events), 1)
 
@@ -133,7 +154,8 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
         history = TaskHistory()
 
         with self.assertRaises(ValueError):
-            history.start(1, WorkflowStateName.PENDING)
+            history.start(1, WorkflowStateName.PENDING,
+                          task_type=TaskType.DEVELOPMENT, is_rework=False)
             history.resume(WorkflowStateName.PENDING)
 
         # resume terminated event
@@ -141,7 +163,8 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
         history = TaskHistory()
 
         with self.assertRaises(ValueError):
-            history.terminate(1, WorkflowStateName.DELIVERY)
+            history.terminate(1, WorkflowStateName.DELIVERY,
+                              task_type=TaskType.DEVELOPMENT, is_rework=False)
             history.resume(WorkflowStateName.DELIVERY)
 
         # resume with mismatched event type
@@ -149,22 +172,27 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
         history = TaskHistory()
 
         with self.assertRaises(ValueError):
-            history.start(1, WorkflowStateName.DEVELOPMENT)
-            history.end(2, WorkflowStateName.DEVELOPMENT)
+            history.start(1, WorkflowStateName.DEVELOPMENT,
+                          task_type=TaskType.DEVELOPMENT, is_rework=False)
+            history.end(2, event=WorkflowStateName.DEVELOPMENT,
+                        task_type=TaskType.DEVELOPMENT, is_rework=False)
             history.resume(WorkflowStateName.DEPLOYMENT)
 
         # happy path:
 
         history = TaskHistory()
 
-        history.start(1, WorkflowStateName.DEVELOPMENT)
-        history.end(5, WorkflowStateName.DEVELOPMENT)
+        history.start(1, WorkflowStateName.DEVELOPMENT,
+                      task_type=TaskType.DEVELOPMENT, is_rework=False)
+        history.end(5, event=WorkflowStateName.DEVELOPMENT,
+                    task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         self.assertEqual(self.duration(
             history, WorkflowStateName.DEVELOPMENT), 4)
 
         history.resume(WorkflowStateName.DEVELOPMENT)
-        history.end(9, WorkflowStateName.DEVELOPMENT)
+        history.end(9, event=WorkflowStateName.DEVELOPMENT,
+                    task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         self.assertEqual(self.duration(
             history, WorkflowStateName.DEVELOPMENT), 8)
@@ -175,12 +203,14 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
         with self.assertRaises(ValueError):
             self.event_times(history, WorkflowStateName.PENDING)
 
-        history.start(1, WorkflowStateName.PENDING)
+        history.start(1, WorkflowStateName.PENDING,
+                      task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         with self.assertRaises(ValueError):
             self.event_times(history, WorkflowStateName.PENDING)
 
-        history.end(sim_time=2, event=WorkflowStateName.PENDING)
+        history.end(sim_time=2, event=WorkflowStateName.PENDING,
+                    task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         with self.assertRaises(ValueError):
             self.event_times(history, WorkflowStateName.DEVELOPMENT)
@@ -189,33 +219,46 @@ class TestTaskHistory(unittest.TestCase, TestUtils):
         self.assertEqual(start, 1)
         self.assertEqual(end, 2)
 
-        history.terminate(3, WorkflowStateName.DELIVERY)
+        history.terminate(3, WorkflowStateName.DELIVERY,
+                          task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         start, end = self.event_times(history, WorkflowStateName.DELIVERY)
 
         self.assertEqual(end-start, 0)
 
     def test_duration(self):
-        self.history.start(3, WorkflowStateName.DEV_COMPLETE)
-        self.history.end(sim_time=7, event=WorkflowStateName.DEV_COMPLETE)
+        self.history.start(3, WorkflowStateName.DEV_COMPLETE,
+                           task_type=TaskType.DEVELOPMENT, is_rework=False)
+        self.history.end(sim_time=7, event=WorkflowStateName.DEV_COMPLETE,
+                         task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         self.assertEqual(self.duration(
             self.history, WorkflowStateName.DEV_COMPLETE), 4)
 
-        self.history.start(10, WorkflowStateName.DEPLOYMENT)
+        self.history.start(10, WorkflowStateName.DEPLOYMENT,
+                           task_type=TaskType.DEVELOPMENT, is_rework=False)
 
         with self.assertRaises(ValueError):
             self.duration(self.history, WorkflowStateName.DEPLOYMENT)
 
     def test_recurrence(self):
         # Ensure the same workflow state can be represented multiple times
-        self.history.start(0, WorkflowStateName.DEVELOPMENT)
-        self.history.end(1.0, WorkflowStateName.DEVELOPMENT)
-        self.history.start(1.0, WorkflowStateName.QA_TESTING)
-        self.history.end(2.0, WorkflowStateName.QA_TESTING,
-                         EventStatus.FAILURE)
-        self.history.start(2.0, WorkflowStateName.DEVELOPMENT)
-        self.history.end(3.0, WorkflowStateName.DEVELOPMENT)
-        self.history.start(3.0, WorkflowStateName.QA_TESTING)
-        self.history.end(4.0, WorkflowStateName.QA_TESTING)
-        self.history.start(4.0, WorkflowStateName.QA_COMPLETE)
+        self.history.start(0, WorkflowStateName.DEVELOPMENT,
+                           task_type=TaskType.DEVELOPMENT, is_rework=False)
+        self.history.end(1.0, event=WorkflowStateName.DEVELOPMENT,
+                         task_type=TaskType.DEVELOPMENT, is_rework=False)
+        self.history.start(1.0, WorkflowStateName.QA_TESTING,
+                           task_type=TaskType.DEVELOPMENT, is_rework=False)
+        self.history.end(2.0, event=WorkflowStateName.QA_TESTING,
+                         status=EventStatus.FAILURE,
+                         task_type=TaskType.DEVELOPMENT, is_rework=False)
+        self.history.start(2.0, WorkflowStateName.DEVELOPMENT,
+                           task_type=TaskType.DEVELOPMENT, is_rework=False)
+        self.history.end(3.0, event=WorkflowStateName.DEVELOPMENT,
+                         task_type=TaskType.DEVELOPMENT, is_rework=False)
+        self.history.start(3.0, WorkflowStateName.QA_TESTING,
+                           task_type=TaskType.DEVELOPMENT, is_rework=False)
+        self.history.end(4.0, event=WorkflowStateName.QA_TESTING,
+                         task_type=TaskType.DEVELOPMENT, is_rework=False)
+        self.history.start(4.0, WorkflowStateName.QA_COMPLETE,
+                           task_type=TaskType.DEVELOPMENT, is_rework=False)

@@ -110,8 +110,7 @@ class TestWorkflowState(unittest.TestCase):
         for target in targets:
 
             # generate 1 task per tick
-            factory = TaskFactory(
-                env=env, initial_value=0, story_points=1)
+            factory = TaskFactory(initial_value=0, story_points=1)
             generator = TaskGenerator(factory)
 
             signal = env.event()
@@ -147,8 +146,7 @@ class TestWorkflowState(unittest.TestCase):
 
         target = TerminalWorkflowState(self.env, WorkflowStateName.DEPLOYMENT)
 
-        factory = TaskFactory(
-            env=self.env, initial_value=0, story_points=1)
+        factory = TaskFactory(initial_value=0, story_points=1)
         generator = TaskGenerator(factory)
 
         signal_1 = self.env.event()

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from value_stream.core import Epoch, EventStatus, WorkflowStateName
+from value_stream.core import Epoch, EventStatus, TaskType, WorkflowStateName
 
 from .task_event import TaskEvent
 
@@ -27,7 +27,7 @@ class TaskHistory():
         """Returns most recent event, or None if no events exist"""
         return None if not self.events else self.events[-1]
 
-    def start(self, sim_time: float, event: WorkflowStateName):
+    def start(self, sim_time: float, event: WorkflowStateName, task_type: TaskType, is_rework: bool):
         """Starts an event
 
         Events must be empty, no events in progress, or not terminated
@@ -50,9 +50,10 @@ class TaskHistory():
                 raise ValueError(
                     "Attempt to start a task that is already started")
 
-        self.events.append(TaskEvent.start(event=event, time=epoch_time))
+        self.events.append(TaskEvent.start(
+            event=event, time=epoch_time, task_type=task_type, is_rework=is_rework))
 
-    def end(self, sim_time: float, event: Optional[WorkflowStateName] = None, status: EventStatus = EventStatus.SUCCESS, loss: float = 0):
+    def end(self, sim_time: float, task_type: TaskType, is_rework: bool, event: Optional[WorkflowStateName] = None, status: EventStatus = EventStatus.SUCCESS, loss: float = 0):
         """Ends a started event"""
 
         epoch_time = self.epoch.to_epoch_time(sim_time)
@@ -72,7 +73,7 @@ class TaskHistory():
                     and (last_event.event == event):
 
                 self.events.append(TaskEvent.end(
-                    event=event, time=epoch_time, status=status, loss=loss))
+                    event=event, time=epoch_time, status=status, loss=loss, task_type=task_type, is_rework=is_rework))
             else:
                 raise ValueError(
                     "Attempting to end a task from an invalid state")
@@ -96,7 +97,7 @@ class TaskHistory():
 
         del self.events[-1]
 
-    def terminate(self, sim_time: float, event: WorkflowStateName, status: EventStatus = EventStatus.SUCCESS):
+    def terminate(self, sim_time: float, event: WorkflowStateName, task_type: TaskType, is_rework: bool, status: EventStatus = EventStatus.SUCCESS):
         """Adds a terminal event to the history.
 
         A terminal event prevents additional events from being started"""
@@ -112,4 +113,4 @@ class TaskHistory():
             raise ValueError("Attempting to terminate a terminated task")
 
         self.events.append(TaskEvent.terminal(
-            event=event, time=epoch_time, status=status))
+            event=event, time=epoch_time, status=status, task_type=task_type, is_rework=is_rework))

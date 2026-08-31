@@ -56,38 +56,6 @@ class TestTaskGenerator(unittest.TestCase):
             TaskGenerator(factory=TaskFactory(
                 story_points=1, initial_value=1)).start(self.env, self.target, interval=0)
 
-    def test_iteration(self):
-
-        factory = TaskFactory(story_points=1, initial_value=1)
-
-        batches = 5
-
-        generator = TaskGenerator(factory=factory)
-
-        index = 1
-        for task_group in generator:
-
-            self.assertEqual(1, len(task_group))
-            task = task_group[0]
-            self.assertEqual(f"S{index}", task.task_name)
-
-            index += 1
-            if index == batches:
-                break
-
-        index = 1
-        generator = TaskGenerator(factory=factory, group_size=3)
-        for task_group in generator:
-
-            self.assertEqual(3, len(task_group))
-
-            for i, task in enumerate(task_group):
-                self.assertEqual(f"S{index}-{i+1}", task.task_name)
-
-            index += 1
-            if index == batches:
-                break
-
     def test_creation_time(self):
 
         # validates correct creation/epoch_times in generated Tasks
@@ -97,7 +65,7 @@ class TestTaskGenerator(unittest.TestCase):
         interval = 3
         num_intervals = 2
 
-        factory = TaskFactory(env=self.env, initial_value=1, story_points=1)
+        factory = TaskFactory(initial_value=1, story_points=1)
 
         generator = TaskGenerator(factory=factory, group_size=group_size)
 
