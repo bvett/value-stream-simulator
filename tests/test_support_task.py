@@ -13,7 +13,7 @@ class TestSupportTask(unittest.TestCase):
                            creation_sim_t=2)
 
         self.assertEqual(task.depreciation_rate, 0)
-        self.assertEqual(task.completed_story_points, 0)
+        self.assertEqual(task.history.completed_story_points, 0)
         self.assertEqual(task.creation_sim_t, 2)
         self.assertEqual(task.depreciation_rate, 0.0)
         self.assertEqual(task.story_points, 2)

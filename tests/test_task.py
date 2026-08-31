@@ -176,7 +176,7 @@ class TestTask(unittest.TestCase):
         remainder = task.do_work(effort)
 
         self.assertEqual(task.story_points, original_story_points)
-        self.assertEqual(task.completed_story_points, effort)
+        self.assertEqual(task.history.completed_story_points, effort)
         self.assertEqual(task.remaining_work(), original_story_points - effort)
         self.assertEqual(remainder, 0)
 
@@ -196,7 +196,7 @@ class TestTask(unittest.TestCase):
         task.do_work(15)
         task.do_work(-3)
 
-        self.assertEqual(task.completed_story_points, 22)
+        self.assertEqual(task.history.completed_story_points, 22)
 
         remainder = task.do_work(40)
         self.assertEqual(task.remaining_work(), 0)

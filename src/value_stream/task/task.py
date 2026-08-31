@@ -56,8 +56,6 @@ class Task:
 
         self.story_points = story_points
 
-        self.completed_story_points: float = 0
-
         if creation_sim_t < 0:
             raise ValueError("creation_sim_t must be >=0")
 
@@ -118,15 +116,13 @@ class Task:
         """Returns a clone of the task except history"""
         result = copy.copy(self)
 
-        result.completed_story_points = 0
-
         result.history = TaskHistory(epoch_start_sim_t=epoch_start_sim_t)
         result._id = Task._generate_id()
 
         return result
 
     def remaining_work(self):
-        return self.story_points - self.completed_story_points
+        return self.story_points - self.history.completed_story_points
 
     def do_work(self, story_points: float):
 
@@ -134,14 +130,14 @@ class Task:
         remaining_work = self.remaining_work()
 
         if story_points <= remaining_work:
-            self.completed_story_points += story_points
+            self.history.completed_story_points += story_points
 
-            if self.completed_story_points < 0:
+            if self.history.completed_story_points < 0:
                 raise ValueError("completed_story_points cannot be negative")
 
             return 0.0
 
-        self.completed_story_points = self.story_points
+        self.history.completed_story_points = self.story_points
         return story_points - remaining_work
 
     def end(self, sim_t: float, event: Optional[WorkflowStateName] = None, status: EventStatus = EventStatus.SUCCESS):

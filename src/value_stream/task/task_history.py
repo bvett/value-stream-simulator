@@ -21,6 +21,8 @@ class TaskHistory():
 
         self.delivered_value: Optional[float] = None
 
+        self.completed_story_points: float = 0
+
     def last_event(self):
         """Returns most recent event, or None if no events exist"""
         return None if not self.events else self.events[-1]
