@@ -6,7 +6,7 @@ from simpy import Environment, Event, Interrupt
 
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourcePolicy, ResourceTracker
-from value_stream.task import TaskGenerator
+from value_stream.task import Task, TaskGenerator
 
 from .assignment_strategy import AssignmentStrategy
 from .workflow_policy import WorkflowPolicy
@@ -30,14 +30,14 @@ class SupportWorkflow:
         self._completed: Optional[WorkflowState] = None
 
     @property
-    def pending(self) -> Optional[list[Event]]:
+    def pending(self) -> Optional[list[Task]]:
         if not self._pending:
             return None
 
         return self._pending.items
 
     @property
-    def completed(self) -> Optional[list[Event]]:
+    def completed(self) -> Optional[list[Task]]:
         if not self._completed:
             return None
 
