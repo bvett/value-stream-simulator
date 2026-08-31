@@ -48,7 +48,7 @@ class SimulationRunner:
             results.append(self._execute_inner(
                 env=env,
                 model=model,
-                tasks=tasks,
+                tasks=Task.start_epoch(tasks, env),
                 policy=policy,
                 sdlc_workflow=sdlc_workflow,
                 support_generator=support_generator,

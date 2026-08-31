@@ -45,7 +45,7 @@ class SDLCWorkflow:
         idx = len(self.delivered.items)
 
         for task in tasks:
-            yield self.pending.put(task.reset(self.env.now))
+            yield self.pending.put(task)
 
         delivery_target = len(self.pending.items)
 

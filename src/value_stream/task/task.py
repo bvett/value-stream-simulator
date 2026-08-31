@@ -1,7 +1,9 @@
 import copy
 import uuid
 from enum import StrEnum
-from typing import Optional, Self
+from typing import Collection, Optional, Self
+
+from simpy import Environment
 
 from value_stream.core import EventStatus, WorkflowStateName
 
@@ -20,6 +22,10 @@ class Task:
     @classmethod
     def _generate_id(cls):
         return uuid.uuid4()
+
+    @classmethod
+    def start_epoch(cls, tasks: Collection[Self], env: Environment) -> list[Self]:
+        return [t.reset(epoch_start_sim_t=env.now) for t in tasks]
 
     def __init__(self,
                  initial_value: float,
