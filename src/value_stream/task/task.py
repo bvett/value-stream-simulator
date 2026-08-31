@@ -61,8 +61,6 @@ class Task:
         if creation_sim_t < 0:
             raise ValueError("creation_sim_t must be >=0")
 
-        self.creation_sim_t = creation_sim_t
-
         if not 0 <= depreciation_rate <= 1:
             raise ValueError("depreciation_rate must >=0 and <=1")
 
@@ -70,13 +68,17 @@ class Task:
 
         self.task_type = task_type
 
-        self.history = TaskHistory(epoch_start_t=self.creation_sim_t)
+        self.history = TaskHistory(epoch_start_t=creation_sim_t)
 
         self._id = Task._generate_id()
 
     @property
     def task_id(self) -> uuid.UUID:
         return self._id
+
+    @property
+    def creation_sim_t(self):
+        return self.history.creation_sim_t
 
     def value(self, epoch_t: Optional[float] = None) -> float:
         """Calculates the value of the task at a specified time
@@ -116,7 +118,6 @@ class Task:
         """Returns a clone of the task except history"""
         result = copy.copy(self)
 
-        result.creation_sim_t = epoch_start_t
         result.completed_story_points = 0
 
         result.history = TaskHistory(epoch_start_t=epoch_start_t)

@@ -17,6 +17,8 @@ class TaskHistory():
         self.events: list[TaskEvent] = []
         self.epoch = Epoch(epoch_start_t)
 
+        self.creation_sim_t = epoch_start_t
+
         self.delivered_value: Optional[float] = None
 
     def last_event(self):

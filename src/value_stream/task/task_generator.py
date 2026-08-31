@@ -63,7 +63,6 @@ class TaskGenerator:
                         raise RuntimeError("Unexpected empty value")
 
                     for v in event.value:
-                        v.creation_sim_t = env.now
                         v.history.epoch_start_t = epoch_start_t
                         yield target.put(v)
 
