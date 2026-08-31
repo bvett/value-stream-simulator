@@ -114,13 +114,13 @@ class Task:
     def __str__(self) -> str:
         return self.task_name if self.task_name else ""
 
-    def reset(self, epoch_start_t: float = 0) -> Self:
+    def reset(self, epoch_start_sim_t: float = 0) -> Self:
         """Returns a clone of the task except history"""
         result = copy.copy(self)
 
         result.completed_story_points = 0
 
-        result.history = TaskHistory(epoch_start_sim_t=epoch_start_t)
+        result.history = TaskHistory(epoch_start_sim_t=epoch_start_sim_t)
         result._id = Task._generate_id()
 
         return result
