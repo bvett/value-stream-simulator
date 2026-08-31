@@ -5,7 +5,8 @@ from typing import Collection
 import numpy as np
 from tqdm import tqdm
 
-from value_stream.simulation import SimulationRunner, SimulationResult, ModelFactory
+from value_stream.client import SimulationRunner
+from value_stream.simulation import SimulationResult, ModelFactory
 from value_stream.client.views import ResultViewer, MetadataViewer
 from value_stream.resources import Developer, QATester, Toolchain, DeveloperFactory
 from value_stream.task import SupportTask, TaskFactory, TaskGenerator

@@ -1,8 +1,9 @@
 import unittest
 from tqdm import tqdm
+from value_stream.client import SimulationRunner
 from value_stream.core import EventStatus
 from value_stream.resources import QATester, Toolchain, DeveloperFactory
-from value_stream.simulation import SimulationRunner, ModelFactory
+from value_stream.simulation import ModelFactory
 from value_stream.task import SupportTask, TaskType, TaskEvent, TaskFactory
 
 # pylint:disable=missing-class-docstring,missing-function-docstring

@@ -4,13 +4,10 @@ from typing import Iterable, Optional
 from simpy import Environment
 from tqdm import tqdm
 
+from value_stream.simulation import Model, Simulation, SimulationPolicy, \
+    DefaultSimulationPolicy, SimulationResult
 from value_stream.task import Task, TaskGenerator
 from value_stream.workflow import SDLCWorkflow, SupportWorkflow
-
-from .model import Model
-from .simulation import Simulation
-from .simulation_policy import SimulationPolicy, DefaultSimulationPolicy
-from .simulation_result import SimulationResult
 
 
 logger = logging.getLogger(__name__)
