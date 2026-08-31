@@ -36,7 +36,7 @@ class TaskGenerator:
 
         return tasks
 
-    def start(self, env: Environment, target: Store, interval: float, epoch_start_sim_t: float = 0):
+    def start(self, env: Environment, target: Store, interval: float):
 
         if interval <= 0:
             raise ValueError("interval must be > 0")
@@ -54,16 +54,13 @@ class TaskGenerator:
                     limit -= 1
 
                 try:
-                    value: list[Task] = next(self)
 
-                    event = env.timeout(delay=interval, value=value)
+                    event = env.timeout(delay=interval)
                     yield event
 
-                    if event.value is None:
-                        raise RuntimeError("Unexpected empty value")
+                    value: list[Task] = next(self)
 
-                    for v in event.value:
-                        v.history = TaskHistory(epoch_start_sim_t)
+                    for v in value:
                         yield target.put(v)
 
                 except Interrupt:

@@ -2,7 +2,7 @@ import unittest
 
 from simpy import Environment, Store
 
-from value_stream.task import TaskFactory, TaskGenerator
+from value_stream.task import Task, TaskFactory, TaskGenerator
 
 
 class TestTaskGenerator(unittest.TestCase):
@@ -87,3 +87,37 @@ class TestTaskGenerator(unittest.TestCase):
             index += 1
             if index == batches:
                 break
+
+    def test_creation_time(self):
+
+        # validates correct creation/epoch_times in generated Tasks
+
+        starting_t = 15
+        group_size = 2
+        interval = 3
+        num_intervals = 2
+
+        factory = TaskFactory(env=self.env, initial_value=1, story_points=1)
+
+        generator = TaskGenerator(factory=factory, group_size=group_size)
+
+        # advance sim time away from 0
+        self.env.run(starting_t)
+
+        generator.start(self.env, target=self.target, interval=interval)
+
+        self.env.run(1 + starting_t + (interval * num_intervals))
+
+        self.assertEqual(group_size * num_intervals, len(self.target.items))
+
+        expected_creation_times = [18, 18, 21, 21]
+
+        for k, v in enumerate(self.target.items):
+            task: Task = v
+            self.assertEqual(expected_creation_times[k], task.creation_sim_t)
+
+            self.assertEqual(
+                expected_creation_times[k], task.history.epoch.to_sim_time(0))
+
+            self.assertEqual(task._initial_value, task.value(
+                task.history.epoch.to_epoch_time(expected_creation_times[k])))
