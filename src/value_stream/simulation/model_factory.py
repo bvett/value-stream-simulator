@@ -1,5 +1,5 @@
 import itertools
-from typing import Collection, Iterable
+from typing import Collection, Iterable, Optional
 
 from value_stream.simulation import Model
 from value_stream.resources import Developer, QATester, Toolchain
@@ -23,7 +23,8 @@ class ModelFactory:
                deployment_cadences: Iterable,
                qa_testers: Iterable[QATester],
                toolchain_pool: Iterable[Toolchain],
-               support_intervals: Iterable) -> list[Model]:
+               support_intervals: Optional[Iterable] = None,
+               support_task_story_points: float = 1) -> list[Model]:
         """Creates Model objects
 
         Args:
@@ -35,6 +36,9 @@ class ModelFactory:
             of developer_teams and deployment_cadences.
         """
 
+        if support_intervals is None:
+            support_intervals = [None]
+
         result = []
 
         for team, cadence, interval in itertools.product(teams, deployment_cadences, support_intervals):
@@ -42,5 +46,6 @@ class ModelFactory:
                                 deployment_cadence=cadence,
                                 qa_testers=qa_testers,
                                 toolchain_pool=toolchain_pool,
-                                support_interval=interval))
+                                support_interval=interval,
+                                support_task_story_points=support_task_story_points))
         return result

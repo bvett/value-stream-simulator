@@ -9,7 +9,7 @@ from value_stream.client import SimulationRunner
 from value_stream.simulation import SimulationResult, ModelFactory
 from value_stream.client.views import ResultViewer, MetadataViewer
 from value_stream.resources import Developer, QATester, Toolchain, DeveloperFactory
-from value_stream.task import SupportTask, TaskFactory, TaskGenerator
+from value_stream.task import TaskFactory
 from value_stream.utils import uniform
 
 
@@ -78,23 +78,14 @@ if __name__ == "__main__":
         deployment_cadences=np.linspace(
             0, MAX_CADENCE, CADENCE_SAMPLES, dtype=int),
         qa_testers=qa_tester_pool,
-        toolchain_pool=toolchain_pool,
-        support_intervals=[None])
-
-    support_factory = TaskFactory(
-        SupportTask, story_points=1)
-
-    support_generator = TaskGenerator(
-        factory=support_factory)
+        toolchain_pool=toolchain_pool)
 
     # Run the simulation with a progress bar and collect the results
     results: list[SimulationResult] = []
-    # metadata: list[SimulationMetadata] = []
 
     with tqdm(desc='Running Simulation', total=len(models)) as pbar:
         results = SimulationRunner().execute(tasks=tasks,
                                              models=models,
-                                             support_generator=support_generator,
                                              pbar=pbar)
 
     # Showcase the results using different plots

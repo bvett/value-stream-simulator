@@ -38,17 +38,10 @@ class TestSimulation(unittest.TestCase):
                             depreciation_rate=0,
                             story_points=1.0).create(count=NUM_TASKS)
 
-        support_factory = TaskFactory(
-            SupportTask, story_points=1)
-
-        support_generator = TaskGenerator(
-            factory=support_factory)
-
         with tqdm(total=len(models)) as pbar:
             simulation_results = simulation.execute(
                 tasks=tasks,
                 models=models,
-                support_generator=support_generator,
                 pbar=pbar)
 
         # one result for every combination of task and cadence

@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from value_stream.simulation import Model, Simulation, SimulationPolicy, \
     DefaultSimulationPolicy, SimulationResult
-from value_stream.task import Task, TaskGenerator
+from value_stream.task import Task
 
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,6 @@ class SimulationRunner:
 
     def execute(self, tasks: list[Task],
                 models: Iterable[Model],
-                support_generator: Optional[TaskGenerator] = None,
                 pbar: Optional[tqdm] = None,
                 policy: SimulationPolicy = DefaultSimulationPolicy()) -> list[SimulationResult]:
         """Executes a simulation.
@@ -39,8 +38,7 @@ class SimulationRunner:
             results.append(self.client.execute(
                 model=model,
                 tasks=tasks,
-                policy=policy,
-                support_generator=support_generator))
+                policy=policy))
 
             if pbar:
                 pbar.update()

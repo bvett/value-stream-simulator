@@ -9,7 +9,8 @@ class Model:
                  deployment_cadence: int,
                  qa_testers: Iterable[QATester],
                  toolchain_pool: Iterable[Toolchain],
-                 support_interval: Optional[float]) -> None:
+                 support_interval: Optional[float] = None,
+                 support_task_story_points: float = 1) -> None:
         """Describes how a simulation executes
 
         Args:
@@ -18,6 +19,7 @@ class Model:
             deployment_duration (float): Duration of a deployment in time units
             deployment_cadence (int): Time interval between deployment activities.
             support_interval (float|None): Frequency of support task generation.  
+            support_task_story_points (float): Number of story points assigned to generated support tasks.
         """
 
         if deployment_cadence < 0:
@@ -32,3 +34,4 @@ class Model:
         self.team_size = len(developer_team)
 
         self.support_interval = support_interval
+        self.support_task_story_points = support_task_story_points

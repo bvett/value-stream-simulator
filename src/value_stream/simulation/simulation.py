@@ -5,7 +5,7 @@ from simpy import Environment, Event, Process
 from simpy.events import AllOf
 
 
-from value_stream.task import Task, TaskEvent, TaskGenerator
+from value_stream.task import SupportTask, Task, TaskEvent, TaskFactory, TaskGenerator
 from value_stream.resources import ResourceTracker
 from value_stream.workflow import ResourceOperator, SDLCWorkflow, SupportWorkflow
 
@@ -22,8 +22,7 @@ class Simulation:
     def execute(self,
                 model: Model,
                 tasks: list[Task],
-                policy: SimulationPolicy,
-                support_generator: Optional[TaskGenerator] = None) -> SimulationResult:
+                policy: SimulationPolicy) -> SimulationResult:
 
         env = Environment()
 
@@ -55,7 +54,12 @@ class Simulation:
                                         toolchain_manager=toolchain_manager,
                                         signal=delivery_complete))
 
-        if (support_generator is not None) and (model.support_interval is not None):
+        if model.support_interval is not None:
+
+            factory = TaskFactory(
+                SupportTask, story_points=model.support_task_story_points)
+            support_generator = TaskGenerator(factory)
+
             support_workflow_p = env.process(support_workflow.start(
                 env=env,
                 generator=support_generator,
