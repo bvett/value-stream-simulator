@@ -100,12 +100,12 @@ class TestDeveloper(unittest.TestCase, TestUtils):
             if (support_generator is not None) and (support_target is not None) and (interval is not None):
 
                 support_workflow = SupportWorkflow(
-                    env, resource_policy=self.policy, workflow_policy=self.policy)
+                    resource_policy=self.policy, workflow_policy=self.policy)
 
-                env.process(support_workflow.start(
-                    generator=support_generator,
-                    developers=[developer],
-                    interval=interval, tracker=self.tracker))
+                env.process(support_workflow.start(env=env,
+                                                   generator=support_generator,
+                                                   developers=[developer],
+                                                   interval=interval, tracker=self.tracker))
 
                 sim_duration = (
                     (num_tasks * story_points + 1) / dev_efficiency) + 5

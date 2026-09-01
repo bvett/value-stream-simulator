@@ -19,14 +19,17 @@ logger = logging.getLogger(__name__)
 
 
 class Simulation:
-    def execute(self, env: Environment,
+    def execute(self,
                 model: Model,
                 tasks: list[Task],
                 policy: SimulationPolicy,
-                sdlc_workflow: SDLCWorkflow,
-                support_workflow: SupportWorkflow,
                 support_generator: Optional[TaskGenerator] = None) -> SimulationResult:
 
+        env = Environment()
+
+        sdlc_workflow = SDLCWorkflow()
+        support_workflow = SupportWorkflow(
+            resource_policy=policy, workflow_policy=policy)
         tracker = ResourceTracker(env)
 
         developer_manager = ResourceOperator(
@@ -45,15 +48,16 @@ class Simulation:
 
         sim_termination_events = [delivery_complete]
 
-        env.process(sdlc_workflow.start(
-            tasks=tasks,
-            developer_manager=developer_manager,
-            qa_manager=qa_manager,
-            toolchain_manager=toolchain_manager,
-            signal=delivery_complete))
+        env.process(sdlc_workflow.start(env=env,
+                                        tasks=Task.start_epoch(tasks, env),
+                                        developer_manager=developer_manager,
+                                        qa_manager=qa_manager,
+                                        toolchain_manager=toolchain_manager,
+                                        signal=delivery_complete))
 
         if (support_generator is not None) and (model.support_interval is not None):
             support_workflow_p = env.process(support_workflow.start(
+                env=env,
                 generator=support_generator,
                 interval=model.support_interval,
                 developers=list(model.developer_team),

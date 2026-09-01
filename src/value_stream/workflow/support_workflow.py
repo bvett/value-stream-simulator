@@ -17,8 +17,7 @@ class SupportWorkflow:
     """Generates and assigns tasks to developers outside of the primary SDLC workflow.
     Used to simulate unplanned workload that results in disruption"""
 
-    def __init__(self, env: Environment, workflow_policy: WorkflowPolicy, resource_policy: ResourcePolicy):
-        self.env = env
+    def __init__(self, workflow_policy: WorkflowPolicy, resource_policy: ResourcePolicy):
 
         self._proc = None
 
@@ -43,14 +42,15 @@ class SupportWorkflow:
 
         return self._completed.items
 
-    def start(self, generator: TaskGenerator,
+    def start(self, env: Environment,
+              generator: TaskGenerator,
               interval: float,
               developers: list[Developer],
               tracker: ResourceTracker,
               stop_signal: Optional[Event] = None):
 
         if stop_signal is None:
-            self._signal = self.env.event()
+            self._signal = env.event()
         else:
             self._signal = stop_signal
 
@@ -58,19 +58,20 @@ class SupportWorkflow:
             raise ValueError("at least one developer must be provided")
 
         self._pending = WorkflowState(
-            self.env, WorkflowStateName.SUPPORT_PENDING)
+            env, WorkflowStateName.SUPPORT_PENDING)
 
         self._completed = TerminalWorkflowState(
-            self.env, WorkflowStateName.SUPPORT_COMPLETE)
+            env, WorkflowStateName.SUPPORT_COMPLETE)
 
-        self.env.process(self._monitor())
+        env.process(self._monitor())
 
-        generator.start(env=self.env,
+        generator.start(env=env,
                         target=self._pending,
                         interval=interval)
 
-        self._proc = self.env.process(
-            self._processing_loop(developers=developers,
+        self._proc = env.process(
+            self._processing_loop(env=env,
+                                  developers=developers,
                                   strategy=self._workflow_policy.support_strategy(),
                                   source=self._pending,
                                   target=self._completed,
@@ -82,6 +83,7 @@ class SupportWorkflow:
         return self._completed.items
 
     def _processing_loop(self,
+                         env: Environment,
                          developers: list[Developer],
                          strategy: AssignmentStrategy,
                          source: WorkflowState,
@@ -107,8 +109,8 @@ class SupportWorkflow:
 
                 developer = next(support_delegator)
 
-                self.env.process(
-                    developer.operate(env=self.env,
+                env.process(
+                    developer.operate(env=env,
                                       tasks=[task],
                                       target=target,
                                       policy=self._resource_policy,

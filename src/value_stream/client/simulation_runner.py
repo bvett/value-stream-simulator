@@ -1,13 +1,11 @@
 import logging
 from typing import Iterable, Optional
 
-from simpy import Environment
 from tqdm import tqdm
 
 from value_stream.simulation import Model, Simulation, SimulationPolicy, \
     DefaultSimulationPolicy, SimulationResult
 from value_stream.task import Task, TaskGenerator
-from value_stream.workflow import SDLCWorkflow, SupportWorkflow
 
 
 logger = logging.getLogger(__name__)
@@ -36,21 +34,13 @@ class SimulationRunner:
 
         results: list[SimulationResult] = []
 
-        env = Environment()
-        sdlc_workflow = SDLCWorkflow(env)
-        support_workflow = SupportWorkflow(
-            env, resource_policy=policy, workflow_policy=policy)
-
         for model in models:
 
             results.append(self.client.execute(
-                env=env,
                 model=model,
-                tasks=Task.start_epoch(tasks, env),
+                tasks=tasks,
                 policy=policy,
-                sdlc_workflow=sdlc_workflow,
-                support_generator=support_generator,
-                support_workflow=support_workflow))
+                support_generator=support_generator))
 
             if pbar:
                 pbar.update()

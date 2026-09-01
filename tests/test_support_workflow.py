@@ -33,7 +33,7 @@ class TestSupportWorkflow(unittest.TestCase):
         tracker = ResourceTracker(env)
 
         workflow = SupportWorkflow(
-            env, resource_policy=self.policy, workflow_policy=self.policy)
+            resource_policy=self.policy, workflow_policy=self.policy)
 
         developers = DeveloperFactory().create(
             count=developer_count,
@@ -45,11 +45,11 @@ class TestSupportWorkflow(unittest.TestCase):
         task_generator = TaskGenerator(
             factory=task_factory)
 
-        env.process(workflow.start(
-            generator=task_generator,
-            developers=developers,
-            interval=support_interval,
-            tracker=tracker))
+        env.process(workflow.start(env=env,
+                                   generator=task_generator,
+                                   developers=developers,
+                                   interval=support_interval,
+                                   tracker=tracker))
 
         signal = env.timeout(sim_duration)
 
@@ -126,20 +126,20 @@ class TestSupportWorkflow(unittest.TestCase):
             env, WorkflowStateName.SUPPORT_COMPLETE)
 
         workflow = SupportWorkflow(
-            env, workflow_policy=self.policy, resource_policy=self.policy)
+            workflow_policy=self.policy, resource_policy=self.policy)
 
         story_points = 5
         for i in range(1, 4):
             source.put(SupportTask(
                 story_points=story_points, task_name=f"T{i}"))
 
-        env.process(workflow._processing_loop(
-            [developer],
-            strategy=AssignmentStrategy.RANDOM,
-            source=source,
-            target=target,
-            tracker=tracker
-        ))
+        env.process(workflow._processing_loop(env=env,
+                                              developers=[developer],
+                                              strategy=AssignmentStrategy.RANDOM,
+                                              source=source,
+                                              target=target,
+                                              tracker=tracker
+                                              ))
 
         env.run(until=1)
 
@@ -166,7 +166,7 @@ class TestSupportWorkflow(unittest.TestCase):
         tracker = ResourceTracker(env)
 
         workflow = SupportWorkflow(
-            env, resource_policy=self.policy, workflow_policy=self.policy)
+            resource_policy=self.policy, workflow_policy=self.policy)
 
         developers = [Developer(efficiency=2)]
 
@@ -176,10 +176,10 @@ class TestSupportWorkflow(unittest.TestCase):
         task_generator = TaskGenerator(
             factory=task_factory)
 
-        env.process(workflow.start(
-            generator=task_generator,
-            developers=developers,
-            interval=1, tracker=tracker))
+        env.process(workflow.start(env=env,
+                                   generator=task_generator,
+                                   developers=developers,
+                                   interval=1, tracker=tracker))
 
         env.run(until=10)
 
@@ -210,7 +210,7 @@ class TestSupportWorkflow(unittest.TestCase):
         tracker = ResourceTracker(env)
 
         workflow = SupportWorkflow(
-            env, resource_policy=self.policy, workflow_policy=self.policy)
+            resource_policy=self.policy, workflow_policy=self.policy)
 
         developers = []
 
@@ -221,10 +221,10 @@ class TestSupportWorkflow(unittest.TestCase):
             factory=task_factory)
 
         with self.assertRaises(ValueError):
-            next(workflow.start(
-                generator=task_generator,
-                developers=developers,
-                interval=1, tracker=tracker))
+            next(workflow.start(env=env,
+                                generator=task_generator,
+                                developers=developers,
+                                interval=1, tracker=tracker))
 
     def test_assignment_strategies(self):
 
@@ -254,8 +254,8 @@ class TestSupportWorkflow(unittest.TestCase):
             env = Environment()
             tracker = ResourceTracker(env)
 
-            workflow = SupportWorkflow(
-                env, workflow_policy=MockPolicy(strategy), resource_policy=MockPolicy(strategy))
+            workflow = SupportWorkflow(workflow_policy=MockPolicy(
+                strategy), resource_policy=MockPolicy(strategy))
 
             task_factory = TaskFactory(cls=SupportTask,
                                        story_points=1)
@@ -269,11 +269,11 @@ class TestSupportWorkflow(unittest.TestCase):
                 developers.append(DeveloperMock(
                     assignment_map=assignment_map, efficiency=developer_efficiency, name=f"D{i}"))
 
-            env.process(workflow.start(
-                generator=task_generator,
-                developers=developers,
-                interval=interval,
-                tracker=tracker))
+            env.process(workflow.start(env=env,
+                                       generator=task_generator,
+                                       developers=developers,
+                                       interval=interval,
+                                       tracker=tracker))
 
             env.run(until=iterations + 1)
 

@@ -18,23 +18,11 @@ class SDLCWorkflow:
     SDLC process is: pending->developed->delivered
     """
 
-    def __init__(self, env: Environment) -> None:
+    def __init__(self) -> None:
         """Initializes a workflow with pending tasks"""
 
-        self.env = env
-
-        self.pending = WorkflowState(self.env, WorkflowStateName.PENDING)
-
-        self.developed = WorkflowState(
-            self.env, WorkflowStateName.DEV_COMPLETE)
-
-        self.qa_complete = WorkflowState(
-            self.env, WorkflowStateName.QA_COMPLETE)
-
-        self.delivered = TerminalWorkflowState(
-            self.env, WorkflowStateName.DELIVERY)
-
-    def start(self, tasks: list[Task],
+    def start(self, env: Environment,
+              tasks: list[Task],
               developer_manager: ResourceOperator,
               qa_manager: ResourceOperator,
               toolchain_manager: ResourceOperator,
@@ -42,15 +30,22 @@ class SDLCWorkflow:
         """Signals workflow completion when all tasks specified at
         initialization are in the delivered queue"""
 
-        idx = len(self.delivered.items)
+        self.pending = WorkflowState(env, WorkflowStateName.PENDING)
+
+        self.developed = WorkflowState(
+            env, WorkflowStateName.DEV_COMPLETE)
+
+        self.qa_complete = WorkflowState(
+            env, WorkflowStateName.QA_COMPLETE)
+
+        self.delivered = TerminalWorkflowState(
+            env, WorkflowStateName.DELIVERY)
 
         for task in tasks:
             yield self.pending.put(task)
 
-        delivery_target = len(self.pending.items)
-
         self.delivered.set_alarm(
-            limit=idx + delivery_target, signal=signal)
+            limit=len(self.pending.items), signal=signal)
 
         developer_manager.start(
             source=self.pending,
