@@ -1,4 +1,5 @@
 from enum import StrEnum
+from typing import Optional
 
 from value_stream.core import EventStatus, TaskType, WorkflowStateName
 
@@ -12,7 +13,7 @@ class TaskEvent:
         END = 'end'
         TERMINAL = 'terminal'
 
-    def __init__(self, event: WorkflowStateName, event_type: EventType, time: float, status: EventStatus, task_type: TaskType, is_rework: bool, loss: float = 0):
+    def __init__(self, event: WorkflowStateName, event_type: EventType, time: float, status: EventStatus, task_type: TaskType, is_rework: bool, duration: Optional[float] = None, loss: float = 0):
         self.event: WorkflowStateName = event
         self.event_type: TaskEvent.EventType = event_type
         self.time: float = time
@@ -20,14 +21,15 @@ class TaskEvent:
         self.loss: float = loss
         self.task_type: TaskType = task_type
         self.is_rework: bool = is_rework
+        self.duration: Optional[float] = duration
 
     @classmethod
     def start(cls, event: WorkflowStateName, time: float, task_type: TaskType, is_rework: bool, status: EventStatus = EventStatus.SUCCESS) -> "TaskEvent":
         return TaskEvent(event=event, time=time, status=status, event_type=TaskEvent.EventType.START, task_type=task_type, is_rework=is_rework)
 
     @classmethod
-    def end(cls, event: WorkflowStateName, time: float, task_type: TaskType, is_rework: bool, status: EventStatus = EventStatus.SUCCESS, loss: float = 0) -> "TaskEvent":
-        return TaskEvent(event=event, time=time, status=status, event_type=TaskEvent.EventType.END, loss=loss, task_type=task_type, is_rework=is_rework)
+    def end(cls, event: WorkflowStateName, time: float, task_type: TaskType, is_rework: bool, duration: float, status: EventStatus = EventStatus.SUCCESS, loss: float = 0) -> "TaskEvent":
+        return TaskEvent(event=event, time=time, status=status, event_type=TaskEvent.EventType.END, loss=loss, task_type=task_type, is_rework=is_rework, duration=duration)
 
     @classmethod
     def terminal(cls, event: WorkflowStateName, time: float, task_type: TaskType, is_rework: bool, status: EventStatus = EventStatus.SUCCESS) -> "TaskEvent":

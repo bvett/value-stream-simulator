@@ -72,8 +72,9 @@ class TaskHistory():
                     and (last_event.status == EventStatus.SUCCESS) \
                     and (last_event.event == event):
 
+                duration = epoch_time - last_event.time
                 self.events.append(TaskEvent.end(
-                    event=event, time=epoch_time, status=status, loss=loss, task_type=task_type, is_rework=is_rework))
+                    event=event, time=epoch_time, status=status, loss=loss, task_type=task_type, is_rework=is_rework, duration=duration))
             else:
                 raise ValueError(
                     "Attempting to end a task from an invalid state")

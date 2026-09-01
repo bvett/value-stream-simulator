@@ -103,12 +103,12 @@ class Task:
 
         starting_value = self.value(epoch_t=from_epoch_t)
 
-        if starting_value == 0:
+        if (starting_value == 0) or (self._initial_value == 0):
             return 0
 
         ending_value = self.value(epoch_t=to_epoch_t)
 
-        return (ending_value - starting_value) / starting_value
+        return (ending_value - starting_value) / self._initial_value
 
     def __str__(self) -> str:
         return self.task_name if self.task_name else ""
