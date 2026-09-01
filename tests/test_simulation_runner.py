@@ -4,12 +4,12 @@ from value_stream.client import SimulationRunner
 from value_stream.core import EventStatus, WorkflowStateName
 from value_stream.resources import QATester, Toolchain, DeveloperFactory
 from value_stream.simulation import ModelFactory
-from value_stream.task import SupportTask, TaskType, TaskEvent, TaskFactory, TaskGenerator
+from value_stream.task import TaskType, TaskEvent, TaskFactory
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
 
-class TestSimulation(unittest.TestCase):
+class TestSimulationRunner(unittest.TestCase):
 
     def test_all(self):
 
