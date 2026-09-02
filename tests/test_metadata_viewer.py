@@ -16,9 +16,7 @@ class TestMetadataViewer(unittest.TestCase):
         self.team_size = 5
         self.max_cadence = 7
 
-        developer_factory = DeveloperFactory()
-
-        developer_teams = [developer_factory.create(
+        developer_teams = [DeveloperFactory.create(
             team_size, efficiency=1.0) for team_size in range(1, self.team_size+1)]
 
         self.num_teams = len(developer_teams)

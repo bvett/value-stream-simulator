@@ -5,7 +5,8 @@ from .developer import Developer
 class DeveloperFactory:
     """Utility for creating Developer objects"""
 
-    def create(self, count: int, **kwargs) -> list[Developer]:
+    @classmethod
+    def create(cls, count: int, **kwargs) -> list[Developer]:
         """Creates Developer objects based on DeveloperFactory configuration
 
         Args:
@@ -25,10 +26,11 @@ class DeveloperFactory:
         for i in range(count):
             args = generate_args(**kwargs)
 
-            developers.append(Developer(name=self._developer_name(i),
+            developers.append(Developer(name=cls._developer_name(i),
                                         **args))
 
         return developers
 
-    def _developer_name(self, index: int) -> str:
+    @classmethod
+    def _developer_name(cls, index: int) -> str:
         return f"Developer {index}"

@@ -13,7 +13,7 @@ class TestResourceOperator(unittest.TestCase):
         self.env = Environment()
         self.tracker = ResourceTracker(self.env)
 
-        self.resources = DeveloperFactory().create(3)
+        self.resources = DeveloperFactory.create(3)
 
         self.source = WorkflowState(self.env, WorkflowStateName.PENDING)
         self.target = WorkflowState(self.env, WorkflowStateName.DELIVERY)

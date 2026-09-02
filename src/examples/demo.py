@@ -55,12 +55,11 @@ if __name__ == "__main__":
                         story_points=uniform(.5, 2)).create(count=NUM_TASKS)
 
     # Create development teams with developers having efficiencies between 0.5 and 1.5
-    developer_factory = DeveloperFactory()
 
     teams: list[Collection[Developer]] = []
 
     for i in np.linspace(1, MAX_DEVELOPERS, DEV_TEAM_SAMPLES, dtype=int):
-        teams.append(developer_factory.create(
+        teams.append(DeveloperFactory.create(
             count=i, efficiency=uniform(.5, 1.5)))
 
     qa_tester_pool = QATester.create_pool(

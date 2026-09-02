@@ -13,20 +13,16 @@ class TestDeveloperFactory(unittest.TestCase):
 
     def test_validation(self):
 
-        factory = DeveloperFactory()
+        with self.assertRaises(ValueError):
+            _ = DeveloperFactory.create(0)
 
         with self.assertRaises(ValueError):
-            _ = factory.create(0)
-
-        with self.assertRaises(ValueError):
-            _ = factory.create(-1)
+            _ = DeveloperFactory.create(-1)
 
     def test_create_equal(self):
 
-        factory = DeveloperFactory()
-
-        devs_1 = factory.create(5, efficiency=1.2)
-        devs_2 = factory.create(5, efficiency=1.2)
+        devs_1 = DeveloperFactory.create(5, efficiency=1.2)
+        devs_2 = DeveloperFactory.create(5, efficiency=1.2)
 
         for i, dev in enumerate(devs_1):
             self.assertEqual(dev.name, devs_2[i].name)
@@ -34,5 +30,4 @@ class TestDeveloperFactory(unittest.TestCase):
 
     def test_create_sd(self):
 
-        factory = DeveloperFactory()
-        factory.create(5, efficiency=generator_utils.uniform(.5, 1.5))
+        DeveloperFactory.create(5, efficiency=generator_utils.uniform(.5, 1.5))

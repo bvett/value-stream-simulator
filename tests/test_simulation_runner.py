@@ -21,7 +21,7 @@ class TestSimulationRunner(unittest.TestCase):
 
         simulation_runner = SimulationRunner()
 
-        teams = [DeveloperFactory().create(
+        teams = [DeveloperFactory.create(
             count=NUM_DEVELOPERS, efficiency=1.0)]
 
         qa_tester_pool = QATester.create_pool(limit=1)

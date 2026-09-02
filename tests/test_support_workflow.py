@@ -35,7 +35,7 @@ class TestSupportWorkflow(unittest.TestCase):
         workflow = SupportWorkflow(
             resource_policy=self.policy, workflow_policy=self.policy)
 
-        developers = DeveloperFactory().create(
+        developers = DeveloperFactory.create(
             count=developer_count,
             efficiency=developer_efficiency)
 

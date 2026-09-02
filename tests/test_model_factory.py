@@ -10,7 +10,6 @@ class TestModelFactory(unittest.TestCase):
 
     def test_create(self):
 
-        developer_factory = DeveloperFactory()
         factory = ModelFactory()
 
         NUM_CADENCES = 3
@@ -23,7 +22,7 @@ class TestModelFactory(unittest.TestCase):
         teams: list[Collection[Developer]] = []
 
         for i in range(1, NUM_TEAMS+1):
-            teams.append(developer_factory.create(i))
+            teams.append(DeveloperFactory.create(i))
 
         qa_tester_pool = QATester.create_pool(limit=5)
         toolchain_pool = Toolchain.create_pool(
