@@ -2,6 +2,7 @@ from typing import Iterable, Optional
 
 from simpy import Environment, Interrupt, Process, Store
 
+from value_stream.core import WorkflowStateName
 from value_stream.resources import Resource, ResourcePolicy, ResourceTracker
 from value_stream.task import Task
 from .workflow_state import WorkflowState
@@ -41,7 +42,7 @@ class ResourceOperator:
 
         self._tracker = tracker
 
-    def start(self, source: WorkflowState, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
+    def start(self, source: WorkflowState, workflow_state: WorkflowStateName, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
         """Starts processing loop that:
             1) Waits for tasks to appear in source
             2) Triggers execution on a fixed schedule or continuously
@@ -61,8 +62,8 @@ class ResourceOperator:
         if self.cadence > 0:
             self._timer_p = self.env.process(self._timer())
 
-        self._executor_p = self.env.process(self._executor(
-            target, target_upon_failure=target_upon_failure))
+        self._executor_p = self.env.process(self._executor(workflow_state=workflow_state,
+                                                           target=target, target_upon_failure=target_upon_failure))
 
     def stop(self) -> None:
         """Shutdown the manager
@@ -122,25 +123,25 @@ class ResourceOperator:
             except Interrupt:
                 break
 
-    def _executor(self, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
+    def _executor(self, workflow_state: WorkflowStateName, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
 
         while True:
             try:
                 yield self.trigger  # wait for work
-                self.env.process(self._execute(
-                    target, target_upon_failure=target_upon_failure))
+                self.env.process(self._execute(workflow_state=workflow_state,
+                                               target=target, target_upon_failure=target_upon_failure))
             except Interrupt:
                 break
 
-    def _execute(self, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
+    def _execute(self, workflow_state: WorkflowStateName, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
 
         tasks = self._queue.copy()
         self._queue.clear()
         wait_t = self.env.now
-        resource: Resource = yield self.request()
+        resource: Resource = yield self.request(workflow_state)
 
         if self._tracker is not None:
-            self._tracker.complete_waiting(resource.workflow_state,
+            self._tracker.complete_waiting(workflow_state,
                                            self.env.now - wait_t)
 
         for task in tasks:
@@ -148,6 +149,7 @@ class ResourceOperator:
 
         yield self.env.process(resource.operate(env=self.env,
                                                 tasks=tasks,
+                                                workflow_state=workflow_state,
                                                 target=target,
                                                 target_upon_failure=target_upon_failure,
                                                 policy=self.policy,
@@ -155,7 +157,7 @@ class ResourceOperator:
 
         self.release(resource)
 
-    def request(self):
+    def request(self, workflow_state: WorkflowStateName):
         """Returns a resource from the resource pool, or waits until one is available. 
         If the pool is empty, generates a new resource from the resource generator 
         and adds it to the pool before returning."""
@@ -168,7 +170,7 @@ class ResourceOperator:
                 new_item.idle_t = self.env.now
                 self.resource_pool.put(new_item)
                 if self._tracker is not None:
-                    self._tracker.register(new_item.workflow_state)
+                    self._tracker.register(workflow_state)
 
         return self.resource_pool.get()
 

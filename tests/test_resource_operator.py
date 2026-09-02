@@ -14,6 +14,7 @@ class TestResourceOperator(unittest.TestCase):
         self.tracker = ResourceTracker(self.env)
 
         self.resources = DeveloperFactory.create(3)
+        self.workflow_state = WorkflowStateName.DEVELOPMENT
 
         self.source = WorkflowState(self.env, WorkflowStateName.PENDING)
         self.target = WorkflowState(self.env, WorkflowStateName.DELIVERY)
@@ -39,6 +40,7 @@ class TestResourceOperator(unittest.TestCase):
 
             for _ in range(2):
                 manager.start(source=self.source,
+                              workflow_state=self.workflow_state,
                               target=self.target)
 
         # attempt to start after stopping
@@ -49,6 +51,7 @@ class TestResourceOperator(unittest.TestCase):
                                        tracker=self.tracker)
             for _ in range(2):
                 manager.start(source=self.source,
+                              workflow_state=self.workflow_state,
                               target=self.target)
 
                 manager.stop()

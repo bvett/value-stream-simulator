@@ -34,13 +34,14 @@ class TestDeveloper(unittest.TestCase, TestUtils):
         junior_developer = Developer(.5, name="junior")
         senior_developer = Developer(1.5, name="senior")
 
+        workflow_state = WorkflowStateName.DEVELOPMENT
         target = WorkflowState(self.env, WorkflowStateName.DEVELOPMENT)
 
         for dev in [junior_developer, senior_developer]:
             for task in [self.simple_task.reset(), self.complex_task.reset()]:
                 self.assertEqual(task.remaining_work(), task.story_points)
                 self.env.process(dev.operate(
-                    self.env, [task], target, policy=self.policy, tracker=self.tracker))
+                    self.env, [task], target, workflow_state=workflow_state, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 
@@ -95,7 +96,8 @@ class TestDeveloper(unittest.TestCase, TestUtils):
             operator = ResourceOperator(
                 env=env, resources=[developer], policy=self.policy, tracker=self.tracker)
 
-            operator.start(dev_source, dev_target)
+            operator.start(
+                dev_source, WorkflowStateName.DEVELOPMENT, dev_target)
 
             if (support_generator is not None) and (support_target is not None) and (interval is not None):
 

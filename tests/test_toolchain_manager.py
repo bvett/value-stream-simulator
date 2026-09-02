@@ -20,6 +20,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         self.env = Environment()
         self.tracker = ResourceTracker(self.env)
         self.source = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
+        self.workflow_state = WorkflowStateName.DEPLOYMENT
         self.target = TerminalWorkflowState(
             self.env, WorkflowStateName.DELIVERY)
         self.policy = DefaultSimulationPolicy()
@@ -36,16 +37,14 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
     def test_noop_deployment(self):
         tasks = []
 
-        target = WorkflowState(self.env, WorkflowStateName.DEPLOYMENT)
-
         toolchain = Toolchain(
             deployment_duration=0)
         self.env.process(toolchain.operate(
-            self.env, tasks, target, policy=self.policy, tracker=self.tracker))
+            self.env, tasks, self.target, workflow_state=self.workflow_state, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 
-        self.assertEqual(len(target.items), 0)
+        self.assertEqual(len(self.target.items), 0)
 
     def test_batch_deployment(self):
 
@@ -61,7 +60,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         toolchain = Toolchain(deployment_duration=DEPLOYMENT_DURATION)
 
         self.env.process(toolchain.operate(
-            self.env, tasks, self.target, policy=self.policy, tracker=self.tracker))
+            self.env, tasks, self.target, workflow_state=self.workflow_state, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 
@@ -85,7 +84,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
 
         self.env.run()
 
-        toolchain.start(self.source, self.target)
+        toolchain.start(self.source, self.workflow_state, self.target)
         self.env.run()
 
         self.assertEqual(len(self.target.items), NUM_TASKS)
@@ -110,7 +109,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
                 limit=concurrency, deployment_duration=deployment_duration),
             cadence=cadence, policy=self.policy, tracker=self.tracker)
 
-        toolchain.start(self.source, self.target)
+        toolchain.start(self.source, self.workflow_state, self.target)
 
         self.assertEqual(len(self.source.items), num_tasks)
 

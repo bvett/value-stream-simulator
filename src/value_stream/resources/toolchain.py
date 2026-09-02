@@ -2,7 +2,7 @@ import random
 
 from simpy import Environment
 
-from value_stream.core import EventStatus, WorkflowStateName
+from value_stream.core import EventStatus
 from value_stream.task import Task
 
 from .resource_pool import PooledResource
@@ -14,7 +14,7 @@ class Toolchain(Resource, PooledResource):
 
     def __init__(self, deployment_duration: float,
                  failure_rate: float = 0.0):
-        super().__init__(WorkflowStateName.DEPLOYMENT)
+        super().__init__()
 
         self.failure_rate = failure_rate
 

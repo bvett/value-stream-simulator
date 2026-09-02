@@ -112,6 +112,7 @@ class SupportWorkflow:
                 env.process(
                     developer.operate(env=env,
                                       tasks=[task],
+                                      workflow_state=WorkflowStateName.DEVELOPMENT,
                                       target=target,
                                       policy=self._resource_policy,
                                       tracker=tracker))

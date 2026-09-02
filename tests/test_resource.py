@@ -18,7 +18,7 @@ class TestResource(unittest.TestCase):
         self.policy = DefaultSimulationPolicy()
 
     def test_validation(self):
-        resource = Resource(workflow_state=WorkflowStateName.DEVELOPMENT)
+        resource = Resource()
 
         with self.assertRaises(NotImplementedError):
             resource.do_work(env=self.env, tasks=[self.task])
@@ -28,7 +28,7 @@ class TestResource(unittest.TestCase):
         self.env.process(resource.operate(
             env=self.env, tasks=[self.task], target=self.target,
             target_upon_failure=self.target_for_failures,
-            policy=self.policy, tracker=self.tracker))
+            policy=self.policy, tracker=self.tracker, workflow_state=WorkflowStateName.DEVELOPMENT))
         self.env.run()
 
         self.assertEqual(self.env.now, 1.0)
@@ -55,16 +55,14 @@ class TestResource(unittest.TestCase):
         self.assertEqual(len(self.target_for_failures.items), 1)
 
     def test_resource_id(self):
-        resource_1 = Resource(workflow_state=WorkflowStateName.DEVELOPMENT)
+        resource_1 = Resource()
         self.assertIsNotNone(resource_1.resource_id)
 
-        resource_2 = Resource(workflow_state=WorkflowStateName.DEVELOPMENT)
+        resource_2 = Resource()
         self.assertNotEqual(resource_1.resource_id, resource_2.resource_id)
 
 
 class DefaultQAResource(Resource):
-    def __init__(self):
-        super().__init__(WorkflowStateName.QA_TESTING)
 
     def do_work(self, env: Environment, tasks: list[Task]):
         work = env.timeout(tasks[0].story_points)
@@ -73,8 +71,6 @@ class DefaultQAResource(Resource):
 
 
 class SuccessQAResource(Resource):
-    def __init__(self):
-        super().__init__(WorkflowStateName.QA_TESTING)
 
     def do_work(self, env: Environment, tasks: list[Task]):
         work = env.timeout(tasks[0].story_points, value={
@@ -84,8 +80,6 @@ class SuccessQAResource(Resource):
 
 
 class FailureQAResource(Resource):
-    def __init__(self):
-        super().__init__(WorkflowStateName.QA_TESTING)
 
     def do_work(self, env: Environment, tasks: list[Task]):
         work = env.timeout(tasks[0].story_points, value={

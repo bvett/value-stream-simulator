@@ -19,8 +19,7 @@ class Resource:
     def _generate_id(cls) -> uuid.UUID:
         return uuid.uuid4()
 
-    def __init__(self, workflow_state: WorkflowStateName):
-        self.workflow_state = workflow_state
+    def __init__(self):
         self._process: Optional[Resource.ProcessWrapper] = None
         self._suspended_work: list[Event] = []
         self.idle_t = 0
@@ -33,12 +32,13 @@ class Resource:
     def operate(self, env: Environment, tasks: list[Task],
                 target: Store,
                 policy: ResourcePolicy,
+                workflow_state: WorkflowStateName,
                 tracker: Optional[ResourceTracker] = None,
                 target_upon_failure: Optional[Store] = None):
         """Simulates an action on a task object"""
 
         for task in tasks:
-            task.start(env.now, self.workflow_state)
+            task.start(env.now, workflow_state)
 
         if self._process is not None and self._process.is_alive:
 
@@ -56,7 +56,7 @@ class Resource:
             try:
                 if tracker is not None:
                     tracker.start_work(
-                        self.workflow_state, env.now-self.idle_t)
+                        workflow_state, env.now-self.idle_t)
                 yield self._process
             except Interrupt:
 
@@ -67,11 +67,11 @@ class Resource:
                 interruption_start_t = env.now
                 if tracker is not None:
                     tracker.complete_work(
-                        self.workflow_state, status, elapsed_t=env.now-start_t)
+                        workflow_state, status, elapsed_t=env.now-start_t)
                 yield env.process(self._pause(env))
                 if tracker is not None:
                     tracker.interruption(
-                        self.workflow_state, elapsed_t=env.now - interruption_start_t)
+                        workflow_state, elapsed_t=env.now - interruption_start_t)
 
                 continue
 
@@ -80,13 +80,13 @@ class Resource:
 
             if tracker is not None:
                 tracker.complete_work(
-                    self.workflow_state, status, elapsed_t=env.now-start_t)
+                    workflow_state, status, elapsed_t=env.now-start_t)
             self.idle_t = env.now
 
             self._process = None
 
             for task in tasks:
-                task.end(env.now, self.workflow_state, status=status)
+                task.end(env.now, workflow_state, status=status)
 
                 if (status == EventStatus.FAILURE) and (target_upon_failure is not None):
                     yield target_upon_failure.put(task.as_rework())

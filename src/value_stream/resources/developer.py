@@ -2,7 +2,7 @@ from typing import Optional
 
 from simpy import Environment, Interrupt
 
-from value_stream.core import EventStatus, WorkflowStateName
+from value_stream.core import EventStatus
 from value_stream.task import Task
 
 from .resource import Resource
@@ -12,7 +12,7 @@ class Developer(Resource):
     """Simulates actions perform on a task by a software developer"""
 
     def __init__(self, efficiency: float = 1.0, name: Optional[str] = None):
-        super().__init__(WorkflowStateName.DEVELOPMENT)
+        super().__init__()
 
         if efficiency <= 0:
             raise ValueError("efficiency must be > 0")

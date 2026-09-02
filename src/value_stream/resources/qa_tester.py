@@ -1,7 +1,7 @@
 import random
 from simpy import Environment
 
-from value_stream.core import EventStatus, WorkflowStateName
+from value_stream.core import EventStatus
 from value_stream.task import Task
 
 from .resource import Resource
@@ -12,7 +12,7 @@ class QATester(Resource, PooledResource):
     def __init__(self, time_cost: float = 0.1,
                  failure_rate: float = 0.0,
                  failure_cost: float = 0.0):
-        super().__init__(workflow_state=WorkflowStateName.QA_TESTING)
+        super().__init__()
 
         if failure_rate < 0 or failure_rate > 1:
             raise ValueError("failure_rate must be between 0 and 1, inclusive")

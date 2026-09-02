@@ -30,36 +30,39 @@ class SDLCWorkflow:
         """Signals workflow completion when all tasks specified at
         initialization are in the delivered queue"""
 
-        self.pending = WorkflowState(env, WorkflowStateName.PENDING)
+        pending = WorkflowState(env, WorkflowStateName.PENDING)
 
-        self.developed = WorkflowState(
+        developed = WorkflowState(
             env, WorkflowStateName.DEV_COMPLETE)
 
-        self.qa_complete = WorkflowState(
+        qa_complete = WorkflowState(
             env, WorkflowStateName.QA_COMPLETE)
 
-        self.delivered = TerminalWorkflowState(
+        delivered = TerminalWorkflowState(
             env, WorkflowStateName.DELIVERY)
 
         for task in tasks:
-            yield self.pending.put(task)
+            yield pending.put(task)
 
-        self.delivered.set_alarm(
-            limit=len(self.pending.items), signal=signal)
+        delivered.set_alarm(
+            limit=len(pending.items), signal=signal)
 
         developer_manager.start(
-            source=self.pending,
-            target=self.developed)
+            source=pending,
+            workflow_state=WorkflowStateName.DEVELOPMENT,
+            target=developed)
 
         qa_manager.start(
-            source=self.developed,
-            target=self.qa_complete,
-            target_upon_failure=self.pending)
+            source=developed,
+            workflow_state=WorkflowStateName.QA_TESTING,
+            target=qa_complete,
+            target_upon_failure=pending)
 
         toolchain_manager.start(
-            source=self.qa_complete,
-            target=self.delivered,
-            target_upon_failure=self.qa_complete)
+            source=qa_complete,
+            workflow_state=WorkflowStateName.DEPLOYMENT,
+            target=delivered,
+            target_upon_failure=qa_complete)
 
         yield signal
 

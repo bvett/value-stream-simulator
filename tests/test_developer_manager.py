@@ -16,6 +16,7 @@ class TestDeveloperManager(unittest.TestCase):
         self.env = Environment()
         self.tracker = ResourceTracker(self.env)
         self.source = WorkflowState(self.env, WorkflowStateName.PENDING)
+        self.workflow_state = WorkflowStateName.DEVELOPMENT
         self.target = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
         self.policy = DefaultSimulationPolicy()
 
@@ -35,7 +36,7 @@ class TestDeveloperManager(unittest.TestCase):
         team = ResourceOperator(
             self.env, self.create_developers(2), policy=self.policy, tracker=self.tracker)
 
-        team.start(self.source, self.target)
+        team.start(self.source, self.workflow_state, self.target)
 
         self.env.run()
         self.assertEqual(len(self.source.items), 0)
