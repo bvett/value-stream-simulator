@@ -102,7 +102,7 @@ class MetadataViewer(Viewer):
         fig, axs = plt.subplots(nrows=len(cadences), ncols=len(team_sizes),
                                 sharex=True, sharey=True, layout='constrained', squeeze=False)
 
-        labels = ['Scarce', 'Idle',
+        labels = ['Idle',
                   'Productive', 'Failure', 'Unplanned Work']
 
         for team_i, team_size in enumerate(team_sizes):
@@ -110,7 +110,7 @@ class MetadataViewer(Viewer):
                 group = dataframes[(cadence, team_size)]
 
                 group = group.groupby(['state']).sum()[
-                    ['waiting_t', 'idle_t', 'success_t', 'failure_t', 'interruption_t']]
+                    ['idle_t', 'success_t', 'failure_t', 'interruption_t']]
 
                 df = group.divide(group.sum(axis=1), axis=0)
 

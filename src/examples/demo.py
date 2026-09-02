@@ -47,7 +47,7 @@ if __name__ == "__main__":
     QA_TEST_FAILURE_RATE = 0.15
     QA_TEST_FAILURE_COST = 0.25
 
-    SUPPORT_INTERVAL = 50
+    SUPPORT_INTERVAL = 5
 
     # Create tasks with complexities between 0.5 and 2.0
     tasks = TaskFactory(initial_value=1,
@@ -78,7 +78,9 @@ if __name__ == "__main__":
         deployment_cadences=np.linspace(
             0, MAX_CADENCE, CADENCE_SAMPLES, dtype=int),
         qa_testers=qa_tester_pool,
-        toolchain_pool=toolchain_pool)
+        toolchain_pool=toolchain_pool,
+        support_intervals=[SUPPORT_INTERVAL],
+        support_task_story_points=2)
 
     # Run the simulation with a progress bar and collect the results
     results: list[SimulationResult] = []
