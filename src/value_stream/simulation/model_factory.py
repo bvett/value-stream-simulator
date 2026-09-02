@@ -8,17 +8,7 @@ from value_stream.resources import Developer, QATester, Toolchain
 class ModelFactory:
     """Utility for creating Model objects"""
 
-    def __init__(self):
-        """Creates a ModelFactory
-
-        Args:
-            toolchain_concurrency (int): Number of simultaneous deployments
-            deployment_duration (float): Duration in time units of a deployment
-        """
-
-        # self.toolchain_concurrency = toolchain_concurrency
-        # self.deployment_duration = deployment_duration
-
+    @classmethod
     def create(self, teams: Iterable[Collection[Developer]],
                deployment_cadences: Iterable,
                qa_testers: Iterable[QATester],

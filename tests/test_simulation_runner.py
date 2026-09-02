@@ -28,7 +28,7 @@ class TestSimulationRunner(unittest.TestCase):
         toolchain_pool = Toolchain.create_pool(
             limit=2, deployment_duration=.25)
 
-        models = ModelFactory().create(
+        models = ModelFactory.create(
             teams=teams,
             deployment_cadences=range(MAX_CADENCE, -1, -1),
             qa_testers=qa_tester_pool,

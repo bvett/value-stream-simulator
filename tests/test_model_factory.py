@@ -10,8 +10,6 @@ class TestModelFactory(unittest.TestCase):
 
     def test_create(self):
 
-        factory = ModelFactory()
-
         NUM_CADENCES = 3
         cadences = range(NUM_CADENCES)
 
@@ -28,11 +26,11 @@ class TestModelFactory(unittest.TestCase):
         toolchain_pool = Toolchain.create_pool(
             limit=2, deployment_duration=4.5)
 
-        models = factory.create(teams=teams,
-                                deployment_cadences=cadences,
-                                qa_testers=qa_tester_pool,
-                                toolchain_pool=toolchain_pool,
-                                support_intervals=support_intervals)
+        models = ModelFactory.create(teams=teams,
+                                     deployment_cadences=cadences,
+                                     qa_testers=qa_tester_pool,
+                                     toolchain_pool=toolchain_pool,
+                                     support_intervals=support_intervals)
 
         self.assertEqual(len(models), NUM_TEAMS *
                          NUM_CADENCES * len(support_intervals))
