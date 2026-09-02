@@ -7,6 +7,7 @@ class ResourceMetadata:
     def __init__(self,
                  time: float,
                  state: WorkflowStateName,
+                 waiting: int = 0,
                  allocated: int = 0,
                  active: int = 0,
                  success_t: Optional[float] = None,
@@ -17,6 +18,7 @@ class ResourceMetadata:
 
         self.time = time
         self.state = state
+        self.waiting = waiting
         self.allocated = allocated
         self.active = active
         self.success_t = success_t

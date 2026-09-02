@@ -39,6 +39,10 @@ class ResourceTracker:
         self._data.append(ResourceMetadata(time=self._env.now - self._epoch_t,
                                            state=workflow_state, interruption_t=elapsed_t))
 
-    def waiting(self, workflow_state: WorkflowStateName, waiting_t: float):
+    def start_waiting(self, workflow_state: WorkflowStateName):
         self._data.append(ResourceMetadata(time=self._env.now - self._epoch_t,
-                                           state=workflow_state, waiting_t=waiting_t))
+                                           state=workflow_state, waiting=1))
+
+    def complete_waiting(self, workflow_state: WorkflowStateName, waiting_t: float):
+        self._data.append(ResourceMetadata(time=self._env.now - self._epoch_t,
+                                           state=workflow_state, waiting=-1, waiting_t=waiting_t))

@@ -140,8 +140,8 @@ class ResourceOperator:
         resource: Resource = yield self.request()
 
         if self._tracker is not None:
-            self._tracker.waiting(resource.workflow_state,
-                                  self.env.now - wait_t)
+            self._tracker.complete_waiting(resource.workflow_state,
+                                           self.env.now - wait_t)
 
         for task in tasks:
             task.end(self.env.now)
