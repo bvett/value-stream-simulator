@@ -163,8 +163,6 @@ class MetadataViewer(Viewer):
         fig, axs = plt.subplots(nrows=len(cadences), ncols=len(team_sizes),
                                 sharey=True, layout='constrained', squeeze=False)
 
-        patatas: dict[tuple, DataFrame] = {}
-
         for team_i, team_size in enumerate(team_sizes):
             for cadence_i, cadence in enumerate(cadences):
                 group = dataframes[(cadence, team_size)]
@@ -185,8 +183,6 @@ class MetadataViewer(Viewer):
 
                 ax.set_title(
                     label=f"Cadence={cadence},Team Size={team_size}", fontsize=8)
-
-                patatas[(cadence, team_size)] = group
 
                 plt.sca(ax)
                 plt.xticks(rotation=45)
