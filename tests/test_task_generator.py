@@ -1,6 +1,6 @@
 import unittest
 
-from simpy import Environment, Store
+from simpy import Environment, Store, Interrupt
 
 from value_stream.task import Task, TaskFactory, TaskGenerator
 
@@ -72,15 +72,31 @@ class TestTaskGenerator(unittest.TestCase):
         # advance sim time away from 0
         self.env.run(starting_t)
 
+        def monitor(e: Environment, s: Store, times: list[float], tasks: list[Task]):
+
+            while True:
+
+                try:
+                    task = yield s.get()
+                    times.append(e.now)
+                    tasks.append(task)
+                except Interrupt:
+                    break
+
         generator.start(self.env, target=self.target, interval=interval)
+        actual_creation_times: list[float] = []
+        generated_tasks: list[Task] = []
+
+        self.env.process(
+            monitor(self.env, self.target, times=actual_creation_times, tasks=generated_tasks))
 
         self.env.run(1 + starting_t + (interval * num_intervals))
 
-        self.assertEqual(group_size * num_intervals, len(self.target.items))
+        self.assertEqual(group_size * num_intervals, len(generated_tasks))
 
         expected_creation_times = [18, 18, 21, 21]
 
-        for k, v in enumerate(self.target.items):
+        for k, v in enumerate(generated_tasks):
             task: Task = v
             self.assertEqual(expected_creation_times[k], task.creation_sim_t)
 
@@ -89,3 +105,5 @@ class TestTaskGenerator(unittest.TestCase):
 
             self.assertEqual(task._initial_value, task.value(
                 task.history.epoch.to_epoch_time(expected_creation_times[k])))
+
+        self.assertListEqual(expected_creation_times, actual_creation_times)
