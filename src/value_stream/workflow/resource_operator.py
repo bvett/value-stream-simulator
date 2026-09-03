@@ -138,6 +138,10 @@ class ResourceOperator:
         tasks = self._queue.copy()
         self._queue.clear()
         wait_t = self.env.now
+
+        if self._tracker is not None:
+            self._tracker.start_waiting(workflow_state)
+
         resource: Resource = yield self.request(workflow_state)
 
         if self._tracker is not None:

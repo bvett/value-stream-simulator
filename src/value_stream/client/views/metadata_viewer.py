@@ -2,7 +2,7 @@ from typing import Any
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 import numpy as np
-from pandas import json_normalize, Categorical
+from pandas import json_normalize, Categorical, DataFrame
 
 from value_stream.simulation import SimulationResult
 from value_stream.core import WorkflowStateName
@@ -130,4 +130,69 @@ class MetadataViewer(Viewer):
         fig.supylabel('Utilization')
         fig.supxlabel('SDLC Workflow Stage')
         fig.suptitle("Resource Utilization")
+        plt.show()
+
+    def resource_capacity(self):
+        df_all = json_normalize(self._results_dict, record_path=['resource_metadata'],
+                                meta=[['model', 'deployment_cadence'],
+                                      ['model', 'team_size']],
+                                errors='ignore')
+
+        df_all['state'] = Categorical(df_all['state'], categories=[
+            e.value for e in WorkflowStateName], ordered=True)
+
+        df_all.sort_index(inplace=True)
+
+        df_all = df_all.groupby(
+            ['model.deployment_cadence', 'model.team_size', 'state', 'time']).sum()
+
+        cadence_x_team_size_samples = df_all.groupby(
+            ['model.deployment_cadence', 'model.team_size'])
+
+        dataframes = {key: group for key, group in cadence_x_team_size_samples}
+
+        # detemrine the size of the subplot grid based on number of unique keys in each dimension
+
+        all_keys = np.array(list(dataframes.keys()))
+        cadences, team_sizes = list(all_keys[:, 0]), list(all_keys[:, 1])
+
+        # deduplicate
+        cadences = list(dict.fromkeys(cadences))
+        team_sizes = list(dict.fromkeys(team_sizes))
+
+        fig, axs = plt.subplots(nrows=len(cadences), ncols=len(team_sizes),
+                                sharey=True, layout='constrained', squeeze=False)
+
+        patatas: dict[tuple, DataFrame] = {}
+
+        for team_i, team_size in enumerate(team_sizes):
+            for cadence_i, cadence in enumerate(cadences):
+                group = dataframes[(cadence, team_size)]
+
+                group = group.droplevel([0, 1])['waiting'].unstack(['state'])
+                # group = group.droplevel([0, 1])  # .unstack(['state'])
+                group.sort_index(inplace=True)
+
+                group = group.cumsum()
+
+                group.ffill(inplace=True)
+
+                ax = axs[cadence_i, team_i]
+                group.plot(ax=ax,
+                           legend=False, xlabel='', ylabel='', colormap=self.colormap)
+
+                ax.set_yscale('log')
+
+                ax.set_title(
+                    label=f"Cadence={cadence},Team Size={team_size}", fontsize=8)
+
+                patatas[(cadence, team_size)] = group
+
+                plt.sca(ax)
+                plt.xticks(rotation=45)
+
+        fig.legend(title='Backlog', labels=['Development', 'QA', 'Deployment'])
+        fig.supylabel('# Waiting for Resource')
+        fig.supxlabel('Time')
+        fig.suptitle("Resource Capacity")
         plt.show()
