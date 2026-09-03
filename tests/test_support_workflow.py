@@ -1,3 +1,4 @@
+import copy
 import math
 import random
 import unittest
@@ -6,8 +7,8 @@ import numpy as np
 from simpy import Environment
 from value_stream.workflow import AssignmentStrategy
 from value_stream.core import WorkflowStateName
-from value_stream.resources import Developer, ResourceTracker, DeveloperFactory
-from value_stream.simulation import DefaultSimulationPolicy
+from value_stream.resources import Developer, ResourceTracker, DeveloperFactory, QATester, Toolchain
+from value_stream.simulation import DefaultSimulationPolicy, ModelFactory
 from value_stream.task import SupportTask, Task, TaskFactory, TaskGenerator
 from value_stream.workflow import WorkflowState, SupportWorkflow
 
@@ -204,6 +205,71 @@ class TestSupportWorkflow(unittest.TestCase):
 
         self.assertEqual(0, len(source))  # type: ignore
         self.assertEqual(9, len(target))  # type: ignore
+
+    def test_resource_cleanup(self):
+        """Ensure Developer collections created with ModelFactory do not share state.
+        This test guards against regression of a bug caused when Resource._suspended_work
+        maintained residual state between Simulation epochs"""
+
+        # Helper function that runs a simple scenario
+
+        def run_scenario(dev_team: list[Developer]):
+            for d in dev_team:
+                self.assertEqual(0, len(d._suspended_work))
+
+            env = Environment()
+            tracker = ResourceTracker(env)
+
+            workflow = SupportWorkflow(
+                resource_policy=self.policy, workflow_policy=self.policy)
+
+            task_factory = TaskFactory(cls=SupportTask,
+                                       story_points=1)
+
+            task_generator = TaskGenerator(
+                factory=task_factory)
+
+            env.process(workflow.start(env=env,
+                                       generator=task_generator,
+                                       developers=dev_team,
+                                       interval=0.5, tracker=tracker))
+
+            env.run(until=10)
+
+            for d in dev_team:
+                self.assertNotEqual(0, len(d._suspended_work))
+
+            workflow.stop()
+
+        # Created a scenario that reuses a Developer object, and expect it to fail
+
+        dev_1 = Developer(efficiency=1)
+
+        dev_teams = [[dev_1], [dev_1]]
+
+        with self.assertRaises(Exception):
+            for team in dev_teams:
+                run_scenario(team)
+
+        # Same thing, but create dev_teams using ModelFactory.
+        qa_tester = QATester()
+        toolchain = Toolchain(deployment_duration=1)
+
+        dev_2 = Developer(efficiency=1)
+
+        models = ModelFactory.create(teams=[[dev_2], [dev_2]],
+                                     deployment_cadences=[0],
+                                     qa_testers=[qa_tester],
+                                     toolchain_pool=[toolchain])
+
+        self.assertEqual(2, len(models))
+
+        dev_teams_2 = [list(m.developer_team) for m in models]
+
+        # This should not fail
+
+        for team in dev_teams_2:
+            run_scenario(team)
 
     def test_validation(self):
         env = Environment()

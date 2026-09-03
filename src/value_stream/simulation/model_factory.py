@@ -1,3 +1,4 @@
+import copy
 import itertools
 from typing import Collection, Iterable, Optional
 
@@ -32,7 +33,7 @@ class ModelFactory:
         result = []
 
         for team, cadence, interval in itertools.product(teams, deployment_cadences, support_intervals):
-            result.append(Model(developer_team=team,
+            result.append(Model(developer_team=copy.deepcopy(team),
                                 deployment_cadence=cadence,
                                 qa_testers=qa_testers,
                                 toolchain_pool=toolchain_pool,
