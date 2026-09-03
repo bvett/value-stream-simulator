@@ -10,7 +10,7 @@ class ModelFactory:
     """Utility for creating Model objects"""
 
     @classmethod
-    def create(self, teams: Iterable[Collection[Developer]],
+    def create(cls, teams: Iterable[Collection[Developer]],
                deployment_cadences: Iterable,
                qa_testers: Iterable[QATester],
                toolchain_pool: Iterable[Toolchain],
