@@ -98,7 +98,9 @@ class ResourceOperator:
                 self._queue.append(task)
 
                 if self.cadence == 0:
-                    self.trigger.succeed()  # do this based on cadence
+                    # do this based on cadence
+                    self.trigger.succeed(self._queue.copy())
+                    self._queue.clear()
                     self.trigger = self.env.event()
 
             except Interrupt:
@@ -117,7 +119,8 @@ class ResourceOperator:
                 if len(self._queue) == 0:
                     continue
 
-                self.trigger.succeed()
+                self.trigger.succeed(value=self._queue.copy())
+                self._queue.clear()
                 self.trigger = self.env.event()
 
             except Interrupt:
@@ -127,16 +130,15 @@ class ResourceOperator:
 
         while True:
             try:
-                yield self.trigger  # wait for work
-                self.env.process(self._execute(workflow_state=workflow_state,
+                tasks: list[Task] = yield self.trigger  # wait for work
+
+                self.env.process(self._execute(workflow_state=workflow_state, tasks=tasks,
                                                target=target, target_upon_failure=target_upon_failure))
             except Interrupt:
                 break
 
-    def _execute(self, workflow_state: WorkflowStateName, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
+    def _execute(self, workflow_state: WorkflowStateName, tasks: list[Task], target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
 
-        tasks = self._queue.copy()
-        self._queue.clear()
         wait_t = self.env.now
 
         if self._tracker is not None:
