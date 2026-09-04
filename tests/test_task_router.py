@@ -5,7 +5,7 @@ from simpy import Environment, Store
 
 from value_stream.core import EventStatus
 from value_stream.task import Task, TaskType
-from value_stream.workflow import DefaultRouter, StatusRouter, TypeRouter
+from value_stream.task import DefaultRouter, StatusRouter, TypeRouter
 
 
 class TestTaskRouter(unittest.TestCase):
