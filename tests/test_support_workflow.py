@@ -1,4 +1,3 @@
-import copy
 import math
 import random
 import unittest
@@ -9,7 +8,7 @@ from value_stream.workflow import AssignmentStrategy
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourceTracker, DeveloperFactory, QATester, Toolchain
 from value_stream.simulation import DefaultSimulationPolicy, ModelFactory
-from value_stream.task import SupportTask, Task, TaskFactory, TaskGenerator
+from value_stream.task import SupportTask, Task, TaskFactory, TaskGenerator, DefaultRouter
 from value_stream.workflow import WorkflowState, SupportWorkflow
 
 
@@ -126,6 +125,8 @@ class TestSupportWorkflow(unittest.TestCase):
         target = WorkflowState(
             env, WorkflowStateName.SUPPORT_COMPLETE)
 
+        task_router = DefaultRouter(target)
+
         workflow = SupportWorkflow(
             workflow_policy=self.policy, resource_policy=self.policy)
 
@@ -138,7 +139,7 @@ class TestSupportWorkflow(unittest.TestCase):
                                               developers=[developer],
                                               strategy=AssignmentStrategy.RANDOM,
                                               source=source,
-                                              target=target,
+                                              task_router=task_router,
                                               tracker=tracker
                                               ))
 

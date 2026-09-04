@@ -4,7 +4,7 @@ from simpy import Environment, Interrupt, Process, Store
 
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Resource, ResourcePolicy, ResourceTracker
-from value_stream.task import Task
+from value_stream.task import Task, TaskRouterBase
 from .workflow_state import WorkflowState
 
 
@@ -42,7 +42,7 @@ class ResourceOperator:
 
         self._tracker = tracker
 
-    def start(self, source: WorkflowState, workflow_state: WorkflowStateName, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
+    def start(self, source: WorkflowState, workflow_state: WorkflowStateName, task_router: TaskRouterBase):
         """Starts processing loop that:
             1) Waits for tasks to appear in source
             2) Triggers execution on a fixed schedule or continuously
@@ -63,7 +63,7 @@ class ResourceOperator:
             self._timer_p = self.env.process(self._timer())
 
         self._executor_p = self.env.process(self._executor(workflow_state=workflow_state,
-                                                           target=target, target_upon_failure=target_upon_failure))
+                                                           task_router=task_router))
 
     def stop(self) -> None:
         """Shutdown the manager
@@ -126,18 +126,18 @@ class ResourceOperator:
             except Interrupt:
                 break
 
-    def _executor(self, workflow_state: WorkflowStateName, target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
+    def _executor(self, workflow_state: WorkflowStateName, task_router: TaskRouterBase):
 
         while True:
             try:
                 tasks: list[Task] = yield self.trigger  # wait for work
 
                 self.env.process(self._execute(workflow_state=workflow_state, tasks=tasks,
-                                               target=target, target_upon_failure=target_upon_failure))
+                                               task_router=task_router))
             except Interrupt:
                 break
 
-    def _execute(self, workflow_state: WorkflowStateName, tasks: list[Task], target: WorkflowState, target_upon_failure: Optional[WorkflowState] = None):
+    def _execute(self, workflow_state: WorkflowStateName, tasks: list[Task], task_router: TaskRouterBase):
 
         wait_t = self.env.now
 
@@ -156,8 +156,7 @@ class ResourceOperator:
         yield self.env.process(resource.operate(env=self.env,
                                                 tasks=tasks,
                                                 workflow_state=workflow_state,
-                                                target=target,
-                                                target_upon_failure=target_upon_failure,
+                                                task_router=task_router,
                                                 policy=self.policy,
                                                 tracker=self._tracker))
 

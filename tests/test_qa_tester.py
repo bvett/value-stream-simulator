@@ -5,7 +5,7 @@ from simpy import Environment, Store
 from value_stream.core import EventStatus, WorkflowStateName
 from value_stream.resources import QATester, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
-from value_stream.task import Task, TaskFactory
+from value_stream.task import Task, TaskFactory, TaskRouterBase, DefaultRouter
 
 
 class TestQATester(unittest.TestCase):
@@ -20,6 +20,7 @@ class TestQATester(unittest.TestCase):
         self.tracker = ResourceTracker(self.env)
 
         self.target = Store(self.env)
+        self.task_router = DefaultRouter(self.target)
 
         self.policy = DefaultSimulationPolicy()
 
@@ -54,7 +55,7 @@ class TestQATester(unittest.TestCase):
         total_story_points = sum([t.story_points for t in self.tasks])
 
         self.env.process(tester.operate(
-            self.env, self.tasks, workflow_state=self.workflow_state, target=self.target, policy=self.policy, tracker=self.tracker))
+            self.env, self.tasks, workflow_state=self.workflow_state, task_router=self.task_router, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 
@@ -71,7 +72,7 @@ class TestQATester(unittest.TestCase):
 
         tester = QATester(failure_rate=1)
         self.env.process(tester.operate(
-            self.env, self.tasks, workflow_state=self.workflow_state, target=self.target, policy=self.policy, tracker=self.tracker))
+            self.env, self.tasks, workflow_state=self.workflow_state, task_router=self.task_router, policy=self.policy, tracker=self.tracker))
         self.env.run()
 
         for task in self.target.items:
@@ -88,7 +89,7 @@ class TestQATester(unittest.TestCase):
         tester = QATester(failure_rate=1, failure_cost=failure_cost)
 
         self.env.process(tester.operate(
-            self.env, self.tasks, workflow_state=self.workflow_state, target=self.target, policy=self.policy, tracker=self.tracker))
+            self.env, self.tasks, workflow_state=self.workflow_state, task_router=self.task_router, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 

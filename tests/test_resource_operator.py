@@ -5,6 +5,7 @@ from simpy import Environment
 from value_stream.core import WorkflowStateName
 from value_stream.resources import ResourceTracker, DeveloperFactory
 from value_stream.simulation import DefaultSimulationPolicy
+from value_stream.task import DefaultRouter
 from value_stream.workflow import ResourceOperator, WorkflowState
 
 
@@ -18,6 +19,7 @@ class TestResourceOperator(unittest.TestCase):
 
         self.source = WorkflowState(self.env, WorkflowStateName.PENDING)
         self.target = WorkflowState(self.env, WorkflowStateName.DELIVERY)
+        self.task_router = DefaultRouter(self.target)
 
         self.policy = DefaultSimulationPolicy()
 
@@ -41,7 +43,7 @@ class TestResourceOperator(unittest.TestCase):
             for _ in range(2):
                 manager.start(source=self.source,
                               workflow_state=self.workflow_state,
-                              target=self.target)
+                              task_router=self.task_router)
 
         # attempt to start after stopping
         with self.assertRaises(RuntimeError):
@@ -52,7 +54,7 @@ class TestResourceOperator(unittest.TestCase):
             for _ in range(2):
                 manager.start(source=self.source,
                               workflow_state=self.workflow_state,
-                              target=self.target)
+                              task_router=self.task_router)
 
                 manager.stop()
 

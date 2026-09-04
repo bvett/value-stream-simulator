@@ -6,7 +6,7 @@ from simpy import Environment, Event, Interrupt
 
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourcePolicy, ResourceTracker
-from value_stream.task import Task, TaskGenerator
+from value_stream.task import Task, TaskGenerator, DefaultRouter, TaskRouterBase
 
 from .assignment_strategy import AssignmentStrategy
 from .workflow_policy import WorkflowPolicy
@@ -63,6 +63,8 @@ class SupportWorkflow:
         self._completed = TerminalWorkflowState(
             env, WorkflowStateName.SUPPORT_COMPLETE)
 
+        task_router = DefaultRouter(self._completed)
+
         env.process(self._monitor())
 
         generator.start(env=env,
@@ -74,7 +76,7 @@ class SupportWorkflow:
                                   developers=developers,
                                   strategy=self._workflow_policy.support_strategy(),
                                   source=self._pending,
-                                  target=self._completed,
+                                  task_router=task_router,
                                   tracker=tracker))
 
         yield self._proc
@@ -87,7 +89,7 @@ class SupportWorkflow:
                          developers: list[Developer],
                          strategy: AssignmentStrategy,
                          source: WorkflowState,
-                         target: WorkflowState,
+                         task_router: TaskRouterBase,
                          tracker: ResourceTracker):
 
         match strategy:
@@ -113,7 +115,7 @@ class SupportWorkflow:
                     developer.operate(env=env,
                                       tasks=[task],
                                       workflow_state=WorkflowStateName.DEVELOPMENT,
-                                      target=target,
+                                      task_router=task_router,
                                       policy=self._resource_policy,
                                       tracker=tracker))
             except Interrupt:

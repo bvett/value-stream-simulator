@@ -5,7 +5,7 @@ from simpy import Environment, Store
 from value_stream.core import EventStatus, WorkflowStateName
 from value_stream.resources import Resource, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
-from value_stream.task import Task
+from value_stream.task import Task, StatusRouter
 
 
 class TestResource(unittest.TestCase):
@@ -15,6 +15,9 @@ class TestResource(unittest.TestCase):
         self.tracker = ResourceTracker(self.env)
         self.target = Store(self.env)
         self.target_for_failures = Store(self.env)
+
+        self.task_router = StatusRouter(
+            on_success=self.target, on_failure=self.target_for_failures)
         self.policy = DefaultSimulationPolicy()
 
     def test_validation(self):
@@ -26,8 +29,7 @@ class TestResource(unittest.TestCase):
     def run_and_assert(self, resource: Resource, expected_status: EventStatus):
 
         self.env.process(resource.operate(
-            env=self.env, tasks=[self.task], target=self.target,
-            target_upon_failure=self.target_for_failures,
+            env=self.env, tasks=[self.task], task_router=self.task_router,
             policy=self.policy, tracker=self.tracker, workflow_state=WorkflowStateName.DEVELOPMENT))
         self.env.run()
 

@@ -6,7 +6,7 @@ from simpy import Environment, Store
 from value_stream.core import WorkflowStateName
 from value_stream.resources import QATester, Resource, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
-from value_stream.task import Task
+from value_stream.task import Task, TaskRouterBase, DefaultRouter
 from value_stream.workflow import ResourceOperator
 
 
@@ -26,18 +26,18 @@ class TestQAManager(unittest.TestCase):
 
         self.workflow_state = WorkflowStateName.QA_TESTING
 
-    def _process_task(self, task: Task, m: ResourceOperator, t: Store,  workflow_state: WorkflowStateName):
+    def _process_task(self, task: Task, m: ResourceOperator, task_router: TaskRouterBase,  workflow_state: WorkflowStateName):
         e = m.request(self.workflow_state)
 
         operator: Resource = yield e
 
-        yield self.env.process(operator.operate(self.env, [task], t, workflow_state=workflow_state, policy=self.policy, tracker=self.tracker))
+        yield self.env.process(operator.operate(self.env, [task], task_router=task_router, workflow_state=workflow_state, policy=self.policy, tracker=self.tracker))
         yield m.release(operator)
 
-    def _test_loop(self, m: ResourceOperator, t: Store):
+    def _test_loop(self, m: ResourceOperator, t: TaskRouterBase):
         for task in self.tasks:
             self.env.process(self._process_task(
-                task, m, t, workflow_state=self.workflow_state))
+                task, m, task_router=t, workflow_state=self.workflow_state))
 
     def test_serial(self):
 
@@ -45,8 +45,9 @@ class TestQAManager(unittest.TestCase):
         manager = ResourceOperator(
             self.env, tracker=self.tracker, resources=QATester.create_pool(limit=1), policy=self.policy)
         target = Store(self.env)
+        task_router = DefaultRouter(target)
 
-        self._test_loop(manager, target)
+        self._test_loop(manager, task_router)
         self.env.run()
 
         self.assertEqual(len(target.items), len(self.tasks))
@@ -58,8 +59,9 @@ class TestQAManager(unittest.TestCase):
         manager = ResourceOperator(
             self.env, tracker=self.tracker, resources=QATester.create_pool(limit=2), policy=self.policy)
         target = Store(self.env)
+        task_router = DefaultRouter(target)
 
-        self._test_loop(manager, target)
+        self._test_loop(manager, task_router)
         self.env.run()
 
         self.assertEqual(len(target.items), len(self.tasks))
@@ -70,8 +72,9 @@ class TestQAManager(unittest.TestCase):
         manager = ResourceOperator(
             self.env, tracker=self.tracker, resources=QATester.create_pool(), policy=self.policy)
         target = Store(self.env)
+        task_router = DefaultRouter(target)
 
-        self._test_loop(manager, target)
+        self._test_loop(manager, task_router)
         self.env.run()
 
         self.assertEqual(len(target.items), len(self.tasks))

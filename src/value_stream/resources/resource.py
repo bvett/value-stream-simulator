@@ -2,11 +2,11 @@
 from typing import Optional
 import uuid
 
-from simpy import Environment, Event, Interrupt, Process, Store
+from simpy import Environment, Event, Interrupt, Process
 from simpy.events import ProcessGenerator
 
 from value_stream.core import EventStatus, WorkflowStateName
-from value_stream.task import Task
+from value_stream.task import Task, TaskRouterBase
 
 from .resource_policy import ResourcePolicy
 from .resource_tracker import ResourceTracker
@@ -30,11 +30,10 @@ class Resource:
         return self._id
 
     def operate(self, env: Environment, tasks: list[Task],
-                target: Store,
+                task_router: TaskRouterBase,
                 policy: ResourcePolicy,
                 workflow_state: WorkflowStateName,
-                tracker: Optional[ResourceTracker] = None,
-                target_upon_failure: Optional[Store] = None):
+                tracker: Optional[ResourceTracker] = None):
         """Simulates an action on a task object"""
 
         for task in tasks:
@@ -88,10 +87,10 @@ class Resource:
             for task in tasks:
                 task.end(env.now, workflow_state, status=status)
 
-                if (status == EventStatus.FAILURE) and (target_upon_failure is not None):
-                    yield target_upon_failure.put(task.as_rework())
+                if (status == EventStatus.FAILURE):
+                    yield task_router.route(task=task.as_rework(), status=status)
                 else:
-                    yield target.put(task)
+                    yield task_router.route(task=task, status=status)
 
             # once work is complete, check for previously interrupted work
             # and trigger resumption

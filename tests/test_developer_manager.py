@@ -2,7 +2,7 @@ import unittest
 from simpy import Environment, Store
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourceTracker
-from value_stream.task import Task
+from value_stream.task import Task, DefaultRouter
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.workflow import ResourceOperator, WorkflowState
 
@@ -18,6 +18,7 @@ class TestDeveloperManager(unittest.TestCase):
         self.source = WorkflowState(self.env, WorkflowStateName.PENDING)
         self.workflow_state = WorkflowStateName.DEVELOPMENT
         self.target = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
+        self.task_router = DefaultRouter(self.target)
         self.policy = DefaultSimulationPolicy()
 
     def create_tasks(self, limit: int, store: Store):
@@ -36,7 +37,7 @@ class TestDeveloperManager(unittest.TestCase):
         team = ResourceOperator(
             self.env, self.create_developers(2), policy=self.policy, tracker=self.tracker)
 
-        team.start(self.source, self.workflow_state, self.target)
+        team.start(self.source, self.workflow_state, self.task_router)
 
         self.env.run()
         self.assertEqual(len(self.source.items), 0)

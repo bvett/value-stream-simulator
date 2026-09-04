@@ -1,7 +1,7 @@
 from simpy import Environment, Event
 
 from value_stream.core import WorkflowStateName
-from value_stream.task import Task
+from value_stream.task import Task, DefaultRouter, StatusRouter
 
 from .resource_operator import ResourceOperator
 from .workflow_state import TerminalWorkflowState, WorkflowState
@@ -50,19 +50,17 @@ class SDLCWorkflow:
         developer_manager.start(
             source=pending,
             workflow_state=WorkflowStateName.DEVELOPMENT,
-            target=developed)
+            task_router=DefaultRouter(developed))
 
         qa_manager.start(
             source=developed,
             workflow_state=WorkflowStateName.QA_TESTING,
-            target=qa_complete,
-            target_upon_failure=pending)
+            task_router=StatusRouter(on_success=qa_complete, on_failure=pending))
 
         toolchain_manager.start(
             source=qa_complete,
             workflow_state=WorkflowStateName.DEPLOYMENT,
-            target=delivered,
-            target_upon_failure=qa_complete)
+            task_router=StatusRouter(on_success=delivered, on_failure=qa_complete))
 
         yield signal
 

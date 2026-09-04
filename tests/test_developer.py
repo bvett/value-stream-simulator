@@ -3,7 +3,7 @@ from simpy import Environment
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
-from value_stream.task import SupportTask, Task, TaskFactory, TaskGenerator
+from value_stream.task import SupportTask, Task, TaskFactory, TaskGenerator, DefaultRouter
 from value_stream.workflow import ResourceOperator, SupportWorkflow, TerminalWorkflowState, WorkflowState
 
 from .testutils import TestUtils
@@ -37,11 +37,13 @@ class TestDeveloper(unittest.TestCase, TestUtils):
         workflow_state = WorkflowStateName.DEVELOPMENT
         target = WorkflowState(self.env, WorkflowStateName.DEVELOPMENT)
 
+        task_router = DefaultRouter(target)
+
         for dev in [junior_developer, senior_developer]:
             for task in [self.simple_task.reset(), self.complex_task.reset()]:
                 self.assertEqual(task.remaining_work(), task.story_points)
                 self.env.process(dev.operate(
-                    self.env, [task], target, workflow_state=workflow_state, policy=self.policy, tracker=self.tracker))
+                    self.env, [task], task_router=task_router, workflow_state=workflow_state, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 
@@ -93,11 +95,13 @@ class TestDeveloper(unittest.TestCase, TestUtils):
             dev_target = TerminalWorkflowState(
                 env=env, name=WorkflowStateName.DEV_COMPLETE)
 
+            task_router = DefaultRouter(dev_target)
+
             operator = ResourceOperator(
                 env=env, resources=[developer], policy=self.policy, tracker=self.tracker)
 
             operator.start(
-                dev_source, WorkflowStateName.DEVELOPMENT, dev_target)
+                dev_source, WorkflowStateName.DEVELOPMENT, task_router=task_router)
 
             if (support_generator is not None) and (support_target is not None) and (interval is not None):
 

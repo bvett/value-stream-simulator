@@ -7,6 +7,7 @@ from value_stream.core import WorkflowStateName, EventStatus
 from value_stream.task import Task, TaskEvent, TaskHistory
 from value_stream.resources import Toolchain, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
+from value_stream.task import DefaultRouter
 from value_stream.workflow import ResourceOperator, WorkflowState, TerminalWorkflowState
 
 from .testutils import TestUtils
@@ -23,6 +24,8 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         self.workflow_state = WorkflowStateName.DEPLOYMENT
         self.target = TerminalWorkflowState(
             self.env, WorkflowStateName.DELIVERY)
+
+        self.task_router = DefaultRouter(self.target)
         self.policy = DefaultSimulationPolicy()
 
     def test_validation(self):
@@ -40,7 +43,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         toolchain = Toolchain(
             deployment_duration=0)
         self.env.process(toolchain.operate(
-            self.env, tasks, self.target, workflow_state=self.workflow_state, policy=self.policy, tracker=self.tracker))
+            self.env, tasks, task_router=self.task_router, workflow_state=self.workflow_state, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 
@@ -60,7 +63,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         toolchain = Toolchain(deployment_duration=DEPLOYMENT_DURATION)
 
         self.env.process(toolchain.operate(
-            self.env, tasks, self.target, workflow_state=self.workflow_state, policy=self.policy, tracker=self.tracker))
+            self.env, tasks, task_router=self.task_router, workflow_state=self.workflow_state, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 
@@ -84,7 +87,8 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
 
         self.env.run()
 
-        toolchain.start(self.source, self.workflow_state, self.target)
+        toolchain.start(self.source, self.workflow_state,
+                        task_router=self.task_router)
         self.env.run()
 
         self.assertEqual(len(self.target.items), NUM_TASKS)
@@ -109,7 +113,8 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
                 limit=concurrency, deployment_duration=deployment_duration),
             cadence=cadence, policy=self.policy, tracker=self.tracker)
 
-        toolchain.start(self.source, self.workflow_state, self.target)
+        toolchain.start(self.source, self.workflow_state,
+                        task_router=self.task_router)
 
         self.assertEqual(len(self.source.items), num_tasks)
 

@@ -3,7 +3,7 @@ from simpy import Environment, Store
 from value_stream.core import EventStatus, WorkflowStateName
 from value_stream.resources import Toolchain, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
-from value_stream.task import Task, TaskFactory
+from value_stream.task import Task, TaskFactory, DefaultRouter
 
 
 class TestToolchain(unittest.TestCase):
@@ -22,6 +22,7 @@ class TestToolchain(unittest.TestCase):
         self.workflow_state = WorkflowStateName.DEPLOYMENT
 
         self.target = Store(self.env)
+        self.task_router = DefaultRouter(self.target)
 
         self.policy = DefaultSimulationPolicy()
 
@@ -47,7 +48,7 @@ class TestToolchain(unittest.TestCase):
         toolchain = Toolchain(deployment_duration=deployment_duration)
 
         self.env.process(toolchain.operate(
-            self.env, self.tasks, workflow_state=self.workflow_state, target=self.target, policy=self.policy, tracker=self.tracker))
+            self.env, self.tasks, workflow_state=self.workflow_state, task_router=self.task_router, policy=self.policy, tracker=self.tracker))
 
         self.env.run()
 
@@ -61,7 +62,7 @@ class TestToolchain(unittest.TestCase):
 
         toolchain = Toolchain(deployment_duration=1, failure_rate=1)
         self.env.process(toolchain.operate(
-            self.env, self.tasks, workflow_state=self.workflow_state, target=self.target, policy=self.policy, tracker=self.tracker))
+            self.env, self.tasks, workflow_state=self.workflow_state, task_router=self.task_router, policy=self.policy, tracker=self.tracker))
         self.env.run()
 
         for task in self.target.items:
