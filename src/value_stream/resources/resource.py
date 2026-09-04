@@ -37,7 +37,7 @@ class Resource:
         """Simulates an action on a task object"""
 
         for task in tasks:
-            task.start(env.now, workflow_state)
+            task.start(env.now, workflow_state, resource_id=self._id)
 
         if self._process is not None and self._process.is_alive:
 
@@ -85,7 +85,8 @@ class Resource:
             self._process = None
 
             for task in tasks:
-                task.end(env.now, workflow_state, status=status)
+                task.end(env.now, workflow_state,
+                         status=status, resource_id=self._id)
 
                 if (status == EventStatus.FAILURE):
                     yield task_router.route(task=task.as_rework(), status=status)
