@@ -5,6 +5,8 @@ from simpy import Environment, Interrupt, Process, Store
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Resource, ResourcePolicy, ResourceTracker
 from value_stream.task import Task, TaskRouterBase
+
+from .pool_manager import PoolManager
 from .workflow_state import WorkflowState
 
 
@@ -20,10 +22,9 @@ class ResourceOperator:
         self.env = env
         self._queue: list[Task] = []
 
-        # Tracks available resources
-        self.resource_pool = Store(self.env)
-
-        self.resource_generator = iter(resources)
+        self.pool_manager = PoolManager(
+            self.env, resources=iter(resources), policy=policy, tracker=tracker)
+        # self.resource_generator = iter(resources)
 
         if cadence < 0:
             raise ValueError("cadence must be >= 0")
@@ -144,7 +145,7 @@ class ResourceOperator:
         if self._tracker is not None:
             self._tracker.start_waiting(workflow_state)
 
-        resource: Resource = yield self.request(workflow_state)
+        resource: Resource = yield self.pool_manager.request(workflow_state)
 
         if self._tracker is not None:
             self._tracker.complete_waiting(workflow_state,
@@ -160,25 +161,4 @@ class ResourceOperator:
                                                 policy=self.policy,
                                                 tracker=self._tracker))
 
-        self.release(resource)
-
-    def request(self, workflow_state: WorkflowStateName):
-        """Returns a resource from the resource pool, or waits until one is available. 
-        If the pool is empty, generates a new resource from the resource generator 
-        and adds it to the pool before returning."""
-
-        if len(self.resource_pool.items) == 0:
-
-            new_item = next(self.resource_generator, None)
-
-            if new_item is not None:
-                new_item.idle_t = self.env.now
-                self.resource_pool.put(new_item)
-                if self._tracker is not None:
-                    self._tracker.register(workflow_state)
-
-        return self.resource_pool.get()
-
-    def release(self, resource: Resource):
-        resource.idle_t = self.env.now
-        return self.resource_pool.put(resource)
+        self.pool_manager.release(resource)

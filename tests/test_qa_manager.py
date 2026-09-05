@@ -7,7 +7,7 @@ from value_stream.core import WorkflowStateName
 from value_stream.resources import QATester, Resource, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import Task, TaskRouterBase, DefaultRouter
-from value_stream.workflow import ResourceOperator
+from value_stream.workflow import PoolManager
 
 
 class TestQAManager(unittest.TestCase):
@@ -26,7 +26,7 @@ class TestQAManager(unittest.TestCase):
 
         self.workflow_state = WorkflowStateName.QA_TESTING
 
-    def _process_task(self, task: Task, m: ResourceOperator, task_router: TaskRouterBase,  workflow_state: WorkflowStateName):
+    def _process_task(self, task: Task, m: PoolManager, task_router: TaskRouterBase,  workflow_state: WorkflowStateName):
         e = m.request(self.workflow_state)
 
         operator: Resource = yield e
@@ -34,7 +34,7 @@ class TestQAManager(unittest.TestCase):
         yield self.env.process(operator.operate(self.env, [task], task_router=task_router, workflow_state=workflow_state, policy=self.policy, tracker=self.tracker))
         yield m.release(operator)
 
-    def _test_loop(self, m: ResourceOperator, t: TaskRouterBase):
+    def _test_loop(self, m: PoolManager, t: TaskRouterBase):
         for task in self.tasks:
             self.env.process(self._process_task(
                 task, m, task_router=t, workflow_state=self.workflow_state))
@@ -42,7 +42,7 @@ class TestQAManager(unittest.TestCase):
     def test_serial(self):
 
         # 1 QA Tester, 2 Tasks
-        manager = ResourceOperator(
+        manager = PoolManager(
             self.env, tracker=self.tracker, resources=QATester.create_pool(limit=1), policy=self.policy)
         target = Store(self.env)
         task_router = DefaultRouter(target)
@@ -56,7 +56,7 @@ class TestQAManager(unittest.TestCase):
     def test_parallel(self):
         # 2 QA Testers, 2 tasks
 
-        manager = ResourceOperator(
+        manager = PoolManager(
             self.env, tracker=self.tracker, resources=QATester.create_pool(limit=2), policy=self.policy)
         target = Store(self.env)
         task_router = DefaultRouter(target)
@@ -69,7 +69,7 @@ class TestQAManager(unittest.TestCase):
 
     def test_parallel_2(self):
         # unlimited QA Testers, 2 tasks
-        manager = ResourceOperator(
+        manager = PoolManager(
             self.env, tracker=self.tracker, resources=QATester.create_pool(), policy=self.policy)
         target = Store(self.env)
         task_router = DefaultRouter(target)
