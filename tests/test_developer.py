@@ -15,8 +15,10 @@ class TestDeveloper(unittest.TestCase, TestUtils):
 
     def setUp(self):
 
-        self.simple_task = Task(task_name="", initial_value=1, story_points=.6)
-        self.complex_task = Task(task_name="", initial_value=1, story_points=2)
+        self.simple_task = Task(
+            task_name="simple", initial_value=1, story_points=.6)
+        self.complex_task = Task(
+            task_name="complex", initial_value=1, story_points=2)
         self.policy = DefaultSimulationPolicy()
         self.env = Environment()
         self.tracker = ResourceTracker(self.env)
@@ -181,3 +183,98 @@ class TestDeveloper(unittest.TestCase, TestUtils):
         # Second task should have been delayed by support
         self.assertEqual((5.0, 5.0), self.event_times(
             dev_target.items[-1].history, WorkflowStateName.DEV_COMPLETE))
+
+    def test_deferral(self):
+        """test that the arrival of a second, non-interrupting workload is queued until the first completes"""
+
+        developer = Developer()
+
+        workflow_state = WorkflowStateName.DEVELOPMENT
+        target = WorkflowState(self.env, WorkflowStateName.DEVELOPMENT)
+
+        task_router = DefaultRouter(target)
+
+        self.env.process(developer.operate(
+            self.env, [self.complex_task],
+            task_router=task_router,
+            workflow_state=workflow_state,
+            policy=self.policy,
+            tracker=self.tracker))
+
+        self.env.run(1)
+
+        self.env.process(developer.operate(
+            self.env, [self.simple_task],
+            task_router=task_router,
+            workflow_state=workflow_state,
+            policy=self.policy,
+            tracker=self.tracker))
+
+        self.env.run()
+        self.assertEqual(2, len(target.items))
+        self.assertEqual(self.complex_task.story_points +
+                         self.simple_task.story_points, self.env.now)
+
+        self.assertEqual(target.items[0].task_name, 'complex')
+        self.assertEqual(target.items[1].task_name, 'simple')
+
+    def test_multi_deferral(self):
+        """when presented with a series of support tasks, validate that they are handled in LIFO order"""
+
+        developer = Developer(efficiency=1)
+
+        workflow_state = WorkflowStateName.DEVELOPMENT
+        target = WorkflowState(self.env, WorkflowStateName.DEVELOPMENT)
+
+        task_router = DefaultRouter(target)
+
+        support_task_factory = TaskFactory(SupportTask, story_points=1)
+
+        # create support tasks faster than the developer can process.
+        # this should result in the developer being constantly interrupted
+        # and processing the tasks in LIFO order
+
+        def produce_support(env: Environment, iterations: int, interval: float = 0.5):
+            support_tasks = support_task_factory.create(
+                count=iterations, env=env, shuffle=False)
+
+            for support_task in support_tasks:
+
+                print(f"t={env.now} sending {support_task.task_name}")
+                env.process(developer.operate(env=env,
+                                              tasks=[support_task],
+                                              task_router=task_router,
+                                              policy=self.policy, workflow_state=workflow_state,
+                                              tracker=self.tracker))
+
+                yield env.timeout(interval)
+
+        self.env.process(produce_support(
+            env=self.env, iterations=10, interval=0.5))
+
+        self.env.run()
+
+        self.assertEqual(10, len(target.items))
+
+        self.assertEqual('10', target.items[0].task_name)
+        self.assertEqual('1', target.items[-1].task_name)
+
+    def test_do_no_work(self):
+        """tests an edge case of a task with zero story points"""
+        workflow_state = WorkflowStateName.DEVELOPMENT
+        target = WorkflowState(self.env, WorkflowStateName.DEVELOPMENT)
+
+        task_router = DefaultRouter(target)
+
+        developer = Developer(efficiency=1)
+
+        easy_task = Task(initial_value=0, story_points=0)
+
+        self.env.process(developer.operate(
+            self.env, [easy_task], task_router=task_router,
+            workflow_state=workflow_state, policy=self.policy, tracker=self.tracker))
+
+        self.env.run()
+
+        self.assertEqual(0, self.env.now)
+        self.assertEqual(1, len(target.items))

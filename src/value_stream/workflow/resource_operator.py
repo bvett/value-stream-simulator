@@ -1,6 +1,7 @@
 from typing import Iterable, Optional
 
-from simpy import Environment, Interrupt, Process, Store
+from simpy import Environment, Interrupt, Process
+from simpy.resources.store import StoreGet
 
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Resource, ResourcePolicy, ResourceTracker
@@ -145,7 +146,12 @@ class ResourceOperator:
         if self._tracker is not None:
             self._tracker.start_waiting(workflow_state)
 
-        resource: Resource = yield self.pool_manager.request(workflow_state)
+        r = self.pool_manager.request(workflow_state, tasks=tasks)
+
+        if isinstance(r, StoreGet):
+            resource = yield r
+        else:
+            resource = r
 
         if self._tracker is not None:
             self._tracker.complete_waiting(workflow_state,
@@ -161,4 +167,5 @@ class ResourceOperator:
                                                 policy=self.policy,
                                                 tracker=self._tracker))
 
-        self.pool_manager.release(resource)
+        if isinstance(r, StoreGet):
+            self.pool_manager.release(resource)

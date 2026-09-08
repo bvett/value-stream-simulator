@@ -169,6 +169,10 @@ class Task:
         self.is_rework = True
         return self
 
+    def clear_rework(self) -> Self:
+        self.is_rework = False
+        return self
+
 
 class SupportTask(Task):
     def __init__(self,

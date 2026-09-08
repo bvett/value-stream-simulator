@@ -59,7 +59,7 @@ class TestSupportWorkflow(unittest.TestCase):
         num_abandoned_items = 0
         for developer in developers:
             num_queued_items += len(developer._suspended_work)
-            if developer._process is not None:
+            if (developer._process is not None) and (not developer._process.triggered):
                 num_abandoned_items += 1
 
         completed = workflow.completed

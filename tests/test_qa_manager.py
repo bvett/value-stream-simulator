@@ -1,6 +1,7 @@
 import unittest
 
 from simpy import Environment, Store
+from simpy.resources.store import StoreGet
 
 
 from value_stream.core import WorkflowStateName
@@ -27,9 +28,12 @@ class TestQAManager(unittest.TestCase):
         self.workflow_state = WorkflowStateName.QA_TESTING
 
     def _process_task(self, task: Task, m: PoolManager, task_router: TaskRouterBase,  workflow_state: WorkflowStateName):
-        e = m.request(self.workflow_state)
+        e = m.request(self.workflow_state, [task])
 
-        operator: Resource = yield e
+        if isinstance(e, StoreGet):
+            operator: Resource = yield e
+        else:
+            operator: Resource = e
 
         yield self.env.process(operator.operate(self.env, [task], task_router=task_router, workflow_state=workflow_state, policy=self.policy, tracker=self.tracker))
         yield m.release(operator)

@@ -1,8 +1,15 @@
+import itertools
+import random
 from typing import Iterator, Optional
+from uuid import UUID
 from simpy import Environment, Store
+from simpy.resources.store import StoreGet
 
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Resource, ResourceTracker, ResourcePolicy
+from value_stream.task import Task, TaskType
+
+from .assignment_strategy import AssignmentStrategy
 
 
 class PoolManager:
@@ -14,7 +21,42 @@ class PoolManager:
         self._env = env
         self._resource_pool = Store(self._env)
 
-    def request(self, workflow_state: WorkflowStateName, ):
+        self._task_owners: dict[UUID, Resource] = {}
+
+        self._all_resources: list[Resource] = []
+        self._cyclic_support_delegator = None
+        self._random_support_delegator = None
+
+    def _update_delegators(self, r: list[Resource]):
+
+        def gen(resources: list[Resource]):
+            while True:
+                yield random.choice(resources)
+
+        self._cyclic_support_delegator = itertools.cycle(r)
+        self._random_support_delegator = gen(r)
+
+    def request(self, workflow_state: WorkflowStateName, tasks: list[Task]):
+
+        strategy = self._assignment_strategy(tasks)
+
+        match strategy:
+            case AssignmentStrategy.CYCLIC:
+                if self._cyclic_support_delegator is not None:
+                    return next(self._cyclic_support_delegator)
+            case AssignmentStrategy.RANDOM:
+                if self._random_support_delegator is not None:
+                    return next(self._random_support_delegator)
+            case AssignmentStrategy.OWNER:
+                task = tasks[0]
+
+                if not task.task_id in self._task_owners:
+                    pass
+
+                owner: Resource = self._task_owners[task.task_id]
+                return owner
+
+        # default to AssignmentStrategy.NEXT_AVAILABLE:
 
         if len(self._resource_pool.items) == 0:
 
@@ -23,12 +65,37 @@ class PoolManager:
             if new_item is not None:
                 new_item.idle_t = self._env.now
                 self._resource_pool.put(new_item)
+                self._all_resources.append(new_item)
+                self._update_delegators(self._all_resources)
+
                 if self._tracker is not None:
                     self._tracker.register(workflow_state)
 
-        return self._resource_pool.get()
+        result = self._resource_pool.get()
+
+        def record_owner(event: StoreGet):
+            resource: Optional[Resource] = event.value
+
+            if resource is not None:
+                for task in tasks:
+                    self._task_owners[task.task_id] = resource
+
+        result.callbacks = [record_owner]
+        return result
 
     def release(self, resource: Resource):
-        # do we release resources that were immediately assigned?
         resource.idle_t = self._env.now
         return self._resource_pool.put(resource)
+
+    def _assignment_strategy(self, tasks: list[Task]):
+
+        if tasks:
+            task = tasks[0]
+
+            if (task.task_type == TaskType.DEVELOPMENT) and (task.is_rework is True):
+                return AssignmentStrategy.OWNER
+
+            if task.task_type == TaskType.SUPPORT:
+                return AssignmentStrategy.RANDOM
+
+        return AssignmentStrategy.NEXT_AVAILABLE

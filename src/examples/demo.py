@@ -100,3 +100,4 @@ if __name__ == "__main__":
 
     metadata_viewer.mean_stage_loss()
     metadata_viewer.resource_utilization()
+    metadata_viewer.resource_capacity()

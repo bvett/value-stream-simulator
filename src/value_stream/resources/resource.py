@@ -26,7 +26,7 @@ class Resource:
         self._id = Resource._generate_id()
 
     @property
-    def resource_id(self):
+    def resource_id(self) -> uuid.UUID:
         return self._id
 
     def operate(self, env: Environment, tasks: list[Task],
@@ -39,8 +39,7 @@ class Resource:
         for task in tasks:
             task.start(env.now, workflow_state, resource_id=self._id)
 
-        if self._process is not None and self._process.is_alive:
-
+        if (self._process is not None) and (not self._process.processed):
             if policy.task_priority(tasks, self._process.tasks) == -1:
                 self._process.interrupt()
             else:
@@ -57,6 +56,10 @@ class Resource:
                     tracker.start_work(
                         workflow_state, env.now-self.idle_t)
                 yield self._process
+
+                if self._process.value is not None:
+                    status = self._process.value['result']
+
             except Interrupt:
 
                 # if do_work is interrupted, wait on a signal that will
@@ -74,15 +77,10 @@ class Resource:
 
                 continue
 
-            if self._process.value is not None:
-                status = self._process.value['result']
-
             if tracker is not None:
                 tracker.complete_work(
                     workflow_state, status, elapsed_t=env.now-start_t)
             self.idle_t = env.now
-
-            self._process = None
 
             for task in tasks:
                 task.end(env.now, workflow_state,
@@ -91,7 +89,7 @@ class Resource:
                 if (status == EventStatus.FAILURE):
                     yield task_router.route(task=task.as_rework(), status=status)
                 else:
-                    yield task_router.route(task=task, status=status)
+                    yield task_router.route(task=task.clear_rework(), status=status)
 
             # once work is complete, check for previously interrupted work
             # and trigger resumption
@@ -113,7 +111,7 @@ class Resource:
 
             self._suspended_work.pop()
 
-            if self._process is None:
+            if (self._process is not None) and (self._process.target is None):
                 break
 
     def _create_process(self, env: Environment, tasks: list[Task]):
