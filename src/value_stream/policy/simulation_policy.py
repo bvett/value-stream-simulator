@@ -1,6 +1,8 @@
 from value_stream.resources import ResourcePolicy
 from value_stream.task import Task
-from value_stream.workflow import AssignmentStrategy, WorkflowPolicy
+from value_stream.workflow import WorkflowPolicy
+
+from .assignment_strategy import AssignmentStrategy
 
 
 class SimulationPolicy(ResourcePolicy, WorkflowPolicy):

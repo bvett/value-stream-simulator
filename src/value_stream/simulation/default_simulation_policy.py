@@ -1,8 +1,6 @@
 from value_stream.core import TaskType
 from value_stream.task import Task
-from value_stream.workflow import AssignmentStrategy
-
-from .simulation_policy import SimulationPolicy
+from value_stream.policy import AssignmentStrategy, SimulationPolicy
 
 
 class DefaultSimulationPolicy(SimulationPolicy):

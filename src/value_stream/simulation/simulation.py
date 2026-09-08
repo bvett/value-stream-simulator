@@ -6,12 +6,12 @@ from simpy.events import AllOf
 
 from value_stream.core import WorkflowStateName
 from value_stream.task import SupportTask, Task, TaskEvent, TaskFactory, TaskGenerator
+from value_stream.policy import SimulationPolicy
 from value_stream.resources import ResourceTracker
 from value_stream.workflow import ResourceOperator, SDLCWorkflow, SupportWorkflow, WorkflowState
 
 from .model import Model
 from .simulation_metadata import SimulationMetadata
-from .simulation_policy import SimulationPolicy
 from .simulation_result import SimulationResult, SummaryResult
 
 

@@ -3,7 +3,8 @@ from typing import Iterable, Optional
 
 from tqdm import tqdm
 
-from value_stream.simulation import Model, Simulation, SimulationPolicy, \
+from value_stream.policy import SimulationPolicy
+from value_stream.simulation import Model, Simulation, \
     DefaultSimulationPolicy, SimulationResult
 from value_stream.task import Task
 
