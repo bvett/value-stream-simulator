@@ -30,14 +30,16 @@ class TestResourceOperator(unittest.TestCase):
             _ = ResourceOperator(env=self.env,
                                  resources=self.resources,
                                  cadence=-1,
-                                 policy=self.policy,
+                                 workflow_policy=self.policy,
+                                 resource_policy=self.policy,
                                  tracker=self.tracker)
 
         # attempt to start twice in succession
         with self.assertRaises(RuntimeError):
             manager = ResourceOperator(env=self.env,
                                        resources=self.resources,
-                                       policy=self.policy,
+                                       workflow_policy=self.policy,
+                                       resource_policy=self.policy,
                                        tracker=self.tracker)
 
             for _ in range(2):
@@ -49,7 +51,8 @@ class TestResourceOperator(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             manager = ResourceOperator(env=self.env,
                                        resources=self.resources,
-                                       policy=self.policy,
+                                       workflow_policy=self.policy,
+                                       resource_policy=self.policy,
                                        tracker=self.tracker)
             for _ in range(2):
                 manager.start(source=self.source,
@@ -62,7 +65,8 @@ class TestResourceOperator(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             manager = ResourceOperator(env=self.env,
                                        resources=self.resources,
-                                       policy=self.policy,
+                                       workflow_policy=self.policy,
+                                       resource_policy=self.policy,
                                        tracker=self.tracker)
 
             manager.stop()
@@ -75,7 +79,8 @@ class TestResourceOperator(unittest.TestCase):
 
         operator = ResourceOperator(env=self.env,
                                     resources=self.resources,
-                                    policy=self.policy,
+                                    workflow_policy=self.policy,
+                                    resource_policy=self.policy,
                                     tracker=self.tracker)
 
         operator.start(source=self.source, workflow_state=self.workflow_state,

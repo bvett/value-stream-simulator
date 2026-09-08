@@ -100,7 +100,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
             task_router = DefaultRouter(dev_target)
 
             operator = ResourceOperator(
-                env=env, resources=[developer], policy=self.policy, tracker=self.tracker)
+                env=env, resources=[developer], workflow_policy=self.policy, resource_policy=self.policy, tracker=self.tracker)
 
             operator.start(
                 dev_source, WorkflowStateName.DEVELOPMENT, task_router=task_router)

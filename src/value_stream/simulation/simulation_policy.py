@@ -53,3 +53,15 @@ class DefaultSimulationPolicy(SimulationPolicy):
 
     def support_strategy(self) -> AssignmentStrategy:
         return AssignmentStrategy.RANDOM
+
+    def support_assignment_strategy(self, tasks: list[Task]) -> AssignmentStrategy:
+        if tasks:
+            task = tasks[0]
+
+            if (task.task_type == TaskType.DEVELOPMENT) and (task.is_rework is True):
+                return AssignmentStrategy.OWNER
+
+            if task.task_type == TaskType.SUPPORT:
+                return AssignmentStrategy.RANDOM
+
+        return AssignmentStrategy.NEXT_AVAILABLE

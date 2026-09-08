@@ -35,7 +35,7 @@ class TestDeveloperManager(unittest.TestCase):
         self.assertEqual(len(self.source.items), 5)
 
         team = ResourceOperator(
-            self.env, self.create_developers(2), policy=self.policy, tracker=self.tracker)
+            self.env, self.create_developers(2), workflow_policy=self.policy, resource_policy=self.policy, tracker=self.tracker)
 
         team.start(self.source, self.workflow_state, self.task_router)
 

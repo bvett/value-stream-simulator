@@ -33,14 +33,15 @@ class Simulation:
 
         developer_manager = ResourceOperator(
             env, model.developer_team,
-            policy=policy,
+            workflow_policy=policy,
+            resource_policy=policy,
             tracker=tracker)
 
         qa_manager = ResourceOperator(
-            env, model.qa_testers, policy=policy, tracker=tracker)
+            env, model.qa_testers, workflow_policy=policy, resource_policy=policy, tracker=tracker)
 
         toolchain_manager = ResourceOperator(
-            env, model.toolchain_pool, policy=policy, cadence=model.deployment_cadence, tracker=tracker)
+            env, model.toolchain_pool, workflow_policy=policy, resource_policy=policy, cadence=model.deployment_cadence, tracker=tracker)
 
         delivery_complete = env.event()
         support_workflow_p: Optional[Process] = None

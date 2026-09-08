@@ -80,7 +80,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         DEPLOYMENT_DURATION = 0.5
 
         toolchain = ResourceOperator(self.env, Toolchain.create_pool(limit=1, deployment_duration=DEPLOYMENT_DURATION),
-                                     cadence=1, policy=self.policy, tracker=self.tracker)
+                                     cadence=1, workflow_policy=self.policy, resource_policy=self.policy, tracker=self.tracker)
 
         for _ in range(NUM_TASKS):
             yield self.source.put(Task(story_points=1, initial_value=1))
@@ -111,7 +111,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         toolchain = ResourceOperator(
             self.env, Toolchain.create_pool(
                 limit=concurrency, deployment_duration=deployment_duration),
-            cadence=cadence, policy=self.policy, tracker=self.tracker)
+            cadence=cadence, workflow_policy=self.policy, resource_policy=self.policy, tracker=self.tracker)
 
         toolchain.start(self.source, self.workflow_state,
                         task_router=self.task_router)

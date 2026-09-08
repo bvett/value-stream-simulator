@@ -4,10 +4,11 @@ from simpy import Environment, Interrupt, Process
 from simpy.resources.store import StoreGet
 
 from value_stream.core import WorkflowStateName
-from value_stream.resources import Resource, ResourcePolicy, ResourceTracker
+from value_stream.resources import Resource, ResourceTracker, ResourcePolicy
 from value_stream.task import Task, TaskRouterBase
 
 from .pool_manager import PoolManager
+from .workflow_policy import WorkflowPolicy
 from .workflow_state import WorkflowState
 
 
@@ -17,14 +18,15 @@ class ResourceOperator:
 
     def __init__(self, env: Environment,
                  resources: Iterable[Resource],
-                 policy: ResourcePolicy,
+                 workflow_policy: WorkflowPolicy,
+                 resource_policy: ResourcePolicy,
                  tracker: Optional[ResourceTracker] = None,
                  cadence: int = 0):
         self.env = env
         self._queue: list[Task] = []
 
         self.pool_manager = PoolManager(
-            self.env, resources=iter(resources), policy=policy, tracker=tracker)
+            self.env, resources=iter(resources), policy=workflow_policy, tracker=tracker)
         # self.resource_generator = iter(resources)
 
         if cadence < 0:
@@ -38,7 +40,8 @@ class ResourceOperator:
         self._timer_p: Optional[Process] = None
         self._executor_p: Optional[Process] = None
 
-        self.policy = policy
+        self.workflow_policy = workflow_policy
+        self.resource_policy = resource_policy
 
         self._source: Optional[WorkflowState] = None
 
@@ -164,7 +167,7 @@ class ResourceOperator:
                                                 tasks=tasks,
                                                 workflow_state=workflow_state,
                                                 task_router=task_router,
-                                                policy=self.policy,
+                                                policy=self.resource_policy,
                                                 tracker=self._tracker))
 
         if isinstance(r, StoreGet):

@@ -6,14 +6,15 @@ from simpy import Environment, Store
 from simpy.resources.store import StoreGet
 
 from value_stream.core import WorkflowStateName
-from value_stream.resources import Resource, ResourceTracker, ResourcePolicy
-from value_stream.task import Task, TaskType
+from value_stream.resources import Resource, ResourceTracker
+from value_stream.task import Task
 
 from .assignment_strategy import AssignmentStrategy
+from .workflow_policy import WorkflowPolicy
 
 
 class PoolManager:
-    def __init__(self, env: Environment, resources: Iterator[Resource], policy: ResourcePolicy, tracker: Optional[ResourceTracker] = None):
+    def __init__(self, env: Environment, resources: Iterator[Resource], policy: WorkflowPolicy, tracker: Optional[ResourceTracker] = None):
         self.resources = resources
         self.policy = policy
         self._tracker = tracker
@@ -38,7 +39,7 @@ class PoolManager:
 
     def request(self, workflow_state: WorkflowStateName, tasks: list[Task]):
 
-        strategy = self._assignment_strategy(tasks)
+        strategy = self.policy.support_assignment_strategy(tasks)
 
         match strategy:
             case AssignmentStrategy.CYCLIC:
@@ -86,16 +87,3 @@ class PoolManager:
     def release(self, resource: Resource):
         resource.idle_t = self._env.now
         return self._resource_pool.put(resource)
-
-    def _assignment_strategy(self, tasks: list[Task]):
-
-        if tasks:
-            task = tasks[0]
-
-            if (task.task_type == TaskType.DEVELOPMENT) and (task.is_rework is True):
-                return AssignmentStrategy.OWNER
-
-            if task.task_type == TaskType.SUPPORT:
-                return AssignmentStrategy.RANDOM
-
-        return AssignmentStrategy.NEXT_AVAILABLE
