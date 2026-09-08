@@ -3,7 +3,7 @@ from simpy import Environment
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
-from value_stream.task import SupportTask, Task, TaskFactory, TaskGenerator, DefaultRouter
+from value_stream.task import SupportTask, Task, TaskFactory, TaskGenerator, DefaultRouter, TypeRouter
 from value_stream.workflow import ResourceOperator, SupportWorkflow, TerminalWorkflowState, WorkflowState
 
 from .testutils import TestUtils
@@ -97,7 +97,11 @@ class TestDeveloper(unittest.TestCase, TestUtils):
             dev_target = TerminalWorkflowState(
                 env=env, name=WorkflowStateName.DEV_COMPLETE)
 
-            task_router = DefaultRouter(dev_target)
+            if support_target is not None:
+                task_router = TypeRouter(
+                    on_development=dev_target, on_support=support_target)
+            else:
+                task_router = DefaultRouter(dev_target)
 
             operator = ResourceOperator(
                 env=env, resources=[developer], workflow_policy=self.policy, resource_policy=self.policy, tracker=self.tracker)
@@ -112,8 +116,8 @@ class TestDeveloper(unittest.TestCase, TestUtils):
 
                 env.process(support_workflow.start(env=env,
                                                    generator=support_generator,
-                                                   developers=[developer],
-                                                   interval=interval, tracker=self.tracker))
+                                                   interval=interval,
+                                                   pending=dev_source))
 
                 sim_duration = (
                     (num_tasks * story_points + 1) / dev_efficiency) + 5

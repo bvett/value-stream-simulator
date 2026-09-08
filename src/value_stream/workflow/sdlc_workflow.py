@@ -1,7 +1,7 @@
 from simpy import Environment, Event
 
 from value_stream.core import WorkflowStateName
-from value_stream.task import Task, DefaultRouter, StatusRouter
+from value_stream.task import Task, TypeRouter, StatusRouter
 
 from .resource_operator import ResourceOperator
 from .workflow_state import TerminalWorkflowState, WorkflowState
@@ -26,11 +26,10 @@ class SDLCWorkflow:
               developer_manager: ResourceOperator,
               qa_manager: ResourceOperator,
               toolchain_manager: ResourceOperator,
-              signal: Event):
+              signal: Event,
+              pending: WorkflowState):
         """Signals workflow completion when all tasks specified at
         initialization are in the delivered queue"""
-
-        pending = WorkflowState(env, WorkflowStateName.PENDING)
 
         developed = WorkflowState(
             env, WorkflowStateName.DEV_COMPLETE)
@@ -41,6 +40,9 @@ class SDLCWorkflow:
         delivered = TerminalWorkflowState(
             env, WorkflowStateName.DELIVERY)
 
+        support_completed = TerminalWorkflowState(
+            env, WorkflowStateName.SUPPORT_COMPLETE)
+
         for task in tasks:
             yield pending.put(task)
 
@@ -50,7 +52,7 @@ class SDLCWorkflow:
         developer_manager.start(
             source=pending,
             workflow_state=WorkflowStateName.DEVELOPMENT,
-            task_router=DefaultRouter(developed))
+            task_router=TypeRouter(on_development=developed, on_support=support_completed))
 
         qa_manager.start(
             source=developed,

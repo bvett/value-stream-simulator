@@ -5,9 +5,10 @@ from simpy import Environment, Event, Process
 from simpy.events import AllOf
 
 
+from value_stream.core import WorkflowStateName
 from value_stream.task import SupportTask, Task, TaskEvent, TaskFactory, TaskGenerator
 from value_stream.resources import ResourceTracker
-from value_stream.workflow import ResourceOperator, SDLCWorkflow, SupportWorkflow
+from value_stream.workflow import ResourceOperator, SDLCWorkflow, SupportWorkflow, WorkflowState
 
 from .model import Model
 from .simulation_metadata import SimulationMetadata
@@ -25,6 +26,8 @@ class Simulation:
                 policy: SimulationPolicy) -> SimulationResult:
 
         env = Environment()
+
+        pending = WorkflowState(env, WorkflowStateName.PENDING)
 
         sdlc_workflow = SDLCWorkflow()
         support_workflow = SupportWorkflow(
@@ -44,16 +47,14 @@ class Simulation:
             env, model.toolchain_pool, workflow_policy=policy, resource_policy=policy, cadence=model.deployment_cadence, tracker=tracker)
 
         delivery_complete = env.event()
-        support_workflow_p: Optional[Process] = None
-
-        sim_termination_events = [delivery_complete]
 
         env.process(sdlc_workflow.start(env=env,
                                         tasks=Task.start_epoch(tasks, env),
                                         developer_manager=developer_manager,
                                         qa_manager=qa_manager,
                                         toolchain_manager=toolchain_manager,
-                                        signal=delivery_complete))
+                                        signal=delivery_complete,
+                                        pending=pending))
 
         if model.support_interval is not None:
 
@@ -61,19 +62,17 @@ class Simulation:
                 SupportTask, story_points=model.support_task_story_points)
             support_generator = TaskGenerator(factory)
 
-            support_workflow_p = env.process(support_workflow.start(
+            env.process(support_workflow.start(
                 env=env,
                 generator=support_generator,
                 interval=model.support_interval,
-                developers=list(model.developer_team),
                 stop_signal=delivery_complete,
-                tracker=tracker))
-            sim_termination_events.append(support_workflow_p)
+                pending=pending))
 
         start_t = env.now
 
         completed_tasks = env.run(
-            until=AllOf(env, sim_termination_events))  # type:ignore
+            until=AllOf(env, [delivery_complete]))  # type:ignore
 
         sim_duration = env.now - start_t
 
