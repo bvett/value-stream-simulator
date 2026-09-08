@@ -1,11 +1,7 @@
 from typing import Optional
 
 from simpy import Environment, Event
-
-from value_stream.resources import ResourcePolicy
 from value_stream.task import TaskGenerator
-
-from .workflow_policy import WorkflowPolicy
 from .workflow_state import WorkflowState
 
 
@@ -13,12 +9,9 @@ class SupportWorkflow:
     """Generates and assigns tasks to developers outside of the primary SDLC workflow.
     Used to simulate unplanned workload that results in disruption"""
 
-    def __init__(self, workflow_policy: WorkflowPolicy, resource_policy: ResourcePolicy):
+    def __init__(self):
 
         self._proc = None
-
-        self._workflow_policy = workflow_policy
-        self._resource_policy = resource_policy
 
         self._signal: Optional[Event] = None
 

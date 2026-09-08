@@ -1,7 +1,6 @@
 import logging
-from typing import Optional
 
-from simpy import Environment, Event, Process
+from simpy import Environment, Event
 from simpy.events import AllOf
 
 
@@ -30,8 +29,7 @@ class Simulation:
         pending = WorkflowState(env, WorkflowStateName.PENDING)
 
         sdlc_workflow = SDLCWorkflow()
-        support_workflow = SupportWorkflow(
-            resource_policy=policy, workflow_policy=policy)
+        support_workflow = SupportWorkflow()
         tracker = ResourceTracker(env)
 
         developer_manager = ResourceOperator(
