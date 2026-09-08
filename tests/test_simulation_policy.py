@@ -3,7 +3,7 @@ import unittest
 from value_stream.workflow import AssignmentStrategy
 from value_stream.resources import ResourcePolicy
 from value_stream.simulation import SimulationPolicy, DefaultSimulationPolicy
-from value_stream.task import Task, SupportTask
+from value_stream.task import Task, SupportTask, TaskType
 
 
 class TestResourcePolicy(unittest.TestCase):
@@ -20,15 +20,31 @@ class TestSimulationPolicy(unittest.TestCase):
         policy = SimulationPolicy()
 
         with self.assertRaises(NotImplementedError):
-            _ = policy.support_strategy()
+            _ = policy.support_assignment_strategy(tasks=[])
 
 
 class TestDefaultSimulationPolicy(unittest.TestCase):
 
-    def test_support_strategy(self):
+    def test_support_assignment_strategy(self):
         policy = DefaultSimulationPolicy()
 
-        self.assertEqual(policy.support_strategy(), AssignmentStrategy.RANDOM)
+        dev_task = Task(initial_value=1, story_points=1,
+                        task_type=TaskType.DEVELOPMENT)
+        support_task = Task(initial_value=1, story_points=1,
+                            task_type=TaskType.SUPPORT)
+        rework_task = Task(initial_value=1, story_points=1,
+                           task_type=TaskType.DEVELOPMENT).as_rework()
+
+        scenarios = [([dev_task], AssignmentStrategy.NEXT_AVAILABLE),
+                     ([support_task], AssignmentStrategy.RANDOM),
+                     ([rework_task], AssignmentStrategy.OWNER),
+                     ([dev_task, support_task], AssignmentStrategy.NEXT_AVAILABLE),
+                     ([support_task, dev_task], AssignmentStrategy.RANDOM)]
+
+        for scenario in scenarios:
+            tasks, strategy = scenario
+            self.assertEqual(
+                strategy, policy.support_assignment_strategy(tasks))
 
     def test_priority(self):
 

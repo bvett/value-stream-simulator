@@ -9,7 +9,7 @@ class SimulationPolicy(ResourcePolicy, WorkflowPolicy):
     def task_priority(self, tasks_1: list[Task], tasks_2: list[Task]):
         raise NotImplementedError
 
-    def support_strategy(self):
+    def support_assignment_strategy(self, tasks: list[Task]) -> AssignmentStrategy:
         raise NotImplementedError
 
 
@@ -50,9 +50,6 @@ class DefaultSimulationPolicy(SimulationPolicy):
             return 1
 
         return 0
-
-    def support_strategy(self) -> AssignmentStrategy:
-        return AssignmentStrategy.RANDOM
 
     def support_assignment_strategy(self, tasks: list[Task]) -> AssignmentStrategy:
         if tasks:
