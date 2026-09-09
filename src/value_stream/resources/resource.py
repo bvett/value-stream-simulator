@@ -1,5 +1,5 @@
 # Parent class for Developer and Toolchain
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from typing import Any, Generator, Optional
 import uuid
@@ -14,7 +14,7 @@ from .resource_policy import ResourcePolicy
 from .resource_tracker import ResourceTracker
 
 
-class Resource:
+class Resource(ABC):
     """Base class for simulation objects that operate on tasks"""
 
     @classmethod
@@ -46,6 +46,7 @@ class Resource:
                 self._process.interrupt()
             else:
                 # if what's in progress is of higher priority, queue up current work
+                # yield self._process ....
                 yield env.process(self._pause(env))
 
         while True:

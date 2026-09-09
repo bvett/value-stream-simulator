@@ -51,10 +51,10 @@ class TestResource(unittest.TestCase):
         self.assertEqual(len(self.target_for_failures.items), 1)
 
     def test_resource_id(self):
-        resource_1 = Resource()
+        resource_1 = SuccessQAResource()
         self.assertIsNotNone(resource_1.resource_id)
 
-        resource_2 = Resource()
+        resource_2 = SuccessQAResource()
         self.assertNotEqual(resource_1.resource_id, resource_2.resource_id)
 
 
