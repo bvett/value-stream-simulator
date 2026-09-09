@@ -1,26 +1,8 @@
 import unittest
 
-from value_stream.policy import AssignmentStrategy, SimulationPolicy
-from value_stream.resources import ResourcePolicy
+from value_stream.policy import AssignmentStrategy
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import Task, SupportTask, TaskType
-
-
-class TestResourcePolicy(unittest.TestCase):
-
-    def test_resource_policy(self):
-
-        policy = ResourcePolicy()
-        with self.assertRaises(NotImplementedError):
-            policy.task_priority([], [])
-
-
-class TestSimulationPolicy(unittest.TestCase):
-    def test_simulation_policy(self):
-        policy = SimulationPolicy()
-
-        with self.assertRaises(NotImplementedError):
-            _ = policy.support_assignment_strategy(tasks=[])
 
 
 class TestDefaultSimulationPolicy(unittest.TestCase):

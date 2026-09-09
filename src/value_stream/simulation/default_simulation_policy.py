@@ -1,3 +1,5 @@
+from typing import Literal
+
 from value_stream.core import TaskType
 from value_stream.task import Task
 from value_stream.policy import AssignmentStrategy, SimulationPolicy
@@ -6,7 +8,7 @@ from value_stream.policy import AssignmentStrategy, SimulationPolicy
 class DefaultSimulationPolicy(SimulationPolicy):
     """encapsulates control logic for a simulation"""
 
-    def task_priority(self, tasks_1: list[Task], tasks_2: list[Task]):
+    def task_priority(self, tasks_1: list[Task], tasks_2: list[Task]) -> Literal[0] | Literal[1] | Literal[-1]:
         """Compares two Task lists and returns an indicator of which has higher priority
 
         Returns:

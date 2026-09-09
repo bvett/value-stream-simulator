@@ -20,12 +20,6 @@ class TestResource(unittest.TestCase):
             on_success=self.target, on_failure=self.target_for_failures)
         self.policy = DefaultSimulationPolicy()
 
-    def test_validation(self):
-        resource = Resource()
-
-        with self.assertRaises(NotImplementedError):
-            resource.do_work(env=self.env, tasks=[self.task])
-
     def run_and_assert(self, resource: Resource, expected_status: EventStatus):
 
         self.env.process(resource.operate(

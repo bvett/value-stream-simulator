@@ -1,3 +1,5 @@
+from abc import abstractmethod
+
 from typing import Optional
 from simpy import Store
 from simpy.resources.store import StorePut
@@ -15,8 +17,9 @@ class TaskRouterBase(TaskRouter):
         self._route_1 = route_1
         self._route_2 = route_2
 
-    def route(self, task: Task, status: Optional[EventStatus] = None):
-        raise NotImplementedError
+    @abstractmethod
+    def route(self, task: Task, status: Optional[EventStatus] = None) -> StorePut:
+        pass
 
     def _send_to(self, task: Task, route: Optional[Store | TaskRouter], status: Optional[EventStatus] = None) -> StorePut:
         if route is None:
@@ -35,7 +38,7 @@ class DefaultRouter(TaskRouterBase):
     def __init__(self, route: Store | TaskRouter):
         super().__init__(route_1=route, route_2=None)
 
-    def route(self, task: Task, status: Optional[EventStatus] = None):
+    def route(self, task: Task, status: Optional[EventStatus] = None) -> StorePut:
         return self._send_to(task, self._route_1, status)
 
 
@@ -43,7 +46,7 @@ class StatusRouter(TaskRouterBase):
     def __init__(self, on_success: Store | TaskRouter, on_failure: Store | TaskRouter):
         super().__init__(route_1=on_success, route_2=on_failure)
 
-    def route(self, task: Task, status: Optional[EventStatus] = EventStatus.FAILURE):
+    def route(self, task: Task, status: Optional[EventStatus] = EventStatus.FAILURE) -> StorePut:
 
         if status == EventStatus.SUCCESS:
             return self._send_to(task, self._route_1, status)

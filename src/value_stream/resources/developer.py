@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Any, Generator, Optional
 
-from simpy import Environment, Interrupt
+from simpy import Environment, Interrupt, Timeout
 
 from value_stream.core import EventStatus
 from value_stream.task import Task
@@ -23,7 +23,7 @@ class Developer(Resource):
     def effort(self, tasks: list[Task]) -> float:
         return sum([task.remaining_work() / self.efficiency for task in tasks])
 
-    def do_work(self, env: Environment, tasks: list[Task]):
+    def do_work(self, env: Environment, tasks: list[Task]) -> Generator[Timeout, Any, None]:
         start = env.now
 
         try:

@@ -1,8 +1,10 @@
 # Parent class for Developer and Toolchain
-from typing import Optional
+from abc import abstractmethod
+
+from typing import Any, Generator, Optional
 import uuid
 
-from simpy import Environment, Event, Interrupt, Process
+from simpy import Environment, Event, Interrupt, Process, Timeout
 from simpy.events import ProcessGenerator
 
 from value_stream.core import EventStatus, WorkflowStateName
@@ -99,8 +101,9 @@ class Resource:
 
             break
 
-    def do_work(self, env: Environment, tasks: list[Task]):
-        raise NotImplementedError()
+    @abstractmethod
+    def do_work(self, env: Environment, tasks: list[Task]) -> Generator[Timeout, Any, None]:
+        pass
 
     def _pause(self, env: Environment):
         while True:
