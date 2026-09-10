@@ -1,5 +1,4 @@
-from .epoch import Epoch
+
 from .workflow_state_name import WorkflowStateName
 
-__all__ = ["Epoch",
-           "WorkflowStateName"]
+__all__ = ["WorkflowStateName"]

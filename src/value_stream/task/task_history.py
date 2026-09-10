@@ -1,8 +1,9 @@
 from typing import Optional
 from uuid import UUID
 
-from value_stream.core import Epoch, WorkflowStateName
+from value_stream.core import WorkflowStateName
 
+from .epoch import Epoch
 from .event_status import EventStatus
 from .task_event import TaskEvent
 from .task_type import TaskType

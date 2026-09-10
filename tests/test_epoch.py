@@ -1,7 +1,7 @@
 import unittest
 from simpy import Environment
 
-from value_stream.core import Epoch
+from value_stream.task import Epoch
 
 
 class TestEpoch(unittest.TestCase):
