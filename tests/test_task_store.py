@@ -3,8 +3,8 @@ import unittest
 
 from simpy import AnyOf, Environment, Event
 
-from value_stream.task import Task, TaskEvent, TaskFactory, TaskGenerator
-from value_stream.core import EventStatus, WorkflowStateName
+from value_stream.task import EventStatus, Task, TaskEvent, TaskFactory, TaskGenerator
+from value_stream.core import WorkflowStateName
 from value_stream.workflow import TaskStore, TerminalTaskStore
 
 # pylint: disable=missing-class-docstring,missing-function-docstring

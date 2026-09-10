@@ -3,8 +3,8 @@ import unittest
 
 from simpy import Environment, Store
 
-from value_stream.core import WorkflowStateName, EventStatus
-from value_stream.task import Task, TaskEvent, TaskHistory
+from value_stream.core import WorkflowStateName
+from value_stream.task import EventStatus, Task, TaskEvent, TaskHistory
 from value_stream.resources import Toolchain, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import DefaultRouter

@@ -2,9 +2,9 @@ import unittest
 
 from pandas import DataFrame
 
-from value_stream.core import EventStatus, WorkflowStateName
+from value_stream.core import WorkflowStateName
 from value_stream.resources import DeveloperFactory, QATester, Toolchain
-from value_stream.task import TaskFactory, TaskEvent
+from value_stream.task import EventStatus, TaskFactory, TaskEvent
 from value_stream.simulation import DefaultSimulationPolicy, Model, Simulation
 
 

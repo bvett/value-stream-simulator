@@ -3,8 +3,7 @@ import unittest
 from simpy import Environment, Store
 
 
-from value_stream.core import EventStatus
-from value_stream.task import Task, TaskType
+from value_stream.task import EventStatus, Task, TaskType
 from value_stream.task import DefaultRouter, StatusRouter, TypeRouter
 
 

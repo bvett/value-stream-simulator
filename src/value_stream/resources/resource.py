@@ -7,8 +7,8 @@ import uuid
 from simpy import Environment, Event, Interrupt, Process, Timeout
 from simpy.events import ProcessGenerator
 
-from value_stream.core import EventStatus, WorkflowStateName
-from value_stream.task import Task, TaskRouter
+from value_stream.core import WorkflowStateName
+from value_stream.task import EventStatus, Task, TaskRouter
 
 from .resource_policy import ResourcePolicy
 from .resource_tracker import ResourceTracker

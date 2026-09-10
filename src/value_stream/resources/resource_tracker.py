@@ -2,7 +2,8 @@ from typing import Optional
 
 from simpy import Environment
 
-from value_stream.core import EventStatus, WorkflowStateName
+from value_stream.core import WorkflowStateName
+from value_stream.task import EventStatus
 
 from .resource_metadata import ResourceMetadata
 

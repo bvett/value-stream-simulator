@@ -1,8 +1,7 @@
 import random
 from simpy import Environment
 
-from value_stream.core import EventStatus
-from value_stream.task import Task
+from value_stream.task import EventStatus, Task
 
 from .resource import Resource
 from .resource_pool import PooledResource

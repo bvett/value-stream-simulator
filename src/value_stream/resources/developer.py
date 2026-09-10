@@ -2,8 +2,7 @@ from typing import Any, Generator, Optional
 
 from simpy import Environment, Interrupt, Timeout
 
-from value_stream.core import EventStatus
-from value_stream.task import Task
+from value_stream.task import EventStatus, Task
 
 from .resource import Resource
 

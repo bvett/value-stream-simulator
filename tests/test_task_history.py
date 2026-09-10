@@ -1,7 +1,7 @@
 import unittest
 
-from value_stream.task import TaskHistory, TaskEvent, TaskType
-from value_stream.core import EventStatus, WorkflowStateName
+from value_stream.task import EventStatus, TaskHistory, TaskEvent, TaskType
+from value_stream.core import WorkflowStateName
 
 from .testutils import TestUtils
 

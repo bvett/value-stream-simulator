@@ -4,7 +4,7 @@ from typing import Optional
 from simpy import Store
 from simpy.resources.store import StorePut
 
-from value_stream.core import EventStatus
+from .event_status import EventStatus
 from .task import Task
 from .task_type import TaskType
 
