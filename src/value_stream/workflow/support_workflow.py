@@ -2,7 +2,7 @@ from typing import Optional
 
 from simpy import Environment, Event
 from value_stream.task import TaskGenerator
-from .workflow_state import TaskStore
+from .task_store import TaskStore
 
 
 class SupportWorkflow:

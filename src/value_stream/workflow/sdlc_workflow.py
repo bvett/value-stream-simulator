@@ -4,7 +4,7 @@ from value_stream.core import WorkflowStateName
 from value_stream.task import Task, TypeRouter, StatusRouter
 
 from .resource_operator import ResourceOperator
-from .workflow_state import TerminalTaskStore, TaskStore
+from .task_store import TerminalTaskStore, TaskStore
 
 
 class SDLCWorkflow:

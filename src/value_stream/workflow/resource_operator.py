@@ -8,8 +8,8 @@ from value_stream.resources import Resource, ResourceTracker, ResourcePolicy
 from value_stream.task import Task, TaskRouter
 
 from .pool_manager import PoolManager
+from .task_store import TaskStore
 from .workflow_policy import WorkflowPolicy
-from .workflow_state import TaskStore
 
 
 class ResourceOperator:
