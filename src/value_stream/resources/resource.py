@@ -8,7 +8,7 @@ from simpy import Environment, Event, Interrupt, Process, Timeout
 from simpy.events import ProcessGenerator
 
 from value_stream.core import EventStatus, WorkflowStateName
-from value_stream.task import Task, TaskRouterBase
+from value_stream.task import Task, TaskRouter
 
 from .resource_policy import ResourcePolicy
 from .resource_tracker import ResourceTracker
@@ -32,7 +32,7 @@ class Resource(ABC):
         return self._id
 
     def operate(self, env: Environment, tasks: list[Task],
-                task_router: TaskRouterBase,
+                task_router: TaskRouter,
                 policy: ResourcePolicy,
                 workflow_state: WorkflowStateName,
                 tracker: Optional[ResourceTracker] = None):
