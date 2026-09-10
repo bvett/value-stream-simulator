@@ -7,7 +7,7 @@ from value_stream.core import WorkflowStateName
 from value_stream.task import Task
 
 
-class WorkflowState(Store):
+class TaskStore(Store):
     """Collection of Task objects in the same simulation workflow state.
 
     Adds start/end events to the task history upon entry/exit
@@ -72,7 +72,7 @@ class WorkflowState(Store):
         self._baseline = len(self.items)
 
 
-class TerminalWorkflowState(WorkflowState):
+class TerminalTaskStore(TaskStore):
     """Represents an end-state of a workflow.  Tasks enter, but do not exit"""
 
     def __init__(self, env: Environment, name: WorkflowStateName):

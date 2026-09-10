@@ -9,7 +9,7 @@ from value_stream.task import Task, TaskRouter
 
 from .pool_manager import PoolManager
 from .workflow_policy import WorkflowPolicy
-from .workflow_state import WorkflowState
+from .workflow_state import TaskStore
 
 
 class ResourceOperator:
@@ -43,11 +43,11 @@ class ResourceOperator:
         self.workflow_policy = workflow_policy
         self.resource_policy = resource_policy
 
-        self._source: Optional[WorkflowState] = None
+        self._source: Optional[TaskStore] = None
 
         self._tracker = tracker
 
-    def start(self, source: WorkflowState, workflow_state: WorkflowStateName, task_router: TaskRouter):
+    def start(self, source: TaskStore, workflow_state: WorkflowStateName, task_router: TaskRouter):
         """Starts processing loop that:
             1) Waits for tasks to appear in source
             2) Triggers execution on a fixed schedule or continuously
@@ -89,7 +89,7 @@ class ResourceOperator:
         if (self._timer_p is not None) and (self._timer_p.is_alive):
             self._timer_p.interrupt()
 
-    def _monitor(self, source: WorkflowState):
+    def _monitor(self, source: TaskStore):
 
         while True:
             source_request = None

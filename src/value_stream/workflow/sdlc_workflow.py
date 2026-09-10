@@ -4,7 +4,7 @@ from value_stream.core import WorkflowStateName
 from value_stream.task import Task, TypeRouter, StatusRouter
 
 from .resource_operator import ResourceOperator
-from .workflow_state import TerminalWorkflowState, WorkflowState
+from .workflow_state import TerminalTaskStore, TaskStore
 
 
 class SDLCWorkflow:
@@ -27,20 +27,20 @@ class SDLCWorkflow:
               qa_manager: ResourceOperator,
               toolchain_manager: ResourceOperator,
               signal: Event,
-              pending: WorkflowState):
+              pending: TaskStore):
         """Signals workflow completion when all tasks specified at
         initialization are in the delivered queue"""
 
-        developed = WorkflowState(
+        developed = TaskStore(
             env, WorkflowStateName.DEV_COMPLETE)
 
-        qa_complete = WorkflowState(
+        qa_complete = TaskStore(
             env, WorkflowStateName.QA_COMPLETE)
 
-        delivered = TerminalWorkflowState(
+        delivered = TerminalTaskStore(
             env, WorkflowStateName.DELIVERY)
 
-        support_completed = TerminalWorkflowState(
+        support_completed = TerminalTaskStore(
             env, WorkflowStateName.SUPPORT_COMPLETE)
 
         for task in tasks:

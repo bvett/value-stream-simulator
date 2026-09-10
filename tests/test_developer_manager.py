@@ -4,7 +4,7 @@ from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourceTracker
 from value_stream.task import Task, DefaultRouter
 from value_stream.simulation import DefaultSimulationPolicy
-from value_stream.workflow import ResourceOperator, WorkflowState
+from value_stream.workflow import ResourceOperator, TaskStore
 
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
@@ -15,9 +15,9 @@ class TestDeveloperManager(unittest.TestCase):
     def setUp(self):
         self.env = Environment()
         self.tracker = ResourceTracker(self.env)
-        self.source = WorkflowState(self.env, WorkflowStateName.PENDING)
+        self.source = TaskStore(self.env, WorkflowStateName.PENDING)
         self.workflow_state = WorkflowStateName.DEVELOPMENT
-        self.target = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
+        self.target = TaskStore(self.env, WorkflowStateName.DEV_COMPLETE)
         self.task_router = DefaultRouter(self.target)
         self.policy = DefaultSimulationPolicy()
 

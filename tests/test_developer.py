@@ -4,7 +4,7 @@ from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import SupportTask, Task, TaskFactory, TaskGenerator, DefaultRouter, TypeRouter
-from value_stream.workflow import ResourceOperator, SupportWorkflow, TerminalWorkflowState, WorkflowState
+from value_stream.workflow import ResourceOperator, SupportWorkflow, TerminalTaskStore, TaskStore
 
 from .testutils import TestUtils
 
@@ -37,7 +37,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
         senior_developer = Developer(1.5, name="senior")
 
         workflow_state = WorkflowStateName.DEVELOPMENT
-        target = WorkflowState(self.env, WorkflowStateName.DEVELOPMENT)
+        target = TaskStore(self.env, WorkflowStateName.DEVELOPMENT)
 
         task_router = DefaultRouter(target)
 
@@ -79,12 +79,12 @@ class TestDeveloper(unittest.TestCase, TestUtils):
                          dev_efficiency: float,
                          story_points: float,
                          support_generator: TaskGenerator | None,
-                         support_target: WorkflowState | None,
+                         support_target: TaskStore | None,
                          interval: float | None = None):
 
             developer = Developer(efficiency=1, name="D1")
 
-            dev_source = WorkflowState(
+            dev_source = TaskStore(
                 env=env, name=WorkflowStateName.PENDING)
 
             num_tasks = 2
@@ -94,7 +94,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
                                 story_points=story_points, task_name=f"T{i+1}")
                 dev_source.put(dev_task)
 
-            dev_target = TerminalWorkflowState(
+            dev_target = TerminalTaskStore(
                 env=env, name=WorkflowStateName.DEV_COMPLETE)
 
             if support_target is not None:
@@ -146,7 +146,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
         env = Environment()
         support_task_factory = TaskFactory(SupportTask, story_points=1)
 
-        support_target = WorkflowState(
+        support_target = TaskStore(
             env=env, name=WorkflowStateName.SUPPORT_COMPLETE)
 
         support_generator = TaskGenerator(
@@ -166,7 +166,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
         # Scenario 3: Support that arrives as development task ends/begins
         env = Environment()
 
-        support_target = WorkflowState(
+        support_target = TaskStore(
             env=env, name=WorkflowStateName.SUPPORT_COMPLETE)
 
         support_generator = TaskGenerator(
@@ -193,7 +193,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
         developer = Developer()
 
         workflow_state = WorkflowStateName.DEVELOPMENT
-        target = WorkflowState(self.env, WorkflowStateName.DEVELOPMENT)
+        target = TaskStore(self.env, WorkflowStateName.DEVELOPMENT)
 
         task_router = DefaultRouter(target)
 
@@ -227,7 +227,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
         developer = Developer(efficiency=1)
 
         workflow_state = WorkflowStateName.DEVELOPMENT
-        target = WorkflowState(self.env, WorkflowStateName.DEVELOPMENT)
+        target = TaskStore(self.env, WorkflowStateName.DEVELOPMENT)
 
         task_router = DefaultRouter(target)
 
@@ -265,7 +265,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
     def test_do_no_work(self):
         """tests an edge case of a task with zero story points"""
         workflow_state = WorkflowStateName.DEVELOPMENT
-        target = WorkflowState(self.env, WorkflowStateName.DEVELOPMENT)
+        target = TaskStore(self.env, WorkflowStateName.DEVELOPMENT)
 
         task_router = DefaultRouter(target)
 

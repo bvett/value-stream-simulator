@@ -2,7 +2,7 @@ from typing import Optional
 
 from simpy import Environment, Event
 from value_stream.task import TaskGenerator
-from .workflow_state import WorkflowState
+from .workflow_state import TaskStore
 
 
 class SupportWorkflow:
@@ -18,7 +18,7 @@ class SupportWorkflow:
     def start(self, env: Environment,
               generator: TaskGenerator,
               interval: float,
-              pending: WorkflowState,
+              pending: TaskStore,
               stop_signal: Optional[Event] = None):
 
         if stop_signal is None:

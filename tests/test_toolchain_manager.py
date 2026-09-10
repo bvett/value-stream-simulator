@@ -8,7 +8,7 @@ from value_stream.task import Task, TaskEvent, TaskHistory
 from value_stream.resources import Toolchain, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import DefaultRouter
-from value_stream.workflow import ResourceOperator, WorkflowState, TerminalWorkflowState
+from value_stream.workflow import ResourceOperator, TaskStore, TerminalTaskStore
 
 from .testutils import TestUtils
 
@@ -20,9 +20,9 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
     def setUp(self):
         self.env = Environment()
         self.tracker = ResourceTracker(self.env)
-        self.source = WorkflowState(self.env, WorkflowStateName.DEV_COMPLETE)
+        self.source = TaskStore(self.env, WorkflowStateName.DEV_COMPLETE)
         self.workflow_state = WorkflowStateName.DEPLOYMENT
-        self.target = TerminalWorkflowState(
+        self.target = TerminalTaskStore(
             self.env, WorkflowStateName.DELIVERY)
 
         self.task_router = DefaultRouter(self.target)

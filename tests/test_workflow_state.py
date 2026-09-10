@@ -5,17 +5,17 @@ from simpy import AnyOf, Environment, Event
 
 from value_stream.task import Task, TaskEvent, TaskFactory, TaskGenerator
 from value_stream.core import EventStatus, WorkflowStateName
-from value_stream.workflow import WorkflowState, TerminalWorkflowState
+from value_stream.workflow import TaskStore, TerminalTaskStore
 
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
 
-class TestWorkflowState(unittest.TestCase):
+class TestTaskStore(unittest.TestCase):
 
     def setUp(self):
         self.env = Environment()
-        self.state = WorkflowState(self.env, WorkflowStateName.DEVELOPMENT)
-        self.terminal_state = TerminalWorkflowState(
+        self.state = TaskStore(self.env, WorkflowStateName.DEVELOPMENT)
+        self.terminal_state = TerminalTaskStore(
             self.env, WorkflowStateName.DELIVERY)
 
     def test_put(self):
@@ -103,9 +103,9 @@ class TestWorkflowState(unittest.TestCase):
 
         env = Environment()
 
-        targets: list[WorkflowState] = [TerminalWorkflowState(
+        targets: list[TaskStore] = [TerminalTaskStore(
             env, WorkflowStateName.DEPLOYMENT),
-            WorkflowState(env, WorkflowStateName.DEPLOYMENT)]
+            TaskStore(env, WorkflowStateName.DEPLOYMENT)]
 
         for target in targets:
 
@@ -132,7 +132,7 @@ class TestWorkflowState(unittest.TestCase):
                 target.set_alarm(limit=limit * 2, signal=signal)
 
     def test_validation(self):
-        target = TerminalWorkflowState(self.env, WorkflowStateName.DEPLOYMENT)
+        target = TerminalTaskStore(self.env, WorkflowStateName.DEPLOYMENT)
 
         with self.assertRaises(ValueError):
             signal = self.env.event()
@@ -144,7 +144,7 @@ class TestWorkflowState(unittest.TestCase):
 
     def test_restart(self):
 
-        target = TerminalWorkflowState(self.env, WorkflowStateName.DEPLOYMENT)
+        target = TerminalTaskStore(self.env, WorkflowStateName.DEPLOYMENT)
 
         factory = TaskFactory(initial_value=0, story_points=1)
         generator = TaskGenerator(factory)
@@ -191,19 +191,19 @@ class TestWorkflowState(unittest.TestCase):
     def test_surpass(self):
 
         # try to exceed alarm limit by not yielding correctly
-        def populate_without_yield(t: WorkflowState, count: int):
+        def populate_without_yield(t: TaskStore, count: int):
             for _ in range(count):
                 t.put(Task(initial_value=0, story_points=0))
 
             t.put(Task(initial_value=0, story_points=0))
 
-        def populate_with_yield(t: WorkflowState, count: int):
+        def populate_with_yield(t: TaskStore, count: int):
             for _ in range(count):
                 yield t.put(Task(initial_value=0, story_points=0))
 
             yield t.put(Task(initial_value=0, story_points=0))
 
-        for cls in [WorkflowState, TerminalWorkflowState]:
+        for cls in [TaskStore, TerminalTaskStore]:
             for pop_func in [populate_without_yield, populate_with_yield]:
 
                 env = Environment()

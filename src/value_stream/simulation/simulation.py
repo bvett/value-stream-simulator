@@ -8,7 +8,7 @@ from value_stream.core import WorkflowStateName
 from value_stream.task import SupportTask, Task, TaskEvent, TaskFactory, TaskGenerator
 from value_stream.policy import SimulationPolicy
 from value_stream.resources import ResourceTracker
-from value_stream.workflow import ResourceOperator, SDLCWorkflow, SupportWorkflow, WorkflowState
+from value_stream.workflow import ResourceOperator, SDLCWorkflow, SupportWorkflow, TaskStore
 
 from .model import Model
 from .simulation_metadata import SimulationMetadata
@@ -26,7 +26,7 @@ class Simulation:
 
         env = Environment()
 
-        pending = WorkflowState(env, WorkflowStateName.PENDING)
+        pending = TaskStore(env, WorkflowStateName.PENDING)
 
         sdlc_workflow = SDLCWorkflow()
         support_workflow = SupportWorkflow()

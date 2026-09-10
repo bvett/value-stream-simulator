@@ -6,7 +6,7 @@ from value_stream.core import WorkflowStateName
 from value_stream.resources import ResourceTracker, DeveloperFactory
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import DefaultRouter, Task, TaskFactory
-from value_stream.workflow import ResourceOperator, WorkflowState
+from value_stream.workflow import ResourceOperator, TaskStore
 
 
 class TestResourceOperator(unittest.TestCase):
@@ -17,8 +17,8 @@ class TestResourceOperator(unittest.TestCase):
         self.resources = DeveloperFactory.create(3)
         self.workflow_state = WorkflowStateName.DEVELOPMENT
 
-        self.source = WorkflowState(self.env, WorkflowStateName.PENDING)
-        self.target = WorkflowState(self.env, WorkflowStateName.DELIVERY)
+        self.source = TaskStore(self.env, WorkflowStateName.PENDING)
+        self.target = TaskStore(self.env, WorkflowStateName.DELIVERY)
         self.task_router = DefaultRouter(self.target)
 
         self.policy = DefaultSimulationPolicy()
