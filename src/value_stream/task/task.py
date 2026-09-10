@@ -4,9 +4,10 @@ from typing import Collection, Optional, Self
 
 from simpy import Environment
 
-from value_stream.core import EventStatus, WorkflowStateName, TaskType
+from value_stream.core import EventStatus, WorkflowStateName
 
 from .task_history import TaskHistory
+from .task_type import TaskType
 
 
 class Task:

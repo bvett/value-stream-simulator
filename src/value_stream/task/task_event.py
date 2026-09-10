@@ -2,7 +2,8 @@ from enum import StrEnum
 from typing import Optional
 from uuid import UUID
 
-from value_stream.core import EventStatus, TaskType, WorkflowStateName
+from value_stream.core import EventStatus, WorkflowStateName
+from .task_type import TaskType
 
 
 class TaskEvent:

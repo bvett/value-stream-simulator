@@ -1,7 +1,6 @@
 from typing import Literal
 
-from value_stream.core import TaskType
-from value_stream.task import Task
+from value_stream.task import Task, TaskType
 from value_stream.policy import AssignmentStrategy, SimulationPolicy
 
 

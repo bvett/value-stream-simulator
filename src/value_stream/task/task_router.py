@@ -4,8 +4,9 @@ from typing import Optional
 from simpy import Store
 from simpy.resources.store import StorePut
 
-from value_stream.core import EventStatus, TaskType
+from value_stream.core import EventStatus
 from .task import Task
+from .task_type import TaskType
 
 
 class TaskRouter:
