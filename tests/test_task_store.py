@@ -3,7 +3,7 @@ import unittest
 
 from simpy import AnyOf, Environment, Event
 
-from value_stream.simulation.factory import TaskFactory, TaskGenerator
+from value_stream.factories import TaskFactory, TaskGenerator
 from value_stream.task import EventStatus, Task, TaskEvent
 from value_stream.core import WorkflowStateName
 from value_stream.workflow import TaskStore, TerminalTaskStore

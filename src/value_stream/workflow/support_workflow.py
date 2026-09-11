@@ -1,7 +1,7 @@
 from typing import Optional
 
 from simpy import Environment, Event
-from value_stream.simulation.factory import TaskGenerator
+from value_stream.factories import TaskGenerator
 from .task_store import TaskStore
 
 

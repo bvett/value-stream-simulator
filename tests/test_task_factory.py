@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from simpy import Environment
-from value_stream.simulation.factory import TaskFactory
+from value_stream.factories import TaskFactory
 from value_stream.utils import generator_utils
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
