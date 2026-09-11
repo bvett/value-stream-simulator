@@ -6,7 +6,7 @@ from value_stream.core import WorkflowStateName
 from value_stream.resources import QATester, Toolchain
 from value_stream.task import EventStatus, TaskEvent
 from value_stream.simulation import DefaultSimulationPolicy, Model, Simulation
-from value_stream.factories import DeveloperFactory, TaskFactory
+from value_stream.factory import DeveloperFactory, TaskFactory
 
 
 class TestSimulation(unittest.TestCase):

@@ -3,7 +3,7 @@ from simpy import Environment
 from value_stream.core import WorkflowStateName
 from value_stream.resources import Developer, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
-from value_stream.factories import TaskFactory, TaskGenerator
+from value_stream.factory import TaskFactory, TaskGenerator
 from value_stream.task import SupportTask, Task, DefaultRouter, TypeRouter
 from value_stream.workflow import ResourceOperator, SupportWorkflow, TerminalTaskStore, TaskStore
 

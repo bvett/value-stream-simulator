@@ -5,7 +5,7 @@ from value_stream.client import SimulationRunner
 from value_stream.client.views import MetadataViewer
 from value_stream.resources import QATester, Toolchain
 from value_stream.simulation import ModelFactory
-from value_stream.factories import DeveloperFactory, TaskFactory
+from value_stream.factory import DeveloperFactory, TaskFactory
 
 
 class TestMetadataViewer(unittest.TestCase):

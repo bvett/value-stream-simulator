@@ -5,7 +5,7 @@ from simpy.events import AllOf
 
 
 from value_stream.core import WorkflowStateName
-from value_stream.factories import TaskFactory, TaskGenerator
+from value_stream.factory import TaskFactory, TaskGenerator
 from value_stream.policy import SimulationPolicy
 from value_stream.resources import ResourceTracker
 from value_stream.task import SupportTask, Task, TaskEvent

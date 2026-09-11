@@ -3,7 +3,7 @@ import unittest
 from simpy import Environment, Store, Interrupt
 
 from value_stream.task import Task
-from value_stream.factories import TaskFactory, TaskGenerator
+from value_stream.factory import TaskFactory, TaskGenerator
 
 
 class TestTaskGenerator(unittest.TestCase):
