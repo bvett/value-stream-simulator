@@ -4,7 +4,7 @@ from typing import Type, Optional
 from simpy import Environment
 
 from value_stream.utils import generate_args
-from .task import Task
+from value_stream.task import Task
 
 
 class TaskFactory:

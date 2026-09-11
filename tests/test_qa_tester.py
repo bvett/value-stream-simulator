@@ -5,7 +5,8 @@ from simpy import Environment, Store
 from value_stream.core import WorkflowStateName
 from value_stream.resources import QATester, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
-from value_stream.task import EventStatus, Task, TaskFactory, DefaultRouter
+from value_stream.simulation.factory import TaskFactory
+from value_stream.task import EventStatus, Task, DefaultRouter
 
 
 class TestQATester(unittest.TestCase):
