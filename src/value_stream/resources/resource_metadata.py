@@ -1,12 +1,12 @@
 from typing import Optional
-from value_stream.core import WorkflowStateName
+from value_stream.task import TaskState
 
 
 class ResourceMetadata:
 
     def __init__(self,
                  time: float,
-                 state: WorkflowStateName,
+                 state: TaskState,
                  waiting: int = 0,
                  allocated: int = 0,
                  active: int = 0,

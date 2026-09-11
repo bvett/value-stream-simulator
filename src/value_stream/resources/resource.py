@@ -7,7 +7,7 @@ import uuid
 from simpy import Environment, Event, Interrupt, Process, Timeout
 from simpy.events import ProcessGenerator
 
-from value_stream.core import WorkflowStateName
+from value_stream.task import TaskState
 from value_stream.task import EventStatus, Task, TaskRouter
 
 from .resource_policy import ResourcePolicy
@@ -34,7 +34,7 @@ class Resource(ABC):
     def operate(self, env: Environment, tasks: list[Task],
                 task_router: TaskRouter,
                 policy: ResourcePolicy,
-                workflow_state: WorkflowStateName,
+                workflow_state: TaskState,
                 tracker: Optional[ResourceTracker] = None):
         """Simulates an action on a task object"""
 

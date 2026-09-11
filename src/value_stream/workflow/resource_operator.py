@@ -3,7 +3,7 @@ from typing import Iterable, Optional
 from simpy import Environment, Interrupt, Process
 from simpy.resources.store import StoreGet
 
-from value_stream.core import WorkflowStateName
+from value_stream.task import TaskState
 from value_stream.resources import Resource, ResourceTracker, ResourcePolicy
 from value_stream.task import Task, TaskRouter
 
@@ -47,7 +47,7 @@ class ResourceOperator:
 
         self._tracker = tracker
 
-    def start(self, source: TaskStore, workflow_state: WorkflowStateName, task_router: TaskRouter):
+    def start(self, source: TaskStore, workflow_state: TaskState, task_router: TaskRouter):
         """Starts processing loop that:
             1) Waits for tasks to appear in source
             2) Triggers execution on a fixed schedule or continuously
@@ -131,7 +131,7 @@ class ResourceOperator:
             except Interrupt:
                 break
 
-    def _executor(self, workflow_state: WorkflowStateName, task_router: TaskRouter):
+    def _executor(self, workflow_state: TaskState, task_router: TaskRouter):
 
         while True:
             try:
@@ -142,7 +142,7 @@ class ResourceOperator:
             except Interrupt:
                 break
 
-    def _execute(self, workflow_state: WorkflowStateName, tasks: list[Task], task_router: TaskRouter):
+    def _execute(self, workflow_state: TaskState, tasks: list[Task], task_router: TaskRouter):
 
         wait_t = self.env.now
 

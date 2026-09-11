@@ -2,7 +2,7 @@ import unittest
 
 from simpy import Environment, Store
 
-from value_stream.core import WorkflowStateName
+from value_stream.workflow import SDLCWorkflow
 from value_stream.resources import QATester, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.factory import TaskFactory
@@ -25,7 +25,7 @@ class TestQATester(unittest.TestCase):
 
         self.policy = DefaultSimulationPolicy()
 
-        self.workflow_state = WorkflowStateName.QA_TESTING
+        self.workflow_state = SDLCWorkflow.WorkflowState.QA_TESTING
 
     def test_validation(self):
         _ = QATester()

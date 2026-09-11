@@ -2,7 +2,7 @@ import unittest
 
 from pandas import DataFrame
 
-from value_stream.core import WorkflowStateName
+from value_stream.workflow import SDLCWorkflow
 from value_stream.resources import QATester, Toolchain
 from value_stream.task import EventStatus, TaskEvent
 from value_stream.simulation import DefaultSimulationPolicy, Model, Simulation
@@ -53,7 +53,7 @@ class TestSimulation(unittest.TestCase):
         event_metadata = DataFrame([vars(x)
                                    for x in result.metadata.event_metadata])
 
-        max_delivery_t = event_metadata[(event_metadata["event"] == WorkflowStateName.DELIVERY) & (
+        max_delivery_t = event_metadata[(event_metadata["event"] == SDLCWorkflow.WorkflowState.DELIVERY) & (
             event_metadata["status"] == EventStatus.SUCCESS)]["time"].max()
 
         self.assertEqual(summary.completion_time, max_delivery_t)

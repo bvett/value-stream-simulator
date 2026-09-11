@@ -3,7 +3,7 @@ from typing import Optional
 from simpy import Environment, Event, Store
 from simpy.resources.store import StorePut, StoreGet
 
-from value_stream.core import WorkflowStateName
+from value_stream.task import TaskState
 from value_stream.task import Task
 
 
@@ -13,7 +13,7 @@ class TaskStore(Store):
     Adds start/end events to the task history upon entry/exit
     """
 
-    def __init__(self, env: Environment, name: WorkflowStateName):
+    def __init__(self, env: Environment, name: TaskState):
         super().__init__(env)
         self.name = name
 
@@ -75,7 +75,7 @@ class TaskStore(Store):
 class TerminalTaskStore(TaskStore):
     """Represents an end-state of a workflow.  Tasks enter, but do not exit"""
 
-    def __init__(self, env: Environment, name: WorkflowStateName):
+    def __init__(self, env: Environment, name: TaskState):
         super().__init__(env, name)
         self.name = name
 

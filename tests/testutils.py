@@ -1,11 +1,11 @@
-from value_stream.core import WorkflowStateName
+from value_stream.task import TaskState
 from value_stream.task import TaskEvent, TaskHistory
 
 
 class TestUtils:
 
     @classmethod
-    def event_times(cls, history: TaskHistory, event: WorkflowStateName) -> tuple[float, float]:
+    def event_times(cls, history: TaskHistory, event: TaskState) -> tuple[float, float]:
         """Returns the most recent start and end times of the event
         Returns as tuple (start_t, end_t)"""
 
@@ -26,12 +26,12 @@ class TestUtils:
 
         if (start_t is None) or (end_t is None):
             raise ValueError(
-                "Unable to find matching end and start times for event " + event)
+                "Unable to find matching end and start times for event " + str(event))
 
         return (start_t, end_t)
 
     @classmethod
-    def duration(cls, history: TaskHistory, event: WorkflowStateName):
+    def duration(cls, history: TaskHistory, event: TaskState):
         """Returns the difference between the most recent end and start times for the event.
         Returns 0 for TERMINAL events"""
 

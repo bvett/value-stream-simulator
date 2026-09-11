@@ -1,6 +1,6 @@
 import unittest
 from simpy import Environment, Store
-from value_stream.core import WorkflowStateName
+from value_stream.workflow import SDLCWorkflow
 from value_stream.resources import Toolchain, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.factory import TaskFactory
@@ -20,7 +20,7 @@ class TestToolchain(unittest.TestCase):
 
         self.env = Environment()
 
-        self.workflow_state = WorkflowStateName.DEPLOYMENT
+        self.workflow_state = SDLCWorkflow.WorkflowState.DEPLOYMENT
 
         self.target = Store(self.env)
         self.task_router = DefaultRouter(self.target)

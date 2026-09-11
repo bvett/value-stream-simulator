@@ -5,7 +5,7 @@ from uuid import UUID
 from simpy import Environment, Store
 from simpy.resources.store import StoreGet
 
-from value_stream.core import WorkflowStateName
+from value_stream.task import TaskState
 from value_stream.policy import AssignmentStrategy
 from value_stream.resources import Resource, ResourceTracker
 from value_stream.task import Task
@@ -37,7 +37,7 @@ class PoolManager:
         self._cyclic_support_delegator = itertools.cycle(r)
         self._random_support_delegator = gen(r)
 
-    def request(self, workflow_state: WorkflowStateName, tasks: list[Task]):
+    def request(self, workflow_state: TaskState, tasks: list[Task]):
 
         strategy = self.policy.support_assignment_strategy(tasks)
 

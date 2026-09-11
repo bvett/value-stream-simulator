@@ -4,7 +4,7 @@ from simpy import Environment, Store
 from simpy.resources.store import StoreGet
 
 
-from value_stream.core import WorkflowStateName
+from value_stream.workflow import SDLCWorkflow
 from value_stream.resources import QATester, Resource, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import Task, TaskRouter, DefaultRouter
@@ -25,9 +25,9 @@ class TestQAManager(unittest.TestCase):
 
         self.policy = DefaultSimulationPolicy()
 
-        self.workflow_state = WorkflowStateName.QA_TESTING
+        self.workflow_state = SDLCWorkflow.WorkflowState.QA_TESTING
 
-    def _process_task(self, task: Task, m: PoolManager, task_router: TaskRouter,  workflow_state: WorkflowStateName):
+    def _process_task(self, task: Task, m: PoolManager, task_router: TaskRouter,  workflow_state: SDLCWorkflow.WorkflowState):
         e = m.request(self.workflow_state, [task])
 
         if isinstance(e, StoreGet):

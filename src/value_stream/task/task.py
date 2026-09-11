@@ -4,11 +4,10 @@ from typing import Collection, Optional, Self
 
 from simpy import Environment
 
-from value_stream.core import WorkflowStateName
-
 from .event_status import EventStatus
 from .task_history import TaskHistory
 from .task_type import TaskType
+from .task_state import TaskState
 
 
 class Task:
@@ -143,7 +142,7 @@ class Task:
         self.history.completed_story_points = self.story_points
         return story_points - remaining_work
 
-    def end(self, sim_t: float, event: Optional[WorkflowStateName] = None, status: EventStatus = EventStatus.SUCCESS, resource_id: Optional[uuid.UUID] = None):
+    def end(self, sim_t: float, event: Optional[TaskState] = None, status: EventStatus = EventStatus.SUCCESS, resource_id: Optional[uuid.UUID] = None):
 
         last_event = self.history.last_event()
 
@@ -153,14 +152,14 @@ class Task:
         self.history.end(sim_time=sim_t, event=event, status=status,
                          loss=loss, task_type=self.task_type, is_rework=self.is_rework)
 
-    def start(self, sim_t: float, event: WorkflowStateName, resource_id: Optional[uuid.UUID] = None):
+    def start(self, sim_t: float, event: TaskState, resource_id: Optional[uuid.UUID] = None):
         self.history.start(sim_time=sim_t, event=event,
                            task_type=self.task_type, is_rework=self.is_rework, resource_id=resource_id)
 
-    def resume(self, event: WorkflowStateName):
+    def resume(self, event: TaskState):
         self.history.resume(event=event)
 
-    def terminate(self, sim_t: float, event: WorkflowStateName, status: EventStatus = EventStatus.SUCCESS, resource_id: Optional[uuid.UUID] = None):
+    def terminate(self, sim_t: float, event: TaskState, status: EventStatus = EventStatus.SUCCESS, resource_id: Optional[uuid.UUID] = None):
         self.history.terminate(sim_time=sim_t, event=event, status=status,
                                task_type=self.task_type, is_rework=self.is_rework, resource_id=resource_id)
 

@@ -3,7 +3,7 @@ import unittest
 
 from simpy import Environment, Store
 
-from value_stream.core import WorkflowStateName
+from value_stream.workflow import SDLCWorkflow
 from value_stream.task import EventStatus, Task, TaskEvent, TaskHistory
 from value_stream.resources import Toolchain, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
@@ -20,10 +20,11 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
     def setUp(self):
         self.env = Environment()
         self.tracker = ResourceTracker(self.env)
-        self.source = TaskStore(self.env, WorkflowStateName.DEV_COMPLETE)
-        self.workflow_state = WorkflowStateName.DEPLOYMENT
+        self.source = TaskStore(
+            self.env, SDLCWorkflow.WorkflowState.DEV_COMPLETE)
+        self.workflow_state = SDLCWorkflow.WorkflowState.DEPLOYMENT
         self.target = TerminalTaskStore(
-            self.env, WorkflowStateName.DELIVERY)
+            self.env, SDLCWorkflow.WorkflowState.DELIVERY)
 
         self.task_router = DefaultRouter(self.target)
         self.policy = DefaultSimulationPolicy()
@@ -72,7 +73,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
 
         for task in tasks:
             self.assertEqual(self.duration(task.history,
-                                           WorkflowStateName.DEPLOYMENT), DEPLOYMENT_DURATION)
+                                           SDLCWorkflow.WorkflowState.DEPLOYMENT), DEPLOYMENT_DURATION)
 
     def test_serial_deployment(self):
 
@@ -127,7 +128,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         result: Optional[float] = None
 
         for event in reversed(history.events):
-            if ((event.event == WorkflowStateName.DELIVERY) and
+            if ((event.event == SDLCWorkflow.WorkflowState.DELIVERY) and
                 (event.event_type == TaskEvent.EventType.TERMINAL) and
                     (event.status == EventStatus.SUCCESS)):
                 result = event.time

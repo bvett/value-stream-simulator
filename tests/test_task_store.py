@@ -5,7 +5,7 @@ from simpy import AnyOf, Environment, Event
 
 from value_stream.factory import TaskFactory, TaskGenerator
 from value_stream.task import EventStatus, Task, TaskEvent
-from value_stream.core import WorkflowStateName
+from value_stream.workflow import SDLCWorkflow
 from value_stream.workflow import TaskStore, TerminalTaskStore
 
 # pylint: disable=missing-class-docstring,missing-function-docstring
@@ -15,9 +15,10 @@ class TestTaskStore(unittest.TestCase):
 
     def setUp(self):
         self.env = Environment()
-        self.state = TaskStore(self.env, WorkflowStateName.DEVELOPMENT)
+        self.state = TaskStore(
+            self.env, SDLCWorkflow.WorkflowState.DEVELOPMENT)
         self.terminal_state = TerminalTaskStore(
-            self.env, WorkflowStateName.DELIVERY)
+            self.env, SDLCWorkflow.WorkflowState.DELIVERY)
 
     def test_put(self):
         task = Task(initial_value=50.0, story_points=1.0, creation_sim_t=0)
@@ -105,8 +106,8 @@ class TestTaskStore(unittest.TestCase):
         env = Environment()
 
         targets: list[TaskStore] = [TerminalTaskStore(
-            env, WorkflowStateName.DEPLOYMENT),
-            TaskStore(env, WorkflowStateName.DEPLOYMENT)]
+            env, SDLCWorkflow.WorkflowState.DEPLOYMENT),
+            TaskStore(env, SDLCWorkflow.WorkflowState.DEPLOYMENT)]
 
         for target in targets:
 
@@ -133,7 +134,8 @@ class TestTaskStore(unittest.TestCase):
                 target.set_alarm(limit=limit * 2, signal=signal)
 
     def test_validation(self):
-        target = TerminalTaskStore(self.env, WorkflowStateName.DEPLOYMENT)
+        target = TerminalTaskStore(
+            self.env, SDLCWorkflow.WorkflowState.DEPLOYMENT)
 
         with self.assertRaises(ValueError):
             signal = self.env.event()
@@ -145,7 +147,8 @@ class TestTaskStore(unittest.TestCase):
 
     def test_restart(self):
 
-        target = TerminalTaskStore(self.env, WorkflowStateName.DEPLOYMENT)
+        target = TerminalTaskStore(
+            self.env, SDLCWorkflow.WorkflowState.DEPLOYMENT)
 
         factory = TaskFactory(initial_value=0, story_points=1)
         generator = TaskGenerator(factory)
@@ -208,7 +211,7 @@ class TestTaskStore(unittest.TestCase):
             for pop_func in [populate_without_yield, populate_with_yield]:
 
                 env = Environment()
-                target = cls(env, WorkflowStateName.DEVELOPMENT)
+                target = cls(env, SDLCWorkflow.WorkflowState.DEVELOPMENT)
                 signal = env.event()
                 limit = 5
 

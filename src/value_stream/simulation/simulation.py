@@ -4,7 +4,7 @@ from simpy import Environment, Event
 from simpy.events import AllOf
 
 
-from value_stream.core import WorkflowStateName
+from value_stream.workflow import SDLCWorkflow
 from value_stream.factory import TaskFactory, TaskGenerator
 from value_stream.policy import SimulationPolicy
 from value_stream.resources import ResourceTracker
@@ -27,7 +27,7 @@ class Simulation:
 
         env = Environment()
 
-        pending = TaskStore(env, WorkflowStateName.PENDING)
+        pending = TaskStore(env, SDLCWorkflow.WorkflowState.PENDING)
 
         sdlc_workflow = SDLCWorkflow()
         support_workflow = SupportWorkflow()

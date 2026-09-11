@@ -1,7 +1,7 @@
 import unittest
 
 from value_stream.task import SupportTask, TaskType
-from value_stream.core import WorkflowStateName
+from value_stream.workflow import SDLCWorkflow
 
 # pylint:disable=protected-access,missing-function-docstring,missing-class-docstring
 
@@ -27,13 +27,13 @@ class TestSupportTask(unittest.TestCase):
         self.assertIsNone(task.history.delivered_value)
 
         # default creation_sim_t
-        task.start(2, WorkflowStateName.DELIVERY)
+        task.start(2, SDLCWorkflow.WorkflowState.DELIVERY)
 
         # ensure value does not change until delivered
         self.assertIsNone(task.history.delivered_value)
 
         # task.history.delivery_end_t = 2
-        task.terminate(2, WorkflowStateName.DELIVERY)
+        task.terminate(2, SDLCWorkflow.WorkflowState.DELIVERY)
 
         self.assertEqual(task.history.delivered_value, 0)
 
@@ -45,7 +45,7 @@ class TestSupportTask(unittest.TestCase):
 
         epoch = task.history.epoch
 
-        task.terminate(25, WorkflowStateName.DELIVERY)
+        task.terminate(25, SDLCWorkflow.WorkflowState.DELIVERY)
 
         self.assertEqual(task.loss(from_epoch_t=epoch.to_epoch_time(
             task.creation_sim_t), to_epoch_t=epoch.to_epoch_time(25)), 0)

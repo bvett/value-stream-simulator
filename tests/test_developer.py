@@ -1,6 +1,6 @@
 import unittest
 from simpy import Environment
-from value_stream.core import WorkflowStateName
+from value_stream.workflow import SDLCWorkflow
 from value_stream.resources import Developer, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.factory import TaskFactory, TaskGenerator
@@ -37,8 +37,8 @@ class TestDeveloper(unittest.TestCase, TestUtils):
         junior_developer = Developer(.5, name="junior")
         senior_developer = Developer(1.5, name="senior")
 
-        workflow_state = WorkflowStateName.DEVELOPMENT
-        target = TaskStore(self.env, WorkflowStateName.DEVELOPMENT)
+        workflow_state = SDLCWorkflow.WorkflowState.DEVELOPMENT
+        target = TaskStore(self.env, SDLCWorkflow.WorkflowState.DEVELOPMENT)
 
         task_router = DefaultRouter(target)
 
@@ -66,7 +66,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
         for i, v in enumerate([0.4, 1.2, 1.7333333, 5.2]):
 
             dev_start_t, dev_end_t = self.event_times(
-                target.items[i].history, WorkflowStateName.DEVELOPMENT)
+                target.items[i].history, SDLCWorkflow.WorkflowState.DEVELOPMENT)
             self.assertAlmostEqual(dev_end_t, v)
             self.assertEqual(dev_start_t, 0)
 
@@ -86,7 +86,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
             developer = Developer(efficiency=1, name="D1")
 
             dev_source = TaskStore(
-                env=env, name=WorkflowStateName.PENDING)
+                env=env, name=SDLCWorkflow.WorkflowState.PENDING)
 
             num_tasks = 2
             for i in range(0, num_tasks):
@@ -96,7 +96,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
                 dev_source.put(dev_task)
 
             dev_target = TerminalTaskStore(
-                env=env, name=WorkflowStateName.DEV_COMPLETE)
+                env=env, name=SDLCWorkflow.WorkflowState.DEV_COMPLETE)
 
             if support_target is not None:
                 task_router = TypeRouter(
@@ -108,7 +108,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
                 env=env, resources=[developer], workflow_policy=self.policy, resource_policy=self.policy, tracker=self.tracker)
 
             operator.start(
-                dev_source, WorkflowStateName.DEVELOPMENT, task_router=task_router)
+                dev_source, SDLCWorkflow.WorkflowState.DEVELOPMENT, task_router=task_router)
 
             if (support_generator is not None) and (support_target is not None) and (interval is not None):
 
@@ -141,14 +141,14 @@ class TestDeveloper(unittest.TestCase, TestUtils):
         self.assertEqual(2, len(dev_target.items))
 
         self.assertEqual((2.0, 2.0), self.event_times(
-            dev_target.items[0].history, WorkflowStateName.DEV_COMPLETE))
+            dev_target.items[0].history, SDLCWorkflow.WorkflowState.DEV_COMPLETE))
 
         # Scenario 2: Support that arrives mid-task (non-aligned interval)
         env = Environment()
         support_task_factory = TaskFactory(SupportTask, story_points=1)
 
         support_target = TaskStore(
-            env=env, name=WorkflowStateName.SUPPORT_COMPLETE)
+            env=env, name=SDLCWorkflow.WorkflowState.SUPPORT_COMPLETE)
 
         support_generator = TaskGenerator(
             factory=support_task_factory)
@@ -162,13 +162,13 @@ class TestDeveloper(unittest.TestCase, TestUtils):
 
         self.assertEqual(2, len(dev_target.items))
         self.assertEqual((3.0, 3.0), self.event_times(
-            dev_target.items[0].history, WorkflowStateName.DEV_COMPLETE))
+            dev_target.items[0].history, SDLCWorkflow.WorkflowState.DEV_COMPLETE))
 
         # Scenario 3: Support that arrives as development task ends/begins
         env = Environment()
 
         support_target = TaskStore(
-            env=env, name=WorkflowStateName.SUPPORT_COMPLETE)
+            env=env, name=SDLCWorkflow.WorkflowState.SUPPORT_COMPLETE)
 
         support_generator = TaskGenerator(
             factory=support_task_factory, limit=1)
@@ -182,19 +182,19 @@ class TestDeveloper(unittest.TestCase, TestUtils):
 
         self.assertEqual(2, len(dev_target.items))
         self.assertEqual((2.0, 2.0), self.event_times(
-            dev_target.items[0].history, WorkflowStateName.DEV_COMPLETE))
+            dev_target.items[0].history, SDLCWorkflow.WorkflowState.DEV_COMPLETE))
 
         # Second task should have been delayed by support
         self.assertEqual((5.0, 5.0), self.event_times(
-            dev_target.items[-1].history, WorkflowStateName.DEV_COMPLETE))
+            dev_target.items[-1].history, SDLCWorkflow.WorkflowState.DEV_COMPLETE))
 
     def test_deferral(self):
         """test that the arrival of a second, non-interrupting workload is queued until the first completes"""
 
         developer = Developer()
 
-        workflow_state = WorkflowStateName.DEVELOPMENT
-        target = TaskStore(self.env, WorkflowStateName.DEVELOPMENT)
+        workflow_state = SDLCWorkflow.WorkflowState.DEVELOPMENT
+        target = TaskStore(self.env, SDLCWorkflow.WorkflowState.DEVELOPMENT)
 
         task_router = DefaultRouter(target)
 
@@ -227,8 +227,8 @@ class TestDeveloper(unittest.TestCase, TestUtils):
 
         developer = Developer(efficiency=1)
 
-        workflow_state = WorkflowStateName.DEVELOPMENT
-        target = TaskStore(self.env, WorkflowStateName.DEVELOPMENT)
+        workflow_state = SDLCWorkflow.WorkflowState.DEVELOPMENT
+        target = TaskStore(self.env, SDLCWorkflow.WorkflowState.DEVELOPMENT)
 
         task_router = DefaultRouter(target)
 
@@ -265,8 +265,8 @@ class TestDeveloper(unittest.TestCase, TestUtils):
 
     def test_do_no_work(self):
         """tests an edge case of a task with zero story points"""
-        workflow_state = WorkflowStateName.DEVELOPMENT
-        target = TaskStore(self.env, WorkflowStateName.DEVELOPMENT)
+        workflow_state = SDLCWorkflow.WorkflowState.DEVELOPMENT
+        target = TaskStore(self.env, SDLCWorkflow.WorkflowState.DEVELOPMENT)
 
         task_router = DefaultRouter(target)
 

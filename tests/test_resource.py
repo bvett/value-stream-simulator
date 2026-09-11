@@ -2,7 +2,7 @@ import unittest
 
 from simpy import Environment, Store
 
-from value_stream.core import WorkflowStateName
+from value_stream.workflow import SDLCWorkflow
 from value_stream.resources import Resource, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import EventStatus, Task, StatusRouter
@@ -24,7 +24,7 @@ class TestResource(unittest.TestCase):
 
         self.env.process(resource.operate(
             env=self.env, tasks=[self.task], task_router=self.task_router,
-            policy=self.policy, tracker=self.tracker, workflow_state=WorkflowStateName.DEVELOPMENT))
+            policy=self.policy, tracker=self.tracker, workflow_state=SDLCWorkflow.WorkflowState.DEVELOPMENT))
         self.env.run()
 
         self.assertEqual(self.env.now, 1.0)

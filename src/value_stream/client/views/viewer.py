@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 from matplotlib import colormaps
 
-from value_stream.core import WorkflowStateName
+from value_stream.workflow import SDLCWorkflow
 
 
 class Viewer:
@@ -11,12 +11,12 @@ class Viewer:
         self.colormap = colormaps[colormap]
 
         self._label_map = {
-            WorkflowStateName.PENDING: 'waiting for dev',
-            WorkflowStateName.DEVELOPMENT: 'development',
-            WorkflowStateName.DEV_COMPLETE: 'waiting for qa',
-            WorkflowStateName.QA_TESTING: 'qa',
-            WorkflowStateName.QA_COMPLETE: 'waiting for delivery',
-            WorkflowStateName.DEPLOYMENT: 'delivery'
+            SDLCWorkflow.WorkflowState.PENDING: 'waiting for dev',
+            SDLCWorkflow.WorkflowState.DEVELOPMENT: 'development',
+            SDLCWorkflow.WorkflowState.DEV_COMPLETE: 'waiting for qa',
+            SDLCWorkflow.WorkflowState.QA_TESTING: 'qa',
+            SDLCWorkflow.WorkflowState.QA_COMPLETE: 'waiting for delivery',
+            SDLCWorkflow.WorkflowState.DEPLOYMENT: 'delivery'
         }
 
     @classmethod

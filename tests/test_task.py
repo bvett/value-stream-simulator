@@ -1,6 +1,6 @@
 import unittest
 from value_stream.task import Task
-from value_stream.core import WorkflowStateName
+from value_stream.workflow import SDLCWorkflow
 
 # pylint:disable=protected-access,missing-function-docstring,missing-class-docstring
 
@@ -76,7 +76,7 @@ class TestTask(unittest.TestCase):
         task = Task(task_name="", initial_value=50, story_points=1,
                     creation_sim_t=0, depreciation_rate=0)
 
-        task.terminate(25, WorkflowStateName.DELIVERY)
+        task.terminate(25, SDLCWorkflow.WorkflowState.DELIVERY)
 
         epoch = task.history.epoch
 
@@ -90,7 +90,7 @@ class TestTask(unittest.TestCase):
 
         epoch = task.history.epoch
 
-        task.terminate(2, WorkflowStateName.DELIVERY)
+        task.terminate(2, SDLCWorkflow.WorkflowState.DELIVERY)
 
         self.assertEqual(task.loss(from_epoch_t=epoch.to_epoch_time(
             task.creation_sim_t), to_epoch_t=epoch.to_epoch_time(2)), -0.19)
@@ -104,13 +104,13 @@ class TestTask(unittest.TestCase):
         self.assertIsNone(task.history.delivered_value)
 
         # default creation_time
-        task.start(2, WorkflowStateName.DELIVERY)
+        task.start(2, SDLCWorkflow.WorkflowState.DELIVERY)
 
         # ensure value does not change until delivered
         self.assertIsNone(task.history.delivered_value)
 
         # task.history.delivery_end_t = 2
-        task.terminate(2, WorkflowStateName.DELIVERY)
+        task.terminate(2, SDLCWorkflow.WorkflowState.DELIVERY)
 
         self.assertEqual(task.history.delivered_value, 81)
 
@@ -119,14 +119,14 @@ class TestTask(unittest.TestCase):
         task = Task(task_name="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_sim_t=5)
 
-        task.terminate(5, WorkflowStateName.DELIVERY)
+        task.terminate(5, SDLCWorkflow.WorkflowState.DELIVERY)
 
         self.assertEqual(task.history.delivered_value, 100)
 
         task = Task(task_name="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_sim_t=5)
 
-        task.terminate(6, WorkflowStateName.DELIVERY)
+        task.terminate(6, SDLCWorkflow.WorkflowState.DELIVERY)
         self.assertEqual(task.history.delivered_value, 90)
 
         # validation
@@ -135,15 +135,15 @@ class TestTask(unittest.TestCase):
 
         # missing delivery_start_t
         with self.assertRaises(ValueError):
-            task.end(5, WorkflowStateName.DELIVERY)
+            task.end(5, SDLCWorkflow.WorkflowState.DELIVERY)
 
         task = Task(task_name="", initial_value=100, story_points=1,
                     depreciation_rate=0.1, creation_sim_t=5)
 
         # inverted start/end times
         with self.assertRaises(ValueError):
-            task.start(6, WorkflowStateName.DELIVERY)
-            task.terminate(5, WorkflowStateName.DELIVERY)
+            task.start(6, SDLCWorkflow.WorkflowState.DELIVERY)
+            task.terminate(5, SDLCWorkflow.WorkflowState.DELIVERY)
 
     def test_reset(self):
 
@@ -151,8 +151,8 @@ class TestTask(unittest.TestCase):
                     depreciation_rate=0.1, creation_sim_t=5)
 
         self.assertEqual(len(task.history.events), 0)
-        task.start(5, WorkflowStateName.PENDING)
-        task.end(5, WorkflowStateName.PENDING)
+        task.start(5, SDLCWorkflow.WorkflowState.PENDING)
+        task.end(5, SDLCWorkflow.WorkflowState.PENDING)
 
         self.assertEqual(len(task.history.events), 2)
 
