@@ -3,8 +3,9 @@ from unittest.mock import patch
 
 from value_stream.client import SimulationRunner
 from value_stream.client.views import MetadataViewer
-from value_stream.resources import QATester, Toolchain, DeveloperFactory
+from value_stream.resources import QATester, Toolchain
 from value_stream.simulation import ModelFactory
+from value_stream.simulation.factory import DeveloperFactory
 from value_stream.task import TaskFactory
 
 

@@ -7,8 +7,9 @@ from tqdm import tqdm
 
 from value_stream.client import SimulationRunner
 from value_stream.simulation import SimulationResult, ModelFactory
+from value_stream.simulation.factory import DeveloperFactory
 from value_stream.client.views import ResultViewer, MetadataViewer
-from value_stream.resources import Developer, QATester, Toolchain, DeveloperFactory
+from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.task import TaskFactory
 from value_stream.utils import uniform
 

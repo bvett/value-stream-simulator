@@ -3,8 +3,9 @@ import unittest
 from simpy import Environment
 
 from value_stream.core import WorkflowStateName
-from value_stream.resources import ResourceTracker, DeveloperFactory
+from value_stream.resources import ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
+from value_stream.simulation.factory import DeveloperFactory
 from value_stream.task import DefaultRouter, Task, TaskFactory
 from value_stream.workflow import ResourceOperator, TaskStore
 

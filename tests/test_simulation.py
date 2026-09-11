@@ -3,9 +3,10 @@ import unittest
 from pandas import DataFrame
 
 from value_stream.core import WorkflowStateName
-from value_stream.resources import DeveloperFactory, QATester, Toolchain
+from value_stream.resources import QATester, Toolchain
 from value_stream.task import EventStatus, TaskFactory, TaskEvent
 from value_stream.simulation import DefaultSimulationPolicy, Model, Simulation
+from value_stream.simulation.factory import DeveloperFactory
 
 
 class TestSimulation(unittest.TestCase):

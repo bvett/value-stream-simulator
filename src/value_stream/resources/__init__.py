@@ -1,4 +1,3 @@
-from .developer_factory import DeveloperFactory
 from .resource import Resource
 from .resource_metadata import ResourceMetadata
 from .resource_tracker import ResourceTracker
@@ -8,8 +7,7 @@ from .developer import Developer
 from .qa_tester import QATester
 from .toolchain import Toolchain
 
-__all__ = ["DeveloperFactory",
-           "Resource",
+__all__ = ["Resource",
            "ResourceTracker",
            "Developer",
            "QATester",
