@@ -1,8 +1,9 @@
-from value_stream.utils import generate_args
 from value_stream.resources import Developer
 
+from .factory import Factory
 
-class DeveloperFactory:
+
+class DeveloperFactory(Factory):
     """Utility for creating Developer objects"""
 
     @classmethod
@@ -24,7 +25,7 @@ class DeveloperFactory:
         developers: list[Developer] = []
 
         for i in range(count):
-            args = generate_args(**kwargs)
+            args = cls._generate_args(**kwargs)
 
             developers.append(Developer(name=cls._developer_name(i),
                                         **args))

@@ -10,7 +10,6 @@ from value_stream.simulation import SimulationResult, ModelFactory
 from value_stream.factory import DeveloperFactory, TaskFactory
 from value_stream.client.views import ResultViewer, MetadataViewer
 from value_stream.resources import Developer, QATester, Toolchain
-from value_stream.utils import uniform
 
 
 logger = logging.getLogger(__name__)
@@ -52,7 +51,7 @@ if __name__ == "__main__":
     # Create tasks with complexities between 0.5 and 2.0
     tasks = TaskFactory(initial_value=1,
                         depreciation_rate=0.02,
-                        story_points=uniform(.5, 2)).create(count=NUM_TASKS)
+                        story_points=TaskFactory.uniform(.5, 2)).create(count=NUM_TASKS)
 
     # Create development teams with developers having efficiencies between 0.5 and 1.5
 
@@ -60,7 +59,7 @@ if __name__ == "__main__":
 
     for i in np.linspace(1, MAX_DEVELOPERS, DEV_TEAM_SAMPLES, dtype=int):
         teams.append(DeveloperFactory.create(
-            count=i, efficiency=uniform(.5, 1.5)))
+            count=i, efficiency=DeveloperFactory.uniform(.5, 1.5)))
 
     qa_tester_pool = QATester.create_pool(
         limit=NUM_QA_RESOURCES, failure_rate=QA_TEST_FAILURE_RATE,

@@ -2,7 +2,6 @@ import unittest
 import numpy as np
 from simpy import Environment
 from value_stream.factory import TaskFactory
-from value_stream.utils import generator_utils
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
@@ -34,7 +33,7 @@ class TestTaskFactory(unittest.TestCase):
             self.assertEqual(v.task_name, tasks_2[i].task_name)
 
     def test_create_sd(self):
-        factory = TaskFactory(story_points=generator_utils.uniform(
+        factory = TaskFactory(story_points=TaskFactory.uniform(
             1, 10), initial_value=3, depreciation_rate=.5,)
 
         tasks = factory.create(count=1, shuffle=False)

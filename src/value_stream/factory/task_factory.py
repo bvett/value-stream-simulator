@@ -3,11 +3,12 @@ from typing import Type, Optional
 
 from simpy import Environment
 
-from value_stream.utils import generate_args
 from value_stream.task import Task
 
+from .factory import Factory
 
-class TaskFactory:
+
+class TaskFactory(Factory):
     """Utility for creating Tasks"""
 
     def __init__(self, cls: Type[Task] = Task,  **task_kwargs):
@@ -41,7 +42,7 @@ class TaskFactory:
 
         for i in range(count):
 
-            args = generate_args(**self._task_kwargs)
+            args = self._generate_args(**self._task_kwargs)
 
             if 'task_name' not in args:
                 args['task_name'] = f"{i+1}"

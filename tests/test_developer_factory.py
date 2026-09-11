@@ -1,7 +1,6 @@
 import unittest
 import numpy as np
 from value_stream.factory import DeveloperFactory
-from value_stream.utils import generator_utils
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
@@ -30,4 +29,5 @@ class TestDeveloperFactory(unittest.TestCase):
 
     def test_create_sd(self):
 
-        DeveloperFactory.create(5, efficiency=generator_utils.uniform(.5, 1.5))
+        DeveloperFactory.create(
+            5, efficiency=DeveloperFactory.uniform(.5, 1.5))
