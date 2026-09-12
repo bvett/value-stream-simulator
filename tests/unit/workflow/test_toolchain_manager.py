@@ -10,7 +10,7 @@ from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import DefaultRouter
 from value_stream.workflow import ResourceOperator, TaskStore, TerminalTaskStore
 
-from .testutils import TestUtils
+from ..testutils import TestUtils
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 

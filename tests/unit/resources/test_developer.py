@@ -7,7 +7,7 @@ from value_stream.factory import TaskFactory, TaskGenerator
 from value_stream.task import SupportTask, Task, DefaultRouter, TypeRouter
 from value_stream.workflow import ResourceOperator, SupportWorkflow, TerminalTaskStore, TaskStore
 
-from .testutils import TestUtils
+from ..testutils import TestUtils
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 

@@ -3,7 +3,7 @@ import unittest
 from value_stream.task import EventStatus, TaskHistory, TaskEvent, TaskType
 from value_stream.workflow import SDLCWorkflow
 
-from .testutils import TestUtils
+from ..testutils import TestUtils
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
