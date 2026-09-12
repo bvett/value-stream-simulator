@@ -29,7 +29,7 @@ class Viewer:
             return [cls._to_dict(o) for o in obj]
 
         if isinstance(obj, Enum):
-            return str(obj)
+            return obj.value
 
         if hasattr(obj, '__dict__'):
             result: dict[str, Any] = {}

@@ -61,7 +61,7 @@ class TestSimulation(unittest.TestCase):
         # validate total loss
 
         mean_loss = event_metadata[(event_metadata["event_type"] == TaskEvent.EventType.END)][["event", "loss"]].groupby(
-            "event").mean(numeric_only=True)
+            "event", sort=False)[["loss"]].mean(numeric_only=True)
 
         total_mean_loss: float = mean_loss.sum(
             numeric_only=True).array[0]
@@ -78,9 +78,9 @@ class TestSimulation(unittest.TestCase):
         # Validate the amount of time a resource is busy against the amount of time events were in the respective workflow state
 
         resource_summary = resource_metadata.groupby(
-            'state').sum(numeric_only=True)[['success_t', 'waiting_t']]
+            'state', sort=False).sum(numeric_only=True)[['success_t', 'waiting_t']]
 
-        event_summary = event_metadata.groupby('event').sum(
+        event_summary = event_metadata.groupby('event', sort=False).sum(
             numeric_only=True)['duration']
 
         for index, row in resource_summary.iterrows():
@@ -89,6 +89,6 @@ class TestSimulation(unittest.TestCase):
 
             self.assertEqual(resource_total, event_total)
 
-        pending_development_total = event_summary.at['pending']
-        resource_waiting_total = resource_summary.at['development', 'waiting_t']
+        pending_development_total = event_summary.at[SDLCWorkflow.WorkflowState.PENDING]
+        resource_waiting_total = resource_summary.at[SDLCWorkflow.WorkflowState.DEVELOPMENT, 'waiting_t']
         self.assertEqual(pending_development_total, resource_waiting_total)

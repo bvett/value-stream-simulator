@@ -2,10 +2,10 @@ from typing import Any
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 import numpy as np
-from pandas import json_normalize, Categorical, DataFrame
+from pandas import json_normalize, Categorical
 
 from value_stream.simulation import SimulationResult
-from value_stream.task import TaskState
+from value_stream.workflow import SDLCWorkflow
 from .viewer import Viewer
 
 
@@ -32,7 +32,7 @@ class MetadataViewer(Viewer):
         df = df[(df['event_type'] == 'end')][['event', 'loss', 'status']]
 
         df['event'] = Categorical(df['event'], categories=[
-            e.value for e in TaskState], ordered=True)
+            e.value for e in SDLCWorkflow.WorkflowState], ordered=True)
 
         team_samples = df.groupby(['model.team_size'])
 
@@ -75,7 +75,7 @@ class MetadataViewer(Viewer):
                                 errors='ignore')
 
         df_all['state'] = Categorical(df_all['state'], categories=[
-            e.value for e in TaskState], ordered=True)
+            e.value for e in SDLCWorkflow.WorkflowState], ordered=True)
 
         df_all.set_index(['model.deployment_cadence',
                           'model.team_size', 'state', 'time'], inplace=True)
@@ -139,7 +139,7 @@ class MetadataViewer(Viewer):
                                 errors='ignore')
 
         df_all['state'] = Categorical(df_all['state'], categories=[
-            e.value for e in TaskState], ordered=True)
+            e.value for e in SDLCWorkflow.WorkflowState], ordered=True)
 
         df_all.sort_index(inplace=True)
 
