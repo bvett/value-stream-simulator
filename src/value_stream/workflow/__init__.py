@@ -4,6 +4,7 @@ from .sdlc_workflow import SDLCWorkflow
 from .support_workflow import SupportWorkflow
 from .task_store import TaskStore, TerminalTaskStore
 from .workflow_policy import WorkflowPolicy
+from .assignment_strategy import AssignmentStrategy
 
 __all__ = ["PoolManager",
            "ResourceOperator",
@@ -11,4 +12,5 @@ __all__ = ["PoolManager",
            "WorkflowPolicy",
            "TaskStore",
            "TerminalTaskStore",
-           "SupportWorkflow"]
+           "SupportWorkflow",
+           "AssignmentStrategy"]

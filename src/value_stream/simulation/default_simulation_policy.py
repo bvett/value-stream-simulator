@@ -1,7 +1,8 @@
 from typing import Literal
 
 from value_stream.task import Task, TaskType
-from value_stream.policy import AssignmentStrategy, SimulationPolicy
+from value_stream.policy import SimulationPolicy
+from value_stream.workflow import AssignmentStrategy
 
 
 class DefaultSimulationPolicy(SimulationPolicy):

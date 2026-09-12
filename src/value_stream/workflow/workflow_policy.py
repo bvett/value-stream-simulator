@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from value_stream.policy import AssignmentStrategy
 from value_stream.task import Task
+from .assignment_strategy import AssignmentStrategy
 
 
 class WorkflowPolicy(ABC):

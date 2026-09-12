@@ -1,11 +1,9 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Literal
 
 from value_stream.resources import ResourcePolicy
 from value_stream.task import Task
-from value_stream.workflow import WorkflowPolicy
-
-from .assignment_strategy import AssignmentStrategy
+from value_stream.workflow import WorkflowPolicy, AssignmentStrategy
 
 
 class SimulationPolicy(ResourcePolicy, WorkflowPolicy):

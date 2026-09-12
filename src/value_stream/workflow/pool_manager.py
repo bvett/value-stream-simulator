@@ -6,10 +6,10 @@ from simpy import Environment, Store
 from simpy.resources.store import StoreGet
 
 from value_stream.task import TaskState
-from value_stream.policy import AssignmentStrategy
 from value_stream.resources import Resource, ResourceTracker
 from value_stream.task import Task
 
+from .assignment_strategy import AssignmentStrategy
 from .workflow_policy import WorkflowPolicy
 
 

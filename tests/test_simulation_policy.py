@@ -1,6 +1,6 @@
 import unittest
 
-from value_stream.policy import AssignmentStrategy
+from value_stream.workflow import AssignmentStrategy
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import Task, SupportTask, TaskType
 
@@ -20,7 +20,8 @@ class TestDefaultSimulationPolicy(unittest.TestCase):
         scenarios = [([dev_task], AssignmentStrategy.NEXT_AVAILABLE),
                      ([support_task], AssignmentStrategy.RANDOM),
                      ([rework_task], AssignmentStrategy.OWNER),
-                     ([dev_task, support_task], AssignmentStrategy.NEXT_AVAILABLE),
+                     ([dev_task, support_task],
+                      AssignmentStrategy.NEXT_AVAILABLE),
                      ([support_task, dev_task], AssignmentStrategy.RANDOM)]
 
         for scenario in scenarios:
