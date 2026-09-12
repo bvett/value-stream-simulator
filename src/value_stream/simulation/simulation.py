@@ -4,7 +4,6 @@ from simpy import Environment, Event
 from simpy.events import AllOf
 
 
-from value_stream.workflow import SDLCWorkflow
 from value_stream.factory import TaskFactory, TaskGenerator
 from value_stream.policy import SimulationPolicy
 from value_stream.resources import ResourceTracker
@@ -20,6 +19,9 @@ logger = logging.getLogger(__name__)
 
 
 class Simulation:
+
+    task_states = SDLCWorkflow.WorkflowState
+
     def execute(self,
                 model: Model,
                 tasks: list[Task],

@@ -1,22 +1,24 @@
-from typing import Any
+from typing import Any, Type
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 import numpy as np
 from pandas import json_normalize, Categorical
 
 from value_stream.simulation import SimulationResult
-from value_stream.workflow import SDLCWorkflow
+from value_stream.task import TaskState
+
 from .viewer import Viewer
 
 
 class MetadataViewer(Viewer):
-    def __init__(self, results: list[SimulationResult], colormap: str = 'plasma'):
+    def __init__(self, results: list[SimulationResult], task_states: Type[TaskState], colormap: str = 'plasma'):
         super().__init__(colormap)
         self._results_dict: list[Any] = []
 
+        self._task_states = task_states
         for result in results:
             self._results_dict.append(super()._to_dict(
-                result.metadata, ['toolchain_pool', 'qa_testers', 'developer_team', 'support_interval']))
+                result.metadata, ['toolchain_pool', 'qa_testers', 'developer_team', 'support_interval', 'task_state_enum']))
 
     def mean_stage_loss(self):
         df = json_normalize(self._results_dict, record_path=['event_metadata'],
@@ -32,7 +34,7 @@ class MetadataViewer(Viewer):
         df = df[(df['event_type'] == 'end')][['event', 'loss', 'status']]
 
         df['event'] = Categorical(df['event'], categories=[
-            e.value for e in SDLCWorkflow.WorkflowState], ordered=True)
+            e.value for e in self._task_states], ordered=True)
 
         team_samples = df.groupby(['model.team_size'])
 
@@ -75,7 +77,7 @@ class MetadataViewer(Viewer):
                                 errors='ignore')
 
         df_all['state'] = Categorical(df_all['state'], categories=[
-            e.value for e in SDLCWorkflow.WorkflowState], ordered=True)
+            e.value for e in self._task_states], ordered=True)
 
         df_all.set_index(['model.deployment_cadence',
                           'model.team_size', 'state', 'time'], inplace=True)
@@ -139,7 +141,7 @@ class MetadataViewer(Viewer):
                                 errors='ignore')
 
         df_all['state'] = Categorical(df_all['state'], categories=[
-            e.value for e in SDLCWorkflow.WorkflowState], ordered=True)
+            e.value for e in self._task_states], ordered=True)
 
         df_all.sort_index(inplace=True)
 

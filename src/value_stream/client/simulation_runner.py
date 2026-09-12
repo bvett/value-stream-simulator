@@ -1,18 +1,23 @@
 import logging
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Type
 
 from tqdm import tqdm
 
 from value_stream.policy import SimulationPolicy
 from value_stream.simulation import Model, Simulation, \
     DefaultSimulationPolicy, SimulationResult
-from value_stream.task import Task
+from value_stream.task import Task, TaskState
 
 
 logger = logging.getLogger(__name__)
 
 
 class SimulationRunner:
+
+    @classmethod
+    def task_states(cls) -> Type[TaskState]:
+        return Simulation.task_states
+
     def __init__(self):
         self.client: Simulation = Simulation()
 

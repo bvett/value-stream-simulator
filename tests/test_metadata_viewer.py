@@ -40,12 +40,14 @@ class TestMetadataViewer(unittest.TestCase):
 
     @patch('matplotlib.pyplot.show')
     def test_mean_stage_loss(self, mock_pyplot_show):
-        MetadataViewer(self.simulation_results).mean_stage_loss()
+        MetadataViewer(self.simulation_results,
+                       task_states=SimulationRunner().task_states()).mean_stage_loss()
 
         mock_pyplot_show.assert_called_once()
 
     @patch('matplotlib.pyplot.show')
     def test_resource_utilization(self, mock_pyplot_show):
-        MetadataViewer(self.simulation_results).resource_utilization()
+        MetadataViewer(self.simulation_results, task_states=SimulationRunner(
+        ).task_states()).resource_utilization()
 
         mock_pyplot_show.assert_called_once()

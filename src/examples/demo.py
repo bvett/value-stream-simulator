@@ -92,7 +92,8 @@ if __name__ == "__main__":
 
     viewer = ResultViewer(results)
 
-    metadata_viewer = MetadataViewer(results)
+    metadata_viewer = MetadataViewer(
+        results, task_states=SimulationRunner.task_states())
 
     viewer.loss_vs_cadence()
     viewer.loss_vs_team_size()
