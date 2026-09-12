@@ -94,9 +94,6 @@ class Task:
 
         sim_t = self.history.epoch.to_sim_time(epoch_t)
 
-        if sim_t < self.creation_sim_t:
-            raise ValueError("time must be >= creation_sim_t")
-
         return self._initial_value * ((1-self.depreciation_rate) ** (sim_t - self.creation_sim_t))
 
     def loss(self, from_epoch_t: float, to_epoch_t: float) -> float:

@@ -1,7 +1,7 @@
 import unittest
 from simpy import Environment
 
-from value_stream.task import Epoch
+from value_stream.task import Epoch, Task
 
 
 class TestEpoch(unittest.TestCase):
@@ -45,3 +45,20 @@ class TestEpoch(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             epoch_1.to_sim_time(-1)
+
+    def test_start_epoch(self):
+
+        t1 = Task(initial_value=1, story_points=1, creation_sim_t=10)
+        t2 = Task(initial_value=1, story_points=1, creation_sim_t=11)
+
+        initial_tasks = [t1, t2]
+        env_time = 15
+        env = Environment(initial_time=env_time)
+
+        tasks = Task.start_epoch(tasks=initial_tasks, env=env)
+
+        self.assertEqual(10, t1.creation_sim_t)
+        self.assertEqual(11, t2.creation_sim_t)
+
+        for t in tasks:
+            self.assertEqual(t.creation_sim_t, env_time)

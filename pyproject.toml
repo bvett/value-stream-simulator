@@ -36,3 +36,8 @@ classifiers = [
     "Operating System :: OS Independent",
     "Development Status :: 3 - Alpha",
 ]
+
+[tool.coverage.report]
+exclude_also = [
+    '@(abc\.)?abstractmethod',
+]

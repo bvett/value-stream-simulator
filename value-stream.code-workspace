@@ -19,6 +19,7 @@
 		"python.testing.pytestArgs": [
 			"--cov=${workspaceFolder}/src",
 			"--cov-report=xml",
+			"--cov-config=pyproject.toml",
 			"${workspaceFolder}/tests",
 			"-s"
 		],

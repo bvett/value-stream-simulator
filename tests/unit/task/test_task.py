@@ -39,6 +39,13 @@ class TestTask(unittest.TestCase):
 
         self.assertEqual(task.value(), 100)
 
+        task = Task(task_name="",
+                    initial_value=100,
+                    story_points=1.0,
+                    creation_sim_t=5)
+
+        self.assertEqual(task.value(), 100)
+
     def test_depreciation(self):
 
         # no depreciation
@@ -246,3 +253,8 @@ class TestTask(unittest.TestCase):
         self.assertTrue(task.is_rework)
         self.assertTrue(t2.is_rework)
         self.assertEqual(t2.task_name, "Eponymous")
+
+        t3 = t2.clear_rework()
+        self.assertFalse(task.is_rework)
+        self.assertFalse(t2.is_rework)
+        self.assertFalse(t3.is_rework)
