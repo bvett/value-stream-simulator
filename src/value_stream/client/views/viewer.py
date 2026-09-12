@@ -3,21 +3,10 @@ from typing import Any, Optional
 
 from matplotlib import colormaps
 
-from value_stream.workflow import SDLCWorkflow
-
 
 class Viewer:
     def __init__(self, colormap: str = 'plasma'):
         self.colormap = colormaps[colormap]
-
-        self._label_map = {
-            SDLCWorkflow.WorkflowState.PENDING: 'waiting for dev',
-            SDLCWorkflow.WorkflowState.DEVELOPMENT: 'development',
-            SDLCWorkflow.WorkflowState.DEV_COMPLETE: 'waiting for qa',
-            SDLCWorkflow.WorkflowState.QA_TESTING: 'qa',
-            SDLCWorkflow.WorkflowState.QA_COMPLETE: 'waiting for delivery',
-            SDLCWorkflow.WorkflowState.DEPLOYMENT: 'delivery'
-        }
 
     @classmethod
     def _to_dict(cls, obj: Any, exclusions: Optional[list[str]] = None):
