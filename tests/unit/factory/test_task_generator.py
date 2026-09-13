@@ -108,3 +108,17 @@ class TestTaskGenerator(unittest.TestCase):
                 task.history.epoch.to_epoch_time(expected_creation_times[k])))
 
         self.assertListEqual(expected_creation_times, actual_creation_times)
+
+    def test_stop(self):
+        generator = TaskGenerator(factory=TaskFactory(
+            story_points=1, initial_value=1))
+
+        generator.start(self.env, target=self.target, interval=1)
+
+        self.env.run(10)
+
+        generator.stop()
+
+        self.env.run(15)
+
+        self.assertEqual(len(self.target.items), 9)
