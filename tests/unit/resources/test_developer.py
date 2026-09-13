@@ -3,7 +3,7 @@ from simpy import Environment
 from value_stream.workflow import SDLCWorkflow
 from value_stream.resources import Developer, ResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
-from value_stream.factory import TaskFactory, TaskGenerator
+from value_stream.factory import TaskFactory
 from value_stream.task import SupportTask, Task, DefaultRouter, TypeRouter
 from value_stream.workflow import ResourceOperator, SupportWorkflow, TerminalTaskStore, TaskStore
 
@@ -79,9 +79,10 @@ class TestDeveloper(unittest.TestCase, TestUtils):
         def run_scenario(env: Environment,
                          dev_efficiency: float,
                          story_points: float,
-                         support_generator: TaskGenerator | None,
                          support_target: TaskStore | None,
-                         interval: float | None = None):
+                         generate_support: bool = False,
+                         interval: float | None = None,
+                         limit: int | None = None):
 
             developer = Developer(efficiency=1, name="D1")
 
@@ -110,14 +111,12 @@ class TestDeveloper(unittest.TestCase, TestUtils):
             operator.start(
                 dev_source, SDLCWorkflow.WorkflowState.DEVELOPMENT, task_router=task_router)
 
-            if (support_generator is not None) and (support_target is not None) and (interval is not None):
+            if generate_support is True and interval is not None:
 
-                support_workflow = SupportWorkflow()
+                support_workflow = SupportWorkflow(story_points=1, limit=limit)
 
-                env.process(support_workflow.start(env=env,
-                                                   generator=support_generator,
-                                                   interval=interval,
-                                                   pending=dev_source))
+                support_workflow.start(env=env, interval=interval,
+                                       target=dev_source)
 
                 sim_duration = (
                     (num_tasks * story_points + 1) / dev_efficiency) + 5
@@ -135,7 +134,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
             env,
             dev_efficiency=1,
             story_points=2,
-            support_generator=None,
+            generate_support=False,
             support_target=None)
 
         self.assertEqual(2, len(dev_target.items))
@@ -145,18 +144,14 @@ class TestDeveloper(unittest.TestCase, TestUtils):
 
         # Scenario 2: Support that arrives mid-task (non-aligned interval)
         env = Environment()
-        support_task_factory = TaskFactory(SupportTask, story_points=1)
 
         support_target = TaskStore(
             env=env, name=SDLCWorkflow.WorkflowState.SUPPORT_COMPLETE)
 
-        support_generator = TaskGenerator(
-            factory=support_task_factory)
-
         dev_target = run_scenario(env,
                                   dev_efficiency=1,
                                   story_points=2,
-                                  support_generator=support_generator,
+                                  generate_support=True,
                                   support_target=support_target,
                                   interval=1.5)
 
@@ -170,15 +165,13 @@ class TestDeveloper(unittest.TestCase, TestUtils):
         support_target = TaskStore(
             env=env, name=SDLCWorkflow.WorkflowState.SUPPORT_COMPLETE)
 
-        support_generator = TaskGenerator(
-            factory=support_task_factory, limit=1)
-
         dev_target = run_scenario(env,
                                   dev_efficiency=1,
                                   story_points=2,
-                                  support_generator=support_generator,
+                                  generate_support=True,
                                   support_target=support_target,
-                                  interval=2)
+                                  interval=2,
+                                  limit=1)
 
         self.assertEqual(2, len(dev_target.items))
         self.assertEqual((2.0, 2.0), self.event_times(

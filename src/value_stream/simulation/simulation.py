@@ -4,10 +4,9 @@ from simpy import Environment, Event
 from simpy.events import AllOf
 
 
-from value_stream.factory import TaskFactory, TaskGenerator
 from value_stream.policy import SimulationPolicy
 from value_stream.resources import ResourceTracker
-from value_stream.task import SupportTask, Task, TaskEvent
+from value_stream.task import Task, TaskEvent
 from value_stream.workflow import ResourceOperator, SDLCWorkflow, SupportWorkflow, TaskStore
 
 from .model import Model
@@ -32,7 +31,8 @@ class Simulation:
         pending = TaskStore(env, SDLCWorkflow.WorkflowState.PENDING)
 
         sdlc_workflow = SDLCWorkflow()
-        support_workflow = SupportWorkflow()
+        support_workflow = SupportWorkflow(
+            story_points=model.support_task_story_points)
         tracker = ResourceTracker(env)
 
         developer_manager = ResourceOperator(
@@ -59,16 +59,10 @@ class Simulation:
 
         if model.support_interval is not None:
 
-            factory = TaskFactory(
-                SupportTask, story_points=model.support_task_story_points)
-            support_generator = TaskGenerator(factory)
-
-            env.process(support_workflow.start(
+            support_workflow.start(
                 env=env,
-                generator=support_generator,
                 interval=model.support_interval,
-                stop_signal=delivery_complete,
-                pending=pending))
+                target=pending)
 
         start_t = env.now
 
