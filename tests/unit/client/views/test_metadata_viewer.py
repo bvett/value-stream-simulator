@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import patch
 
+import numpy as np
+
 from value_stream.client import SimulationRunner
 from value_stream.client.views import MetadataViewer
 from value_stream.resources import QATester, Toolchain
@@ -14,10 +16,12 @@ class TestMetadataViewer(unittest.TestCase):
 
         self.num_tasks = 10
         self.team_size = 5
+        self.team_size_samples = 3
         self.max_cadence = 7
+        self.cadence_samples = 3
 
         developer_teams = [DeveloperFactory.create(
-            team_size, efficiency=1.0) for team_size in range(1, self.team_size+1)]
+            team_size, efficiency=1.0) for team_size in np.linspace(1, self.team_size, self.team_size_samples, dtype=int)]
 
         self.num_teams = len(developer_teams)
 
@@ -27,7 +31,8 @@ class TestMetadataViewer(unittest.TestCase):
 
         models = ModelFactory.create(
             teams=developer_teams,
-            deployment_cadences=range(self.max_cadence, -1, -1),
+            deployment_cadences=np.linspace(
+                0, self.max_cadence, self.cadence_samples, dtype=int),
             qa_testers=qa_tester_pool,
             toolchain_pool=toolchain_pool,
             support_intervals=[None])
@@ -49,5 +54,12 @@ class TestMetadataViewer(unittest.TestCase):
     def test_resource_utilization(self, mock_pyplot_show):
         MetadataViewer(self.simulation_results, task_states=SimulationRunner(
         ).task_states()).resource_utilization()
+
+        mock_pyplot_show.assert_called_once()
+
+    @patch('matplotlib.pyplot.show')
+    def test_resource_capacity(self, mock_pyplot_show):
+        MetadataViewer(self.simulation_results, task_states=SimulationRunner(
+        ).task_states()).resource_capacity()
 
         mock_pyplot_show.assert_called_once()
