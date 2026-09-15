@@ -37,3 +37,20 @@ class TestModelFactory(unittest.TestCase):
                          NUM_CADENCES * len(support_intervals))
         for model in models:
             self.assertIn(model.deployment_cadence, cadences)
+
+    def test_no_support_interval(self):
+
+        team = [Developer()]
+
+        qa_tester_pool = QATester.create_pool(limit=5)
+        toolchain_pool = Toolchain.create_pool(
+            limit=2, deployment_duration=4.5)
+
+        models = ModelFactory.create(teams=[team],
+                                     deployment_cadences=[1],
+                                     qa_testers=qa_tester_pool,
+                                     toolchain_pool=toolchain_pool,
+                                     support_intervals=None)
+
+        self.assertEqual(1, len(models))
+        self.assertIsNone(models[0].support_interval)
