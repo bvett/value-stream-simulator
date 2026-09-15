@@ -10,6 +10,8 @@ from value_stream.task import Task, TaskState, SupportTask, TaskType
 from value_stream.resources import Resource, ResourceTracker, Toolchain
 from value_stream.workflow import AssignmentStrategy, WorkflowPolicy, PoolManager
 
+# pylint: disable=W0212
+
 
 class TestPoolManager(unittest.TestCase):
 
