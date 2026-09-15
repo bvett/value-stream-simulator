@@ -173,3 +173,37 @@ class TestSimulation(unittest.TestCase):
             simulation.execute(model=model,
                                tasks=[],
                                policy=DefaultSimulationPolicy())
+
+    def test_circuit_breaker(self):
+        # validate the ability to detect and prevent runaway simulations that will never complete
+
+        # in this scenario, support is assigned to the developer faster than they are able to complete
+        # regular development tasks
+
+        support_interval = 1
+        support_story_points = 2
+
+        qa_tester_pool = QATester.create_pool(limit=None, time_cost=0)
+        toolchain_pool = Toolchain.create_pool(
+            limit=None, deployment_duration=0)
+
+        simulation = Simulation()
+
+        developers = DeveloperFactory().create(
+            count=1, efficiency=1)
+
+        tasks = TaskFactory(initial_value=1,
+                            story_points=1,
+                            depreciation_rate=0.05).create(100)
+
+        model = Model(developer_team=developers,
+                      deployment_cadence=0,
+                      qa_testers=qa_tester_pool,
+                      toolchain_pool=toolchain_pool,
+                      support_interval=0.5,
+                      support_task_story_points=2)
+
+        with self.assertRaises(RuntimeError):
+            simulation.execute(model=model,
+                               tasks=tasks,
+                               policy=DefaultSimulationPolicy())

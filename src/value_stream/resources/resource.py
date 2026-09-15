@@ -17,6 +17,8 @@ from .resource_tracker import ResourceTracker
 class Resource(ABC):
     """Base class for simulation objects that operate on tasks"""
 
+    MAX_BACKLOG = 1000
+
     @classmethod
     def _generate_id(cls) -> uuid.UUID:
         return uuid.uuid4()
@@ -110,6 +112,9 @@ class Resource(ABC):
         while True:
             signal = env.event()
             self._suspended_work.append(signal)
+
+            if len(self._suspended_work) > self.MAX_BACKLOG:
+                raise RuntimeError("Runaway simulation detected and aborted")
 
             yield signal
 
