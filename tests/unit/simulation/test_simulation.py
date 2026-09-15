@@ -92,3 +92,84 @@ class TestSimulation(unittest.TestCase):
         pending_development_total = event_summary.at[SDLCWorkflow.WorkflowState.PENDING]
         resource_waiting_total = resource_summary.at[SDLCWorkflow.WorkflowState.DEVELOPMENT, 'waiting_t']
         self.assertEqual(pending_development_total, resource_waiting_total)
+
+    def test_delivery_of_no_value(self):
+        qa_tester_pool = QATester.create_pool(limit=None, time_cost=1)
+        toolchain_pool = Toolchain.create_pool(
+            limit=None, deployment_duration=.25)
+
+        simulation = Simulation()
+
+        developers = DeveloperFactory().create(
+            count=1, efficiency=1)
+
+        tasks = TaskFactory(initial_value=0,
+                            story_points=1,
+                            depreciation_rate=0.05).create(100)
+
+        model = Model(developer_team=developers,
+                      deployment_cadence=0,
+                      qa_testers=qa_tester_pool,
+                      toolchain_pool=toolchain_pool,
+                      support_interval=None)
+
+        result = simulation.execute(model=model,
+                                    tasks=tasks,
+                                    policy=DefaultSimulationPolicy())
+
+        summary = result.summary_result
+
+        self.assertEqual(0, summary.loss)
+        self.assertEqual(0, summary.total_delivered_value)
+
+    def test_support_enabled(self):
+
+        qa_tester_pool = QATester.create_pool(limit=None, time_cost=0)
+        toolchain_pool = Toolchain.create_pool(
+            limit=None, deployment_duration=0)
+
+        simulation = Simulation()
+
+        developers = DeveloperFactory().create(
+            count=1, efficiency=1)
+
+        tasks = TaskFactory(initial_value=1,
+                            story_points=1,
+                            depreciation_rate=0.05).create(100)
+
+        model = Model(developer_team=developers,
+                      deployment_cadence=0,
+                      qa_testers=qa_tester_pool,
+                      toolchain_pool=toolchain_pool,
+                      support_interval=1.5,
+                      support_task_story_points=0.5)
+
+        result = simulation.execute(model=model,
+                                    tasks=tasks,
+                                    policy=DefaultSimulationPolicy())
+
+        summary = result.summary_result
+
+        self.assertEqual(149.5, summary.completion_time)
+
+    def test_no_tasks(self):
+        qa_tester_pool = QATester.create_pool(limit=None, time_cost=0)
+        toolchain_pool = Toolchain.create_pool(
+            limit=None, deployment_duration=0)
+
+        simulation = Simulation()
+
+        developers = DeveloperFactory().create(
+            count=1, efficiency=1)
+
+        model = Model(developer_team=developers,
+                      deployment_cadence=0,
+                      qa_testers=qa_tester_pool,
+                      toolchain_pool=toolchain_pool,
+                      support_interval=1.5,
+                      support_task_story_points=0.5)
+
+        with self.assertRaises(ValueError):
+            simulation.execute(model=model,
+                               tasks=[],
+                               policy=DefaultSimulationPolicy())

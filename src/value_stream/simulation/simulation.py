@@ -71,11 +71,10 @@ class Simulation:
 
         sim_duration = env.now - start_t
 
-        if completed_tasks is None:
-            raise RuntimeError("unrecoverable simulation error")
+        # completed_tasks is always expected to have a value.  A ValueError is raised otherwise
 
         summary_result, task_events = self._process_results(
-            model=model, completed_tasks=completed_tasks, sim_duration=sim_duration)
+            model=model, completed_tasks=completed_tasks, sim_duration=sim_duration)  # type:ignore
 
         return SimulationResult(summary_result=summary_result,
                                 metadata=SimulationMetadata(model=model,
@@ -101,11 +100,14 @@ class Simulation:
                 task_events.extend(task.history.events)
 
         if total_initial_value == 0:
-            raise ValueError("")
+            loss = 0
+        else:
+            loss = (total_delivered_value-total_initial_value) / \
+                total_initial_value
 
         summary_result = SummaryResult(model=model,
                                        completion_time=sim_duration,
                                        total_delivered_value=total_delivered_value,
-                                       loss=(total_delivered_value-total_initial_value) / total_initial_value)
+                                       loss=loss)
 
         return summary_result, task_events
