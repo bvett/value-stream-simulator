@@ -46,10 +46,9 @@ class TaskStore(Store):
     def get(self):
 
         def record_history(event: StoreGet):
-            task: Optional[Task] = event.value
-            if task is None:
-                raise RuntimeError("value is None")
-
+            # since this is a callback function that is invoked
+            # after the event is triggered, event.value will be valid
+            task: Task = event.value  # type: ignore
             task.end(self._env.now, self.name)
 
         task = super().get()
