@@ -6,7 +6,7 @@ from simpy import Environment, Store
 from simpy.resources.store import StoreGet
 
 from value_stream.task import TaskState
-from value_stream.resources import Resource, ResourceTracker
+from value_stream.resources import Resource, ResourceTracker, ResourcePool
 from value_stream.task import Task
 
 from .assignment_strategy import AssignmentStrategy
@@ -15,7 +15,7 @@ from .workflow_policy import WorkflowPolicy
 
 class PoolManager:
     def __init__(self, env: Environment, resources: Iterator[Resource], policy: WorkflowPolicy, tracker: Optional[ResourceTracker] = None):
-        self.resources = resources
+
         self.policy = policy
         self._tracker = tracker
 
@@ -24,18 +24,14 @@ class PoolManager:
 
         self._task_owners: dict[UUID, Resource] = {}
 
-        self._all_resources: list[Resource] = []
-        self._cyclic_support_delegator = None
-        self._random_support_delegator = None
+        # used for enabling a random item to be chosen from an iterator
+        self._resources_as_list: Optional[list[Resource]] = None
 
-    def _update_delegators(self, r: list[Resource]):
+        self.resources = resources
 
-        def gen(resources: list[Resource]):
-            while True:
-                yield random.choice(resources)
+        self._registered_resources: set[Resource] = set()
 
-        self._cyclic_support_delegator = itertools.cycle(r)
-        self._random_support_delegator = gen(r)
+        self._cyclic_support_delegator = itertools.cycle(self.resources)
 
     def request(self, workflow_state: TaskState, tasks: list[Task]):
 
@@ -43,16 +39,36 @@ class PoolManager:
 
         match strategy:
             case AssignmentStrategy.CYCLIC:
-                if self._cyclic_support_delegator is not None:
-                    return next(self._cyclic_support_delegator)
+                resource = next(self._cyclic_support_delegator)
+                if (resource not in self._registered_resources) and (self._tracker is not None):
+                    self._tracker.register(workflow_state)
+                    self._registered_resources.add(resource)
+
+                return resource
+
             case AssignmentStrategy.RANDOM:
-                if self._random_support_delegator is not None:
-                    return next(self._random_support_delegator)
+                # realistically, if resources are unlimited, then just get next
+                if isinstance(self.resources, ResourcePool) and (self.resources.limit is None):
+                    resource = next(self.resources)
+                else:
+                    if self._resources_as_list is None:
+                        self._resources_as_list = list(
+                            self._registered_resources)
+                        self._resources_as_list.extend(list(self.resources))
+                    resource = random.choice(self._resources_as_list)
+
+                if (resource not in self._registered_resources) and (self._tracker is not None):
+                    self._tracker.register(workflow_state)
+                    self._registered_resources.add(resource)
+
+                return resource
+
             case AssignmentStrategy.OWNER:
                 task = tasks[0]
 
                 if not task.task_id in self._task_owners:
-                    pass
+                    raise ValueError(
+                        f"Unable to identify task owner for task_id: {task.task_id}")
 
                 owner: Resource = self._task_owners[task.task_id]
                 return owner
@@ -61,16 +77,15 @@ class PoolManager:
 
         if len(self._resource_pool.items) == 0:
 
-            new_item = next(self.resources, None)
+            resource = next(self.resources, None)
 
-            if new_item is not None:
-                new_item.idle_t = self._env.now
-                self._resource_pool.put(new_item)
-                self._all_resources.append(new_item)
-                self._update_delegators(self._all_resources)
+            if resource is not None:
+                resource.idle_t = self._env.now
+                self._resource_pool.put(resource)
 
-                if self._tracker is not None:
+                if (resource not in self._registered_resources) and (self._tracker is not None):
                     self._tracker.register(workflow_state)
+                    self._registered_resources.add(resource)
 
         result = self._resource_pool.get()
 
