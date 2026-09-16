@@ -1,9 +1,11 @@
 import unittest
+import os
 from unittest.mock import patch
 from tqdm import tqdm
 from value_stream.client import SimulationRunner
 from value_stream.resources import QATester, Toolchain
 from value_stream.simulation import ModelFactory
+from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.factory import DeveloperFactory, TaskFactory
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
@@ -11,15 +13,15 @@ from value_stream.factory import DeveloperFactory, TaskFactory
 
 class TestSimulationRunner(unittest.TestCase):
 
-    @patch('value_stream.simulation.Simulation.execute')
-    def test_all(self, mock_simulation_execute):
+    @patch('value_stream.client.simulation_runner.WebSimulationClient.execute')
+    def test_all(self, mock_client_execute):
 
         NUM_TASKS = 10
         NUM_DEVELOPERS = 2
         MAX_CADENCE = 5
         SUPPORT_INTERVAL = 4
 
-        simulation_runner = SimulationRunner()
+        simulation_runner = SimulationRunner(service_url="http://example.test")
 
         teams = [DeveloperFactory.create(
             count=NUM_DEVELOPERS, efficiency=1.0)]
@@ -45,4 +47,27 @@ class TestSimulationRunner(unittest.TestCase):
                 models=models,
                 pbar=pbar)
 
-        self.assertEqual(mock_simulation_execute.call_count, len(models))
+        self.assertEqual(mock_client_execute.call_count, 1)
+        submitted_models = list(mock_client_execute.call_args.kwargs["models"])
+        self.assertEqual(len(submitted_models), len(models))
+        simulation_runner.close()
+
+    @patch.dict(os.environ, {"VALUE_STREAM_SERVICE_URL": "http://remote.example"})
+    @patch(
+        "value_stream.client.simulation_runner.acquire_local_service",
+        side_effect=AssertionError("local service should not start"),
+    )
+    def test_environment_url_uses_remote_client(self, _local_service):
+        with SimulationRunner() as runner:
+            self.assertEqual(runner.client.service_url, "http://remote.example")
+
+    def test_unsupported_policy_and_closed_runner_are_explicit(self):
+        class OtherPolicy(DefaultSimulationPolicy):
+            pass
+
+        runner = SimulationRunner(service_url="http://example.test")
+        with self.assertRaisesRegex(ValueError, "DefaultSimulationPolicy"):
+            runner.execute(tasks=[], models=[], policy=OtherPolicy())
+        runner.close()
+        with self.assertRaisesRegex(RuntimeError, "closed"):
+            runner.execute(tasks=[], models=[])

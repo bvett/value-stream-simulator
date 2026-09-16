@@ -1,10 +1,8 @@
 import unittest
 
-from pandas import DataFrame
-
 from value_stream.workflow import SDLCWorkflow
 from value_stream.resources import QATester, Toolchain
-from value_stream.task import EventStatus, TaskEvent
+from value_stream.task import EventStatus, TaskEvent, TaskState
 from value_stream.simulation import DefaultSimulationPolicy, Model, Simulation
 from value_stream.factory import DeveloperFactory, TaskFactory
 
@@ -48,23 +46,26 @@ class TestSimulation(unittest.TestCase):
 
         summary = result.summary_result
 
-        resource_metadata = DataFrame(
-            [vars(x) for x in result.metadata.resource_metadata])
-        event_metadata = DataFrame([vars(x)
-                                   for x in result.metadata.event_metadata])
+        resource_metadata = result.metadata.resource_metadata
+        event_metadata = result.metadata.event_metadata
 
-        max_delivery_t = event_metadata[(event_metadata["event"] == SDLCWorkflow.WorkflowState.DELIVERY) & (
-            event_metadata["status"] == EventStatus.SUCCESS)]["time"].max()
+        max_delivery_t = max(
+            event.time for event in event_metadata
+            if event.event == SDLCWorkflow.WorkflowState.DELIVERY
+            and event.status == EventStatus.SUCCESS
+        )
 
         self.assertEqual(summary.completion_time, max_delivery_t)
 
         # validate total loss
 
-        mean_loss = event_metadata[(event_metadata["event_type"] == TaskEvent.EventType.END)][["event", "loss"]].groupby(
-            "event", sort=False)[["loss"]].mean(numeric_only=True)
-
-        total_mean_loss: float = mean_loss.sum(
-            numeric_only=True).array[0]
+        losses_by_event: dict[TaskState, list[float]] = {}
+        for event in event_metadata:
+            if event.event_type == TaskEvent.EventType.END:
+                losses_by_event.setdefault(event.event, []).append(event.loss)
+        total_mean_loss = sum(
+            sum(losses) / len(losses) for losses in losses_by_event.values()
+        )
 
         self.assertAlmostEqual(summary.loss, total_mean_loss)
 
@@ -77,20 +78,28 @@ class TestSimulation(unittest.TestCase):
 
         # Validate the amount of time a resource is busy against the amount of time events were in the respective workflow state
 
-        resource_summary = resource_metadata.groupby(
-            'state', sort=False).sum(numeric_only=True)[['success_t', 'waiting_t']]
-
-        event_summary = event_metadata.groupby('event', sort=False).sum(
-            numeric_only=True)['duration']
-
-        for index, row in resource_summary.iterrows():
-            resource_total = row['success_t']
-            event_total = event_summary.at[index]
+        for state in {resource.state for resource in resource_metadata}:
+            resource_total = sum(
+                resource.success_t or 0.0
+                for resource in resource_metadata if resource.state == state
+            )
+            event_total = sum(
+                event.duration or 0.0
+                for event in event_metadata if event.event == state
+            )
 
             self.assertEqual(resource_total, event_total)
 
-        pending_development_total = event_summary.at[SDLCWorkflow.WorkflowState.PENDING]
-        resource_waiting_total = resource_summary.at[SDLCWorkflow.WorkflowState.DEVELOPMENT, 'waiting_t']
+        pending_development_total = sum(
+            event.duration or 0.0
+            for event in event_metadata
+            if event.event == SDLCWorkflow.WorkflowState.PENDING
+        )
+        resource_waiting_total = sum(
+            resource.waiting_t or 0.0
+            for resource in resource_metadata
+            if resource.state == SDLCWorkflow.WorkflowState.DEVELOPMENT
+        )
         self.assertEqual(pending_development_total, resource_waiting_total)
 
     def test_delivery_of_no_value(self):

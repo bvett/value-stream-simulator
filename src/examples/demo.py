@@ -1,6 +1,7 @@
 # demo.py: quick demonstration that runs a simulation and plots results in a variety of formats
 # A more thorough walkthrough is available in the tutorial.ipynb notebook
 import logging
+import os
 from typing import Collection
 import numpy as np
 from tqdm import tqdm
@@ -19,6 +20,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         force=True, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         level=logging.INFO)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
 
     # Arguments for the simulation.  Experiment by changing these and running the script.
 
@@ -83,10 +85,12 @@ if __name__ == "__main__":
     # Run the simulation with a progress bar and collect the results
     results: list[SimulationResult] = []
 
-    with tqdm(desc='Running Simulation', total=len(models)) as pbar:
-        results = SimulationRunner().execute(tasks=tasks,
-                                             models=models,
-                                             pbar=pbar)
+    service_url = os.environ.get("VALUE_STREAM_SERVICE_URL")
+    with SimulationRunner(service_url=service_url) as runner:
+        with tqdm(desc='Running Simulation', total=len(models)) as pbar:
+            results = runner.execute(tasks=tasks,
+                                     models=models,
+                                     pbar=pbar)
 
     # Showcase the results using different plots
 
