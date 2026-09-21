@@ -3,7 +3,7 @@
 import time
 from collections.abc import Iterable
 
-import httpx
+import httpx2 as httpx
 from pydantic import ValidationError
 from tqdm import tqdm
 

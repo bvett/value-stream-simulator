@@ -1,7 +1,7 @@
 import unittest
 from uuid import uuid4
 
-import httpx
+import httpx2 as httpx
 from tqdm import tqdm
 
 from value_stream.client.web.client import WebSimulationClient

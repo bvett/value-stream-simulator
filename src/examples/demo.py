@@ -19,7 +19,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         force=True, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         level=logging.INFO)
-    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpx2").setLevel(logging.WARNING)
 
     # Arguments for the simulation.  Experiment by changing these and running the script.
 

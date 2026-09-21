@@ -5,7 +5,7 @@ import socket
 import threading
 import time
 
-import httpx
+import httpx2 as httpx
 import uvicorn
 
 from value_stream.service.app import create_app

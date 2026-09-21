@@ -27,6 +27,7 @@ dependencies = [
     "pytest-cov",
     "pytest-mock",
     "pytest-asyncio",
+    "httpx2>=2.13.0",
 ]
 
 description = "Conduct software delivery simulations to identify inefficiencies that cause delay and lost value."
