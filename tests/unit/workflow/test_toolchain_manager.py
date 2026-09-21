@@ -83,18 +83,19 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         toolchain = ResourceOperator(self.env, Toolchain.create_pool(limit=1, deployment_duration=DEPLOYMENT_DURATION),
                                      cadence=1, workflow_policy=self.policy, resource_policy=self.policy, tracker=self.tracker)
 
-        for _ in range(NUM_TASKS):
-            yield self.source.put(Task(story_points=1, initial_value=1))
+        def put_tasks():
+            for _ in range(NUM_TASKS):
+                yield self.source.put(Task(story_points=1, initial_value=1))
 
+        self.env.process(put_tasks())
         self.env.run()
 
         toolchain.start(self.source, self.workflow_state,
                         task_router=self.task_router)
-        self.env.run()
+
+        self.env.run(until=NUM_TASKS * DEPLOYMENT_DURATION)
 
         self.assertEqual(len(self.target.items), NUM_TASKS)
-
-        self.assertEqual(self.env.now, NUM_TASKS * DEPLOYMENT_DURATION)
 
     def create_tasks(self, limit: int, store: Store):
         for _ in range(limit):
