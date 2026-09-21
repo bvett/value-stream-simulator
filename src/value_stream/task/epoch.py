@@ -1,5 +1,9 @@
-class Epoch:
+from pydantic import BaseModel
+
+class Epoch(BaseModel):
+
     def __init__(self, offset: float):
+        super().__init__()
         self._offset_t: float = offset
 
     def to_sim_time(self, epoch_t: float):
