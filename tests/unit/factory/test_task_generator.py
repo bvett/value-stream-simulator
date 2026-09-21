@@ -104,7 +104,7 @@ class TestTaskGenerator(unittest.TestCase):
             self.assertEqual(
                 expected_creation_times[k], task.history.epoch.to_sim_time(0))
 
-            self.assertEqual(task._initial_value, task.value(
+            self.assertEqual(task.initial_value, task.value(
                 task.history.epoch.to_epoch_time(expected_creation_times[k])))
 
         self.assertListEqual(expected_creation_times, actual_creation_times)

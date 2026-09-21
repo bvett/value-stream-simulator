@@ -38,7 +38,7 @@ class TestTaskFactory(unittest.TestCase):
 
         tasks = factory.create(count=1, shuffle=False)
 
-        self.assertEqual(tasks[0]._initial_value, 3)  # pylint: disable=W0212
+        self.assertEqual(tasks[0].initial_value, 3)
         self.assertEqual(tasks[0].depreciation_rate, .5)
 
     def test_shuffle(self):

@@ -19,7 +19,7 @@ class TestSupportTask(unittest.TestCase):
         self.assertEqual(task.story_points, 2)
         self.assertEqual(task.task_name, "INC-001")
         self.assertEqual(task.task_type, TaskType.SUPPORT)
-        self.assertEqual(task._initial_value, 0)
+        self.assertEqual(task.initial_value, 0)
 
     def test_delivered_value(self):
         task = SupportTask(story_points=1)

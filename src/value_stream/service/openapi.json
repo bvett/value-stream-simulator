@@ -743,6 +743,11 @@
             ],
             "title": "Task Type",
             "type": "string"
+          },
+          "is_rework": {
+            "default": false,
+            "title": "Is Rework",
+            "type": "boolean"
           }
         },
         "required": [

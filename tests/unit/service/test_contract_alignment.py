@@ -22,17 +22,10 @@ from value_stream.simulation import (
 from value_stream.task import Task, TaskEvent
 
 
-def constructor_names(cls):
-    return {
-        name for name in inspect.signature(cls.__init__).parameters
-        if name != "self"
-    }
-
-
 class TestContractAlignment(unittest.TestCase):
     def test_input_constructor_fields(self):
         self.assertEqual(Model.model_fields.keys(), ModelInput.model_fields.keys())
-        self.assertEqual(constructor_names(Task), set(TaskInput.model_fields))
+        self.assertEqual(Task.model_fields.keys(), TaskInput.model_fields.keys())
         self.assertEqual(Developer.model_fields.keys(), DeveloperInput.model_fields.keys())
         self.assertEqual(QATester.model_fields.keys(), QAInput.model_fields.keys())
         self.assertEqual(Toolchain.model_fields.keys(), set(ToolchainInput.model_fields.keys()))

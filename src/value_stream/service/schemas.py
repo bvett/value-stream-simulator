@@ -17,6 +17,7 @@ class TaskInput(WireModel):
     task_name: str | None = None
     creation_sim_t: FiniteFloat = Field(default=0, ge=0)
     task_type: Literal["development", "support"] = "development"
+    is_rework : bool = Field(default=False, init=False)
 
 
 class DeveloperInput(WireModel):
