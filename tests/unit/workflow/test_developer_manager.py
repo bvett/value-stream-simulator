@@ -27,7 +27,7 @@ class TestDeveloperManager(unittest.TestCase):
             yield store.put(Task(task_name=f"Task {i}", story_points=1, initial_value=1))
 
     def create_developers(self, count: int):
-        return [Developer(1) for _ in range(count)]
+        return [Developer(efficiency=1) for _ in range(count)]
 
     def test_developer_manager(self):
         self.env.process(self.create_tasks(5, self.source))

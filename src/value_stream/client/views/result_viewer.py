@@ -9,25 +9,24 @@ from .viewer import Viewer
 class ResultViewer(Viewer):
     def __init__(self, results: list[SimulationResult], colormap='plasma'):
         super().__init__(colormap)
-
         self._results_dict: list[Any] = []
+      
+        for result in results:
+            self._results_dict.append(result.model_dump())
 
-        for r in results:
-            self._results_dict.append(super()._to_dict(
-                r.summary_result, ['toolchain_pool', 'qa_testers', 'developer_team', 'support_interval']))
+        self.data = json_normalize(self._results_dict, 
+                                   meta=[['summary_result', 'model', 'deployment_cadence'],
+                                         ['summary_result', 'model', 'team_size']],
+                                   errors='ignore',
+                                   record_prefix='')
 
-        self.data = json_normalize(self._results_dict,
-                                   meta=[['model', 'deployment_cadence'],
-                                         ['model', 'team_size']],
-                                   errors='ignore')
-
-        self.data.set_index(['model.deployment_cadence',
-                             'model.team_size'], inplace=True)
+        self.data.set_index(['summary_result.model.deployment_cadence',
+                             'summary_result.model.team_size'], inplace=True)
 
     def loss_vs_cadence(self):
         df = self.data
 
-        df = df[['loss', 'total_delivered_value']].unstack(-1)[['loss']]
+        df = df[['summary_result.loss', 'summary_result.total_delivered_value']].unstack(-1)[['summary_result.loss']]
 
         df.columns = df.columns.get_level_values(1)  # type: ignore
 
@@ -45,7 +44,7 @@ class ResultViewer(Viewer):
 
         df = self.data
 
-        df = df[['loss']].unstack(0)
+        df = df[['summary_result.loss']].unstack(0)
 
         df.columns = df.columns.get_level_values(1)  # type: ignore
 

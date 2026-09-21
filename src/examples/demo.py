@@ -2,7 +2,6 @@
 # A more thorough walkthrough is available in the tutorial.ipynb notebook
 import logging
 import os
-from typing import Collection
 import numpy as np
 from tqdm import tqdm
 
@@ -57,7 +56,7 @@ if __name__ == "__main__":
 
     # Create development teams with developers having efficiencies between 0.5 and 1.5
 
-    teams: list[Collection[Developer]] = []
+    teams: list[list[Developer]] = []
 
     for i in np.linspace(1, MAX_DEVELOPERS, DEV_TEAM_SAMPLES, dtype=int):
         teams.append(DeveloperFactory.create(

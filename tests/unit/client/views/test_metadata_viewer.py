@@ -3,16 +3,15 @@ from unittest.mock import patch
 
 import numpy as np
 
-from value_stream.client import SimulationRunner
 from value_stream.client.views import MetadataViewer
 from value_stream.resources import QATester, Toolchain
-from value_stream.simulation import ModelFactory
+from value_stream.simulation import DefaultSimulationPolicy, ModelFactory, Simulation
 from value_stream.factory import DeveloperFactory, TaskFactory
 
 
 class TestMetadataViewer(unittest.TestCase):
     def setUp(self):
-        simulation = SimulationRunner()
+        simulation = Simulation()
 
         self.num_tasks = 10
         self.team_size = 5
@@ -37,29 +36,37 @@ class TestMetadataViewer(unittest.TestCase):
             toolchain_pool=toolchain_pool,
             support_intervals=[None])
 
-        tasks = TaskFactory(initial_value=1,
-                            depreciation_rate=0, story_points=1.0).create(count=self.num_tasks)
-
-        self.simulation_results = simulation.execute(
-            tasks=tasks, models=models)
+        self.simulation_results = [
+            simulation.execute(
+                model=model,
+                tasks=TaskFactory(
+                    initial_value=1, depreciation_rate=0, story_points=1.0
+                ).create(count=self.num_tasks),
+                policy=DefaultSimulationPolicy(),
+            )
+            for model in models
+        ]
+        self.task_states = simulation.task_states
 
     @patch('matplotlib.pyplot.show')
     def test_mean_stage_loss(self, mock_pyplot_show):
         MetadataViewer(self.simulation_results,
-                       task_states=SimulationRunner().task_states()).mean_stage_loss()
+                       task_states=self.task_states).mean_stage_loss()
 
         mock_pyplot_show.assert_called_once()
 
     @patch('matplotlib.pyplot.show')
     def test_resource_utilization(self, mock_pyplot_show):
-        MetadataViewer(self.simulation_results, task_states=SimulationRunner(
-        ).task_states()).resource_utilization()
+        MetadataViewer(
+            self.simulation_results, task_states=self.task_states
+        ).resource_utilization()
 
         mock_pyplot_show.assert_called_once()
 
     @patch('matplotlib.pyplot.show')
     def test_resource_capacity(self, mock_pyplot_show):
-        MetadataViewer(self.simulation_results, task_states=SimulationRunner(
-        ).task_states()).resource_capacity()
+        MetadataViewer(
+            self.simulation_results, task_states=self.task_states
+        ).resource_capacity()
 
         mock_pyplot_show.assert_called_once()

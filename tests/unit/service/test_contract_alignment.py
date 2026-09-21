@@ -31,20 +31,20 @@ def constructor_names(cls):
 
 class TestContractAlignment(unittest.TestCase):
     def test_input_constructor_fields(self):
-        self.assertEqual(constructor_names(Model), set(ModelInput.model_fields))
+        self.assertEqual(set(Model.model_fields), set(ModelInput.model_fields))
         self.assertEqual(constructor_names(Task), set(TaskInput.model_fields))
-        self.assertEqual(constructor_names(Developer), set(DeveloperInput.model_fields))
-        self.assertEqual(constructor_names(QATester), set(QAInput.model_fields))
-        self.assertEqual(constructor_names(Toolchain), set(ToolchainInput.model_fields))
+        self.assertEqual(set(Developer.model_fields), set(DeveloperInput.model_fields))
+        self.assertEqual(set(QATester.model_fields), set(QAInput.model_fields))
+        self.assertEqual(set(Toolchain.model_fields), set(ToolchainInput.model_fields))
 
     def test_output_fields(self):
-        self.assertEqual(constructor_names(SummaryResult) - {"model"}, set(SummaryData.model_fields))
+        self.assertEqual(set(SummaryResult.model_fields) - {"model"}, set(SummaryData.model_fields))
         self.assertEqual(
-            constructor_names(SimulationMetadata) - {"model"},
+            set(SimulationMetadata.model_fields) - {"model"},
             set(MetadataData.model_fields),
         )
-        self.assertEqual(constructor_names(TaskEvent), set(TaskEventData.model_fields))
-        self.assertEqual(constructor_names(ResourceMetadata), set(ResourceMetadataData.model_fields))
+        self.assertEqual(set(TaskEvent.model_fields), set(TaskEventData.model_fields))
+        self.assertEqual(set(ResourceMetadata.model_fields), set(ResourceMetadataData.model_fields))
 
     def test_model_and_result_round_trip(self):
         model = Model(

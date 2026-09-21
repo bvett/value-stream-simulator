@@ -1,5 +1,6 @@
-from typing import Any, Generator, Optional
+from typing import Any, Generator
 
+from pydantic import Field, FiniteFloat
 from simpy import Environment, Interrupt, Timeout
 
 from value_stream.task import EventStatus, Task
@@ -10,14 +11,8 @@ from .resource import Resource
 class Developer(Resource):
     """Simulates actions perform on a task by a software developer"""
 
-    def __init__(self, efficiency: float = 1.0, name: Optional[str] = None):
-        super().__init__()
-
-        if efficiency <= 0:
-            raise ValueError("efficiency must be > 0")
-
-        self.name: str = name if name else ""
-        self.efficiency: float = efficiency
+    efficiency: FiniteFloat = Field(default=1.0, gt=0)
+    name: str = ""
 
     def effort(self, tasks: list[Task]) -> float:
         return sum([task.remaining_work() / self.efficiency for task in tasks])

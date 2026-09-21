@@ -3,10 +3,9 @@ from unittest.mock import patch
 
 import numpy as np
 
-from value_stream.client import SimulationRunner
 from value_stream.client.views import ResultViewer
 from value_stream.resources import QATester, Toolchain
-from value_stream.simulation import ModelFactory
+from value_stream.simulation import DefaultSimulationPolicy, Simulation, ModelFactory
 from value_stream.factory import DeveloperFactory, TaskFactory
 
 # pylint:disable=missing-class-docstring,missing-function-docstring
@@ -15,7 +14,7 @@ from value_stream.factory import DeveloperFactory, TaskFactory
 class TestResultViewer(unittest.TestCase):
 
     def setUp(self):
-        simulation = SimulationRunner()
+        simulation = Simulation()
 
         self.num_tasks = 10
         self.team_size = 5
@@ -43,8 +42,11 @@ class TestResultViewer(unittest.TestCase):
         tasks = TaskFactory(initial_value=1,
                             depreciation_rate=0, story_points=1.0).create(count=self.num_tasks)
 
-        self.simulation_results = simulation.execute(
-            tasks=tasks, models=models)
+        self.simulation_results = [
+            simulation.execute(
+                tasks=tasks, 
+                model=model, 
+                policy=DefaultSimulationPolicy()) for model in models]
 
     @patch('matplotlib.pyplot.show')
     def test_loss_vs_cadence(self, mock_pyplot_show):

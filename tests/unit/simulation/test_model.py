@@ -8,7 +8,7 @@ from value_stream.simulation import Model
 class TestModel(unittest.TestCase):
 
     def setUp(self):
-        self.developer_team = [Developer(1.0)]
+        self.developer_team = [Developer(efficiency=1.0)]
 
         self.qa_tester_pool = QATester.create_pool(limit=5)
         self.toolchain_pool = Toolchain.create_pool(
@@ -23,7 +23,7 @@ class TestModel(unittest.TestCase):
                   support_interval=None)
 
         with self.assertRaises(ValueError):
-            Model(self.developer_team,
+            Model(developer_team=self.developer_team,
                   deployment_cadence=-1,
                   qa_testers=self.qa_tester_pool,
                   toolchain_pool=self.toolchain_pool,

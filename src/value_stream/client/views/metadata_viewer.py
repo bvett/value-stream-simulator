@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 import numpy as np
 from pandas import json_normalize, Categorical
+from pydantic import TypeAdapter, ValidationError
 
 from value_stream.simulation import SimulationResult
 from value_stream.task import TaskState
@@ -16,18 +17,18 @@ class MetadataViewer(Viewer):
         self._results_dict: list[Any] = []
 
         self._task_states = task_states
+
         for result in results:
-            self._results_dict.append(super()._to_dict(
-                result.metadata, ['toolchain_pool', 'qa_testers', 'developer_team', 'support_interval', 'task_state_enum']))
+            self._results_dict.append(result.model_dump())
 
     def mean_stage_loss(self):
-        df = json_normalize(self._results_dict, record_path=['event_metadata'],
-                            meta=[['model', 'deployment_cadence'],
-                                  ['model', 'team_size']],
+        df = json_normalize(self._results_dict, record_path=['metadata', 'event_metadata'],
+                            meta=[['metadata', 'model','deployment_cadence'],
+                                  ['metadata', 'model', 'team_size']],
                             errors='ignore')
 
-        df.set_index(['model.deployment_cadence',
-                      'model.team_size'], inplace=True)
+        df.set_index(['metadata.model.deployment_cadence',
+                      'metadata.model.team_size'], inplace=True)
 
         df.sort_index(inplace=True)
 
@@ -36,7 +37,7 @@ class MetadataViewer(Viewer):
         df['event'] = Categorical(df['event'], categories=[
             e.value for e in self._task_states], ordered=True)
 
-        team_samples = df.groupby(['model.team_size'])
+        team_samples = df.groupby(['metadata.model.team_size'])
 
         fig, axs = plt.subplots(
             ncols=len(team_samples), nrows=1, sharex=True, sharey=True, squeeze=True)
@@ -48,7 +49,7 @@ class MetadataViewer(Viewer):
             axs_i += 1
 
             df = team_sample.groupby(
-                ['event', 'model.deployment_cadence']).mean(numeric_only=True)['loss'].unstack(level=['model.deployment_cadence'])
+                ['event', 'metadata.model.deployment_cadence']).mean(numeric_only=True)['loss'].unstack(level=['metadata.model.deployment_cadence'])
 
             df.plot.bar(ax=ax,
                         xlabel='', ylabel='', legend=None, colormap=self.colormap)
@@ -71,24 +72,24 @@ class MetadataViewer(Viewer):
 
     def resource_utilization(self):
 
-        df_all = json_normalize(self._results_dict, record_path=['resource_metadata'],
-                                meta=[['model', 'deployment_cadence'],
-                                      ['model', 'team_size']],
+        df_all = json_normalize(self._results_dict, record_path=['metadata', 'resource_metadata'],
+                                meta=[['metadata', 'model', 'deployment_cadence'],
+                                      ['metadata', 'model', 'team_size']],
                                 errors='ignore')
 
         df_all['state'] = Categorical(df_all['state'], categories=[
             e.value for e in self._task_states], ordered=True)
 
-        df_all.set_index(['model.deployment_cadence',
-                          'model.team_size', 'state', 'time'], inplace=True)
+        df_all.set_index(['metadata.model.deployment_cadence',
+                          'metadata.model.team_size', 'state', 'time'], inplace=True)
 
         df_all.sort_index(inplace=True)
 
         df_all = df_all.groupby(
-            ['model.deployment_cadence', 'model.team_size', 'state', 'time']).sum()
+            ['metadata.model.deployment_cadence', 'metadata.model.team_size', 'state', 'time']).sum()
 
         cadence_x_team_size_samples = df_all.groupby(
-            ['model.deployment_cadence', 'model.team_size'])
+            ['metadata.model.deployment_cadence', 'metadata.model.team_size'])
 
         dataframes = {key: group for key, group in cadence_x_team_size_samples}
 
@@ -135,9 +136,9 @@ class MetadataViewer(Viewer):
         plt.show()
 
     def resource_capacity(self):
-        df_all = json_normalize(self._results_dict, record_path=['resource_metadata'],
-                                meta=[['model', 'deployment_cadence'],
-                                      ['model', 'team_size']],
+        df_all = json_normalize(self._results_dict, record_path=['metadata', 'resource_metadata'],
+                                meta=[['metadata', 'model', 'deployment_cadence'],
+                                      ['metadata', 'model', 'team_size']],
                                 errors='ignore')
 
         df_all['state'] = Categorical(df_all['state'], categories=[
@@ -146,10 +147,10 @@ class MetadataViewer(Viewer):
         df_all.sort_index(inplace=True)
 
         df_all = df_all.groupby(
-            ['model.deployment_cadence', 'model.team_size', 'state', 'time']).sum()
+            ['metadata.model.deployment_cadence', 'metadata.model.team_size', 'state', 'time']).sum()
 
         cadence_x_team_size_samples = df_all.groupby(
-            ['model.deployment_cadence', 'model.team_size'])
+            ['metadata.model.deployment_cadence', 'metadata.model.team_size'])
 
         dataframes = {key: group for key, group in cadence_x_team_size_samples}
 

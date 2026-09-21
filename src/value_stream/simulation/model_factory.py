@@ -1,6 +1,6 @@
 import copy
 import itertools
-from typing import Collection, Iterable, Optional
+from typing import Iterable, Optional
 
 from value_stream.simulation import Model
 from value_stream.resources import Developer, QATester, Toolchain
@@ -10,7 +10,7 @@ class ModelFactory:
     """Utility for creating Model objects"""
 
     @classmethod
-    def create(cls, teams: Iterable[Collection[Developer]],
+    def create(cls, teams: Iterable[list[Developer]],
                deployment_cadences: Iterable,
                qa_testers: Iterable[QATester],
                toolchain_pool: Iterable[Toolchain],

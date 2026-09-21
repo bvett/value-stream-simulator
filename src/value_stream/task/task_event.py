@@ -1,4 +1,5 @@
 from enum import StrEnum
+from pydantic import BaseModel, field_serializer
 from typing import Optional
 from uuid import UUID
 
@@ -7,7 +8,7 @@ from .task_type import TaskType
 from .task_state import TaskState
 
 
-class TaskEvent:
+class TaskEvent(BaseModel):
     """Records time-series metadata about a Task"""
 
     class EventType(StrEnum):
@@ -16,16 +17,20 @@ class TaskEvent:
         END = 'end'
         TERMINAL = 'terminal'
 
-    def __init__(self, event: TaskState, event_type: EventType, time: float, status: EventStatus, task_type: TaskType, is_rework: bool, duration: Optional[float] = None, loss: float = 0, resource_id: Optional[UUID] = None):
-        self.event: TaskState = event
-        self.event_type: TaskEvent.EventType = event_type
-        self.time: float = time
-        self.status: EventStatus = status
-        self.loss: float = loss
-        self.task_type: TaskType = task_type
-        self.is_rework: bool = is_rework
-        self.duration: Optional[float] = duration
-        self.resource_id: Optional[UUID] = resource_id
+    event : TaskState
+    event_type : EventType
+    time : float
+    status : EventStatus
+    loss : float = 0
+    task_type : TaskType
+    is_rework : bool
+    duration : Optional[float] = None
+    resource_id : Optional[UUID] = None
+
+    @field_serializer('event')
+    def serialize_event(self, event:TaskState):
+        return event.value
+
 
     @classmethod
     def start(cls, event: TaskState, time: float, task_type: TaskType, is_rework: bool, status: EventStatus = EventStatus.SUCCESS, resource_id: Optional[UUID] = None) -> "TaskEvent":

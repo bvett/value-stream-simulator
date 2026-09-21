@@ -1,4 +1,3 @@
-from typing import Collection
 import unittest
 from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.simulation import ModelFactory
@@ -18,7 +17,7 @@ class TestModelFactory(unittest.TestCase):
 
         support_intervals = [None, 10]
 
-        teams: list[Collection[Developer]] = []
+        teams: list[list[Developer]] = []
 
         for i in range(1, NUM_TEAMS+1):
             teams.append(DeveloperFactory.create(i))

@@ -53,9 +53,10 @@ def _toolchain_input(resource: Toolchain) -> ToolchainInput:
 
 def _qa_collection(resources: Iterable[QATester]) -> QAPoolInput | QAListInput:
     if isinstance(resources, ResourcePool):
-        if resources._class is not QATester or resources.limit is None:
+        if resources.class_name is not QATester or resources.limit is None:
             raise ValueError("QA pool must be finite and contain QATester")
-        return QAPoolInput(limit=resources.limit, **resources.kwargs)
+        kwargs = resources.model_extra if resources.model_extra is not None else {}
+        return QAPoolInput(limit=resources.limit, **kwargs)
     return QAListInput(resources=[_qa_input(r) for r in resources])
 
 
@@ -63,9 +64,10 @@ def _toolchain_collection(
     resources: Iterable[Toolchain],
 ) -> ToolchainPoolInput | ToolchainListInput:
     if isinstance(resources, ResourcePool):
-        if resources._class is not Toolchain or resources.limit is None:
+        if resources.class_name is not Toolchain or resources.limit is None:
             raise ValueError("toolchain pool must be finite and contain Toolchain")
-        return ToolchainPoolInput(limit=resources.limit, **resources.kwargs)
+        kwargs = resources.model_extra if resources.model_extra is not None else {}
+        return ToolchainPoolInput(limit=resources.limit, **kwargs)
     return ToolchainListInput(resources=[_toolchain_input(r) for r in resources])
 
 

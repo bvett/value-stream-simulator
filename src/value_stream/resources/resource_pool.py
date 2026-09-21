@@ -1,34 +1,32 @@
+from typing import Type, Optional, Self
 import uuid
-from typing import Type, Optional
+from pydantic import BaseModel, Field, PrivateAttr, ConfigDict
 
 
-class ResourcePool:
+class ResourcePool(BaseModel):
     """Generates a fixed or unlimited quantity of a homogeneous resource
     """
+    model_config = ConfigDict(extra='allow')
+    class_name : Type = Field()
+    limit : Optional[int] = Field(default=None, gt=0)
+    _i : int = PrivateAttr(default=0, init=False)
 
-    def __init__(self, class_name: Type, limit: Optional[int] = None, **kwargs):
-
-        if limit is not None and limit <= 0:
-            raise ValueError("limit must be None or >0")
-
-        self._class = class_name
-        self.limit = limit
-        self.kwargs = kwargs
-        self._i = 0
-        self._pool_id = uuid.uuid4()
+    _pool_id : uuid.UUID = PrivateAttr(default_factory=uuid.uuid4)
 
     def __next__(self):
 
         if self.limit is None:
-            return self._class(**self.kwargs)
+            kwargs = {} if not self.model_extra else self.model_extra
+            return self.class_name(**kwargs)
 
         if self._i < self.limit:
             self._i += 1
-            return self._class(**self.kwargs)
+            kwargs = {} if not self.model_extra else self.model_extra
+            return self.class_name(**kwargs)
 
         raise StopIteration
 
-    def __iter__(self):
+    def __iter__(self) -> Self: # pyright: ignore[reportIncompatibleMethodOverride]
         self._i = 0
         return self
 

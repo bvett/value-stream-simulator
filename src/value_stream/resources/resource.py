@@ -1,9 +1,9 @@
 # Parent class for Developer and Toolchain
 from abc import ABC, abstractmethod
-
-from typing import Any, Generator, Optional
+from typing import Any, Generator, Optional, ClassVar
 import uuid
 
+from pydantic import BaseModel, PrivateAttr
 from simpy import Environment, Event, Interrupt, Process, Timeout
 from simpy.events import ProcessGenerator
 
@@ -14,24 +14,35 @@ from .resource_policy import ResourcePolicy
 from .resource_tracker import ResourceTracker
 
 
-class Resource(ABC):
+class Resource(ABC, BaseModel):
     """Base class for simulation objects that operate on tasks"""
 
-    MAX_BACKLOG = 1000
+    class ProcessWrapper(Process):
+        def __init__(self, env: Environment, tasks: list[Task], generator: ProcessGenerator):
+            super().__init__(env, generator)
+            self.tasks = tasks
 
-    @classmethod
-    def _generate_id(cls) -> uuid.UUID:
-        return uuid.uuid4()
+    MAX_BACKLOG: ClassVar[int] = 1000
 
-    def __init__(self):
-        self._process: Optional[Resource.ProcessWrapper] = None
-        self._suspended_work: list[Event] = []
-        self.idle_t = 0
-        self._id = Resource._generate_id()
+    _idle_t: float = 0
+    _id: uuid.UUID = PrivateAttr(default_factory=uuid.uuid4)
+    _process: Optional[ProcessWrapper] = None
+    _suspended_work: list[Event] = []
+
+    def __hash__(self) -> int:
+        return self._id.__hash__()
 
     @property
     def resource_id(self) -> uuid.UUID:
         return self._id
+
+    @property
+    def idle_t(self):
+        return self._idle_t
+
+    @idle_t.setter
+    def idle_t(self, idle_t: float):
+        self._idle_t = idle_t
 
     def operate(self, env: Environment, tasks: list[Task],
                 task_router: TaskRouter,
@@ -59,7 +70,7 @@ class Resource(ABC):
             try:
                 if tracker is not None:
                     tracker.start_work(
-                        workflow_state, env.now-self.idle_t)
+                        workflow_state, env.now-self._idle_t)
                 yield self._process
 
                 if self._process.value is not None:
@@ -85,7 +96,7 @@ class Resource(ABC):
             if tracker is not None:
                 tracker.complete_work(
                     workflow_state, status, elapsed_t=env.now-start_t)
-            self.idle_t = env.now
+            self._idle_t = env.now
 
             for task in tasks:
                 task.end(env.now, workflow_state,
@@ -125,8 +136,3 @@ class Resource(ABC):
 
     def _create_process(self, env: Environment, tasks: list[Task]):
         return Resource.ProcessWrapper(env, tasks, self.do_work(env, tasks))
-
-    class ProcessWrapper(Process):
-        def __init__(self, env: Environment, tasks: list[Task], generator: ProcessGenerator):
-            super().__init__(env, generator)
-            self.tasks = tasks

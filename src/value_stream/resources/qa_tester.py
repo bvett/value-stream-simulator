@@ -1,4 +1,5 @@
 import random
+from pydantic import FiniteFloat, Field
 from simpy import Environment
 
 from value_stream.task import EventStatus, Task
@@ -8,20 +9,10 @@ from .resource_pool import PooledResource
 
 
 class QATester(Resource, PooledResource):
-    def __init__(self, time_cost: float = 0.1,
-                 failure_rate: float = 0.0,
-                 failure_cost: float = 0.0):
-        super().__init__()
 
-        if failure_rate < 0 or failure_rate > 1:
-            raise ValueError("failure_rate must be between 0 and 1, inclusive")
-
-        if failure_cost < 0 or failure_cost > 1:
-            raise ValueError("failure_cost must be between 0 and 1, inclusive")
-
-        self.time_cost = time_cost
-        self.failure_rate = failure_rate
-        self.failure_cost = failure_cost
+    time_cost: FiniteFloat = Field(default=0.1)
+    failure_rate: FiniteFloat = Field(default=0.0, ge=0, le=1)
+    failure_cost: FiniteFloat = Field(default=0.0, ge=0, le=1)
 
     def do_work(self, env: Environment, tasks: list[Task]):
         effort = sum(task.story_points * self.time_cost for task in tasks)

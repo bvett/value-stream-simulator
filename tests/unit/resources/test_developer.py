@@ -1,4 +1,5 @@
 import unittest
+from pydantic import ValidationError
 from simpy import Environment
 from value_stream.workflow import SDLCWorkflow
 from value_stream.resources import Developer, ResourceTracker
@@ -26,16 +27,16 @@ class TestDeveloper(unittest.TestCase, TestUtils):
 
     def test_validation(self):
 
-        with self.assertRaises(ValueError):
-            Developer(0)
+        with self.assertRaises(ValidationError):
+            Developer(efficiency=0)
 
-        with self.assertRaises(ValueError):
-            Developer(-1)
+        with self.assertRaises(ValidationError):
+            Developer(efficiency=-1)
 
     def test_developer(self):
 
-        junior_developer = Developer(.5, name="junior")
-        senior_developer = Developer(1.5, name="senior")
+        junior_developer = Developer(efficiency=.5, name="junior")
+        senior_developer = Developer(efficiency=1.5, name="senior")
 
         workflow_state = SDLCWorkflow.WorkflowState.DEVELOPMENT
         target = TaskStore(self.env, SDLCWorkflow.WorkflowState.DEVELOPMENT)
