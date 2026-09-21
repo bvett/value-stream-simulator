@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 from value_stream.task import TaskEvent
 from value_stream.resources import ResourceMetadata
 from .model import Model

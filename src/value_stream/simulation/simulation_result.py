@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from .model import Model
 from .simulation_metadata import SimulationMetadata
