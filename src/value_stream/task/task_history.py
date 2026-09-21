@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 
 from typing import Optional
 from uuid import UUID
@@ -13,11 +13,19 @@ from .task_state import TaskState
 class TaskHistory(BaseModel):
     """Tracks task progress through a simulated workflow"""
 
-    events: list[TaskEvent] = Field(default=[], init=False)
+    _events: list[TaskEvent] = PrivateAttr(default=[])
     epoch_start_sim_t:  float = Field(default=0, ge=0)
-    epoch: Epoch = Field(default_factory = lambda data: Epoch(data['epoch_start_sim_t']))
+    _epoch: Epoch = PrivateAttr(default_factory = lambda data: Epoch(data['epoch_start_sim_t']))
     delivered_value: Optional[float] = Field(default=None)
     completed_story_points: float = Field(default=0)
+
+    @property
+    def epoch(self) -> Epoch:
+        return self._epoch
+
+    @property
+    def events(self) -> list[TaskEvent]:
+        return self._events
 
     def last_event(self):
         """Returns most recent event, or None if no events exist"""
@@ -29,7 +37,7 @@ class TaskHistory(BaseModel):
         Events must be empty, no events in progress, or not terminated
         """
 
-        epoch_time = self.epoch.to_epoch_time(sim_time) #pylint: disable=E1101
+        epoch_time = self.epoch.to_epoch_time(sim_time)
 
         last_event = self.last_event()
 
@@ -46,14 +54,13 @@ class TaskHistory(BaseModel):
                 raise ValueError(
                     "Attempt to start a task that is already started")
 
-        # pylint: disable=E1101
         self.events.append(TaskEvent.start(
             event=event, time=epoch_time, task_type=task_type, is_rework=is_rework, resource_id=resource_id))  
 
     def end(self, sim_time: float, task_type: TaskType, is_rework: bool, event: Optional[TaskState] = None, status: EventStatus = EventStatus.SUCCESS, loss: float = 0, resource_id: Optional[UUID] = None):
         """Ends a started event"""
 
-        epoch_time = self.epoch.to_epoch_time(sim_time) #pylint: disable=E1101
+        epoch_time = self.epoch.to_epoch_time(sim_time)
 
         last_event = self.last_event()
 
@@ -70,7 +77,6 @@ class TaskHistory(BaseModel):
                     and (last_event.event == event):
 
                 duration = epoch_time - last_event.time
-                # pylint: disable=E1101
                 self.events.append(TaskEvent.end(
                     event=event, time=epoch_time, status=status, loss=loss, task_type=task_type, is_rework=is_rework, duration=duration, resource_id=resource_id))
             else:
@@ -101,7 +107,7 @@ class TaskHistory(BaseModel):
 
         A terminal event prevents additional events from being started"""
 
-        epoch_time = self.epoch.to_epoch_time(sim_time) #pylint: disable=E1101
+        epoch_time = self.epoch.to_epoch_time(sim_time)
 
         last_event = self.last_event()
 
@@ -111,6 +117,5 @@ class TaskHistory(BaseModel):
         if last_event is not None and last_event.event_type == TaskEvent.EventType.TERMINAL:
             raise ValueError("Attempting to terminate a terminated task")
 
-        # pylint: disable=E1101
         self.events.append(TaskEvent.terminal(
             event=event, time=epoch_time, status=status, task_type=task_type, is_rework=is_rework, resource_id=resource_id))
