@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 import numpy as np
 from pandas import json_normalize, Categorical
-from pydantic import TypeAdapter, ValidationError
 
 from value_stream.simulation import SimulationResult
 from value_stream.task import TaskState
