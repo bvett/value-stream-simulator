@@ -41,6 +41,11 @@ classifiers = [
     "Development Status :: 3 - Alpha",
 ]
 
+[dependency-groups]
+dev = [
+    "jsondiff>=2.2.1",
+]
+
 [tool.coverage.report]
 exclude_also = [
     '@(abc\.)?abstractmethod',
