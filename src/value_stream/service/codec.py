@@ -33,7 +33,7 @@ from .schemas import (
 
 
 def _qa_input(resource: QATester) -> QAInput:
-    if type(resource) is not QATester:
+    if not isinstance(resource, QATester):
         raise ValueError("only QATester resources are supported")
     return QAInput(
         time_cost=resource.time_cost,
@@ -43,7 +43,7 @@ def _qa_input(resource: QATester) -> QAInput:
 
 
 def _toolchain_input(resource: Toolchain) -> ToolchainInput:
-    if type(resource) is not Toolchain:
+    if not isinstance(resource, Toolchain):
         raise ValueError("only Toolchain resources are supported")
     return ToolchainInput(
         deployment_duration=resource.deployment_duration,
@@ -72,11 +72,11 @@ def _toolchain_collection(
 
 
 def encode_model(model: Model) -> ModelInput:
-    if type(model) is not Model:
+    if not isinstance(model, Model):
         raise ValueError("only Model is supported in version 1")
     developers = []
     for developer in model.developer_team:
-        if type(developer) is not Developer:
+        if not isinstance(developer, Developer):
             raise ValueError("only Developer resources are supported")
         developers.append(DeveloperInput(name=developer.name, efficiency=developer.efficiency))
     return ModelInput(
@@ -92,7 +92,7 @@ def encode_model(model: Model) -> ModelInput:
 def encode_request(tasks: list[Task], models: list[Model], seed: int | None) -> JobRequest:
     task_inputs = []
     for task in tasks:
-        if type(task) is not Task:
+        if not isinstance(task, Task):
             raise ValueError("only Task is supported in version 1")
         task_inputs.append(
             TaskInput(
