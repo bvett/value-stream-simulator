@@ -44,6 +44,7 @@ classifiers = [
 [dependency-groups]
 dev = [
     "jsondiff>=2.2.1",
+    "pylint>=4.0.8",
 ]
 
 [tool.coverage.report]

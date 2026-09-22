@@ -16,14 +16,13 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
     
-    - name: Install linting tools
+    - name: Install project
       run: |
-        python -m pip install --upgrade pip
-        pip install pylint pytest
+        uv sync --locked --all-extras --dev
     
     - name: Lint with pylint
       run: |
