@@ -30,11 +30,14 @@
 			"SDLC"
 		],
 		"pylint.args": [
-			"--disable=missing-module-docstring"
+			"--disable=missing-module-docstring",
+			"--disable=missing-class-docstring ",
+			"--disable=missing-function-docstring"
 		],
 		"python-envs.workspaceSearchPaths": [
 			".venv",
 			".venv-*"
-		]
+		],
+		"pylint.importStrategy": "fromEnvironment"
 	}
 }
