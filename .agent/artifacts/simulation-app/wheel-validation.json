@@ -1,0 +1,30 @@
+{
+  "runtime": "wheel",
+  "models": 100,
+  "tasks": 3,
+  "duration_seconds": 5.821,
+  "peak_process_tree_rss_bytes": 315424768,
+  "max_status_request_seconds": 0.0184,
+  "partial_result_counts": [
+    0,
+    8,
+    16,
+    24,
+    36,
+    44,
+    53,
+    64,
+    72,
+    82,
+    92,
+    100
+  ],
+  "status_bytes": 136994,
+  "csv_bytes": {
+    "summary": 74939,
+    "events": 3047704,
+    "resources": 2532226
+  },
+  "reject_101_status": 422,
+  "ui_assets": true
+}

@@ -1,0 +1,20 @@
+{
+  "wheel_sha256": "2ec1b8012a736f20ebf7c3f266630b15042ca8c042ae46e596d654eb085d1bc8",
+  "assets": [
+    "charts-BlcrPsRk.js",
+    "index-BJN_GjWh.js",
+    "index-NjWKjFDu.css"
+  ],
+  "wheel": {
+    "state": "completed",
+    "successful_models": 3,
+    "matching_assets": 3,
+    "ready": true
+  },
+  "docker": {
+    "state": "completed",
+    "successful_models": 3,
+    "matching_assets": 3,
+    "ready": true
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "runtime": "docker",
+  "models": 100,
+  "tasks": 3,
+  "duration_seconds": 7.559,
+  "peak_process_tree_rss_bytes": null,
+  "max_status_request_seconds": 0.0745,
+  "partial_result_counts": [
+    0,
+    8,
+    16,
+    24,
+    31,
+    38,
+    44,
+    52,
+    60,
+    67,
+    74,
+    80,
+    87,
+    94,
+    100
+  ],
+  "status_bytes": 136991,
+  "csv_bytes": {
+    "summary": 74936,
+    "events": 3047587,
+    "resources": 2532091
+  },
+  "reject_101_status": 422,
+  "ui_assets": true,
+  "cancelled_models": 95,
+  "retained_successes_after_cancel": 5
+}

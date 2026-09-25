@@ -4,6 +4,8 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/value_stream"]
+artifacts = ["src/value_stream/app/static/**"]
+exclude = ["src/value_stream/app/frontend/**"]
 
 [project]
 name = "value_stream"
