@@ -35,7 +35,9 @@ def run(payload: object) -> dict[str, dict[str, Any]]:
     request = validated.request
     if len(request.models) != 1:
         raise ValueError("worker payload must contain one model")
-    if request.seed is not None:
+    if request.model_seeds is not None:
+        random.seed(request.model_seeds[0])
+    elif request.seed is not None:
         random.seed(derive_seed(request.seed, index))
     model = decode_model(request.models[0])
     tasks = decode_tasks(request.tasks)
@@ -60,7 +62,9 @@ def main() -> None:
     try:
         payload = json.load(sys.stdin)
         output = run(payload)
-    except Exception as exc:  # model failures must be reported without stopping the batch
+    except (
+        Exception
+    ) as exc:  # model failures must be reported without stopping the batch
         try:
             index = WorkerIndex.model_validate(payload).model_index
         except Exception:

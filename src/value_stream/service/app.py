@@ -1,6 +1,8 @@
 """HTTP application for version 1 simulation jobs."""
 
 from contextlib import asynccontextmanager
+import hashlib
+import json
 import logging
 from typing import Any
 from uuid import UUID
@@ -11,7 +13,13 @@ from fastapi.responses import JSONResponse
 from starlette.datastructures import Headers
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
-from .job_store import CapacityExceeded, InMemoryJobStore, JobNotFound, JobStorage
+from .job_store import (
+    CapacityExceeded,
+    InMemoryJobStore,
+    JobNotFound,
+    JobStorage,
+    SubmissionConflict,
+)
 from .scheduler import ModelScheduler
 from .schemas import (
     ErrorEnvelope,
@@ -22,7 +30,6 @@ from .schemas import (
     OutcomePage,
 )
 from .settings import ServiceSettings
-
 
 logger = logging.getLogger(__name__)
 
@@ -58,9 +65,9 @@ class BodyLimitMiddleware:
                 )
                 return
             if declared_size > self.max_body_bytes:
-                await _error(413, "BODY_TOO_LARGE", "request body exceeds configured limit")(
-                    scope, receive, send
-                )
+                await _error(
+                    413, "BODY_TOO_LARGE", "request body exceeds configured limit"
+                )(scope, receive, send)
                 return
 
         buffered: list[Message] = []
@@ -72,9 +79,9 @@ class BodyLimitMiddleware:
             chunk = message.get("body", b"")
             size += len(chunk)
             if size > self.max_body_bytes:
-                await _error(413, "BODY_TOO_LARGE", "request body exceeds configured limit")(
-                    scope, receive, send
-                )
+                await _error(
+                    413, "BODY_TOO_LARGE", "request body exceeds configured limit"
+                )(scope, receive, send)
                 return
             buffered.append(message)
             if not message.get("more_body", False):
@@ -124,7 +131,9 @@ def create_app(
             {"location": list(item["loc"]), "message": item["msg"]}
             for item in exc.errors()
         ]
-        return _error(422, "INVALID_INPUT", "request validation failed", {"issues": issues})
+        return _error(
+            422, "INVALID_INPUT", "request validation failed", {"issues": issues}
+        )
 
     @application.exception_handler(Exception)
     async def unexpected_error(_request: Request, exc: Exception):
@@ -133,6 +142,7 @@ def create_app(
 
     errors: dict[int | str, dict[str, Any]] = {
         404: {"model": ErrorEnvelope},
+        409: {"model": ErrorEnvelope},
         413: {"model": ErrorEnvelope},
         422: {"model": ErrorEnvelope},
         429: {"model": ErrorEnvelope},
@@ -150,20 +160,38 @@ def create_app(
         responses=errors,
     )
     def submit(request: JobRequest):
-        if len(request.tasks) > settings.max_tasks or len(request.models) > settings.max_models:
-            return _error(422, "LIMIT_EXCEEDED", "task or model count exceeds configured limit")
+        if (
+            len(request.tasks) > settings.max_tasks
+            or len(request.models) > settings.max_models
+        ):
+            return _error(
+                422, "LIMIT_EXCEEDED", "task or model count exceeds configured limit"
+            )
         try:
-            job_id = store.create(len(request.models))
+            fingerprint = hashlib.sha256(
+                json.dumps(
+                    request.model_dump(mode="json", exclude={"submission_id"}),
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                ).encode()
+            ).hexdigest()
+            job_id, created = store.reserve(
+                len(request.models), request.submission_id, fingerprint
+            )
+        except SubmissionConflict as exc:
+            return _error(409, "SUBMISSION_CONFLICT", str(exc))
         except CapacityExceeded:
             return _error(429, "JOB_CAPACITY", "job capacity is full")
         try:
-            scheduler.submit(job_id, request)
+            if created:
+                scheduler.submit(job_id, request)
         except Exception:
             store.cancel(job_id)
             raise
         return JobAccepted(
             job_id=job_id,
-            status="queued",
+            status=store.status(job_id).status,
             status_url=f"/v1/simulation-jobs/{job_id}",
         )
 

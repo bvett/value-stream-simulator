@@ -14,7 +14,13 @@ from .workflow_policy import WorkflowPolicy
 
 
 class PoolManager:
-    def __init__(self, env: Environment, resources: Iterator[Resource], policy: WorkflowPolicy, tracker: Optional[ResourceTracker] = None):
+    def __init__(
+        self,
+        env: Environment,
+        resources: Iterator[Resource],
+        policy: WorkflowPolicy,
+        tracker: Optional[ResourceTracker] = None,
+    ):
 
         self.policy = policy
         self._tracker = tracker
@@ -29,7 +35,7 @@ class PoolManager:
 
         self.resources = resources
 
-        self._registered_resources: set[Resource] = set()
+        self._registered_resources: dict[Resource, None] = {}
 
         self._cyclic_support_delegator = itertools.cycle(self.resources)
 
@@ -40,26 +46,31 @@ class PoolManager:
         match strategy:
             case AssignmentStrategy.CYCLIC:
                 resource = next(self._cyclic_support_delegator)
-                if (resource not in self._registered_resources) and (self._tracker is not None):
+                if (resource not in self._registered_resources) and (
+                    self._tracker is not None
+                ):
                     self._tracker.register(workflow_state)
-                    self._registered_resources.add(resource)
+                    self._registered_resources[resource] = None
 
                 return resource
 
             case AssignmentStrategy.RANDOM:
                 # realistically, if resources are unlimited, then just get next
-                if isinstance(self.resources, ResourcePool) and (self.resources.limit is None):
+                if isinstance(self.resources, ResourcePool) and (
+                    self.resources.limit is None
+                ):
                     resource = next(self.resources)
                 else:
                     if self._resources_as_list is None:
-                        self._resources_as_list = list(
-                            self._registered_resources)
+                        self._resources_as_list = list(self._registered_resources)
                         self._resources_as_list.extend(list(self.resources))
                     resource = random.choice(self._resources_as_list)
 
-                if (resource not in self._registered_resources) and (self._tracker is not None):
+                if (resource not in self._registered_resources) and (
+                    self._tracker is not None
+                ):
                     self._tracker.register(workflow_state)
-                    self._registered_resources.add(resource)
+                    self._registered_resources[resource] = None
 
                 return resource
 
@@ -68,7 +79,8 @@ class PoolManager:
 
                 if not task.task_id in self._task_owners:
                     raise ValueError(
-                        f"Unable to identify task owner for task_id: {task.task_id}")
+                        f"Unable to identify task owner for task_id: {task.task_id}"
+                    )
 
                 owner: Resource = self._task_owners[task.task_id]
                 return owner
@@ -83,9 +95,11 @@ class PoolManager:
                 resource.idle_t = self._env.now
                 self._resource_pool.put(resource)
 
-                if (resource not in self._registered_resources) and (self._tracker is not None):
+                if (resource not in self._registered_resources) and (
+                    self._tracker is not None
+                ):
                     self._tracker.register(workflow_state)
-                    self._registered_resources.add(resource)
+                    self._registered_resources[resource] = None
 
         result = self._resource_pool.get()
 

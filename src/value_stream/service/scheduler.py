@@ -42,7 +42,9 @@ class ModelScheduler:
         ]
         self._futures[job_id] = futures
         for future in futures:
-            future.add_done_callback(lambda _done, job=job_id: self._forget_finished(job))
+            future.add_done_callback(
+                lambda _done, job=job_id: self._forget_finished(job)
+            )
 
     def _forget_finished(self, job_id: UUID) -> None:
         with self._lock:
@@ -50,8 +52,10 @@ class ModelScheduler:
             if futures is not None and all(future.done() for future in futures):
                 del self._futures[job_id]
                 self._active_jobs.discard(job_id)
-                while not self._closed and self._pending_jobs and (
-                    len(self._active_jobs) < self.settings.max_active_jobs
+                while (
+                    not self._closed
+                    and self._pending_jobs
+                    and (len(self._active_jobs) < self.settings.max_active_jobs)
                 ):
                     next_id, next_request = self._pending_jobs.popleft()
                     try:
@@ -75,6 +79,11 @@ class ModelScheduler:
                 "tasks": [t.model_dump(mode="json") for t in request.tasks],
                 "models": [request.models[index].model_dump(mode="json")],
                 "seed": request.seed,
+                "model_seeds": (
+                    [request.model_seeds[index]]
+                    if request.model_seeds is not None
+                    else None
+                ),
             },
         }
         result = None
@@ -114,7 +123,9 @@ class ModelScheduler:
                 raise ValueError("worker did not return a model outcome")
         except subprocess.TimeoutExpired:
             error = ModelError(
-                model_index=index, code="MODEL_TIMEOUT", message="model exceeded time limit"
+                model_index=index,
+                code="MODEL_TIMEOUT",
+                message="model exceeded time limit",
             )
             self._stop_process(process)
         except Exception as exc:
