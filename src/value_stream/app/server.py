@@ -5,6 +5,7 @@ import os
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 from pathlib import Path
+from typing import Any, Optional
 from uuid import UUID
 from fastapi import FastAPI, Request, Query
 from fastapi.exceptions import RequestValidationError
@@ -14,7 +15,7 @@ from starlette.types import ASGIApp, Scope, Receive, Send
 from pydantic import ValidationError
 from value_stream.service.schemas import ErrorEnvelope, HealthResponse
 from .settings import AppSettings
-from .storage import InMemoryWorkspaceStore
+from .storage import InMemoryWorkspaceStore, WorkspaceStore
 from .gateway import HttpSimulationGateway
 from .coordinator import RunCoordinator
 from .errors import AppError
@@ -70,7 +71,7 @@ class BodyLimitMiddleware:
         await self.app(scope, replay, send)
 
 
-def create_app(settings=None, store=None, gateway=None, service_url=None):
+def create_app(settings : Optional[AppSettings]=None, store : Optional[WorkspaceStore]=None, gateway=None, service_url=None):
     settings = settings or AppSettings.from_environment()
     store = store or InMemoryWorkspaceStore(settings)
     gateway = gateway or HttpSimulationGateway(
@@ -126,7 +127,7 @@ def create_app(settings=None, store=None, gateway=None, service_url=None):
             status_code=500,
         )
 
-    errors = {
+    errors: dict[int | str, dict[str, Any]] = {
         code: {"model": ErrorEnvelope}
         for code in [404, 409, 413, 422, 429, 500, 502, 503]
     }
@@ -246,7 +247,7 @@ def create_app(settings=None, store=None, gateway=None, service_url=None):
             o
             for o in observations(metrics, scenario.settings)
             if o.property not in {"qa_size", "team_size", "toolchain_size"}
-            or o.value <= settings.max_resources
+            or ((o.value is not None) and (int(o.value) <= settings.max_resources))
         ]
         return ResultView(
             scenario_id=scenario_id, metrics=metrics, observations=insights

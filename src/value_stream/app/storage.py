@@ -235,9 +235,9 @@ class InMemoryWorkspaceStore:
         w = self.get(workspace_id)
         return self._preview(w, expand_scenarios(w.definitions, self.settings))
 
-    def previous(self, w, request):
+    def previous(self, workspace : Workspace, request):
         hashed = fingerprint(request.model_dump(mode="json"))
-        for status in w.runs:
+        for status in workspace.runs:
             record = self.runs[status.id]
             if record.request.request_id == request.request_id:
                 if record.request_hash != hashed:
