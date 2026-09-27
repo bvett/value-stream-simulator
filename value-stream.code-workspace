@@ -10,7 +10,6 @@
 		"python.analysis.inlayHints.functionReturnTypes": true,
 		"python.analysis.inlayHints.pytestParameters": false,
 		"python.analysis.inlayHints.variableTypes": false,
-		"editor.defaultFormatter": "ms-python.black-formatter",
 		"notebook.output.scrolling": true,
 		"python.analysis.extraPaths": [
 			"src"
