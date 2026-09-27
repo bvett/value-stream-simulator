@@ -1,6 +1,9 @@
 """Explicit display measures for the existing simulation telemetry."""
 
 from collections import defaultdict
+
+from value_stream.service.schemas import ResultData
+
 from .errors import AppError
 from .schemas import PlotData, StageLoss, ResourceActivity, Backlog
 
@@ -39,7 +42,7 @@ def reduce_points(points, limit=5000):
     return result
 
 
-def plot_data(result, initial):
+def plot_data(result:ResultData, initial):
     events = defaultdict(list)
     durations = defaultdict(lambda: dict.fromkeys(CATEGORIES, 0.0))
     waiting = defaultdict(lambda: defaultdict(int))
