@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("real simulations, baseline, interactive cache, exports, refresh, plots and accessibility", async ({
   page,
-}) => {
+}, testInfo) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
@@ -107,10 +107,10 @@ test("real simulations, baseline, interactive cache, exports, refresh, plots and
     "1",
   );
   await page.locator(".plot-card").screenshot({
-    path: "../../../../.agent/artifacts/simulation-app/chart.png",
+    path: testInfo.outputPath("chart.png"),
   });
   await page.screenshot({
-    path: "../../../../.agent/artifacts/simulation-app/desktop.png",
+    path: testInfo.outputPath("desktop.png"),
     fullPage: true,
   });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -122,7 +122,7 @@ test("real simulations, baseline, interactive cache, exports, refresh, plots and
   );
   expect(noOverflow).toBeTruthy();
   await page.screenshot({
-    path: "../../../../.agent/artifacts/simulation-app/mobile.png",
+    path: testInfo.outputPath("mobile.png"),
     fullPage: true,
   });
   await expect(page.getByRole("alert")).toHaveCount(0);
@@ -132,7 +132,7 @@ test("real simulations, baseline, interactive cache, exports, refresh, plots and
     page.getByRole("button", { name: "Reset zoom", exact: true }),
   ).toBeVisible();
   await page.screenshot({
-    path: "../../../../.agent/artifacts/simulation-app/zoom-200.png",
+    path: testInfo.outputPath("zoom-200.png"),
     fullPage: true,
   });
   expect(errors).toEqual([]);
