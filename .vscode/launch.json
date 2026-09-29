@@ -1,0 +1,103 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Studio: Debug (integrated browser)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "value_stream.app.server:create_app",
+                "--factory",
+                "--host",
+                "127.0.0.1",
+                "--port",
+                "8081",
+                "--no-use-colors"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "subProcess": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            },
+            "preLaunchTask": "Studio: Frontend",
+            "serverReadyAction": {
+                "pattern": "Uvicorn running on http://127\\.0\\.0\\.1:8081",
+                "action": "startDebugging",
+                "config": {
+                    "name": "Studio: Browser (integrated browser)",
+                    "type": "editor-browser",
+                    "request": "launch",
+                    "url": "http://127.0.0.1:5173",
+                    "webRoot": "${workspaceFolder}/src/value_stream/app/frontend",
+                    "sourceMaps": true,
+                    "skipFiles": [
+                        "**/node_modules/**"
+                    ],
+                    "cascadeTerminateToConfigurations": [
+                        "Studio: Debug (integrated browser)"
+                    ]
+                },
+                "killOnServerStop": true
+            }
+        },
+        {
+            "name": "Studio: Debug (Brave)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "value_stream.app.server:create_app",
+                "--factory",
+                "--host",
+                "127.0.0.1",
+                "--port",
+                "8081",
+                "--no-use-colors"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "subProcess": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            },
+            "preLaunchTask": "Studio: Frontend",
+            "serverReadyAction": {
+                "pattern": "Uvicorn running on http://127\\.0\\.0\\.1:8081",
+                "action": "startDebugging",
+                "config": {
+                    "name": "Studio: Browser (Brave)",
+                    "type": "chrome",
+                    "request": "launch",
+                    "url": "http://127.0.0.1:5173",
+                    "runtimeExecutable" : "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+                    "webRoot": "${workspaceFolder}/src/value_stream/app/frontend",
+                    "sourceMaps": true,
+                    "skipFiles": [
+                        "**/node_modules/**"
+                    ],
+                    "cascadeTerminateToConfigurations": [
+                        "Studio: Debug (Brave)"
+                    ]
+                },
+                "killOnServerStop": true
+            }
+        },
+        {
+            "name": "Studio: Visual CSS (Edge DevTools)",
+            "type": "vscode-edge-devtools.debug",
+            "request": "launch",
+            "url": "http://127.0.0.1:5173",
+            "webRoot": "${workspaceFolder}/src/value_stream/app/frontend",
+            "pathMapping": {
+                "/": "${workspaceFolder}/src/value_stream/app/frontend"
+            },
+            "sourceMaps": true,
+            "preLaunchTask": "Studio: Run (hot reload)"
+        }
+    ]
+}

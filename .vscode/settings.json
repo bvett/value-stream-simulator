@@ -1,4 +1,19 @@
 {
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv",
+    "typescript.tsdk": "src/value_stream/app/frontend/node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "[typescript][typescriptreact][javascript][javascriptreact][css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "workbench.browser.openLocalhostLinks": true,
+    "workbench.browser.newTabPlacement": "sideGroup",
+    "workbench.browser.dataStorage": "workspace",
+    "vscode-edge-devtools.defaultUrl": "http://127.0.0.1:5173",
+    "vscode-edge-devtools.webRoot": "${workspaceFolder}/src/value_stream/app/frontend",
+    "vscode-edge-devtools.pathMapping": {
+        "/": "${workspaceFolder}/src/value_stream/app/frontend"
+    },
     "python-envs.pythonProjects": [
         {
             "path": ".",

@@ -95,6 +95,10 @@ docker run --rm -p 127.0.0.1:8080:8080 value-stream-service
 
 ## Browser simulation studio
 
+**Using VS Code?** Open `value-stream.code-workspace` and follow the
+[studio workspace guide](docs/studio-workspace.md) for setup, F5 debugging in an
+editor browser, hot reload, test tasks, and visual CSS editing.
+
 The browser application creates shared task sets and model sweeps, plots completed
 scenarios as they arrive, and retains a baseline plus interactive/pinned comparisons.
 It uses React/TypeScript and Plotly in the browser, and FastAPI with the existing
@@ -218,7 +222,6 @@ Future objectives:
 * Shared storage and horizontal scaling for the web application
 * Extensibility
 * Data source integration
-
 
 
 

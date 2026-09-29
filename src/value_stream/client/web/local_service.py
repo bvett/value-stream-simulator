@@ -17,7 +17,9 @@ class _LocalService:
         self._socket.bind(("127.0.0.1", 0))
         self._socket.listen(128)
         self.url = f"http://127.0.0.1:{self._socket.getsockname()[1]}"
-        config = uvicorn.Config(create_app(), host="127.0.0.1", log_level="warning")
+        # Uvicorn loggers are shared with the hosting API. Reconfiguring them
+        # here can suppress its startup message (and VS Code's browser trigger).
+        config = uvicorn.Config(create_app(), host="127.0.0.1", log_config=None)
         self._server = uvicorn.Server(config)
         self._thread = threading.Thread(
             target=self._server.run, kwargs={"sockets": [self._socket]}, daemon=True
