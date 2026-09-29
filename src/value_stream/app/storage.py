@@ -40,7 +40,6 @@ class RunRecord:
     result_bytes: int = 0
     created_at: float = field(default_factory=time.monotonic)
 
-
 class WorkspaceStore(Protocol):
     settings: AppSettings
 
@@ -128,7 +127,7 @@ class InMemoryWorkspaceStore:
         self.cache.move_to_end(key)
         return self.cache[key][0]
 
-    def delete_task_set(self, workspace_id: UUID, task_set_id: UUID, expected_revision: str) -> None:
+    def delete_task_set(self, workspace_id: UUID, task_set_id: UUID, expected_revision: int) -> None:
         with self.lock:
             w = self.get(workspace_id)
             if w.revision != expected_revision:
