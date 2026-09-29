@@ -77,11 +77,11 @@ class TestGeneration(unittest.TestCase):
     def test_limits_before_materialization(self):
         definition = ScenarioDefinition(
             sweeps={
-                "team_size": list(range(1, 20)),
-                "deployment_cadence": list(range(20)),
+                "team_size": list(range(1, 30)),
+                "deployment_cadence": list(range(30)),
             }
         )
-        with self.assertRaisesRegex(AppError, "more than 100"):
+        with self.assertRaisesRegex(AppError, "more than 500"):
             expand_scenarios([definition], AppSettings())
         definition.sweeps = {
             "deployment_duration": SweepRange(start=0, end=1e308, step=1e-308)

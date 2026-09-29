@@ -11,7 +11,7 @@ class AppSettings:
     max_task_sets: int = 20
     max_definitions: int = 100
     max_tasks: int = 1000
-    max_models: int = 100
+    max_models: int = 500
     max_resources: int = 100
     max_axis_values: int = 32
     max_pins: int = 12
@@ -19,8 +19,8 @@ class AppSettings:
     max_retained_runs: int = 32
     max_body_bytes: int = 2 * 1024 * 1024
     max_input_bytes: int = 16 * 1024 * 1024
-    max_result_bytes: int = 256 * 1024 * 1024
-    max_run_bytes: int = 64 * 1024 * 1024
+    max_result_bytes: int = 1024 * 1024 * 1024
+    max_run_bytes: int = 1024 * 1024 * 1024
     max_model_bytes: int = 8 * 1024 * 1024
     poll_seconds: float = 0.5
     retry_seconds: float = 60.0
