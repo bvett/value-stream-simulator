@@ -3,7 +3,7 @@
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from threading import RLock
-from typing import Protocol
+from typing import Protocol, Optional
 from uuid import UUID, uuid4
 import time
 
@@ -20,6 +20,8 @@ from .schemas import (
     ENGINE_VERSION,
     GENERATOR_VERSION,
     RunRequest,
+    ConcreteScenario,
+    EditorRequest
 )
 from .settings import AppSettings
 
@@ -45,10 +47,10 @@ class WorkspaceStore(Protocol):
     def create(self) -> Workspace: ...
     def get(self, workspace_id: UUID) -> Workspace: ...
     def run(self, workspace_id: UUID, run_id: UUID) -> RunRecord: ...
-    def save_editor(self, workspace_id: UUID, request) -> Preview: ...
+    def save_editor(self, workspace_id: UUID, request: EditorRequest) -> Preview: ...
     def preview(self, workspace_id: UUID) -> Preview: ...
     def register(
-        self, workspace_id: UUID, request, scenarios, task_set
+        self, workspace_id: UUID, request: RunRequest, scenarios: list[ConcreteScenario], task_set: TaskSet
     ) -> tuple[RunRecord, bool]: ...
     def retain_result(
         self, record: RunRecord, index: int, result: ResultData
@@ -70,14 +72,14 @@ class WorkspaceStore(Protocol):
 
 
 class InMemoryWorkspaceStore:
-    def __init__(self, settings=None):
+    def __init__(self, settings: Optional[AppSettings] = None):
         self.settings = settings or AppSettings()
         self.workspaces: dict[UUID, Workspace] = {}
         self.runs: dict[UUID, RunRecord] = {}
         self.cache: OrderedDict[str, tuple[ResultData, int]] = OrderedDict()
         self.lock = RLock()
 
-    def create(self):
+    def create(self) -> Workspace:
         with self.lock:
             if len(self.workspaces) >= self.settings.max_workspaces:
                 raise AppError(
@@ -89,7 +91,7 @@ class InMemoryWorkspaceStore:
             self.workspaces[workspace.id] = workspace
             return workspace
 
-    def get(self, workspace_id):
+    def get(self, workspace_id: UUID) -> Workspace:
         try:
             return self.workspaces[workspace_id]
         except KeyError as exc:
@@ -99,13 +101,13 @@ class InMemoryWorkspaceStore:
                 404,
             ) from exc
 
-    def run(self, workspace_id, run_id):
+    def run(self, workspace_id: UUID, run_id: UUID) -> RunRecord:
         w = self.get(workspace_id)
         if run_id not in {r.id for r in w.runs}:
             raise AppError("RUN_NOT_FOUND", "Run not found", 404)
         return self.runs[run_id]
 
-    def delete_workspace(self, workspace_id):
+    def delete_workspace(self, workspace_id:UUID) -> None:
         with self.lock:
             w = self.get(workspace_id)
             if any(r.state not in TERMINAL for r in w.runs):
@@ -119,14 +121,14 @@ class InMemoryWorkspaceStore:
             del self.workspaces[workspace_id]
             self.prune_cache()
 
-    def active_records(self):
+    def active_records(self) -> list[RunRecord]:
         return [r for r in self.runs.values() if r.status.state not in TERMINAL]
 
-    def cached_result(self, key):
+    def cached_result(self, key: str) -> ResultData:
         self.cache.move_to_end(key)
         return self.cache[key][0]
 
-    def delete_task_set(self, workspace_id, task_set_id, expected_revision):
+    def delete_task_set(self, workspace_id: UUID, task_set_id: UUID, expected_revision: str) -> None:
         with self.lock:
             w = self.get(workspace_id)
             if w.revision != expected_revision:
@@ -146,7 +148,7 @@ class InMemoryWorkspaceStore:
             w.task_sets = [t for t in w.task_sets if t.id != task_set_id]
             w.revision += 1
 
-    def save_editor(self, workspace_id, request):
+    def save_editor(self, workspace_id: UUID, request: EditorRequest) -> Preview:
         with self.lock:
             w = self.get(workspace_id)
             if request.expected_revision != w.revision:
@@ -209,11 +211,11 @@ class InMemoryWorkspaceStore:
             return self._preview(candidate, scenarios)
 
     @staticmethod
-    def input_size(w):
+    def input_size(w: Workspace):
         # Run summaries include their frozen model configurations, never raw results.
         return len(canonical(w.model_dump(mode="json")).encode())
 
-    def _preview(self, w, scenarios):
+    def _preview(self, w:Workspace, scenarios: list[ConcreteScenario]):
         if w.current_task_set is None:
             raise AppError("INVALID_INPUT", "Save and preview inputs first")
         digest = fingerprint(
@@ -231,11 +233,11 @@ class InMemoryWorkspaceStore:
             count=len(scenarios),
         )
 
-    def preview(self, workspace_id):
+    def preview(self, workspace_id: UUID) -> Preview:
         w = self.get(workspace_id)
         return self._preview(w, expand_scenarios(w.definitions, self.settings))
 
-    def previous(self, workspace : Workspace, request):
+    def previous(self, workspace : Workspace, request: RunRequest) -> RunRecord | None:
         hashed = fingerprint(request.model_dump(mode="json"))
         for status in workspace.runs:
             record = self.runs[status.id]
@@ -249,7 +251,7 @@ class InMemoryWorkspaceStore:
                 return record
         return None
 
-    def register(self, workspace_id, request, scenarios, task_set):
+    def register(self, workspace_id: UUID, request: RunRequest, scenarios: list[ConcreteScenario], task_set: TaskSet) -> tuple[RunRecord,bool]:
         with self.lock:
             w = self.get(workspace_id)
             previous = self.previous(w, request)
@@ -343,7 +345,7 @@ class InMemoryWorkspaceStore:
                 w.latest_id = status.id
             return record, True
 
-    def retain_result(self, record, index, result):
+    def retain_result(self, record: RunRecord, index:int, result:ResultData) -> None:
         with self.lock:
             key = record.cache_keys[index]
             size = len(result.model_dump_json().encode())
@@ -367,7 +369,7 @@ class InMemoryWorkspaceStore:
             record.result_bytes += size
             record.results[record.status.outcomes[index].scenario.id] = key
 
-    def result(self, record, scenario_id):
+    def result(self, record: RunRecord, scenario_id: UUID) -> ResultData:
         key = record.results.get(scenario_id)
         if key is None or key not in self.cache:
             raise AppError(
@@ -376,7 +378,7 @@ class InMemoryWorkspaceStore:
         self.cache.move_to_end(key)
         return self.cache[key][0]
 
-    def finish(self, workspace_id, record):
+    def finish(self, workspace_id: UUID, record: RunRecord):
         record.reservation = 0
         w = self.get(workspace_id)
         if (
@@ -388,7 +390,7 @@ class InMemoryWorkspaceStore:
             if record.request.intent == "manual" and w.baseline_id != record.status.id:
                 w.latest_id = record.status.id
 
-    def comparison(self, workspace_id, run_id, action):
+    def comparison(self, workspace_id: UUID, run_id: UUID, action: str) -> Workspace:
         with self.lock:
             w = self.get(workspace_id)
             r = self.run(workspace_id, run_id)
@@ -428,7 +430,7 @@ class InMemoryWorkspaceStore:
                 self.prune_cache()
             return w
 
-    def prune_history(self, w):
+    def prune_history(self, w: Workspace) -> None:
         protected = {w.baseline_id, w.latest_id}
         for r in list(w.runs):
             if len(w.runs) < self.settings.max_retained_runs:
@@ -441,7 +443,7 @@ class InMemoryWorkspaceStore:
                 "APP_CAPACITY", "Run history is full. Delete a comparison.", 429
             )
 
-    def prune_for_capacity(self, required, protect):
+    def prune_for_capacity(self, required: int, protect: set[str]) -> None:
         def used():
             return sum(v[1] for v in self.cache.values()) + sum(
                 r.reservation for r in self.runs.values()
@@ -465,7 +467,7 @@ class InMemoryWorkspaceStore:
             self.runs.pop(status.id)
             self.prune_cache(required=required, protect=protect)
 
-    def prune_cache(self, required=0, protect=None):
+    def prune_cache(self, required: int=0, protect: Optional[set[str]] = None):
         references = {key for r in self.runs.values() for key in r.results.values()}
         active_keys = {
             key

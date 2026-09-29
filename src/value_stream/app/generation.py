@@ -137,7 +137,7 @@ def validate_model_limits(settings, limits):
         )
 
 
-def expand_scenarios(definitions: list[ScenarioDefinition], limits: AppSettings):
+def expand_scenarios(definitions: list[ScenarioDefinition], limits: AppSettings) -> list[ConcreteScenario]:
     axes = []
     count = 0
     if len(definitions) > limits.max_definitions:
@@ -160,7 +160,7 @@ def expand_scenarios(definitions: list[ScenarioDefinition], limits: AppSettings)
                 f"Sweep produces more than {limits.max_models} models. Reduce the sweep or configure a higher limit.",
             )
         axes.append(values)
-    scenarios = []
+    scenarios: list[ConcreteScenario] = []
     seen = set()
     for definition, values in zip(definitions, axes):
         for combination in itertools.product(*values.values()):
