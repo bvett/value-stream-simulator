@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 from uuid import uuid4
 from fastapi.testclient import TestClient
+from jsondiff import JsonDiffer
 from value_stream.app.server import create_app
 from value_stream.app.settings import AppSettings
 
@@ -86,7 +87,6 @@ class TestAppRoundtrip(unittest.TestCase):
             release_local_service()
 
     def test_contract_snapshot(self):
-        self.assertEqual(
-            create_app().openapi(),
-            json.loads(Path("src/value_stream/app/openapi.json").read_text()),
-        )
+        diff = JsonDiffer().diff(json.loads(Path("src/value_stream/app/openapi.json").read_text()), 
+                                 create_app().openapi())
+        self.assertEqual(diff, {})

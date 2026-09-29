@@ -1,9 +1,15 @@
 """Versioned browser/application wire contract."""
 
+from enum import StrEnum
 from typing import Annotated, Literal
 from uuid import UUID, uuid4
 from pydantic import ConfigDict, Field, FiniteFloat, model_validator
-from value_stream.service.schemas import WireModel, ModelInput, TaskInput, ErrorEnvelope
+from value_stream.service.schemas import (
+    WireModel, 
+    ModelInput, 
+    TaskInput, 
+    ErrorEnvelope,
+    Status)
 
 GENERATOR_VERSION = "1"
 ENGINE_VERSION = "value-stream-app-1"
@@ -148,7 +154,7 @@ TERMINAL = {"completed", "completed_with_errors", "cancelled", "failed"}
 
 class OutcomeSummary(AppModel):
     scenario: ConcreteScenario
-    status: Literal["queued", "running", "succeeded", "failed", "cancelled"] = "queued"
+    status: Status = Status.QUEUED
     cursor: int = 0
     cached: bool = False
     loss_percent: float | None = None

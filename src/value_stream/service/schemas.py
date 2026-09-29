@@ -1,5 +1,6 @@
 """Version 1 JSON contract for simulation jobs."""
 
+from enum import StrEnum
 from typing import Annotated, Literal
 from uuid import UUID
 
@@ -130,11 +131,18 @@ class ModelError(WireModel):
     code: str
     message: str
 
+class Status(StrEnum):
+    QUEUED = 'queued'
+    RUNNING = 'running'
+    SUCCEEDED = 'succeeded'
+    FAILED = 'failed'
+    CANCELLED = 'cancelled'
+
 
 class OutcomeData(WireModel):
     cursor: int = Field(gt=0)
     model_index: int = Field(ge=0)
-    status: Literal["succeeded", "failed", "cancelled"]
+    status: Literal[Status.SUCCEEDED, Status.FAILED, Status.CANCELLED]
     result: ResultData | None = None
     error: ModelError | None = None
 

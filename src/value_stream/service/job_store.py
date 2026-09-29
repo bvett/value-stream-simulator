@@ -14,6 +14,7 @@ from .schemas import (
     OutcomeData,
     OutcomePage,
     ResultData,
+    Status
 )
 from .settings import ServiceSettings
 
@@ -202,7 +203,7 @@ class InMemoryJobStore:
                     code="WORKER_FAILED",
                     message="model worker failed",
                 )
-            state = "succeeded" if result is not None else "failed"
+            state = Status.SUCCEEDED if result is not None else Status.FAILED
             job.states[index] = state
             job.outcomes.append(
                 OutcomeData(
@@ -228,7 +229,7 @@ class InMemoryJobStore:
                         OutcomeData(
                             cursor=len(job.outcomes) + 1,
                             model_index=index,
-                            status="cancelled",
+                            status=Status.CANCELLED,
                         )
                     )
             job.terminal_at = time.monotonic()

@@ -3,13 +3,15 @@
 import asyncio
 import logging
 import time
-from uuid import uuid5
-from value_stream.service.schemas import JobRequest, ErrorEnvelope
+from typing import Optional
+from uuid import uuid5, UUID
+from value_stream.app.schemas import RunStatus
+from value_stream.service.schemas import JobRequest, ErrorEnvelope, ResultData
 from .errors import AppError
 from .generation import concrete_model, validate_model_limits
 from .metrics import loss_percent
-from .schemas import TERMINAL, ModelSettings
-from .storage import WorkspaceStore
+from .schemas import TERMINAL, ModelSettings, RunRequest, Status
+from .storage import WorkspaceStore, RunRecord
 from .gateway import SimulationGateway
 
 logger = logging.getLogger(__name__)
@@ -21,7 +23,7 @@ class RunCoordinator:
         self.tasks = {}
         self.closed = False
 
-    async def start_run(self, workspace_id, request):
+    async def start_run(self, workspace_id: UUID, request: RunRequest) -> RunStatus:
         if self.closed:
             raise AppError("SERVICE_UNAVAILABLE", "Application is shutting down", 503)
         w = self.store.get(workspace_id)
@@ -102,7 +104,7 @@ class RunCoordinator:
             self.launch(workspace_id, record)
         return record.status
 
-    def launch(self, workspace_id, record):
+    def launch(self, workspace_id: UUID, record: RunRecord):
         record.status.retry_paused = False
         task = asyncio.create_task(self.execute(workspace_id, record))
         self.tasks[record.status.id] = task
@@ -115,7 +117,7 @@ class RunCoordinator:
         )
 
     def complete_outcome(
-        self, record, index, status, result=None, error=None, cached=False
+        self, record:RunRecord, index:int, status:Status, result: Optional[ResultData]=None, error=None, cached:bool=False
     ):
         outcome = record.status.outcomes[index]
         if outcome.cursor:
@@ -132,7 +134,7 @@ class RunCoordinator:
         record.status.last_cursor += 1
         outcome.cursor = record.status.last_cursor
 
-    async def execute(self, workspace_id, record):
+    async def execute(self, workspace_id: UUID, record: RunRecord):
         status = record.status
         retry_start = None
         delay = self.store.settings.poll_seconds
@@ -142,7 +144,7 @@ class RunCoordinator:
                     self.complete_outcome(
                         record,
                         i,
-                        "succeeded",
+                        Status.SUCCEEDED,
                         self.store.cached_result(key),
                         cached=True,
                     )
@@ -267,11 +269,11 @@ class RunCoordinator:
                     )
             for i, o in enumerate(status.outcomes):
                 if not o.cursor:
-                    self.complete_outcome(record, i, "failed", error=status.error)
+                    self.complete_outcome(record, i, Status.FAILED, error=status.error)
             status.state = "failed"
             self.store.finish(workspace_id, record)
 
-    async def cancel_run(self, workspace_id, run_id):
+    async def cancel_run(self, workspace_id: UUID, run_id: UUID):
         record = self.store.run(workspace_id, run_id)
         if record.status.state not in TERMINAL:
             record.status.cancel_requested = True
@@ -280,7 +282,7 @@ class RunCoordinator:
                 self.launch(workspace_id, record)
         return record.status
 
-    def resume(self, workspace_id, run_id):
+    def resume(self, workspace_id: UUID, run_id: UUID):
         record = self.store.run(workspace_id, run_id)
         if record.status.state not in TERMINAL and run_id not in self.tasks:
             self.launch(workspace_id, record)
@@ -289,7 +291,7 @@ class RunCoordinator:
     async def close(self):
         self.closed = True
 
-        async def cancel(record):
+        async def cancel(record: RunRecord):
             if record.status.job_id:
                 try:
                     await self.gateway.cancel(record.status.job_id)
