@@ -7,7 +7,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Optional
 from uuid import UUID
-from fastapi import FastAPI, Request, Query
+from fastapi import FastAPI, Query
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -73,12 +73,12 @@ class BodyLimitMiddleware:
 
 def create_app(settings : Optional[AppSettings]=None, store : Optional[WorkspaceStore]=None, gateway=None, service_url=None):
     settings = settings or AppSettings.from_environment()
-    store = store or InMemoryWorkspaceStore(settings)
+    _store : WorkspaceStore = store or InMemoryWorkspaceStore(settings)
     gateway = gateway or HttpSimulationGateway(
         service_url or os.getenv("VALUE_STREAM_SERVICE_URL"),
         settings.max_run_bytes + 1024 * 1024,
     )
-    coordinator = RunCoordinator(store, gateway)
+    coordinator = RunCoordinator(_store, gateway)
 
     @asynccontextmanager
     async def lifespan(app):
@@ -94,7 +94,7 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
 
     app = FastAPI(title="Value Stream Application", version="1.0.0", lifespan=lifespan)
     app.state.store, app.state.coordinator, app.state.gateway = (
-        store,
+        _store,
         coordinator,
         gateway,
     )
@@ -159,29 +159,29 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
         responses=errors,
     )
     async def create_workspace():
-        return store.create()
+        return _store.create()
 
     @app.get(prefix, response_model=Workspace, responses=errors)
     async def workspace(workspace_id: UUID):
-        return store.get(workspace_id)
+        return _store.get(workspace_id)
 
     @app.delete(prefix, status_code=204, responses=errors)
     async def delete_workspace(workspace_id: UUID):
-        store.delete_workspace(workspace_id)
+        _store.delete_workspace(workspace_id)
 
     @app.put(prefix + "/editor", response_model=Preview, responses=errors)
     async def save_editor(workspace_id: UUID, request: EditorRequest):
-        return store.save_editor(workspace_id, request)
+        return _store.save_editor(workspace_id, request)
 
     @app.post(prefix + "/preview", response_model=Preview, responses=errors)
     async def preview(workspace_id: UUID):
-        return store.preview(workspace_id)
+        return _store.preview(workspace_id)
 
     @app.delete(prefix + "/task-sets/{task_set_id}", status_code=204, responses=errors)
     async def delete_task_set(
         workspace_id: UUID, task_set_id: UUID, expected_revision: int
     ):
-        store.delete_task_set(workspace_id, task_set_id, expected_revision)
+        _store.delete_task_set(workspace_id, task_set_id, expected_revision)
 
     @app.post(
         prefix + "/runs", response_model=RunStatus, status_code=202, responses=errors
@@ -191,7 +191,7 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
 
     @app.get(prefix + "/runs/{run_id}", response_model=RunStatus, responses=errors)
     async def run(workspace_id: UUID, run_id: UUID):
-        return store.run(workspace_id, run_id).status
+        return _store.run(workspace_id, run_id).status
 
     @app.get(
         prefix + "/runs/{run_id}/outcomes",
@@ -202,7 +202,7 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
         return sorted(
             [
                 o
-                for o in store.run(workspace_id, run_id).status.outcomes
+                for o in _store.run(workspace_id, run_id).status.outcomes
                 if o.cursor > after
             ],
             key=lambda o: o.cursor,
@@ -229,7 +229,7 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
     async def comparison(
         workspace_id: UUID, run_id: UUID, mutation: ComparisonMutation
     ):
-        return store.comparison(workspace_id, run_id, mutation.action)
+        return _store.comparison(workspace_id, run_id, mutation.action)
 
     @app.get(
         prefix + "/runs/{run_id}/results/{scenario_id}",
@@ -237,8 +237,8 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
         responses=errors,
     )
     async def result(workspace_id: UUID, run_id: UUID, scenario_id: UUID):
-        record = store.run(workspace_id, run_id)
-        result = store.result(record, scenario_id)
+        record = _store.run(workspace_id, run_id)
+        result = _store.result(record, scenario_id)
         scenario = next(
             o.scenario for o in record.status.outcomes if o.scenario.id == scenario_id
         )
@@ -260,7 +260,7 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
     async def export(workspace_id: UUID, run_id: UUID, kind: str):
         if kind not in {"summary", "events", "resources"}:
             raise AppError("INVALID_INPUT", "Choose summary, events, or resources")
-        record = store.run(workspace_id, run_id)
+        record = _store.run(workspace_id, run_id)
         if record.status.state not in TERMINAL:
             raise AppError(
                 "RUN_ACTIVE",
@@ -272,7 +272,7 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
 
         snapshot = copy.copy(record)
         snapshot.status = record.status.model_copy(deep=True)
-        frozen_results = {sid: store.result(record, sid) for sid in record.results}
+        frozen_results = {sid: _store.result(record, sid) for sid in record.results}
 
         class ExportStore:
             def result(self, record, sid):
