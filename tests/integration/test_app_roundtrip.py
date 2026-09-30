@@ -30,7 +30,7 @@ class TestAppRoundtrip(unittest.TestCase):
                 "definitions": w["definitions"],
             }
             preview = client.put(path + "/editor", json=request).json()
-            self.assertEqual(preview["count"], 3)
+            self.assertEqual(preview["count"], 9)
             payload = {
                 "request_id": str(uuid4()),
                 "preview_digest": preview["digest"],
@@ -46,7 +46,7 @@ class TestAppRoundtrip(unittest.TestCase):
                     break
                 time.sleep(0.03)
             self.assertEqual(run["state"], "completed", run)
-            self.assertEqual(len(run["outcomes"]), 3)
+            self.assertEqual(len(run["outcomes"]), 9)
             self.assertEqual(
                 client.post(path + "/runs", json=payload).json()["id"], run_id
             )

@@ -36,7 +36,7 @@ class TestStorageLimits(unittest.TestCase):
             AppSettings(
                 max_workspaces=1,
                 max_pins=1,
-                max_resources=5,
+                max_resources=20,
                 max_retained_runs=3,
                 min_interactive_seconds=0.001,
             )
@@ -128,7 +128,7 @@ class TestStorageLimits(unittest.TestCase):
             self.store.delete_task_set(self.w.id, self.task_set.id, 3)
         with self.assertRaises(AppError):
             expand_scenarios(
-                [ScenarioDefinition(settings=ModelSettings(team_size=6))],
+                [ScenarioDefinition(settings=ModelSettings(team_size=21))],
                 self.store.settings,
             )
 

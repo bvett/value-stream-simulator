@@ -180,7 +180,9 @@ class TestObservations(unittest.TestCase):
                 )
             ],
         )
-        settings = ModelSettings(qa_failure_rate=0.4)
+        settings = ModelSettings(qa_failure_rate=0.4, qa_size=2, qa_failure_cost=0, 
+                                 toolchain_size=1, deployment_failure_rate=0, support_interval=None,
+                                 support_task_story_points=1)
         suggestions = observations(metrics, settings)
         self.assertEqual(
             [(s.property, s.value) for s in suggestions],

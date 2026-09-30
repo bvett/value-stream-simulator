@@ -14,10 +14,10 @@ test("real simulations, baseline, interactive cache, exports, refresh, plots and
     .getByRole("button", { name: "Preview sweep", exact: true })
     .click();
   await expect(
-    page.getByRole("button", { name: /Run 3 scenarios/ }),
+    page.getByRole("button", { name: /Run 9 scenarios/ }),
   ).toBeEnabled();
-  await page.getByRole("button", { name: /Run 3 scenarios/ }).click();
-  await expect(page.locator(".status-succeeded")).toHaveCount(3, {
+  await page.getByRole("button", { name: /Run 9 scenarios/ }).click();
+  await expect(page.locator(".status-succeeded")).toHaveCount(9, {
     timeout: 30000,
   });
   await expect(page.locator(".js-plotly-plot")).toBeVisible();
@@ -36,7 +36,7 @@ test("real simulations, baseline, interactive cache, exports, refresh, plots and
   await page.getByLabel("Interactive mode", { exact: true }).check();
   await page.getByLabel("Interactive value", { exact: true }).fill("1");
   await page.getByLabel("Interactive value", { exact: true }).press("Enter");
-  await expect(page.locator(".status-succeeded")).toHaveCount(6, {
+  await expect(page.locator(".status-succeeded")).toHaveCount(12, {
     timeout: 30000,
   });
   await expect.poll(xRange).toEqual(zoomedRange);
@@ -57,7 +57,7 @@ test("real simulations, baseline, interactive cache, exports, refresh, plots and
     }),
   ).toBeVisible();
   await page.reload();
-  await expect(page.locator(".status-succeeded")).toHaveCount(6);
+  await expect(page.locator(".status-succeeded")).toHaveCount(12);
   await expect(
     page.getByRole("button", {
       name: "Unpin Deployment interval: 1",
@@ -161,7 +161,7 @@ test("invalid ranges, body limits and stale previews return documented errors", 
       },
     })
   ).json();
-  expect(preview.count).toBe(3);
+  expect(preview.count).toBe(9);
   const stale = await request.post(`${path}/runs`, {
     data: {
       request_id: "abca3594-7b58-4c43-bfb8-8831103a7856",

@@ -2204,7 +2204,7 @@
             "type": "integer",
             "exclusiveMinimum": 0.0,
             "title": "Qa Size",
-            "default": 2
+            "default": 5
           },
           "qa_time_cost": {
             "type": "number",
@@ -2217,20 +2217,20 @@
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Qa Failure Rate",
-            "default": 0
+            "default": 0.15
           },
           "qa_failure_cost": {
             "type": "number",
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Qa Failure Cost",
-            "default": 0
+            "default": 0.25
           },
           "toolchain_size": {
             "type": "integer",
             "exclusiveMinimum": 0.0,
             "title": "Toolchain Size",
-            "default": 1
+            "default": 20
           },
           "deployment_duration": {
             "type": "number",
@@ -2243,7 +2243,7 @@
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Deployment Failure Rate",
-            "default": 0
+            "default": 0.1
           },
           "support_interval": {
             "anyOf": [
@@ -2255,13 +2255,14 @@
                 "type": "null"
               }
             ],
-            "title": "Support Interval"
+            "title": "Support Interval",
+            "default": 5
           },
           "support_task_story_points": {
             "type": "number",
             "minimum": 0.0,
             "title": "Support Task Story Points",
-            "default": 1
+            "default": 2
           }
         },
         "additionalProperties": false,
@@ -2307,7 +2308,7 @@
             "type": "integer",
             "exclusiveMinimum": 0.0,
             "title": "Qa Size",
-            "default": 2
+            "default": 5
           },
           "qa_time_cost": {
             "type": "number",
@@ -2320,20 +2321,20 @@
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Qa Failure Rate",
-            "default": 0
+            "default": 0.15
           },
           "qa_failure_cost": {
             "type": "number",
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Qa Failure Cost",
-            "default": 0
+            "default": 0.25
           },
           "toolchain_size": {
             "type": "integer",
             "exclusiveMinimum": 0.0,
             "title": "Toolchain Size",
-            "default": 1
+            "default": 20
           },
           "deployment_duration": {
             "type": "number",
@@ -2346,7 +2347,7 @@
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Deployment Failure Rate",
-            "default": 0
+            "default": 0.1
           },
           "support_interval": {
             "anyOf": [
@@ -2358,13 +2359,14 @@
                 "type": "null"
               }
             ],
-            "title": "Support Interval"
+            "title": "Support Interval",
+            "default": 5
           },
           "support_task_story_points": {
             "type": "number",
             "minimum": 0.0,
             "title": "Support Task Story Points",
-            "default": 1
+            "default": 2
           }
         },
         "additionalProperties": false,
@@ -3295,7 +3297,7 @@
             "type": "integer",
             "exclusiveMinimum": 0.0,
             "title": "Count",
-            "default": 100
+            "default": 500
           },
           "story_points": {
             "oneOf": [
@@ -3307,6 +3309,11 @@
               }
             ],
             "title": "Story Points",
+            "default": {
+              "kind": "uniform",
+              "minimum": 0.5,
+              "maximum": 2.0
+            },
             "discriminator": {
               "propertyName": "kind",
               "mapping": {
@@ -3338,7 +3345,7 @@
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Depreciation Rate",
-            "default": 0.005
+            "default": 0.02
           },
           "seed": {
             "type": "integer",
@@ -3365,7 +3372,7 @@
             "type": "integer",
             "exclusiveMinimum": 0.0,
             "title": "Count",
-            "default": 100
+            "default": 500
           },
           "story_points": {
             "oneOf": [
@@ -3377,6 +3384,11 @@
               }
             ],
             "title": "Story Points",
+            "default": {
+              "kind": "uniform",
+              "minimum": 0.5,
+              "maximum": 2.0
+            },
             "discriminator": {
               "propertyName": "kind",
               "mapping": {
@@ -3408,7 +3420,7 @@
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Depreciation Rate",
-            "default": 0.005
+            "default": 0.02
           },
           "seed": {
             "type": "integer",
