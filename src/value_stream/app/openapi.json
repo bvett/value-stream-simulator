@@ -1,1828 +1,13 @@
 {
-  "openapi": "3.1.0",
-  "info": {
-    "title": "Value Stream Application",
-    "version": "1.0.0"
-  },
-  "paths": {
-    "/health": {
-      "get": {
-        "summary": "Health",
-        "operationId": "health_health_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/ready": {
-      "get": {
-        "summary": "Ready",
-        "operationId": "ready_ready_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "413": {
-            "description": "Request Entity Too Large",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too Many Requests",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "502": {
-            "description": "Bad Gateway",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service Unavailable",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/config": {
-      "get": {
-        "summary": "Config",
-        "operationId": "config_api_v1_config_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AppConfig"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/workspaces": {
-      "post": {
-        "summary": "Create Workspace",
-        "operationId": "create_workspace_api_v1_workspaces_post",
-        "responses": {
-          "201": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Workspace"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "413": {
-            "description": "Request Entity Too Large",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too Many Requests",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "502": {
-            "description": "Bad Gateway",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service Unavailable",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/workspaces/{workspace_id}": {
-      "get": {
-        "summary": "Workspace",
-        "operationId": "workspace_api_v1_workspaces__workspace_id__get",
-        "parameters": [
-          {
-            "name": "workspace_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Workspace Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Workspace"
-                }
-              }
-            }
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "413": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Request Entity Too Large"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Bad Gateway"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Service Unavailable"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Delete Workspace",
-        "operationId": "delete_workspace_api_v1_workspaces__workspace_id__delete",
-        "parameters": [
-          {
-            "name": "workspace_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Workspace Id"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Successful Response"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "413": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Request Entity Too Large"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Bad Gateway"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Service Unavailable"
-          }
-        }
-      }
-    },
-    "/api/v1/workspaces/{workspace_id}/editor": {
-      "put": {
-        "summary": "Save Editor",
-        "operationId": "save_editor_api_v1_workspaces__workspace_id__editor_put",
-        "parameters": [
-          {
-            "name": "workspace_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Workspace Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EditorRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Preview"
-                }
-              }
-            }
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "413": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Request Entity Too Large"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Bad Gateway"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Service Unavailable"
-          }
-        }
-      }
-    },
-    "/api/v1/workspaces/{workspace_id}/preview": {
-      "post": {
-        "summary": "Preview",
-        "operationId": "preview_api_v1_workspaces__workspace_id__preview_post",
-        "parameters": [
-          {
-            "name": "workspace_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Workspace Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Preview"
-                }
-              }
-            }
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "413": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Request Entity Too Large"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Bad Gateway"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Service Unavailable"
-          }
-        }
-      }
-    },
-    "/api/v1/workspaces/{workspace_id}/task-sets/{task_set_id}": {
-      "delete": {
-        "summary": "Delete Task Set",
-        "operationId": "delete_task_set_api_v1_workspaces__workspace_id__task_sets__task_set_id__delete",
-        "parameters": [
-          {
-            "name": "workspace_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Workspace Id"
-            }
-          },
-          {
-            "name": "task_set_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Task Set Id"
-            }
-          },
-          {
-            "name": "expected_revision",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Expected Revision"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Successful Response"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "413": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Request Entity Too Large"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Bad Gateway"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Service Unavailable"
-          }
-        }
-      }
-    },
-    "/api/v1/workspaces/{workspace_id}/runs": {
-      "post": {
-        "summary": "Start Run",
-        "operationId": "start_run_api_v1_workspaces__workspace_id__runs_post",
-        "parameters": [
-          {
-            "name": "workspace_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Workspace Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RunRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "202": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RunStatus"
-                }
-              }
-            }
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "413": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Request Entity Too Large"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Bad Gateway"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Service Unavailable"
-          }
-        }
-      }
-    },
-    "/api/v1/workspaces/{workspace_id}/runs/{run_id}": {
-      "get": {
-        "summary": "Run",
-        "operationId": "run_api_v1_workspaces__workspace_id__runs__run_id__get",
-        "parameters": [
-          {
-            "name": "workspace_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Workspace Id"
-            }
-          },
-          {
-            "name": "run_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Run Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RunStatus"
-                }
-              }
-            }
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "413": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Request Entity Too Large"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Bad Gateway"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Service Unavailable"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Cancel",
-        "operationId": "cancel_api_v1_workspaces__workspace_id__runs__run_id__delete",
-        "parameters": [
-          {
-            "name": "workspace_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Workspace Id"
-            }
-          },
-          {
-            "name": "run_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Run Id"
-            }
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RunStatus"
-                }
-              }
-            }
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "413": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Request Entity Too Large"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Bad Gateway"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Service Unavailable"
-          }
-        }
-      }
-    },
-    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/outcomes": {
-      "get": {
-        "summary": "Outcomes",
-        "operationId": "outcomes_api_v1_workspaces__workspace_id__runs__run_id__outcomes_get",
-        "parameters": [
-          {
-            "name": "workspace_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Workspace Id"
-            }
-          },
-          {
-            "name": "run_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Run Id"
-            }
-          },
-          {
-            "name": "after",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "After"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/OutcomeSummary"
-                  },
-                  "title": "Response Outcomes Api V1 Workspaces  Workspace Id  Runs  Run Id  Outcomes Get"
-                }
-              }
-            }
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "413": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Request Entity Too Large"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Bad Gateway"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Service Unavailable"
-          }
-        }
-      }
-    },
-    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/resume": {
-      "post": {
-        "summary": "Resume",
-        "operationId": "resume_api_v1_workspaces__workspace_id__runs__run_id__resume_post",
-        "parameters": [
-          {
-            "name": "workspace_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Workspace Id"
-            }
-          },
-          {
-            "name": "run_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Run Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RunStatus"
-                }
-              }
-            }
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "413": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Request Entity Too Large"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Bad Gateway"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Service Unavailable"
-          }
-        }
-      }
-    },
-    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/comparison": {
-      "post": {
-        "summary": "Comparison",
-        "operationId": "comparison_api_v1_workspaces__workspace_id__runs__run_id__comparison_post",
-        "parameters": [
-          {
-            "name": "workspace_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Workspace Id"
-            }
-          },
-          {
-            "name": "run_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Run Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ComparisonMutation"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Workspace"
-                }
-              }
-            }
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "413": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Request Entity Too Large"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Bad Gateway"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Service Unavailable"
-          }
-        }
-      }
-    },
-    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/results/{scenario_id}": {
-      "get": {
-        "summary": "Result",
-        "operationId": "result_api_v1_workspaces__workspace_id__runs__run_id__results__scenario_id__get",
-        "parameters": [
-          {
-            "name": "workspace_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Workspace Id"
-            }
-          },
-          {
-            "name": "run_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Run Id"
-            }
-          },
-          {
-            "name": "scenario_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Scenario Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResultView"
-                }
-              }
-            }
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "413": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Request Entity Too Large"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Bad Gateway"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Service Unavailable"
-          }
-        }
-      }
-    },
-    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/exports/{kind}": {
-      "get": {
-        "summary": "Export",
-        "operationId": "export_api_v1_workspaces__workspace_id__runs__run_id__exports__kind__get",
-        "parameters": [
-          {
-            "name": "workspace_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Workspace Id"
-            }
-          },
-          {
-            "name": "run_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Run Id"
-            }
-          },
-          {
-            "name": "kind",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Kind"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              },
-              "text/csv": {}
-            }
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "413": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Request Entity Too Large"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Bad Gateway"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Service Unavailable"
-          }
-        }
-      }
-    }
-  },
   "components": {
     "schemas": {
       "AppConfig": {
+        "additionalProperties": false,
         "properties": {
-          "limits": {
-            "additionalProperties": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "number"
-                }
-              ]
-            },
-            "type": "object",
-            "title": "Limits"
-          },
-          "ready": {
-            "type": "boolean",
-            "title": "Ready"
+          "engine_version": {
+            "default": "value-stream-app-1",
+            "title": "Engine Version",
+            "type": "string"
           },
           "error": {
             "anyOf": [
@@ -1835,18 +20,29 @@
             ]
           },
           "generator_version": {
-            "type": "string",
+            "default": "1",
             "title": "Generator Version",
-            "default": "1"
+            "type": "string"
           },
-          "engine_version": {
-            "type": "string",
-            "title": "Engine Version",
-            "default": "value-stream-app-1"
+          "limits": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "title": "Limits",
+            "type": "object"
+          },
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "limits",
           "ready",
@@ -1854,40 +50,40 @@
           "generator_version",
           "engine_version"
         ],
-        "title": "AppConfig"
+        "title": "AppConfig",
+        "type": "object"
       },
       "Backlog": {
+        "additionalProperties": false,
         "properties": {
-          "stage": {
-            "type": "string",
-            "title": "Stage"
-          },
           "label": {
-            "type": "string",
-            "title": "Label"
+            "title": "Label",
+            "type": "string"
+          },
+          "reduced": {
+            "default": false,
+            "title": "Reduced",
+            "type": "boolean"
+          },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
           },
           "time": {
             "items": {
               "type": "number"
             },
-            "type": "array",
-            "title": "Time"
+            "title": "Time",
+            "type": "array"
           },
           "waiting": {
             "items": {
               "type": "integer"
             },
-            "type": "array",
-            "title": "Waiting"
-          },
-          "reduced": {
-            "type": "boolean",
-            "title": "Reduced",
-            "default": false
+            "title": "Waiting",
+            "type": "array"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "stage",
           "label",
@@ -1895,65 +91,65 @@
           "waiting",
           "reduced"
         ],
-        "title": "Backlog"
+        "title": "Backlog",
+        "type": "object"
       },
       "ComparisonMutation": {
+        "additionalProperties": false,
         "properties": {
           "action": {
-            "type": "string",
             "enum": [
               "pin",
               "unpin",
               "baseline",
               "delete"
             ],
-            "title": "Action"
+            "title": "Action",
+            "type": "string"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "action"
         ],
-        "title": "ComparisonMutation"
+        "title": "ComparisonMutation",
+        "type": "object"
       },
       "ConcreteScenario": {
+        "additionalProperties": false,
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Id"
-          },
           "definition_id": {
-            "type": "string",
             "format": "uuid",
-            "title": "Definition Id"
+            "title": "Definition Id",
+            "type": "string"
           },
-          "revision": {
-            "type": "integer",
-            "title": "Revision"
+          "execution_seed": {
+            "title": "Execution Seed",
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "model": {
+            "$ref": "#/components/schemas/ModelInput"
           },
           "name": {
-            "type": "string",
-            "title": "Name"
+            "title": "Name",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
           },
           "settings": {
             "$ref": "#/components/schemas/ModelSettings-Output"
           },
           "team_seed": {
-            "type": "integer",
-            "title": "Team Seed"
-          },
-          "execution_seed": {
-            "type": "integer",
-            "title": "Execution Seed"
-          },
-          "model": {
-            "$ref": "#/components/schemas/ModelInput"
+            "title": "Team Seed",
+            "type": "integer"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "id",
           "definition_id",
@@ -1964,106 +160,104 @@
           "execution_seed",
           "model"
         ],
-        "title": "ConcreteScenario"
+        "title": "ConcreteScenario",
+        "type": "object"
       },
       "ConstantValue-Input": {
+        "additionalProperties": false,
         "properties": {
           "kind": {
-            "type": "string",
             "const": "constant",
+            "default": "constant",
             "title": "Kind",
-            "default": "constant"
+            "type": "string"
           },
           "value": {
-            "type": "number",
+            "default": 1,
             "minimum": 0.0,
             "title": "Value",
-            "default": 1
+            "type": "number"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
-        "title": "ConstantValue"
+        "title": "ConstantValue",
+        "type": "object"
       },
       "ConstantValue-Output": {
+        "additionalProperties": false,
         "properties": {
           "kind": {
-            "type": "string",
             "const": "constant",
+            "default": "constant",
             "title": "Kind",
-            "default": "constant"
+            "type": "string"
           },
           "value": {
-            "type": "number",
+            "default": 1,
             "minimum": 0.0,
             "title": "Value",
-            "default": 1
+            "type": "number"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "kind",
           "value"
         ],
-        "title": "ConstantValue"
+        "title": "ConstantValue",
+        "type": "object"
       },
       "DeveloperInput": {
+        "additionalProperties": false,
         "properties": {
-          "name": {
-            "type": "string",
-            "title": "Name",
-            "default": ""
-          },
           "efficiency": {
-            "type": "number",
+            "default": 1,
             "exclusiveMinimum": 0.0,
             "title": "Efficiency",
-            "default": 1
+            "type": "number"
+          },
+          "name": {
+            "default": "",
+            "title": "Name",
+            "type": "string"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
-        "title": "DeveloperInput"
+        "title": "DeveloperInput",
+        "type": "object"
       },
       "EditorRequest": {
+        "additionalProperties": false,
         "properties": {
-          "expected_revision": {
-            "type": "integer",
-            "minimum": 0.0,
-            "title": "Expected Revision"
-          },
-          "task_spec": {
-            "$ref": "#/components/schemas/TaskSetSpec-Input"
-          },
           "definitions": {
             "items": {
               "$ref": "#/components/schemas/ScenarioDefinition-Input"
             },
-            "type": "array",
             "maxItems": 100,
             "minItems": 1,
-            "title": "Definitions"
+            "title": "Definitions",
+            "type": "array"
+          },
+          "expected_revision": {
+            "minimum": 0.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "task_spec": {
+            "$ref": "#/components/schemas/TaskSetSpec-Input"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "expected_revision",
           "task_spec",
           "definitions"
         ],
-        "title": "EditorRequest"
+        "title": "EditorRequest",
+        "type": "object"
       },
       "ErrorEnvelope": {
+        "additionalProperties": false,
         "properties": {
           "code": {
-            "type": "string",
-            "title": "Code"
-          },
-          "message": {
-            "type": "string",
-            "title": "Message"
+            "title": "Code",
+            "type": "string"
           },
           "details": {
             "anyOf": [
@@ -2076,43 +270,47 @@
               }
             ],
             "title": "Details"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "code",
           "message"
         ],
-        "title": "ErrorEnvelope"
+        "title": "ErrorEnvelope",
+        "type": "object"
       },
       "HealthResponse": {
+        "additionalProperties": false,
         "properties": {
           "status": {
-            "type": "string",
             "const": "ok",
+            "default": "ok",
             "title": "Status",
-            "default": "ok"
+            "type": "string"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
-        "title": "HealthResponse"
+        "title": "HealthResponse",
+        "type": "object"
       },
       "ModelInput": {
+        "additionalProperties": false,
         "properties": {
+          "deployment_cadence": {
+            "minimum": 0.0,
+            "title": "Deployment Cadence",
+            "type": "integer"
+          },
           "developer_team": {
             "items": {
               "$ref": "#/components/schemas/DeveloperInput"
             },
-            "type": "array",
             "minItems": 1,
-            "title": "Developer Team"
-          },
-          "deployment_cadence": {
-            "type": "integer",
-            "minimum": 0.0,
-            "title": "Deployment Cadence"
+            "title": "Developer Team",
+            "type": "array"
           },
           "qa_testers": {
             "anyOf": [
@@ -2125,6 +323,24 @@
             ],
             "title": "Qa Testers"
           },
+          "support_interval": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Support Interval"
+          },
+          "support_task_story_points": {
+            "default": 1,
+            "minimum": 0.0,
+            "title": "Support Task Story Points",
+            "type": "number"
+          },
           "toolchain_pool": {
             "anyOf": [
               {
@@ -2135,242 +351,222 @@
               }
             ],
             "title": "Toolchain Pool"
-          },
-          "support_interval": {
-            "anyOf": [
-              {
-                "type": "number",
-                "exclusiveMinimum": 0.0
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Support Interval"
-          },
-          "support_task_story_points": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Support Task Story Points",
-            "default": 1
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "developer_team",
           "deployment_cadence",
           "qa_testers",
           "toolchain_pool"
         ],
-        "title": "ModelInput"
+        "title": "ModelInput",
+        "type": "object"
       },
       "ModelSettings-Input": {
+        "additionalProperties": false,
         "properties": {
-          "team_size": {
-            "type": "integer",
-            "exclusiveMinimum": 0.0,
-            "title": "Team Size",
-            "default": 4
+          "deployment_cadence": {
+            "default": 5,
+            "minimum": 0.0,
+            "title": "Deployment Cadence",
+            "type": "integer"
           },
-          "efficiency_min": {
-            "type": "number",
-            "exclusiveMinimum": 0.0,
-            "title": "Efficiency Min",
-            "default": 0.5
+          "deployment_duration": {
+            "default": 0.25,
+            "minimum": 0.0,
+            "title": "Deployment Duration",
+            "type": "number"
           },
-          "efficiency_max": {
-            "type": "number",
-            "exclusiveMinimum": 0.0,
-            "title": "Efficiency Max",
-            "default": 1.5
+          "deployment_failure_rate": {
+            "default": 0.1,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Deployment Failure Rate",
+            "type": "number"
           },
           "distribution": {
-            "type": "string",
+            "default": "linear",
             "enum": [
               "linear",
               "normal"
             ],
             "title": "Distribution",
-            "default": "linear"
+            "type": "string"
           },
-          "deployment_cadence": {
-            "type": "integer",
-            "minimum": 0.0,
-            "title": "Deployment Cadence",
-            "default": 5
-          },
-          "qa_size": {
-            "type": "integer",
+          "efficiency_max": {
+            "default": 1.5,
             "exclusiveMinimum": 0.0,
-            "title": "Qa Size",
-            "default": 5
+            "title": "Efficiency Max",
+            "type": "number"
           },
-          "qa_time_cost": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Qa Time Cost",
-            "default": 0.1
-          },
-          "qa_failure_rate": {
-            "type": "number",
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "title": "Qa Failure Rate",
-            "default": 0.15
+          "efficiency_min": {
+            "default": 0.5,
+            "exclusiveMinimum": 0.0,
+            "title": "Efficiency Min",
+            "type": "number"
           },
           "qa_failure_cost": {
-            "type": "number",
+            "default": 0.25,
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Qa Failure Cost",
-            "default": 0.25
+            "type": "number"
           },
-          "toolchain_size": {
-            "type": "integer",
-            "exclusiveMinimum": 0.0,
-            "title": "Toolchain Size",
-            "default": 20
-          },
-          "deployment_duration": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Deployment Duration",
-            "default": 0.25
-          },
-          "deployment_failure_rate": {
-            "type": "number",
+          "qa_failure_rate": {
+            "default": 0.15,
             "maximum": 1.0,
             "minimum": 0.0,
-            "title": "Deployment Failure Rate",
-            "default": 0.1
+            "title": "Qa Failure Rate",
+            "type": "number"
+          },
+          "qa_size": {
+            "default": 5,
+            "exclusiveMinimum": 0.0,
+            "title": "Qa Size",
+            "type": "integer"
+          },
+          "qa_time_cost": {
+            "default": 0.1,
+            "minimum": 0.0,
+            "title": "Qa Time Cost",
+            "type": "number"
           },
           "support_interval": {
             "anyOf": [
               {
-                "type": "number",
-                "exclusiveMinimum": 0.0
+                "exclusiveMinimum": 0.0,
+                "type": "number"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Support Interval",
-            "default": 5
+            "default": 5,
+            "title": "Support Interval"
           },
           "support_task_story_points": {
-            "type": "number",
+            "default": 2,
             "minimum": 0.0,
             "title": "Support Task Story Points",
-            "default": 2
+            "type": "number"
+          },
+          "team_size": {
+            "default": 4,
+            "exclusiveMinimum": 0.0,
+            "title": "Team Size",
+            "type": "integer"
+          },
+          "toolchain_size": {
+            "default": 20,
+            "exclusiveMinimum": 0.0,
+            "title": "Toolchain Size",
+            "type": "integer"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
-        "title": "ModelSettings"
+        "title": "ModelSettings",
+        "type": "object"
       },
       "ModelSettings-Output": {
+        "additionalProperties": false,
         "properties": {
-          "team_size": {
-            "type": "integer",
-            "exclusiveMinimum": 0.0,
-            "title": "Team Size",
-            "default": 4
+          "deployment_cadence": {
+            "default": 5,
+            "minimum": 0.0,
+            "title": "Deployment Cadence",
+            "type": "integer"
           },
-          "efficiency_min": {
-            "type": "number",
-            "exclusiveMinimum": 0.0,
-            "title": "Efficiency Min",
-            "default": 0.5
+          "deployment_duration": {
+            "default": 0.25,
+            "minimum": 0.0,
+            "title": "Deployment Duration",
+            "type": "number"
           },
-          "efficiency_max": {
-            "type": "number",
-            "exclusiveMinimum": 0.0,
-            "title": "Efficiency Max",
-            "default": 1.5
+          "deployment_failure_rate": {
+            "default": 0.1,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Deployment Failure Rate",
+            "type": "number"
           },
           "distribution": {
-            "type": "string",
+            "default": "linear",
             "enum": [
               "linear",
               "normal"
             ],
             "title": "Distribution",
-            "default": "linear"
+            "type": "string"
           },
-          "deployment_cadence": {
-            "type": "integer",
-            "minimum": 0.0,
-            "title": "Deployment Cadence",
-            "default": 5
-          },
-          "qa_size": {
-            "type": "integer",
+          "efficiency_max": {
+            "default": 1.5,
             "exclusiveMinimum": 0.0,
-            "title": "Qa Size",
-            "default": 5
+            "title": "Efficiency Max",
+            "type": "number"
           },
-          "qa_time_cost": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Qa Time Cost",
-            "default": 0.1
-          },
-          "qa_failure_rate": {
-            "type": "number",
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "title": "Qa Failure Rate",
-            "default": 0.15
+          "efficiency_min": {
+            "default": 0.5,
+            "exclusiveMinimum": 0.0,
+            "title": "Efficiency Min",
+            "type": "number"
           },
           "qa_failure_cost": {
-            "type": "number",
+            "default": 0.25,
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Qa Failure Cost",
-            "default": 0.25
+            "type": "number"
           },
-          "toolchain_size": {
-            "type": "integer",
-            "exclusiveMinimum": 0.0,
-            "title": "Toolchain Size",
-            "default": 20
-          },
-          "deployment_duration": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Deployment Duration",
-            "default": 0.25
-          },
-          "deployment_failure_rate": {
-            "type": "number",
+          "qa_failure_rate": {
+            "default": 0.15,
             "maximum": 1.0,
             "minimum": 0.0,
-            "title": "Deployment Failure Rate",
-            "default": 0.1
+            "title": "Qa Failure Rate",
+            "type": "number"
+          },
+          "qa_size": {
+            "default": 5,
+            "exclusiveMinimum": 0.0,
+            "title": "Qa Size",
+            "type": "integer"
+          },
+          "qa_time_cost": {
+            "default": 0.1,
+            "minimum": 0.0,
+            "title": "Qa Time Cost",
+            "type": "number"
           },
           "support_interval": {
             "anyOf": [
               {
-                "type": "number",
-                "exclusiveMinimum": 0.0
+                "exclusiveMinimum": 0.0,
+                "type": "number"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Support Interval",
-            "default": 5
+            "default": 5,
+            "title": "Support Interval"
           },
           "support_task_story_points": {
-            "type": "number",
+            "default": 2,
             "minimum": 0.0,
             "title": "Support Task Story Points",
-            "default": 2
+            "type": "number"
+          },
+          "team_size": {
+            "default": 4,
+            "exclusiveMinimum": 0.0,
+            "title": "Team Size",
+            "type": "integer"
+          },
+          "toolchain_size": {
+            "default": 20,
+            "exclusiveMinimum": 0.0,
+            "title": "Toolchain Size",
+            "type": "integer"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "team_size",
           "efficiency_min",
@@ -2387,21 +583,19 @@
           "support_interval",
           "support_task_story_points"
         ],
-        "title": "ModelSettings"
+        "title": "ModelSettings",
+        "type": "object"
       },
       "Observation": {
+        "additionalProperties": false,
         "properties": {
-          "rule": {
-            "type": "string",
-            "title": "Rule"
+          "evidence": {
+            "title": "Evidence",
+            "type": "string"
           },
           "message": {
-            "type": "string",
-            "title": "Message"
-          },
-          "evidence": {
-            "type": "string",
-            "title": "Evidence"
+            "title": "Message",
+            "type": "string"
           },
           "property": {
             "anyOf": [
@@ -2413,6 +607,10 @@
               }
             ],
             "title": "Property"
+          },
+          "rule": {
+            "title": "Rule",
+            "type": "string"
           },
           "value": {
             "anyOf": [
@@ -2429,8 +627,6 @@
             "title": "Value"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "rule",
           "message",
@@ -2438,37 +634,16 @@
           "property",
           "value"
         ],
-        "title": "Observation"
+        "title": "Observation",
+        "type": "object"
       },
       "OutcomeSummary": {
+        "additionalProperties": false,
         "properties": {
-          "scenario": {
-            "$ref": "#/components/schemas/ConcreteScenario"
-          },
-          "status": {
-            "$ref": "#/components/schemas/Status",
-            "default": "queued"
-          },
-          "cursor": {
-            "type": "integer",
-            "title": "Cursor",
-            "default": 0
-          },
           "cached": {
-            "type": "boolean",
+            "default": false,
             "title": "Cached",
-            "default": false
-          },
-          "loss_percent": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Loss Percent"
+            "type": "boolean"
           },
           "completion_time": {
             "anyOf": [
@@ -2480,6 +655,11 @@
               }
             ],
             "title": "Completion Time"
+          },
+          "cursor": {
+            "default": 0,
+            "title": "Cursor",
+            "type": "integer"
           },
           "delivered_value": {
             "anyOf": [
@@ -2501,10 +681,26 @@
                 "type": "null"
               }
             ]
+          },
+          "loss_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loss Percent"
+          },
+          "scenario": {
+            "$ref": "#/components/schemas/ConcreteScenario"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status",
+            "default": "queued"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "scenario",
           "status",
@@ -2515,10 +711,26 @@
           "delivered_value",
           "error"
         ],
-        "title": "OutcomeSummary"
+        "title": "OutcomeSummary",
+        "type": "object"
       },
       "PlotData": {
+        "additionalProperties": false,
         "properties": {
+          "activity": {
+            "items": {
+              "$ref": "#/components/schemas/ResourceActivity"
+            },
+            "title": "Activity",
+            "type": "array"
+          },
+          "backlog": {
+            "items": {
+              "$ref": "#/components/schemas/Backlog"
+            },
+            "title": "Backlog",
+            "type": "array"
+          },
           "loss_percent": {
             "anyOf": [
               {
@@ -2534,63 +746,47 @@
             "items": {
               "$ref": "#/components/schemas/StageLoss"
             },
-            "type": "array",
-            "title": "Stages"
-          },
-          "activity": {
-            "items": {
-              "$ref": "#/components/schemas/ResourceActivity"
-            },
-            "type": "array",
-            "title": "Activity"
-          },
-          "backlog": {
-            "items": {
-              "$ref": "#/components/schemas/Backlog"
-            },
-            "type": "array",
-            "title": "Backlog"
+            "title": "Stages",
+            "type": "array"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "loss_percent",
           "stages",
           "activity",
           "backlog"
         ],
-        "title": "PlotData"
+        "title": "PlotData",
+        "type": "object"
       },
       "Preview": {
+        "additionalProperties": false,
         "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
           "digest": {
-            "type": "string",
-            "title": "Digest"
-          },
-          "task_set_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Task Set Id"
-          },
-          "workspace_revision": {
-            "type": "integer",
-            "title": "Workspace Revision"
+            "title": "Digest",
+            "type": "string"
           },
           "scenarios": {
             "items": {
               "$ref": "#/components/schemas/ConcreteScenario"
             },
-            "type": "array",
-            "title": "Scenarios"
+            "title": "Scenarios",
+            "type": "array"
           },
-          "count": {
-            "type": "integer",
-            "title": "Count"
+          "task_set_id": {
+            "format": "uuid",
+            "title": "Task Set Id",
+            "type": "string"
+          },
+          "workspace_revision": {
+            "title": "Workspace Revision",
+            "type": "integer"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "digest",
           "task_set_id",
@@ -2598,116 +794,114 @@
           "scenarios",
           "count"
         ],
-        "title": "Preview"
+        "title": "Preview",
+        "type": "object"
       },
       "QAInput": {
+        "additionalProperties": false,
         "properties": {
-          "time_cost": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Time Cost",
-            "default": 0.1
-          },
-          "failure_rate": {
-            "type": "number",
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "title": "Failure Rate",
-            "default": 0
-          },
           "failure_cost": {
-            "type": "number",
+            "default": 0,
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Failure Cost",
-            "default": 0
+            "type": "number"
+          },
+          "failure_rate": {
+            "default": 0,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Failure Rate",
+            "type": "number"
+          },
+          "time_cost": {
+            "default": 0.1,
+            "minimum": 0.0,
+            "title": "Time Cost",
+            "type": "number"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
-        "title": "QAInput"
+        "title": "QAInput",
+        "type": "object"
       },
       "QAListInput": {
+        "additionalProperties": false,
         "properties": {
           "kind": {
-            "type": "string",
             "const": "list",
+            "default": "list",
             "title": "Kind",
-            "default": "list"
+            "type": "string"
           },
           "resources": {
             "items": {
               "$ref": "#/components/schemas/QAInput"
             },
-            "type": "array",
             "minItems": 1,
-            "title": "Resources"
+            "title": "Resources",
+            "type": "array"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "resources"
         ],
-        "title": "QAListInput"
+        "title": "QAListInput",
+        "type": "object"
       },
       "QAPoolInput": {
+        "additionalProperties": false,
         "properties": {
-          "time_cost": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Time Cost",
-            "default": 0.1
-          },
-          "failure_rate": {
-            "type": "number",
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "title": "Failure Rate",
-            "default": 0
-          },
           "failure_cost": {
-            "type": "number",
+            "default": 0,
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Failure Cost",
-            "default": 0
+            "type": "number"
+          },
+          "failure_rate": {
+            "default": 0,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Failure Rate",
+            "type": "number"
           },
           "kind": {
-            "type": "string",
             "const": "pool",
+            "default": "pool",
             "title": "Kind",
-            "default": "pool"
+            "type": "string"
           },
           "limit": {
-            "type": "integer",
             "exclusiveMinimum": 0.0,
-            "title": "Limit"
+            "title": "Limit",
+            "type": "integer"
+          },
+          "time_cost": {
+            "default": 0.1,
+            "minimum": 0.0,
+            "title": "Time Cost",
+            "type": "number"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "limit"
         ],
-        "title": "QAPoolInput"
+        "title": "QAPoolInput",
+        "type": "object"
       },
       "ResourceActivity": {
+        "additionalProperties": false,
         "properties": {
-          "stage": {
-            "type": "string",
-            "title": "Stage"
-          },
-          "label": {
-            "type": "string",
-            "title": "Label"
-          },
           "durations": {
             "additionalProperties": {
               "type": "number"
             },
-            "type": "object",
-            "title": "Durations"
+            "title": "Durations",
+            "type": "object"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
           },
           "shares": {
             "additionalProperties": {
@@ -2720,27 +914,26 @@
                 }
               ]
             },
-            "type": "object",
-            "title": "Shares"
+            "title": "Shares",
+            "type": "object"
+          },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "stage",
           "label",
           "durations",
           "shares"
         ],
-        "title": "ResourceActivity"
+        "title": "ResourceActivity",
+        "type": "object"
       },
       "ResultView": {
+        "additionalProperties": false,
         "properties": {
-          "scenario_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Scenario Id"
-          },
           "metrics": {
             "$ref": "#/components/schemas/PlotData"
           },
@@ -2748,88 +941,31 @@
             "items": {
               "$ref": "#/components/schemas/Observation"
             },
-            "type": "array",
-            "title": "Observations"
+            "title": "Observations",
+            "type": "array"
+          },
+          "scenario_id": {
+            "format": "uuid",
+            "title": "Scenario Id",
+            "type": "string"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "scenario_id",
           "metrics",
           "observations"
         ],
-        "title": "ResultView"
+        "title": "ResultView",
+        "type": "object"
       },
       "RunRequest": {
+        "additionalProperties": false,
         "properties": {
-          "request_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Request Id"
-          },
-          "preview_digest": {
-            "type": "string",
-            "title": "Preview Digest"
-          },
-          "name": {
-            "type": "string",
-            "maxLength": 120,
-            "minLength": 1,
-            "title": "Name",
-            "default": "Baseline"
-          },
-          "intent": {
-            "type": "string",
-            "enum": [
-              "manual",
-              "interactive"
-            ],
-            "title": "Intent",
-            "default": "manual"
-          },
-          "source_run_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Source Run Id"
-          },
-          "property": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Property"
-          },
-          "value": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Value"
-          },
           "definition_id": {
             "anyOf": [
               {
-                "type": "string",
-                "format": "uuid"
+                "format": "uuid",
+                "type": "string"
               },
               {
                 "type": "null"
@@ -2850,74 +986,84 @@
               }
             ],
             "title": "Family Value"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "request_id",
-          "preview_digest"
-        ],
-        "title": "RunRequest"
-      },
-      "RunStatus": {
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Id"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "task_set_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Task Set Id"
-          },
-          "state": {
-            "type": "string",
-            "enum": [
-              "submitting",
-              "queued",
-              "running",
-              "reconnecting",
-              "cancelling",
-              "completed",
-              "completed_with_errors",
-              "cancelled",
-              "failed"
-            ],
-            "title": "State"
           },
           "intent": {
-            "type": "string",
-            "title": "Intent"
+            "default": "manual",
+            "enum": [
+              "manual",
+              "interactive"
+            ],
+            "title": "Intent",
+            "type": "string"
           },
-          "job_id": {
+          "name": {
+            "default": "Baseline",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "preview_digest": {
+            "title": "Preview Digest",
+            "type": "string"
+          },
+          "property": {
             "anyOf": [
               {
-                "type": "string",
-                "format": "uuid"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Job Id"
+            "title": "Property"
           },
-          "outcomes": {
-            "items": {
-              "$ref": "#/components/schemas/OutcomeSummary"
-            },
-            "type": "array",
-            "title": "Outcomes"
+          "request_id": {
+            "format": "uuid",
+            "title": "Request Id",
+            "type": "string"
           },
-          "last_cursor": {
-            "type": "integer",
-            "title": "Last Cursor",
-            "default": 0
+          "source_run_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Run Id"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "request_id",
+          "preview_digest"
+        ],
+        "title": "RunRequest",
+        "type": "object"
+      },
+      "RunStatus": {
+        "additionalProperties": false,
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "title": "Cancel Requested",
+            "type": "boolean"
           },
           "error": {
             "anyOf": [
@@ -2929,29 +1075,79 @@
               }
             ]
           },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "intent": {
+            "title": "Intent",
+            "type": "string"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "last_cursor": {
+            "default": 0,
+            "title": "Last Cursor",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "outcomes": {
+            "items": {
+              "$ref": "#/components/schemas/OutcomeSummary"
+            },
+            "title": "Outcomes",
+            "type": "array"
+          },
           "pinned": {
-            "type": "boolean",
+            "default": false,
             "title": "Pinned",
-            "default": false
-          },
-          "superseded": {
-            "type": "boolean",
-            "title": "Superseded",
-            "default": false
-          },
-          "cancel_requested": {
-            "type": "boolean",
-            "title": "Cancel Requested",
-            "default": false
+            "type": "boolean"
           },
           "retry_paused": {
-            "type": "boolean",
+            "default": false,
             "title": "Retry Paused",
-            "default": false
+            "type": "boolean"
+          },
+          "state": {
+            "enum": [
+              "submitting",
+              "queued",
+              "running",
+              "reconnecting",
+              "cancelling",
+              "completed",
+              "completed_with_errors",
+              "cancelled",
+              "failed"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "superseded": {
+            "default": false,
+            "title": "Superseded",
+            "type": "boolean"
+          },
+          "task_set_id": {
+            "format": "uuid",
+            "title": "Task Set Id",
+            "type": "string"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "id",
           "name",
@@ -2967,27 +1163,36 @@
           "cancel_requested",
           "retry_paused"
         ],
-        "title": "RunStatus"
+        "title": "RunStatus",
+        "type": "object"
       },
       "ScenarioDefinition-Input": {
+        "additionalProperties": false,
         "properties": {
+          "execution_seed": {
+            "default": 456,
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Execution Seed",
+            "type": "integer"
+          },
           "id": {
-            "type": "string",
             "format": "uuid",
-            "title": "Id"
+            "title": "Id",
+            "type": "string"
           },
           "name": {
-            "type": "string",
+            "default": "Delivery model",
             "maxLength": 120,
             "minLength": 1,
             "title": "Name",
-            "default": "Delivery model"
+            "type": "string"
           },
           "revision": {
-            "type": "integer",
+            "default": 1,
             "exclusiveMinimum": 0.0,
             "title": "Revision",
-            "default": 1
+            "type": "integer"
           },
           "settings": {
             "$ref": "#/components/schemas/ModelSettings-Input"
@@ -3016,47 +1221,47 @@
                 }
               ]
             },
-            "type": "object",
-            "title": "Sweeps"
+            "title": "Sweeps",
+            "type": "object"
           },
           "team_seed": {
-            "type": "integer",
+            "default": 123,
             "maximum": 9007199254740991.0,
             "minimum": 0.0,
             "title": "Team Seed",
-            "default": 123
-          },
+            "type": "integer"
+          }
+        },
+        "title": "ScenarioDefinition",
+        "type": "object"
+      },
+      "ScenarioDefinition-Output": {
+        "additionalProperties": false,
+        "properties": {
           "execution_seed": {
-            "type": "integer",
+            "default": 456,
             "maximum": 9007199254740991.0,
             "minimum": 0.0,
             "title": "Execution Seed",
-            "default": 456
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "title": "ScenarioDefinition"
-      },
-      "ScenarioDefinition-Output": {
-        "properties": {
+            "type": "integer"
+          },
           "id": {
-            "type": "string",
             "format": "uuid",
-            "title": "Id"
+            "title": "Id",
+            "type": "string"
           },
           "name": {
-            "type": "string",
+            "default": "Delivery model",
             "maxLength": 120,
             "minLength": 1,
             "title": "Name",
-            "default": "Delivery model"
+            "type": "string"
           },
           "revision": {
-            "type": "integer",
+            "default": 1,
             "exclusiveMinimum": 0.0,
             "title": "Revision",
-            "default": 1
+            "type": "integer"
           },
           "settings": {
             "$ref": "#/components/schemas/ModelSettings-Output"
@@ -3085,26 +1290,17 @@
                 }
               ]
             },
-            "type": "object",
-            "title": "Sweeps"
+            "title": "Sweeps",
+            "type": "object"
           },
           "team_seed": {
-            "type": "integer",
+            "default": 123,
             "maximum": 9007199254740991.0,
             "minimum": 0.0,
             "title": "Team Seed",
-            "default": 123
-          },
-          "execution_seed": {
-            "type": "integer",
-            "maximum": 9007199254740991.0,
-            "minimum": 0.0,
-            "title": "Execution Seed",
-            "default": 456
+            "type": "integer"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "id",
           "name",
@@ -3114,39 +1310,39 @@
           "team_seed",
           "execution_seed"
         ],
-        "title": "ScenarioDefinition"
+        "title": "ScenarioDefinition",
+        "type": "object"
       },
       "StageLoss": {
+        "additionalProperties": false,
         "properties": {
-          "stage": {
-            "type": "string",
-            "title": "Stage"
-          },
           "label": {
-            "type": "string",
-            "title": "Label"
+            "title": "Label",
+            "type": "string"
           },
           "loss_percent": {
-            "type": "number",
-            "title": "Loss Percent"
+            "title": "Loss Percent",
+            "type": "number"
+          },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
           },
           "visits": {
-            "type": "integer",
-            "title": "Visits"
+            "title": "Visits",
+            "type": "integer"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "stage",
           "label",
           "loss_percent",
           "visits"
         ],
-        "title": "StageLoss"
+        "title": "StageLoss",
+        "type": "object"
       },
       "Status": {
-        "type": "string",
         "enum": [
           "queued",
           "running",
@@ -3154,51 +1350,64 @@
           "failed",
           "cancelled"
         ],
-        "title": "Status"
+        "title": "Status",
+        "type": "string"
       },
       "SweepRange": {
+        "additionalProperties": false,
         "properties": {
-          "start": {
-            "type": "number",
-            "title": "Start"
-          },
           "end": {
-            "type": "number",
-            "title": "End"
+            "title": "End",
+            "type": "number"
+          },
+          "start": {
+            "title": "Start",
+            "type": "number"
           },
           "step": {
-            "type": "number",
             "exclusiveMinimum": 0.0,
-            "title": "Step"
+            "title": "Step",
+            "type": "number"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "start",
           "end",
           "step"
         ],
-        "title": "SweepRange"
+        "title": "SweepRange",
+        "type": "object"
       },
       "TaskInput": {
+        "additionalProperties": false,
         "properties": {
-          "initial_value": {
-            "type": "number",
+          "creation_sim_t": {
+            "default": 0,
             "minimum": 0.0,
-            "title": "Initial Value"
-          },
-          "story_points": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Story Points"
+            "title": "Creation Sim T",
+            "type": "number"
           },
           "depreciation_rate": {
-            "type": "number",
+            "default": 0.005,
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Depreciation Rate",
-            "default": 0.005
+            "type": "number"
+          },
+          "initial_value": {
+            "minimum": 0.0,
+            "title": "Initial Value",
+            "type": "number"
+          },
+          "is_rework": {
+            "default": false,
+            "title": "Is Rework",
+            "type": "boolean"
+          },
+          "story_points": {
+            "minimum": 0.0,
+            "title": "Story Points",
+            "type": "number"
           },
           "task_name": {
             "anyOf": [
@@ -3211,69 +1420,56 @@
             ],
             "title": "Task Name"
           },
-          "creation_sim_t": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Creation Sim T",
-            "default": 0
-          },
           "task_type": {
-            "type": "string",
+            "default": "development",
             "enum": [
               "development",
               "support"
             ],
             "title": "Task Type",
-            "default": "development"
-          },
-          "is_rework": {
-            "type": "boolean",
-            "title": "Is Rework",
-            "default": false
+            "type": "string"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "initial_value",
           "story_points"
         ],
-        "title": "TaskInput"
+        "title": "TaskInput",
+        "type": "object"
       },
       "TaskSet": {
+        "additionalProperties": false,
         "properties": {
+          "content_hash": {
+            "title": "Content Hash",
+            "type": "string"
+          },
+          "generator_version": {
+            "default": "1",
+            "title": "Generator Version",
+            "type": "string"
+          },
           "id": {
-            "type": "string",
             "format": "uuid",
-            "title": "Id"
+            "title": "Id",
+            "type": "string"
           },
           "revision": {
-            "type": "integer",
+            "default": 1,
             "title": "Revision",
-            "default": 1
+            "type": "integer"
           },
           "spec": {
             "$ref": "#/components/schemas/TaskSetSpec-Output"
-          },
-          "content_hash": {
-            "type": "string",
-            "title": "Content Hash"
           },
           "tasks": {
             "items": {
               "$ref": "#/components/schemas/TaskInput"
             },
-            "type": "array",
-            "title": "Tasks"
-          },
-          "generator_version": {
-            "type": "string",
-            "title": "Generator Version",
-            "default": "1"
+            "title": "Tasks",
+            "type": "array"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "id",
           "revision",
@@ -3282,146 +1478,146 @@
           "tasks",
           "generator_version"
         ],
-        "title": "TaskSet"
+        "title": "TaskSet",
+        "type": "object"
       },
       "TaskSetSpec-Input": {
+        "additionalProperties": false,
         "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 120,
-            "minLength": 1,
-            "title": "Name",
-            "default": "Task set"
-          },
           "count": {
-            "type": "integer",
+            "default": 500,
             "exclusiveMinimum": 0.0,
             "title": "Count",
-            "default": 500
-          },
-          "story_points": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/ConstantValue-Input"
-              },
-              {
-                "$ref": "#/components/schemas/UniformValue-Input"
-              }
-            ],
-            "title": "Story Points",
-            "discriminator": {
-              "propertyName": "kind",
-              "mapping": {
-                "constant": "#/components/schemas/ConstantValue-Input",
-                "uniform": "#/components/schemas/UniformValue-Input"
-              }
-            }
-          },
-          "initial_value": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/ConstantValue-Input"
-              },
-              {
-                "$ref": "#/components/schemas/UniformValue-Input"
-              }
-            ],
-            "title": "Initial Value",
-            "discriminator": {
-              "propertyName": "kind",
-              "mapping": {
-                "constant": "#/components/schemas/ConstantValue-Input",
-                "uniform": "#/components/schemas/UniformValue-Input"
-              }
-            }
+            "type": "integer"
           },
           "depreciation_rate": {
-            "type": "number",
+            "default": 0.02,
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Depreciation Rate",
-            "default": 0.02
+            "type": "number"
+          },
+          "initial_value": {
+            "discriminator": {
+              "mapping": {
+                "constant": "#/components/schemas/ConstantValue-Input",
+                "uniform": "#/components/schemas/UniformValue-Input"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ConstantValue-Input"
+              },
+              {
+                "$ref": "#/components/schemas/UniformValue-Input"
+              }
+            ],
+            "title": "Initial Value"
+          },
+          "name": {
+            "default": "Task set",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
           },
           "seed": {
-            "type": "integer",
+            "default": 42,
             "maximum": 9007199254740991.0,
             "minimum": 0.0,
             "title": "Seed",
-            "default": 42
+            "type": "integer"
+          },
+          "story_points": {
+            "discriminator": {
+              "mapping": {
+                "constant": "#/components/schemas/ConstantValue-Input",
+                "uniform": "#/components/schemas/UniformValue-Input"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ConstantValue-Input"
+              },
+              {
+                "$ref": "#/components/schemas/UniformValue-Input"
+              }
+            ],
+            "title": "Story Points"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
-        "title": "TaskSetSpec"
+        "title": "TaskSetSpec",
+        "type": "object"
       },
       "TaskSetSpec-Output": {
+        "additionalProperties": false,
         "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 120,
-            "minLength": 1,
-            "title": "Name",
-            "default": "Task set"
-          },
           "count": {
-            "type": "integer",
+            "default": 500,
             "exclusiveMinimum": 0.0,
             "title": "Count",
-            "default": 500
-          },
-          "story_points": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/ConstantValue-Output"
-              },
-              {
-                "$ref": "#/components/schemas/UniformValue-Output"
-              }
-            ],
-            "title": "Story Points",
-            "discriminator": {
-              "propertyName": "kind",
-              "mapping": {
-                "constant": "#/components/schemas/ConstantValue-Output",
-                "uniform": "#/components/schemas/UniformValue-Output"
-              }
-            }
-          },
-          "initial_value": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/ConstantValue-Output"
-              },
-              {
-                "$ref": "#/components/schemas/UniformValue-Output"
-              }
-            ],
-            "title": "Initial Value",
-            "discriminator": {
-              "propertyName": "kind",
-              "mapping": {
-                "constant": "#/components/schemas/ConstantValue-Output",
-                "uniform": "#/components/schemas/UniformValue-Output"
-              }
-            }
+            "type": "integer"
           },
           "depreciation_rate": {
-            "type": "number",
+            "default": 0.02,
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Depreciation Rate",
-            "default": 0.02
+            "type": "number"
+          },
+          "initial_value": {
+            "discriminator": {
+              "mapping": {
+                "constant": "#/components/schemas/ConstantValue-Output",
+                "uniform": "#/components/schemas/UniformValue-Output"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ConstantValue-Output"
+              },
+              {
+                "$ref": "#/components/schemas/UniformValue-Output"
+              }
+            ],
+            "title": "Initial Value"
+          },
+          "name": {
+            "default": "Task set",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
           },
           "seed": {
-            "type": "integer",
+            "default": 42,
             "maximum": 9007199254740991.0,
             "minimum": 0.0,
             "title": "Seed",
-            "default": 42
+            "type": "integer"
+          },
+          "story_points": {
+            "discriminator": {
+              "mapping": {
+                "constant": "#/components/schemas/ConstantValue-Output",
+                "uniform": "#/components/schemas/UniformValue-Output"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ConstantValue-Output"
+              },
+              {
+                "$ref": "#/components/schemas/UniformValue-Output"
+              }
+            ],
+            "title": "Story Points"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "name",
           "count",
@@ -3430,189 +1626,152 @@
           "depreciation_rate",
           "seed"
         ],
-        "title": "TaskSetSpec"
+        "title": "TaskSetSpec",
+        "type": "object"
       },
       "ToolchainInput": {
+        "additionalProperties": false,
         "properties": {
           "deployment_duration": {
-            "type": "number",
             "minimum": 0.0,
-            "title": "Deployment Duration"
+            "title": "Deployment Duration",
+            "type": "number"
           },
           "failure_rate": {
-            "type": "number",
+            "default": 0,
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Failure Rate",
-            "default": 0
+            "type": "number"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "deployment_duration"
         ],
-        "title": "ToolchainInput"
+        "title": "ToolchainInput",
+        "type": "object"
       },
       "ToolchainListInput": {
+        "additionalProperties": false,
         "properties": {
           "kind": {
-            "type": "string",
             "const": "list",
+            "default": "list",
             "title": "Kind",
-            "default": "list"
+            "type": "string"
           },
           "resources": {
             "items": {
               "$ref": "#/components/schemas/ToolchainInput"
             },
-            "type": "array",
             "minItems": 1,
-            "title": "Resources"
+            "title": "Resources",
+            "type": "array"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "resources"
         ],
-        "title": "ToolchainListInput"
+        "title": "ToolchainListInput",
+        "type": "object"
       },
       "ToolchainPoolInput": {
+        "additionalProperties": false,
         "properties": {
           "deployment_duration": {
-            "type": "number",
             "minimum": 0.0,
-            "title": "Deployment Duration"
+            "title": "Deployment Duration",
+            "type": "number"
           },
           "failure_rate": {
-            "type": "number",
+            "default": 0,
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Failure Rate",
-            "default": 0
+            "type": "number"
           },
           "kind": {
-            "type": "string",
             "const": "pool",
+            "default": "pool",
             "title": "Kind",
-            "default": "pool"
+            "type": "string"
           },
           "limit": {
-            "type": "integer",
             "exclusiveMinimum": 0.0,
-            "title": "Limit"
+            "title": "Limit",
+            "type": "integer"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "deployment_duration",
           "limit"
         ],
-        "title": "ToolchainPoolInput"
+        "title": "ToolchainPoolInput",
+        "type": "object"
       },
       "UniformValue-Input": {
+        "additionalProperties": false,
         "properties": {
           "kind": {
-            "type": "string",
             "const": "uniform",
+            "default": "uniform",
             "title": "Kind",
-            "default": "uniform"
-          },
-          "minimum": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Minimum"
+            "type": "string"
           },
           "maximum": {
-            "type": "number",
             "minimum": 0.0,
-            "title": "Maximum"
+            "title": "Maximum",
+            "type": "number"
+          },
+          "minimum": {
+            "minimum": 0.0,
+            "title": "Minimum",
+            "type": "number"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "minimum",
           "maximum"
         ],
-        "title": "UniformValue"
+        "title": "UniformValue",
+        "type": "object"
       },
       "UniformValue-Output": {
+        "additionalProperties": false,
         "properties": {
           "kind": {
-            "type": "string",
             "const": "uniform",
+            "default": "uniform",
             "title": "Kind",
-            "default": "uniform"
-          },
-          "minimum": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Minimum"
+            "type": "string"
           },
           "maximum": {
-            "type": "number",
             "minimum": 0.0,
-            "title": "Maximum"
+            "title": "Maximum",
+            "type": "number"
+          },
+          "minimum": {
+            "minimum": 0.0,
+            "title": "Minimum",
+            "type": "number"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "kind",
           "minimum",
           "maximum"
         ],
-        "title": "UniformValue"
+        "title": "UniformValue",
+        "type": "object"
       },
       "Workspace": {
+        "additionalProperties": false,
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Id"
-          },
-          "revision": {
-            "type": "integer",
-            "title": "Revision",
-            "default": 0
-          },
-          "task_spec": {
-            "$ref": "#/components/schemas/TaskSetSpec-Output"
-          },
-          "definitions": {
-            "items": {
-              "$ref": "#/components/schemas/ScenarioDefinition-Output"
-            },
-            "type": "array",
-            "title": "Definitions"
-          },
-          "task_sets": {
-            "items": {
-              "$ref": "#/components/schemas/TaskSet"
-            },
-            "type": "array",
-            "title": "Task Sets"
-          },
-          "current_task_set": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Current Task Set"
-          },
           "baseline_id": {
             "anyOf": [
               {
-                "type": "string",
-                "format": "uuid"
+                "format": "uuid",
+                "type": "string"
               },
               {
                 "type": "null"
@@ -3620,11 +1779,35 @@
             ],
             "title": "Baseline Id"
           },
+          "current_task_set": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Task Set"
+          },
+          "definitions": {
+            "items": {
+              "$ref": "#/components/schemas/ScenarioDefinition-Output"
+            },
+            "title": "Definitions",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
           "latest_id": {
             "anyOf": [
               {
-                "type": "string",
-                "format": "uuid"
+                "format": "uuid",
+                "type": "string"
               },
               {
                 "type": "null"
@@ -3632,16 +1815,29 @@
             ],
             "title": "Latest Id"
           },
+          "revision": {
+            "default": 0,
+            "title": "Revision",
+            "type": "integer"
+          },
           "runs": {
             "items": {
               "$ref": "#/components/schemas/RunStatus"
             },
-            "type": "array",
-            "title": "Runs"
+            "title": "Runs",
+            "type": "array"
+          },
+          "task_sets": {
+            "items": {
+              "$ref": "#/components/schemas/TaskSet"
+            },
+            "title": "Task Sets",
+            "type": "array"
+          },
+          "task_spec": {
+            "$ref": "#/components/schemas/TaskSetSpec-Output"
           }
         },
-        "additionalProperties": false,
-        "type": "object",
         "required": [
           "id",
           "revision",
@@ -3653,7 +1849,1811 @@
           "latest_id",
           "runs"
         ],
-        "title": "Workspace"
+        "title": "Workspace",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "Value Stream Application",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/config": {
+      "get": {
+        "operationId": "config_api_v1_config_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppConfig"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Config"
+      }
+    },
+    "/api/v1/workspaces": {
+      "post": {
+        "operationId": "create_workspace_api_v1_workspaces_post",
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workspace"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Create Workspace"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}": {
+      "delete": {
+        "operationId": "delete_workspace_api_v1_workspaces__workspace_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Delete Workspace"
+      },
+      "get": {
+        "operationId": "workspace_api_v1_workspaces__workspace_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workspace"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Workspace"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/editor": {
+      "put": {
+        "operationId": "save_editor_api_v1_workspaces__workspace_id__editor_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Save Editor"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/preview": {
+      "post": {
+        "operationId": "preview_api_v1_workspaces__workspace_id__preview_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Preview"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/runs": {
+      "post": {
+        "operationId": "start_run_api_v1_workspaces__workspace_id__runs_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Start Run"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/runs/{run_id}": {
+      "delete": {
+        "operationId": "cancel_api_v1_workspaces__workspace_id__runs__run_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Cancel"
+      },
+      "get": {
+        "operationId": "run_api_v1_workspaces__workspace_id__runs__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Run"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/comparison": {
+      "post": {
+        "operationId": "comparison_api_v1_workspaces__workspace_id__runs__run_id__comparison_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComparisonMutation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workspace"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Comparison"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/exports/{kind}": {
+      "get": {
+        "operationId": "export_api_v1_workspaces__workspace_id__runs__run_id__exports__kind__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "title": "Kind",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "text/csv": {}
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Export"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/outcomes": {
+      "get": {
+        "operationId": "outcomes_api_v1_workspaces__workspace_id__runs__run_id__outcomes_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "After",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OutcomeSummary"
+                  },
+                  "title": "Response Outcomes Api V1 Workspaces  Workspace Id  Runs  Run Id  Outcomes Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Outcomes"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/results/{scenario_id}": {
+      "get": {
+        "operationId": "result_api_v1_workspaces__workspace_id__runs__run_id__results__scenario_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "scenario_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Scenario Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Result"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/resume": {
+      "post": {
+        "operationId": "resume_api_v1_workspaces__workspace_id__runs__run_id__resume_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Resume"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/task-sets/{task_set_id}": {
+      "delete": {
+        "operationId": "delete_task_set_api_v1_workspaces__workspace_id__task_sets__task_set_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "task_set_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Task Set Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "expected_revision",
+            "required": true,
+            "schema": {
+              "title": "Expected Revision",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Delete Task Set"
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/ready": {
+      "get": {
+        "operationId": "ready_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Ready"
       }
     }
   }
