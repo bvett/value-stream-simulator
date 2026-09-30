@@ -3259,17 +3259,17 @@
             "type": "string",
             "title": "Content Hash"
           },
-          "generator_version": {
-            "type": "string",
-            "title": "Generator Version",
-            "default": "1"
-          },
           "tasks": {
             "items": {
               "$ref": "#/components/schemas/TaskInput"
             },
             "type": "array",
             "title": "Tasks"
+          },
+          "generator_version": {
+            "type": "string",
+            "title": "Generator Version",
+            "default": "1"
           }
         },
         "additionalProperties": false,
@@ -3279,8 +3279,8 @@
           "revision",
           "spec",
           "content_hash",
-          "generator_version",
-          "tasks"
+          "tasks",
+          "generator_version"
         ],
         "title": "TaskSet"
       },
@@ -3309,11 +3309,6 @@
               }
             ],
             "title": "Story Points",
-            "default": {
-              "kind": "uniform",
-              "minimum": 0.5,
-              "maximum": 2.0
-            },
             "discriminator": {
               "propertyName": "kind",
               "mapping": {
@@ -3384,11 +3379,6 @@
               }
             ],
             "title": "Story Points",
-            "default": {
-              "kind": "uniform",
-              "minimum": 0.5,
-              "maximum": 2.0
-            },
             "discriminator": {
               "propertyName": "kind",
               "mapping": {

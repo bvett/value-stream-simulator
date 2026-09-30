@@ -43,7 +43,7 @@ ValueSpec = Annotated[ConstantValue | UniformValue, Field(discriminator="kind")]
 class TaskSetSpec(AppModel):
     name: str = Field(default="Task set", min_length=1, max_length=120)
     count: int = Field(default=500, gt=0)
-    story_points: ValueSpec = Field(UniformValue(minimum=.5, maximum=2))
+    story_points: ValueSpec = Field(default_factory=lambda: UniformValue(minimum=.5, maximum=2))
     initial_value: ValueSpec = Field(default_factory=ConstantValue)
     depreciation_rate: FiniteFloat = Field(default=0.02, ge=0, le=1)
     seed: int = Field(default=42, ge=0, le=2**53 - 1)
@@ -107,8 +107,9 @@ class TaskSet(AppModel):
     revision: int = 1
     spec: TaskSetSpec
     content_hash: str
-    generator_version: str = GENERATOR_VERSION
     tasks: list[TaskInput]
+    generator_version: str = GENERATOR_VERSION
+    
 
 
 class EditorRequest(AppModel):
