@@ -1681,8 +1681,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                run_id: string;
                 workspace_id: string;
+                run_id: string;
             };
             cookie?: never;
         };
@@ -1776,8 +1776,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                run_id: string;
                 workspace_id: string;
+                run_id: string;
             };
             cookie?: never;
         };
@@ -1871,8 +1871,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                run_id: string;
                 workspace_id: string;
+                run_id: string;
             };
             cookie?: never;
         };
@@ -1970,9 +1970,9 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                kind: string;
-                run_id: string;
                 workspace_id: string;
+                run_id: string;
+                kind: string;
             };
             cookie?: never;
         };
@@ -2069,8 +2069,8 @@ export interface operations {
             };
             header?: never;
             path: {
-                run_id: string;
                 workspace_id: string;
+                run_id: string;
             };
             cookie?: never;
         };
@@ -2164,9 +2164,9 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                workspace_id: string;
                 run_id: string;
                 scenario_id: string;
-                workspace_id: string;
             };
             cookie?: never;
         };
@@ -2260,8 +2260,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                run_id: string;
                 workspace_id: string;
+                run_id: string;
             };
             cookie?: never;
         };
@@ -2357,8 +2357,8 @@ export interface operations {
             };
             header?: never;
             path: {
-                task_set_id: string;
                 workspace_id: string;
+                task_set_id: string;
             };
             cookie?: never;
         };
