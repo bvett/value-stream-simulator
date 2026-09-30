@@ -13,10 +13,10 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: '3.11'
 
@@ -42,10 +42,10 @@ jobs:
         python-version: ['3.11', '3.12', '3.13', '3.14']
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
     
@@ -75,14 +75,14 @@ jobs:
   browser-app:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
+    - uses: actions/checkout@v7
+    - uses: actions/setup-python@v7
       with:
         python-version: '3.11'
     - uses: astral-sh/setup-uv@v10.1.0
       with:
         enable-cache: true
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v7
       with:
         node-version: '24'
         cache: npm
@@ -106,7 +106,7 @@ jobs:
       run: |
         uv build --wheel --out-dir dist/app
         uv run python -c "import glob, zipfile; names = zipfile.ZipFile(glob.glob('dist/app/*.whl')[0]).namelist(); assert 'value_stream/app/static/index.html' in names; assert any('/static/assets/' in n for n in names); assert not any('/frontend/' in n for n in names)"
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: always()
       with:
         name: simulation-app-browser-evidence
