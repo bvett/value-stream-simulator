@@ -4,40 +4,6 @@
  */
 
 export interface paths {
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Health */
-        get: operations["health_health_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ready": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Ready */
-        get: operations["ready_ready_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/config": {
         parameters: {
             query?: never;
@@ -124,23 +90,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/workspaces/{workspace_id}/task-sets/{task_set_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete Task Set */
-        delete: operations["delete_task_set_api_v1_workspaces__workspace_id__task_sets__task_set_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/workspaces/{workspace_id}/runs": {
         parameters: {
             query?: never;
@@ -176,6 +125,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/comparison": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Comparison */
+        post: operations["comparison_api_v1_workspaces__workspace_id__runs__run_id__comparison_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/exports/{kind}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export */
+        get: operations["export_api_v1_workspaces__workspace_id__runs__run_id__exports__kind__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workspaces/{workspace_id}/runs/{run_id}/outcomes": {
         parameters: {
             query?: never;
@@ -185,6 +168,23 @@ export interface paths {
         };
         /** Outcomes */
         get: operations["outcomes_api_v1_workspaces__workspace_id__runs__run_id__outcomes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/results/{scenario_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Result */
+        get: operations["result_api_v1_workspaces__workspace_id__runs__run_id__results__scenario_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -210,7 +210,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/comparison": {
+    "/api/v1/workspaces/{workspace_id}/task-sets/{task_set_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -219,23 +219,23 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Comparison */
-        post: operations["comparison_api_v1_workspaces__workspace_id__runs__run_id__comparison_post"];
-        delete?: never;
+        post?: never;
+        /** Delete Task Set */
+        delete: operations["delete_task_set_api_v1_workspaces__workspace_id__task_sets__task_set_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/results/{scenario_id}": {
+    "/health": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Result */
-        get: operations["result_api_v1_workspaces__workspace_id__runs__run_id__results__scenario_id__get"];
+        /** Health */
+        get: operations["health_health_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -244,15 +244,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/workspaces/{workspace_id}/runs/{run_id}/exports/{kind}": {
+    "/ready": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Export */
-        get: operations["export_api_v1_workspaces__workspace_id__runs__run_id__exports__kind__get"];
+        /** Ready */
+        get: operations["ready_ready_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -267,39 +267,39 @@ export interface components {
     schemas: {
         /** AppConfig */
         AppConfig: {
-            /** Limits */
-            limits: {
-                [key: string]: number;
-            };
-            /** Ready */
-            ready: boolean;
+            /**
+             * Engine Version
+             * @default value-stream-app-1
+             */
+            engine_version: string;
             error: components["schemas"]["ErrorEnvelope"] | null;
             /**
              * Generator Version
              * @default 1
              */
             generator_version: string;
-            /**
-             * Engine Version
-             * @default value-stream-app-1
-             */
-            engine_version: string;
+            /** Limits */
+            limits: {
+                [key: string]: number;
+            };
+            /** Ready */
+            ready: boolean;
         };
         /** Backlog */
         Backlog: {
-            /** Stage */
-            stage: string;
             /** Label */
             label: string;
-            /** Time */
-            time: number[];
-            /** Waiting */
-            waiting: number[];
             /**
              * Reduced
              * @default false
              */
             reduced: boolean;
+            /** Stage */
+            stage: string;
+            /** Time */
+            time: number[];
+            /** Waiting */
+            waiting: number[];
         };
         /** ComparisonMutation */
         ComparisonMutation: {
@@ -312,25 +312,25 @@ export interface components {
         /** ConcreteScenario */
         ConcreteScenario: {
             /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /**
              * Definition Id
              * Format: uuid
              */
             definition_id: string;
-            /** Revision */
-            revision: number;
+            /** Execution Seed */
+            execution_seed: number;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            model: components["schemas"]["ModelInput"];
             /** Name */
             name: string;
+            /** Revision */
+            revision: number;
             settings: components["schemas"]["ModelSettings-Output"];
             /** Team Seed */
             team_seed: number;
-            /** Execution Seed */
-            execution_seed: number;
-            model: components["schemas"]["ModelInput"];
         };
         /** ConstantValue */
         "ConstantValue-Input": {
@@ -361,34 +361,34 @@ export interface components {
         /** DeveloperInput */
         DeveloperInput: {
             /**
-             * Name
-             * @default
-             */
-            name: string;
-            /**
              * Efficiency
              * @default 1
              */
             efficiency: number;
+            /**
+             * Name
+             * @default
+             */
+            name: string;
         };
         /** EditorRequest */
         EditorRequest: {
+            /** Definitions */
+            definitions: components["schemas"]["ScenarioDefinition-Input"][];
             /** Expected Revision */
             expected_revision: number;
             task_spec: components["schemas"]["TaskSetSpec-Input"];
-            /** Definitions */
-            definitions: components["schemas"]["ScenarioDefinition-Input"][];
         };
         /** ErrorEnvelope */
         ErrorEnvelope: {
             /** Code */
             code: string;
-            /** Message */
-            message: string;
             /** Details */
             details?: {
                 [key: string]: unknown;
             } | null;
+            /** Message */
+            message: string;
         };
         /** HealthResponse */
         HealthResponse: {
@@ -401,14 +401,12 @@ export interface components {
         };
         /** ModelInput */
         ModelInput: {
-            /** Developer Team */
-            developer_team: components["schemas"]["DeveloperInput"][];
             /** Deployment Cadence */
             deployment_cadence: number;
+            /** Developer Team */
+            developer_team: components["schemas"]["DeveloperInput"][];
             /** Qa Testers */
             qa_testers: components["schemas"]["QAPoolInput"] | components["schemas"]["QAListInput"];
-            /** Toolchain Pool */
-            toolchain_pool: components["schemas"]["ToolchainPoolInput"] | components["schemas"]["ToolchainListInput"];
             /** Support Interval */
             support_interval?: number | null;
             /**
@@ -416,60 +414,16 @@ export interface components {
              * @default 1
              */
             support_task_story_points: number;
+            /** Toolchain Pool */
+            toolchain_pool: components["schemas"]["ToolchainPoolInput"] | components["schemas"]["ToolchainListInput"];
         };
         /** ModelSettings */
         "ModelSettings-Input": {
             /**
-             * Team Size
-             * @default 4
-             */
-            team_size: number;
-            /**
-             * Efficiency Min
-             * @default 0.5
-             */
-            efficiency_min: number;
-            /**
-             * Efficiency Max
-             * @default 1.5
-             */
-            efficiency_max: number;
-            /**
-             * Distribution
-             * @default linear
-             * @enum {string}
-             */
-            distribution: "linear" | "normal";
-            /**
              * Deployment Cadence
              * @default 5
              */
             deployment_cadence: number;
-            /**
-             * Qa Size
-             * @default 5
-             */
-            qa_size: number;
-            /**
-             * Qa Time Cost
-             * @default 0.1
-             */
-            qa_time_cost: number;
-            /**
-             * Qa Failure Rate
-             * @default 0.15
-             */
-            qa_failure_rate: number;
-            /**
-             * Qa Failure Cost
-             * @default 0.25
-             */
-            qa_failure_cost: number;
-            /**
-             * Toolchain Size
-             * @default 20
-             */
-            toolchain_size: number;
             /**
              * Deployment Duration
              * @default 0.25
@@ -481,6 +435,42 @@ export interface components {
              */
             deployment_failure_rate: number;
             /**
+             * Distribution
+             * @default linear
+             * @enum {string}
+             */
+            distribution: "linear" | "normal";
+            /**
+             * Efficiency Max
+             * @default 1.5
+             */
+            efficiency_max: number;
+            /**
+             * Efficiency Min
+             * @default 0.5
+             */
+            efficiency_min: number;
+            /**
+             * Qa Failure Cost
+             * @default 0.25
+             */
+            qa_failure_cost: number;
+            /**
+             * Qa Failure Rate
+             * @default 0.15
+             */
+            qa_failure_rate: number;
+            /**
+             * Qa Size
+             * @default 5
+             */
+            qa_size: number;
+            /**
+             * Qa Time Cost
+             * @default 0.1
+             */
+            qa_time_cost: number;
+            /**
              * Support Interval
              * @default 5
              */
@@ -490,60 +480,24 @@ export interface components {
              * @default 2
              */
             support_task_story_points: number;
+            /**
+             * Team Size
+             * @default 4
+             */
+            team_size: number;
+            /**
+             * Toolchain Size
+             * @default 20
+             */
+            toolchain_size: number;
         };
         /** ModelSettings */
         "ModelSettings-Output": {
             /**
-             * Team Size
-             * @default 4
-             */
-            team_size: number;
-            /**
-             * Efficiency Min
-             * @default 0.5
-             */
-            efficiency_min: number;
-            /**
-             * Efficiency Max
-             * @default 1.5
-             */
-            efficiency_max: number;
-            /**
-             * Distribution
-             * @default linear
-             * @enum {string}
-             */
-            distribution: "linear" | "normal";
-            /**
              * Deployment Cadence
              * @default 5
              */
             deployment_cadence: number;
-            /**
-             * Qa Size
-             * @default 5
-             */
-            qa_size: number;
-            /**
-             * Qa Time Cost
-             * @default 0.1
-             */
-            qa_time_cost: number;
-            /**
-             * Qa Failure Rate
-             * @default 0.15
-             */
-            qa_failure_rate: number;
-            /**
-             * Qa Failure Cost
-             * @default 0.25
-             */
-            qa_failure_cost: number;
-            /**
-             * Toolchain Size
-             * @default 20
-             */
-            toolchain_size: number;
             /**
              * Deployment Duration
              * @default 0.25
@@ -555,6 +509,42 @@ export interface components {
              */
             deployment_failure_rate: number;
             /**
+             * Distribution
+             * @default linear
+             * @enum {string}
+             */
+            distribution: "linear" | "normal";
+            /**
+             * Efficiency Max
+             * @default 1.5
+             */
+            efficiency_max: number;
+            /**
+             * Efficiency Min
+             * @default 0.5
+             */
+            efficiency_min: number;
+            /**
+             * Qa Failure Cost
+             * @default 0.25
+             */
+            qa_failure_cost: number;
+            /**
+             * Qa Failure Rate
+             * @default 0.15
+             */
+            qa_failure_rate: number;
+            /**
+             * Qa Size
+             * @default 5
+             */
+            qa_size: number;
+            /**
+             * Qa Time Cost
+             * @default 0.1
+             */
+            qa_time_cost: number;
+            /**
              * Support Interval
              * @default 5
              */
@@ -564,58 +554,72 @@ export interface components {
              * @default 2
              */
             support_task_story_points: number;
+            /**
+             * Team Size
+             * @default 4
+             */
+            team_size: number;
+            /**
+             * Toolchain Size
+             * @default 20
+             */
+            toolchain_size: number;
         };
         /** Observation */
         Observation: {
-            /** Rule */
-            rule: string;
-            /** Message */
-            message: string;
             /** Evidence */
             evidence: string;
+            /** Message */
+            message: string;
             /** Property */
             property: string | null;
+            /** Rule */
+            rule: string;
             /** Value */
             value: number | string | null;
         };
         /** OutcomeSummary */
         OutcomeSummary: {
-            scenario: components["schemas"]["ConcreteScenario"];
-            /** @default queued */
-            status: components["schemas"]["Status"];
-            /**
-             * Cursor
-             * @default 0
-             */
-            cursor: number;
             /**
              * Cached
              * @default false
              */
             cached: boolean;
-            /** Loss Percent */
-            loss_percent: number | null;
             /** Completion Time */
             completion_time: number | null;
+            /**
+             * Cursor
+             * @default 0
+             */
+            cursor: number;
             /** Delivered Value */
             delivered_value: number | null;
             error: components["schemas"]["ErrorEnvelope"] | null;
+            /** Loss Percent */
+            loss_percent: number | null;
+            scenario: components["schemas"]["ConcreteScenario"];
+            /** @default queued */
+            status: components["schemas"]["Status"];
         };
         /** PlotData */
         PlotData: {
-            /** Loss Percent */
-            loss_percent: number | null;
-            /** Stages */
-            stages: components["schemas"]["StageLoss"][];
             /** Activity */
             activity: components["schemas"]["ResourceActivity"][];
             /** Backlog */
             backlog: components["schemas"]["Backlog"][];
+            /** Loss Percent */
+            loss_percent: number | null;
+            /** Stages */
+            stages: components["schemas"]["StageLoss"][];
         };
         /** Preview */
         Preview: {
+            /** Count */
+            count: number;
             /** Digest */
             digest: string;
+            /** Scenarios */
+            scenarios: components["schemas"]["ConcreteScenario"][];
             /**
              * Task Set Id
              * Format: uuid
@@ -623,28 +627,24 @@ export interface components {
             task_set_id: string;
             /** Workspace Revision */
             workspace_revision: number;
-            /** Scenarios */
-            scenarios: components["schemas"]["ConcreteScenario"][];
-            /** Count */
-            count: number;
         };
         /** QAInput */
         QAInput: {
             /**
-             * Time Cost
-             * @default 0.1
+             * Failure Cost
+             * @default 0
              */
-            time_cost: number;
+            failure_cost: number;
             /**
              * Failure Rate
              * @default 0
              */
             failure_rate: number;
             /**
-             * Failure Cost
-             * @default 0
+             * Time Cost
+             * @default 0.1
              */
-            failure_cost: number;
+            time_cost: number;
         };
         /** QAListInput */
         QAListInput: {
@@ -660,20 +660,15 @@ export interface components {
         /** QAPoolInput */
         QAPoolInput: {
             /**
-             * Time Cost
-             * @default 0.1
+             * Failure Cost
+             * @default 0
              */
-            time_cost: number;
+            failure_cost: number;
             /**
              * Failure Rate
              * @default 0
              */
             failure_rate: number;
-            /**
-             * Failure Cost
-             * @default 0
-             */
-            failure_cost: number;
             /**
              * Kind
              * @default pool
@@ -682,118 +677,128 @@ export interface components {
             kind: "pool";
             /** Limit */
             limit: number;
+            /**
+             * Time Cost
+             * @default 0.1
+             */
+            time_cost: number;
         };
         /** ResourceActivity */
         ResourceActivity: {
-            /** Stage */
-            stage: string;
-            /** Label */
-            label: string;
             /** Durations */
             durations: {
                 [key: string]: number;
             };
+            /** Label */
+            label: string;
             /** Shares */
             shares: {
                 [key: string]: number | null;
             };
+            /** Stage */
+            stage: string;
         };
         /** ResultView */
         ResultView: {
+            metrics: components["schemas"]["PlotData"];
+            /** Observations */
+            observations: components["schemas"]["Observation"][];
             /**
              * Scenario Id
              * Format: uuid
              */
             scenario_id: string;
-            metrics: components["schemas"]["PlotData"];
-            /** Observations */
-            observations: components["schemas"]["Observation"][];
         };
         /** RunRequest */
         RunRequest: {
-            /**
-             * Request Id
-             * Format: uuid
-             */
-            request_id: string;
-            /** Preview Digest */
-            preview_digest: string;
-            /**
-             * Name
-             * @default Baseline
-             */
-            name: string;
+            /** Definition Id */
+            definition_id?: string | null;
+            /** Family Value */
+            family_value?: number | string | null;
             /**
              * Intent
              * @default manual
              * @enum {string}
              */
             intent: "manual" | "interactive";
-            /** Source Run Id */
-            source_run_id?: string | null;
+            /**
+             * Name
+             * @default Baseline
+             */
+            name: string;
+            /** Preview Digest */
+            preview_digest: string;
             /** Property */
             property?: string | null;
+            /**
+             * Request Id
+             * Format: uuid
+             */
+            request_id: string;
+            /** Source Run Id */
+            source_run_id?: string | null;
             /** Value */
             value?: number | string | null;
-            /** Definition Id */
-            definition_id?: string | null;
-            /** Family Value */
-            family_value?: number | string | null;
         };
         /** RunStatus */
         RunStatus: {
+            /**
+             * Cancel Requested
+             * @default false
+             */
+            cancel_requested: boolean;
+            error: components["schemas"]["ErrorEnvelope"] | null;
             /**
              * Id
              * Format: uuid
              */
             id: string;
-            /** Name */
-            name: string;
-            /**
-             * Task Set Id
-             * Format: uuid
-             */
-            task_set_id: string;
-            /**
-             * State
-             * @enum {string}
-             */
-            state: "submitting" | "queued" | "running" | "reconnecting" | "cancelling" | "completed" | "completed_with_errors" | "cancelled" | "failed";
             /** Intent */
             intent: string;
             /** Job Id */
             job_id: string | null;
-            /** Outcomes */
-            outcomes: components["schemas"]["OutcomeSummary"][];
             /**
              * Last Cursor
              * @default 0
              */
             last_cursor: number;
-            error: components["schemas"]["ErrorEnvelope"] | null;
+            /** Name */
+            name: string;
+            /** Outcomes */
+            outcomes: components["schemas"]["OutcomeSummary"][];
             /**
              * Pinned
              * @default false
              */
             pinned: boolean;
             /**
+             * Retry Paused
+             * @default false
+             */
+            retry_paused: boolean;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "submitting" | "queued" | "running" | "reconnecting" | "cancelling" | "completed" | "completed_with_errors" | "cancelled" | "failed";
+            /**
              * Superseded
              * @default false
              */
             superseded: boolean;
             /**
-             * Cancel Requested
-             * @default false
+             * Task Set Id
+             * Format: uuid
              */
-            cancel_requested: boolean;
-            /**
-             * Retry Paused
-             * @default false
-             */
-            retry_paused: boolean;
+            task_set_id: string;
         };
         /** ScenarioDefinition */
         "ScenarioDefinition-Input": {
+            /**
+             * Execution Seed
+             * @default 456
+             */
+            execution_seed: number;
             /**
              * Id
              * Format: uuid
@@ -819,14 +824,14 @@ export interface components {
              * @default 123
              */
             team_seed: number;
+        };
+        /** ScenarioDefinition */
+        "ScenarioDefinition-Output": {
             /**
              * Execution Seed
              * @default 456
              */
             execution_seed: number;
-        };
-        /** ScenarioDefinition */
-        "ScenarioDefinition-Output": {
             /**
              * Id
              * Format: uuid
@@ -852,20 +857,15 @@ export interface components {
              * @default 123
              */
             team_seed: number;
-            /**
-             * Execution Seed
-             * @default 456
-             */
-            execution_seed: number;
         };
         /** StageLoss */
         StageLoss: {
-            /** Stage */
-            stage: string;
             /** Label */
             label: string;
             /** Loss Percent */
             loss_percent: number;
+            /** Stage */
+            stage: string;
             /** Visits */
             visits: number;
         };
@@ -876,45 +876,52 @@ export interface components {
         Status: "queued" | "running" | "succeeded" | "failed" | "cancelled";
         /** SweepRange */
         SweepRange: {
-            /** Start */
-            start: number;
             /** End */
             end: number;
+            /** Start */
+            start: number;
             /** Step */
             step: number;
         };
         /** TaskInput */
         TaskInput: {
-            /** Initial Value */
-            initial_value: number;
-            /** Story Points */
-            story_points: number;
-            /**
-             * Depreciation Rate
-             * @default 0.005
-             */
-            depreciation_rate: number;
-            /** Task Name */
-            task_name?: string | null;
             /**
              * Creation Sim T
              * @default 0
              */
             creation_sim_t: number;
             /**
-             * Task Type
-             * @default development
-             * @enum {string}
+             * Depreciation Rate
+             * @default 0.005
              */
-            task_type: "development" | "support";
+            depreciation_rate: number;
+            /** Initial Value */
+            initial_value: number;
             /**
              * Is Rework
              * @default false
              */
             is_rework: boolean;
+            /** Story Points */
+            story_points: number;
+            /** Task Name */
+            task_name?: string | null;
+            /**
+             * Task Type
+             * @default development
+             * @enum {string}
+             */
+            task_type: "development" | "support";
         };
         /** TaskSet */
         TaskSet: {
+            /** Content Hash */
+            content_hash: string;
+            /**
+             * Generator Version
+             * @default 1
+             */
+            generator_version: string;
             /**
              * Id
              * Format: uuid
@@ -926,69 +933,62 @@ export interface components {
              */
             revision: number;
             spec: components["schemas"]["TaskSetSpec-Output"];
-            /** Content Hash */
-            content_hash: string;
             /** Tasks */
             tasks: components["schemas"]["TaskInput"][];
-            /**
-             * Generator Version
-             * @default 1
-             */
-            generator_version: string;
         };
         /** TaskSetSpec */
         "TaskSetSpec-Input": {
             /**
-             * Name
-             * @default Task set
-             */
-            name: string;
-            /**
              * Count
              * @default 500
              */
             count: number;
-            /** Story Points */
-            story_points?: components["schemas"]["ConstantValue-Input"] | components["schemas"]["UniformValue-Input"];
-            /** Initial Value */
-            initial_value?: components["schemas"]["ConstantValue-Input"] | components["schemas"]["UniformValue-Input"];
             /**
              * Depreciation Rate
              * @default 0.02
              */
             depreciation_rate: number;
+            /** Initial Value */
+            initial_value?: components["schemas"]["ConstantValue-Input"] | components["schemas"]["UniformValue-Input"];
+            /**
+             * Name
+             * @default Task set
+             */
+            name: string;
             /**
              * Seed
              * @default 42
              */
             seed: number;
+            /** Story Points */
+            story_points?: components["schemas"]["ConstantValue-Input"] | components["schemas"]["UniformValue-Input"];
         };
         /** TaskSetSpec */
         "TaskSetSpec-Output": {
             /**
-             * Name
-             * @default Task set
-             */
-            name: string;
-            /**
              * Count
              * @default 500
              */
             count: number;
-            /** Story Points */
-            story_points: components["schemas"]["ConstantValue-Output"] | components["schemas"]["UniformValue-Output"];
-            /** Initial Value */
-            initial_value: components["schemas"]["ConstantValue-Output"] | components["schemas"]["UniformValue-Output"];
             /**
              * Depreciation Rate
              * @default 0.02
              */
             depreciation_rate: number;
+            /** Initial Value */
+            initial_value: components["schemas"]["ConstantValue-Output"] | components["schemas"]["UniformValue-Output"];
+            /**
+             * Name
+             * @default Task set
+             */
+            name: string;
             /**
              * Seed
              * @default 42
              */
             seed: number;
+            /** Story Points */
+            story_points: components["schemas"]["ConstantValue-Output"] | components["schemas"]["UniformValue-Output"];
         };
         /** ToolchainInput */
         ToolchainInput: {
@@ -1036,10 +1036,10 @@ export interface components {
              * @enum {string}
              */
             kind: "uniform";
-            /** Minimum */
-            minimum: number;
             /** Maximum */
             maximum: number;
+            /** Minimum */
+            minimum: number;
         };
         /** UniformValue */
         "UniformValue-Output": {
@@ -1048,36 +1048,36 @@ export interface components {
              * @enum {string}
              */
             kind: "uniform";
-            /** Minimum */
-            minimum: number;
             /** Maximum */
             maximum: number;
+            /** Minimum */
+            minimum: number;
         };
         /** Workspace */
         Workspace: {
+            /** Baseline Id */
+            baseline_id: string | null;
+            /** Current Task Set */
+            current_task_set: string | null;
+            /** Definitions */
+            definitions: components["schemas"]["ScenarioDefinition-Output"][];
             /**
              * Id
              * Format: uuid
              */
             id: string;
+            /** Latest Id */
+            latest_id: string | null;
             /**
              * Revision
              * @default 0
              */
             revision: number;
-            task_spec: components["schemas"]["TaskSetSpec-Output"];
-            /** Definitions */
-            definitions: components["schemas"]["ScenarioDefinition-Output"][];
-            /** Task Sets */
-            task_sets: components["schemas"]["TaskSet"][];
-            /** Current Task Set */
-            current_task_set: string | null;
-            /** Baseline Id */
-            baseline_id: string | null;
-            /** Latest Id */
-            latest_id: string | null;
             /** Runs */
             runs: components["schemas"]["RunStatus"][];
+            /** Task Sets */
+            task_sets: components["schemas"]["TaskSet"][];
+            task_spec: components["schemas"]["TaskSetSpec-Output"];
         };
     };
     responses: never;
@@ -1088,118 +1088,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    health_health_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HealthResponse"];
-                };
-            };
-        };
-    };
-    ready_ready_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HealthResponse"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Conflict */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Request Entity Too Large */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Entity */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Bad Gateway */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Service Unavailable */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
     config_api_v1_config_get: {
         parameters: {
             query?: never;
@@ -1690,101 +1578,6 @@ export interface operations {
             };
         };
     };
-    delete_task_set_api_v1_workspaces__workspace_id__task_sets__task_set_id__delete: {
-        parameters: {
-            query: {
-                expected_revision: number;
-            };
-            header?: never;
-            path: {
-                workspace_id: string;
-                task_set_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Conflict */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Request Entity Too Large */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Entity */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Bad Gateway */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Service Unavailable */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
     start_run_api_v1_workspaces__workspace_id__runs_post: {
         parameters: {
             query?: never;
@@ -1888,8 +1681,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                workspace_id: string;
                 run_id: string;
+                workspace_id: string;
             };
             cookie?: never;
         };
@@ -1983,8 +1776,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                workspace_id: string;
                 run_id: string;
+                workspace_id: string;
             };
             cookie?: never;
         };
@@ -2073,205 +1866,13 @@ export interface operations {
             };
         };
     };
-    outcomes_api_v1_workspaces__workspace_id__runs__run_id__outcomes_get: {
-        parameters: {
-            query?: {
-                after?: number;
-            };
-            header?: never;
-            path: {
-                workspace_id: string;
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OutcomeSummary"][];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Conflict */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Request Entity Too Large */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Entity */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Bad Gateway */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Service Unavailable */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    resume_api_v1_workspaces__workspace_id__runs__run_id__resume_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspace_id: string;
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RunStatus"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Conflict */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Request Entity Too Large */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Entity */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Bad Gateway */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Service Unavailable */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
     comparison_api_v1_workspaces__workspace_id__runs__run_id__comparison_post: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                workspace_id: string;
                 run_id: string;
+                workspace_id: string;
             };
             cookie?: never;
         };
@@ -2364,14 +1965,208 @@ export interface operations {
             };
         };
     };
+    export_api_v1_workspaces__workspace_id__runs__run_id__exports__kind__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kind: string;
+                run_id: string;
+                workspace_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "text/csv": unknown;
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Request Entity Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    outcomes_api_v1_workspaces__workspace_id__runs__run_id__outcomes_get: {
+        parameters: {
+            query?: {
+                after?: number;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+                workspace_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutcomeSummary"][];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Request Entity Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     result_api_v1_workspaces__workspace_id__runs__run_id__results__scenario_id__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                workspace_id: string;
                 run_id: string;
                 scenario_id: string;
+                workspace_id: string;
             };
             cookie?: never;
         };
@@ -2460,14 +2255,13 @@ export interface operations {
             };
         };
     };
-    export_api_v1_workspaces__workspace_id__runs__run_id__exports__kind__get: {
+    resume_api_v1_workspaces__workspace_id__runs__run_id__resume_post: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                workspace_id: string;
                 run_id: string;
-                kind: string;
+                workspace_id: string;
             };
             cookie?: never;
         };
@@ -2479,8 +2273,214 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
-                    "text/csv": unknown;
+                    "application/json": components["schemas"]["RunStatus"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Request Entity Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    delete_task_set_api_v1_workspaces__workspace_id__task_sets__task_set_id__delete: {
+        parameters: {
+            query: {
+                expected_revision: number;
+            };
+            header?: never;
+            path: {
+                task_set_id: string;
+                workspace_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Request Entity Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    health_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    ready_ready_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthResponse"];
                 };
             };
             /** @description Not Found */

@@ -9,7 +9,7 @@
     "typecheck": "tsc -b",
     "test": "vitest",
     "test:e2e": "playwright test",
-    "generate:api": "openapi-typescript ../openapi.json -o src/api.generated.ts"
+    "generate:api": "openapi-typescript ../openapi.json --alphabetize -o src/api.generated.ts"
   },
   "dependencies": {
     "plotly.js": "4.1.1",
