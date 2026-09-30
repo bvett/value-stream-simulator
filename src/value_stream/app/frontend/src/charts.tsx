@@ -191,7 +191,8 @@ export function Charts({
   let traces: Data[] = [];
   let xTitle = "",
     yTitle = "",
-    note = "";
+    note = "",
+    yType = "-";
   if (tab < 2) {
     const axis = tab === 0 ? "team_size" : "deployment_cadence";
     traces = summaryTraces(runs, axis);
@@ -265,6 +266,7 @@ export function Charts({
     );
     xTitle = "Simulation time";
     yTitle = "Waiting resource requests";
+    yType = "log";
     note =
       "Requests may contain batches of tasks. This excludes waiting for a deployment interval before requesting a resource.";
     if (details.some((d) => d.view.metrics.backlog.some((b) => b.reduced)))
@@ -295,6 +297,7 @@ export function Charts({
       gridcolor: "#edf1ec",
       rangemode: "tozero",
       automargin: true,
+      type: yType,
     },
     legend: { orientation: "h", y: -0.28, font: { size: 11 } },
     barmode: tab === 3 ? "stack" : "group",
