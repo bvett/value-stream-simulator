@@ -93,7 +93,7 @@ jobs:
       run: |
         uv run python -m value_stream.app.contracts
         npm run generate:api --prefix src/value_stream/app/frontend
-        git diff --exit-code -- src/value_stream/service/openapi.json src/value_stream/app/frontend/src/api.generated.ts
+        git diff --exit-code -- src/value_stream/app/openapi.json src/value_stream/service/openapi.json src/value_stream/app/frontend/src/api.generated.ts
     - run: npm run typecheck --prefix src/value_stream/app/frontend
     - run: npm test --prefix src/value_stream/app/frontend -- --run
     - run: npm run build --prefix src/value_stream/app/frontend
