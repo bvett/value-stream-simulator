@@ -175,3 +175,10 @@ cython_debug/
 experiments.ipynb
 src/doc/er.md
 src/value_stream/Notes.md
+
+# Application frontend builds and browser test output
+src/value_stream/app/frontend/node_modules/
+src/value_stream/app/frontend/*.tsbuildinfo
+src/value_stream/app/static/
+src/value_stream/app/frontend/test-results/
+src/value_stream/app/frontend/playwright-report/

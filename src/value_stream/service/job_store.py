@@ -7,7 +7,15 @@ from dataclasses import dataclass, field
 from typing import Protocol
 from uuid import UUID
 
-from .schemas import JobState, JobStatus, ModelError, OutcomeData, OutcomePage, ResultData
+from .schemas import (
+    JobState,
+    JobStatus,
+    ModelError,
+    OutcomeData,
+    OutcomePage,
+    ResultData,
+    Status
+)
 from .settings import ServiceSettings
 
 
@@ -19,13 +27,24 @@ class CapacityExceeded(Exception):
     pass
 
 
+class SubmissionConflict(Exception):
+    pass
+
+
 class JobStorage(Protocol):
     def create(self, model_count: int) -> UUID: ...
+    def reserve(
+        self, model_count: int, submission_id: UUID | None, fingerprint: str
+    ) -> tuple[UUID, bool]: ...
     def status(self, job_id: UUID) -> JobStatus: ...
     def page(self, job_id: UUID, after: int) -> OutcomePage: ...
     def start_model(self, job_id: UUID, index: int) -> bool: ...
     def finish_model(
-        self, job_id: UUID, index: int, result: ResultData | None, error: ModelError | None
+        self,
+        job_id: UUID,
+        index: int,
+        result: ResultData | None,
+        error: ModelError | None,
     ) -> None: ...
     def cancel(self, job_id: UUID) -> None: ...
 
@@ -46,6 +65,7 @@ class InMemoryJobStore:
         self.settings = settings
         self._jobs: dict[UUID, _Job] = {}
         self._lock = threading.RLock()
+        self._submissions: dict[UUID, tuple[str, UUID]] = {}
 
     def _prune(self):
         now = time.monotonic()
@@ -57,6 +77,11 @@ class InMemoryJobStore:
         ]
         for job_id in expired:
             del self._jobs[job_id]
+        self._submissions = {
+            key: value
+            for key, value in self._submissions.items()
+            if value[1] in self._jobs
+        }
 
     def _get(self, job_id: UUID) -> _Job:
         self._prune()
@@ -75,7 +100,8 @@ class InMemoryJobStore:
             if (
                 len(self._jobs) >= self.settings.max_retained_jobs
                 or self._retained_bytes() >= self.settings.max_retained_bytes
-                or nonterminal >= self.settings.max_active_jobs + self.settings.max_queued_jobs
+                or nonterminal
+                >= self.settings.max_active_jobs + self.settings.max_queued_jobs
             ):
                 raise CapacityExceeded("job capacity is full")
             job_id = uuid.uuid4()
@@ -86,12 +112,30 @@ class InMemoryJobStore:
             )
             return job_id
 
+    def reserve(
+        self, model_count: int, submission_id: UUID | None, fingerprint: str
+    ) -> tuple[UUID, bool]:
+        with self._lock:
+            self._prune()
+            if submission_id is not None and submission_id in self._submissions:
+                previous, job_id = self._submissions[submission_id]
+                if previous != fingerprint:
+                    raise SubmissionConflict(
+                        "submission ID already used for different inputs"
+                    )
+                return job_id, False
+            job_id = self.create(model_count)
+            if submission_id is not None:
+                self._submissions[submission_id] = (fingerprint, job_id)
+            return job_id, True
+
     def status(self, job_id: UUID) -> JobStatus:
         with self._lock:
             job = self._get(job_id)
-            counts = {state: job.states.count(state) for state in (
-                "queued", "running", "succeeded", "failed", "cancelled"
-            )}
+            counts = {
+                state: job.states.count(state)
+                for state in ("queued", "running", "succeeded", "failed", "cancelled")
+            }
             return JobStatus(
                 job_id=job_id,
                 status=job.status,
@@ -128,7 +172,11 @@ class InMemoryJobStore:
             job.terminal_at = time.monotonic()
 
     def finish_model(
-        self, job_id: UUID, index: int, result: ResultData | None, error: ModelError | None
+        self,
+        job_id: UUID,
+        index: int,
+        result: ResultData | None,
+        error: ModelError | None,
     ) -> None:
         with self._lock:
             job = self._get(job_id)
@@ -151,9 +199,11 @@ class InMemoryJobStore:
                     job.result_bytes += size
             if result is None and error is None:
                 error = ModelError(
-                    model_index=index, code="WORKER_FAILED", message="model worker failed"
+                    model_index=index,
+                    code="WORKER_FAILED",
+                    message="model worker failed",
                 )
-            state = "succeeded" if result is not None else "failed"
+            state = Status.SUCCEEDED if result is not None else Status.FAILED
             job.states[index] = state
             job.outcomes.append(
                 OutcomeData(
@@ -179,7 +229,7 @@ class InMemoryJobStore:
                         OutcomeData(
                             cursor=len(job.outcomes) + 1,
                             model_index=index,
-                            status="cancelled",
+                            status=Status.CANCELLED,
                         )
                     )
             job.terminal_at = time.monotonic()

@@ -1,0 +1,219 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Studio: Setup",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Studio: Install Python package",
+                "Studio: Install frontend"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Studio: Install Python package",
+            "type": "process",
+            "command": "${command:python.interpreterPath}",
+            "args": [
+                "-m",
+                "pip",
+                "install",
+                "-e",
+                "."
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Studio: Install frontend",
+            "type": "shell",
+            "command": "npm",
+            "args": [
+                "ci"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/value_stream/app/frontend"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Studio: Frontend",
+            "type": "shell",
+            "command": "npm",
+            "args": [
+                "run",
+                "dev",
+                "--",
+                "--clearScreen",
+                "false"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/value_stream/app/frontend",
+                "env": {
+                    "NO_COLOR": "1"
+                }
+            },
+            "problemMatcher": {
+                "owner": "studio-vite",
+                "pattern": {
+                    "regexp": "^(?!)$",
+                    "file": 1,
+                    "message": 2
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "VITE v",
+                    "endsPattern": "Local:\\s+http://127\\.0\\.0\\.1:5173/"
+                }
+            },
+            "isBackground": true,
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "group": "studio"
+            },
+            "runOptions": {
+                "instanceLimit": 1
+            }
+        },
+        {
+            "label": "Studio: API (reload)",
+            "type": "process",
+            "command": "${command:python.interpreterPath}",
+            "args": [
+                "-m",
+                "uvicorn",
+                "value_stream.app.server:create_app",
+                "--factory",
+                "--host",
+                "127.0.0.1",
+                "--port",
+                "8081",
+                "--no-use-colors",
+                "--reload",
+                "--reload-dir",
+                "src/value_stream"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "PYTHONUNBUFFERED": "1"
+                }
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "studio-api",
+                "pattern": {
+                    "regexp": "^(?!)$",
+                    "file": 1,
+                    "message": 2
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Started reloader process",
+                    "endsPattern": "Application startup complete\\."
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "group": "studio"
+            },
+            "runOptions": {
+                "instanceLimit": 1
+            }
+        },
+        {
+            "label": "Studio: Run (hot reload)",
+            "dependsOrder": "parallel",
+            "dependsOn": [
+                "Studio: Frontend",
+                "Studio: API (reload)"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Studio: Build frontend",
+            "type": "shell",
+            "command": "npm",
+            "args": [
+                "run",
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/value_stream/app/frontend"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Studio: Typecheck",
+            "type": "shell",
+            "command": "npm",
+            "args": [
+                "run",
+                "typecheck"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/value_stream/app/frontend"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Studio: Unit tests",
+            "type": "shell",
+            "command": "npm",
+            "args": [
+                "test",
+                "--",
+                "--run"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/value_stream/app/frontend"
+            },
+            "problemMatcher": [],
+            "group": "test"
+        },
+        {
+            "label": "Studio: Install test browser",
+            "type": "shell",
+            "command": "npm",
+            "args": [
+                "exec",
+                "--",
+                "playwright",
+                "install",
+                "chromium"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/value_stream/app/frontend"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Studio: Browser tests",
+            "type": "shell",
+            "command": "npm",
+            "args": [
+                "run",
+                "test:e2e"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/value_stream/app/frontend",
+                "env": {
+                    "VALUE_STREAM_TEST_PYTHON": "${command:python.interpreterPath}"
+                }
+            },
+            "problemMatcher": [],
+            "dependsOn": [
+                "Studio: Build frontend"
+            ],
+            "group": "test"
+        }
+    ]
+}
