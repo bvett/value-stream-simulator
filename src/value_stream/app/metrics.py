@@ -25,7 +25,8 @@ def loss_percent(initial, delivered):
     return 100 * (initial - delivered) / initial if initial else None
 
 
-def reduce_points(points, limit=5000):
+# thin out by chunking and returning start, end, min and max from each chunk
+def reduce_points(points : list[tuple[float, int]], limit=5000):
     if len(points) <= limit:
         return points
     width = max(1, (len(points) + limit // 4 - 1) // (limit // 4))
@@ -42,17 +43,24 @@ def reduce_points(points, limit=5000):
     return result
 
 
-def plot_data(result:ResultData, initial):
-    events = defaultdict(list)
-    durations = defaultdict(lambda: dict.fromkeys(CATEGORIES, 0.0))
-    waiting = defaultdict(lambda: defaultdict(int))
+def plot_data(result:ResultData, initial) -> PlotData:
+    events : dict[str, list[float]] = defaultdict(list)
+    durations : dict[str, dict[str, float]] = defaultdict(lambda: dict.fromkeys(CATEGORIES, 0.0))
+    waiting : dict[str, dict[float, int]] = defaultdict(lambda: defaultdict(int))
+    
+    # summarize loss by event (workflow state)
     for event in result.metadata.event_metadata:
         if event.event_type == "end" and event.task_type == "development":
             events[event.event].append(-100 * event.loss)
+
     for record in result.metadata.resource_metadata:
+        # track incremental increase/decrease in waiting resources by workflow state
         waiting[record.state][record.time] += record.waiting
+        
+        # summarize time spent by resource in each time category
         for key in CATEGORIES:
             durations[record.state][key] += getattr(record, key) or 0
+
     stages, activity, backlog = [], [], []
     for stage in dict.fromkeys([*STAGES, *events, *durations]):
         label = STAGES.get(stage, stage)
