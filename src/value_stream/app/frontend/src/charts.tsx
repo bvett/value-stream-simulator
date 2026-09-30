@@ -191,8 +191,10 @@ export function Charts({
   let traces: Data[] = [];
   let xTitle = "",
     yTitle = "",
-    note = "",
-    yType = "-";
+    note = "";
+
+  const yType = "-";
+
   if (tab < 2) {
     const axis = tab === 0 ? "team_size" : "deployment_cadence";
     traces = summaryTraces(runs, axis);
@@ -266,7 +268,7 @@ export function Charts({
     );
     xTitle = "Simulation time";
     yTitle = "Waiting resource requests";
-    yType = "log";
+
     note =
       "Requests may contain batches of tasks. This excludes waiting for a deployment interval before requesting a resource.";
     if (details.some((d) => d.view.metrics.backlog.some((b) => b.reduced)))
