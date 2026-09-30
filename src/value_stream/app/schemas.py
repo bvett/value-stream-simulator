@@ -1,6 +1,5 @@
 """Versioned browser/application wire contract."""
 
-from enum import StrEnum
 from typing import Annotated, Literal
 from uuid import UUID, uuid4
 from pydantic import ConfigDict, Field, FiniteFloat, model_validator
@@ -43,10 +42,10 @@ ValueSpec = Annotated[ConstantValue | UniformValue, Field(discriminator="kind")]
 
 class TaskSetSpec(AppModel):
     name: str = Field(default="Task set", min_length=1, max_length=120)
-    count: int = Field(default=100, gt=0)
-    story_points: ValueSpec = Field(default_factory=ConstantValue)
+    count: int = Field(default=500, gt=0)
+    story_points: ValueSpec = Field(UniformValue(minimum=.5, maximum=2))
     initial_value: ValueSpec = Field(default_factory=ConstantValue)
-    depreciation_rate: FiniteFloat = Field(default=0.005, ge=0, le=1)
+    depreciation_rate: FiniteFloat = Field(default=0.02, ge=0, le=1)
     seed: int = Field(default=42, ge=0, le=2**53 - 1)
 
 
@@ -56,15 +55,15 @@ class ModelSettings(AppModel):
     efficiency_max: FiniteFloat = Field(default=1.5, gt=0)
     distribution: Literal["linear", "normal"] = "linear"
     deployment_cadence: int = Field(default=5, ge=0)
-    qa_size: int = Field(default=2, gt=0)
+    qa_size: int = Field(default=5, gt=0)
     qa_time_cost: FiniteFloat = Field(default=0.1, ge=0)
-    qa_failure_rate: FiniteFloat = Field(default=0, ge=0, le=1)
-    qa_failure_cost: FiniteFloat = Field(default=0, ge=0, le=1)
-    toolchain_size: int = Field(default=1, gt=0)
+    qa_failure_rate: FiniteFloat = Field(default=0.15, ge=0, le=1)
+    qa_failure_cost: FiniteFloat = Field(default=0.25, ge=0, le=1)
+    toolchain_size: int = Field(default=20, gt=0)
     deployment_duration: FiniteFloat = Field(default=0.25, ge=0)
-    deployment_failure_rate: FiniteFloat = Field(default=0, ge=0, le=1)
-    support_interval: FiniteFloat | None = Field(default=None, gt=0)
-    support_task_story_points: FiniteFloat = Field(default=1, ge=0)
+    deployment_failure_rate: FiniteFloat = Field(default=0.1, ge=0, le=1)
+    support_interval: FiniteFloat | None = Field(default=5, gt=0)
+    support_task_story_points: FiniteFloat = Field(default=2, ge=0)
 
     @model_validator(mode="after")
     def ordered(self):
@@ -184,7 +183,7 @@ class Workspace(AppModel):
     revision: int = 0
     task_spec: TaskSetSpec = Field(default_factory=TaskSetSpec)
     definitions: list[ScenarioDefinition] = Field(
-        default_factory=lambda: [ScenarioDefinition(sweeps={"team_size": [2, 4, 6]})]
+        default_factory=lambda: [ScenarioDefinition(sweeps={"team_size": [1, 13, 25], "deployment_cadence": [0, 5, 10]})]
     )
     task_sets: list[TaskSet] = Field(default_factory=list)
     current_task_set: UUID | None = None
