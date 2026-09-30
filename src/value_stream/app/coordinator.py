@@ -33,7 +33,8 @@ class RunCoordinator:
         if request.intent == "interactive":
             if (
                 request.source_run_id is None
-                or request.property not in ModelSettings.model_fields
+                or request.property is None
+                or request.property not in ModelSettings.model_fields.keys()
             ):
                 raise AppError(
                     "INVALID_INPUT", "Choose a source comparison and a model property"
