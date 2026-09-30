@@ -84,7 +84,7 @@ jobs:
         enable-cache: true
     - uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: '24'
         cache: npm
         cache-dependency-path: src/value_stream/app/frontend/package-lock.json
     - run: uv sync --locked --all-extras --dev
