@@ -193,8 +193,6 @@ export function Charts({
     yTitle = "",
     note = "";
 
-  const yType = "-";
-
   if (tab < 2) {
     const axis = tab === 0 ? "team_size" : "deployment_cadence";
     traces = summaryTraces(runs, axis);
@@ -299,7 +297,7 @@ export function Charts({
       gridcolor: "#edf1ec",
       rangemode: "tozero",
       automargin: true,
-      type: yType,
+      type: tab === 4 ? "log" : "-",
     },
     legend: { orientation: "h", y: -0.28, font: { size: 11 } },
     barmode: tab === 3 ? "stack" : "group",
