@@ -48,7 +48,7 @@ class Resource(ABC, BaseModel):
                 task_router: TaskRouter,
                 policy: ResourcePolicy,
                 workflow_state: TaskState,
-                tracker: Optional[ResourceTracker] = None):
+                tracker: ResourceTracker):
         """Simulates an action on a task object"""
 
         for task in tasks:
@@ -68,9 +68,9 @@ class Resource(ABC, BaseModel):
 
             start_t = env.now
             try:
-                if tracker is not None:
-                    tracker.start_work(
-                        workflow_state, env.now-self._idle_t)
+
+                tracker.start_work(
+                    workflow_state, env.now-self._idle_t)
                 yield self._process
 
                 if self._process.value is not None:
@@ -83,19 +83,19 @@ class Resource(ABC, BaseModel):
                 # subsequent interruptions
 
                 interruption_start_t = env.now
-                if tracker is not None:
-                    tracker.complete_work(
-                        workflow_state, status, elapsed_t=env.now-start_t)
+
+                tracker.complete_work(
+                    workflow_state, status, elapsed_t=env.now-start_t)
+
                 yield env.process(self._pause(env))
-                if tracker is not None:
-                    tracker.interruption(
-                        workflow_state, elapsed_t=env.now - interruption_start_t)
+
+                tracker.interruption(
+                    workflow_state, elapsed_t=env.now - interruption_start_t)
 
                 continue
 
-            if tracker is not None:
-                tracker.complete_work(
-                    workflow_state, status, elapsed_t=env.now-start_t)
+            tracker.complete_work(
+                workflow_state, status, elapsed_t=env.now-start_t)
             self._idle_t = env.now
 
             for task in tasks:

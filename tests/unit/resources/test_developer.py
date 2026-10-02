@@ -2,7 +2,7 @@ import unittest
 from pydantic import ValidationError
 from simpy import Environment
 from value_stream.workflow import SDLCWorkflow
-from value_stream.resources import Developer, ResourceTracker
+from value_stream.resources import Developer, NoOpResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.factory import TaskFactory
 from value_stream.task import SupportTask, Task, DefaultRouter, TypeRouter
@@ -23,7 +23,7 @@ class TestDeveloper(unittest.TestCase, TestUtils):
             task_name="complex", initial_value=1, story_points=2)
         self.policy = DefaultSimulationPolicy()
         self.env = Environment()
-        self.tracker = ResourceTracker(self.env)
+        self.tracker = NoOpResourceTracker()
 
     def test_validation(self):
 

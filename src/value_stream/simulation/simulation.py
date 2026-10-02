@@ -5,7 +5,7 @@ from simpy.events import AllOf
 
 
 from value_stream.policy import SimulationPolicy
-from value_stream.resources import ResourceTracker
+from value_stream.resources import InMemoryResourceTracker
 from value_stream.task import Task, TaskEvent
 from value_stream.workflow import ResourceOperator, SDLCWorkflow, SupportWorkflow, TaskStore
 
@@ -33,7 +33,7 @@ class Simulation:
         sdlc_workflow = SDLCWorkflow()
         support_workflow = SupportWorkflow(
             story_points=model.support_task_story_points)
-        tracker = ResourceTracker(env)
+        tracker = InMemoryResourceTracker(env)
 
         developer_manager = ResourceOperator(
             env, model.developer_team,

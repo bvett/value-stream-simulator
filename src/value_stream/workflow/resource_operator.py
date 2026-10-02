@@ -4,7 +4,7 @@ from simpy import Environment, Interrupt, Process
 from simpy.resources.store import StoreGet
 
 from value_stream.task import TaskState
-from value_stream.resources import Resource, ResourceTracker, ResourcePolicy
+from value_stream.resources import Resource, NoOpResourceTracker, ResourceTracker, ResourcePolicy
 from value_stream.task import Task, TaskRouter
 
 from .pool_manager import PoolManager
@@ -20,7 +20,7 @@ class ResourceOperator:
                  resources: Iterable[Resource],
                  workflow_policy: WorkflowPolicy,
                  resource_policy: ResourcePolicy,
-                 tracker: Optional[ResourceTracker] = None,
+                 tracker: ResourceTracker = NoOpResourceTracker(),
                  cadence: int = 0):
         self.env = env
         self._queue: list[Task] = []
@@ -146,8 +146,7 @@ class ResourceOperator:
 
         wait_t = self.env.now
 
-        if self._tracker is not None:
-            self._tracker.start_waiting(workflow_state)
+        self._tracker.start_waiting(workflow_state)
 
         r = self.pool_manager.request(workflow_state, tasks=tasks)
 
@@ -156,8 +155,7 @@ class ResourceOperator:
         else:
             resource = r
 
-        if self._tracker is not None:
-            self._tracker.complete_waiting(workflow_state,
+        self._tracker.complete_waiting(workflow_state,
                                            self.env.now - wait_t)
 
         for task in tasks:

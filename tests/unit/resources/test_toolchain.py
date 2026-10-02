@@ -1,7 +1,7 @@
 import unittest
 from simpy import Environment, Store
 from value_stream.workflow import SDLCWorkflow
-from value_stream.resources import Toolchain, ResourceTracker
+from value_stream.resources import Toolchain, NoOpResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.factory import TaskFactory
 from value_stream.task import EventStatus, Task, DefaultRouter
@@ -11,7 +11,7 @@ class TestToolchain(unittest.TestCase):
 
     def setUp(self):
         self.env = Environment()
-        self.tracker = ResourceTracker(self.env)
+        self.tracker = NoOpResourceTracker()
 
         self.tasks: list[Task] = TaskFactory(
             initial_value=1,

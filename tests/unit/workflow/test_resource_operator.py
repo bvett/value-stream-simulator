@@ -3,7 +3,7 @@ import unittest
 from simpy import Environment
 
 from value_stream.workflow import SDLCWorkflow
-from value_stream.resources import ResourceTracker
+from value_stream.resources import NoOpResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.factory import DeveloperFactory, TaskFactory
 from value_stream.task import DefaultRouter, Task
@@ -13,7 +13,7 @@ from value_stream.workflow import ResourceOperator, TaskStore
 class TestResourceOperator(unittest.TestCase):
     def setUp(self):
         self.env = Environment()
-        self.tracker = ResourceTracker(self.env)
+        self.tracker = NoOpResourceTracker()
 
         self.resources = DeveloperFactory.create(3)
         self.workflow_state = SDLCWorkflow.WorkflowState.DEVELOPMENT

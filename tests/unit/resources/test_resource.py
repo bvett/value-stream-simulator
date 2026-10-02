@@ -3,7 +3,7 @@ import unittest
 from simpy import Environment, Store
 
 from value_stream.workflow import SDLCWorkflow
-from value_stream.resources import Resource, ResourceTracker
+from value_stream.resources import Resource, NoOpResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import EventStatus, Task, StatusRouter
 
@@ -12,7 +12,7 @@ class TestResource(unittest.TestCase):
     def setUp(self):
         self.task = Task(initial_value=2.0, story_points=1.0)
         self.env = Environment()
-        self.tracker = ResourceTracker(self.env)
+        self.tracker = NoOpResourceTracker()
         self.target = Store(self.env)
         self.target_for_failures = Store(self.env)
 

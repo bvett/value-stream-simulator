@@ -5,7 +5,7 @@ from simpy.resources.store import StoreGet
 
 
 from value_stream.workflow import SDLCWorkflow
-from value_stream.resources import QATester, Resource, ResourceTracker
+from value_stream.resources import QATester, Resource, NoOpResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import Task, TaskRouter, DefaultRouter
 from value_stream.workflow import PoolManager
@@ -15,7 +15,7 @@ class TestQAManager(unittest.TestCase):
 
     def setUp(self):
         self.env = Environment()
-        self.tracker = ResourceTracker(self.env)
+        self.tracker = NoOpResourceTracker()
 
         self.complexities = [1.0, 3.0]
         self.tasks: list[Task] = []

@@ -19,7 +19,7 @@ class PoolManager:
         env: Environment,
         resources: Iterator[Resource],
         policy: WorkflowPolicy,
-        tracker: Optional[ResourceTracker] = None,
+        tracker: ResourceTracker,
     ):
 
         self.policy = policy
@@ -46,9 +46,7 @@ class PoolManager:
         match strategy:
             case AssignmentStrategy.CYCLIC:
                 resource = next(self._cyclic_support_delegator)
-                if (resource not in self._registered_resources) and (
-                    self._tracker is not None
-                ):
+                if (resource not in self._registered_resources):
                     self._tracker.register(workflow_state)
                     self._registered_resources[resource] = None
 
@@ -66,9 +64,7 @@ class PoolManager:
                         self._resources_as_list.extend(list(self.resources))
                     resource = random.choice(self._resources_as_list)
 
-                if (resource not in self._registered_resources) and (
-                    self._tracker is not None
-                ):
+                if (resource not in self._registered_resources):
                     self._tracker.register(workflow_state)
                     self._registered_resources[resource] = None
 
@@ -95,9 +91,7 @@ class PoolManager:
                 resource.idle_t = self._env.now
                 self._resource_pool.put(resource)
 
-                if (resource not in self._registered_resources) and (
-                    self._tracker is not None
-                ):
+                if (resource not in self._registered_resources) :
                     self._tracker.register(workflow_state)
                     self._registered_resources[resource] = None
 

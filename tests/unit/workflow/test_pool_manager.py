@@ -7,7 +7,7 @@ from simpy.resources.store import StoreGet
 
 from value_stream.factory import TaskFactory
 from value_stream.task import Task, TaskState, SupportTask, TaskType
-from value_stream.resources import Resource, ResourceTracker, Toolchain
+from value_stream.resources import Resource, InMemoryResourceTracker, Toolchain
 from value_stream.workflow import AssignmentStrategy, WorkflowPolicy, PoolManager
 
 # pylint: disable=W0212
@@ -62,7 +62,7 @@ class TestPoolManager(unittest.TestCase):
     def setUp(self):
         self.env = Environment()
 
-        self.tracker = ResourceTracker(self.env)
+        self.tracker = InMemoryResourceTracker(self.env)
 
         num_resources = 5
         self.resources: list[Resource] = []

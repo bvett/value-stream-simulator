@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Optional
 import unittest
 from simpy import Environment
-from value_stream.resources import ResourceTracker, ResourceMetadata
+from value_stream.resources import InMemoryResourceTracker, ResourceMetadata
 from value_stream.task import TaskState, EventStatus
 
 
@@ -17,10 +17,10 @@ class TestResourceTracker(unittest.TestCase):
     def setUp(self):
         self.start_sim_t = 100
         self.env = Environment(initial_time=self.start_sim_t)
-        self.tracker = ResourceTracker(self.env)
+        self.tracker = InMemoryResourceTracker(self.env)
 
     @classmethod
-    def summarize(cls, tracker: ResourceTracker):
+    def summarize(cls, tracker: InMemoryResourceTracker):
         result: dict[TaskState, ResourceMetadata] = {}
 
         def add(x: Optional[float], y: Optional[float]) -> Optional[float]:

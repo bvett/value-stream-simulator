@@ -3,7 +3,7 @@ import unittest
 from simpy import Environment, Store
 
 from value_stream.workflow import SDLCWorkflow
-from value_stream.resources import QATester, ResourceTracker
+from value_stream.resources import QATester, NoOpResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.factory import TaskFactory
 from value_stream.task import EventStatus, Task, DefaultRouter
@@ -18,7 +18,7 @@ class TestQATester(unittest.TestCase):
                                              story_points=(x for x in range(2, 8, 2))).create(3)
 
         self.env = Environment()
-        self.tracker = ResourceTracker(self.env)
+        self.tracker = NoOpResourceTracker()
 
         self.target = Store(self.env)
         self.task_router = DefaultRouter(self.target)

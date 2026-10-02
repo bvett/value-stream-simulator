@@ -5,7 +5,7 @@ from simpy import Environment, Store
 
 from value_stream.workflow import SDLCWorkflow
 from value_stream.task import EventStatus, Task, TaskEvent, TaskHistory
-from value_stream.resources import Toolchain, ResourceTracker
+from value_stream.resources import Toolchain, NoOpResourceTracker
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.task import DefaultRouter
 from value_stream.workflow import ResourceOperator, TaskStore, TerminalTaskStore
@@ -19,7 +19,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
 
     def setUp(self):
         self.env = Environment()
-        self.tracker = ResourceTracker(self.env)
+        self.tracker = NoOpResourceTracker()
         self.source = TaskStore(
             self.env, SDLCWorkflow.WorkflowState.DEV_COMPLETE)
         self.workflow_state = SDLCWorkflow.WorkflowState.DEPLOYMENT

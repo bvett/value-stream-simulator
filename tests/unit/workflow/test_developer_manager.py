@@ -1,7 +1,7 @@
 import unittest
 from simpy import Environment, Store
 from value_stream.workflow import SDLCWorkflow
-from value_stream.resources import Developer, ResourceTracker
+from value_stream.resources import Developer, NoOpResourceTracker
 from value_stream.task import Task, DefaultRouter
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.workflow import ResourceOperator, TaskStore
@@ -14,7 +14,7 @@ class TestDeveloperManager(unittest.TestCase):
 
     def setUp(self):
         self.env = Environment()
-        self.tracker = ResourceTracker(self.env)
+        self.tracker = NoOpResourceTracker()
         self.source = TaskStore(self.env, SDLCWorkflow.WorkflowState.PENDING)
         self.workflow_state = SDLCWorkflow.WorkflowState.DEVELOPMENT
         self.target = TaskStore(
