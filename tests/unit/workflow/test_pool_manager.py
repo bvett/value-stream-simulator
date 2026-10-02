@@ -144,7 +144,7 @@ class TestPoolManager(unittest.TestCase):
 
             for _ in range(batch_size):
                 resource: Resource = manager.request(
-                    self.state, self.tasks)  # type:ignore
+                    self.state, self.tasks)   # pyright: ignore[reportAssignmentType]
                 self.assertTrue(isinstance(resource, Resource))
                 resources.append(resource)
 
@@ -184,11 +184,11 @@ class TestPoolManager(unittest.TestCase):
                 request = manager.request(self.state, self.tasks)
                 self.assertTrue(isinstance(request, StoreGet))
                 try:
-                    resource = yield request  # type:ignore
+                    resource = yield request   # pyright: ignore[reportReturnType]
                     if result is not None:
                         result.append(resource)
                 except Interrupt:
-                    request.cancel()  # type:ignore
+                    request.cancel() # pyright: ignore[reportAttributeAccessIssue]
 
         self.env.process(make_requests(len(self.resources), resources))
 
@@ -246,7 +246,7 @@ class TestPoolManager(unittest.TestCase):
         self.assertEqual(len(self.tasks), total_allocations)
         self.assertIsNotNone(manager._resources_as_list)
         self.assertEqual(len(self.resources), len(
-            manager._resources_as_list))  # type: ignore
+            manager._resources_as_list))  # pyright: ignore[reportArgumentType]
 
     def test_random_ordering(self):
         manager = PoolManager(
@@ -285,7 +285,7 @@ class TestPoolManager(unittest.TestCase):
             request = manager.request(self.state, tasks)
             self.assertTrue(isinstance(request, StoreGet))
 
-            resource = yield request  # type:ignore
+            resource = yield request   # pyright: ignore[reportReturnType]
 
             return resource
 
@@ -297,8 +297,8 @@ class TestPoolManager(unittest.TestCase):
 
         self.env.run()
 
-        resource_1: Resource = p1.value  # type:ignore
-        resource_2: Resource = p2.value  # type:ignore
+        resource_1: Resource = p1.value   # pyright: ignore[reportAssignmentType]
+        resource_2: Resource = p2.value  # pyright: ignore[reportAssignmentType]
 
         self.env.process(release(resource_1))
         self.env.process(release(resource_2))
@@ -309,8 +309,8 @@ class TestPoolManager(unittest.TestCase):
 
         policy.strategy = AssignmentStrategy.OWNER
 
-        r1: Resource = manager.request(self.state, task_group_1)  # type:ignore
-        r2: Resource = manager.request(self.state, task_group_2)  # type:ignore
+        r1: Resource = manager.request(self.state, task_group_1)  # pyright: ignore[reportAssignmentType]
+        r2: Resource = manager.request(self.state, task_group_2)   # pyright: ignore[reportAssignmentType]
 
         self.assertEqual(r1, resource_1)
         self.assertEqual(r2, resource_2)
@@ -372,9 +372,9 @@ class TestPoolManager(unittest.TestCase):
 
         self.env.run()
 
-        r1: Resource = p1.value  # type:ignore
+        r1: Resource = p1.value  # pyright: ignore[reportAssignmentType]
         r2: Resource = manager.request(
-            self.state, [support_task])  # type:ignore
+            self.state, [support_task])   # pyright: ignore[reportAssignmentType]
 
         self.assertEqual(simple_resource, r1)
         self.assertEqual(simple_resource, r2)

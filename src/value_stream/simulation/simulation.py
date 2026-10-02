@@ -66,15 +66,15 @@ class Simulation:
 
         start_t = env.now
 
-        completed_tasks = env.run(
-            until=AllOf(env, [delivery_complete]))  # type:ignore
+        completed_tasks : dict[Event, list[Task]] = env.run(
+            until=AllOf(env, [delivery_complete])) # pyright: ignore[reportAssignmentType]
 
         sim_duration = env.now - start_t
 
         # completed_tasks is always expected to have a value.  A ValueError is raised otherwise
 
         summary_result, task_events = self._process_results(
-            model=model, completed_tasks=completed_tasks, sim_duration=sim_duration)  # type:ignore
+            model=model, completed_tasks=completed_tasks, sim_duration=sim_duration)
 
         return SimulationResult(summary_result=summary_result,
                                 metadata=SimulationMetadata(model=model,

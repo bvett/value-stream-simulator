@@ -28,7 +28,7 @@ class ResultViewer(Viewer):
 
         df = df[['summary_result.loss', 'summary_result.total_delivered_value']].unstack(-1)[['summary_result.loss']]
 
-        df.columns = df.columns.get_level_values(1)  # type: ignore
+        df.columns = df.columns.get_level_values(1)   # pyright: ignore[reportAttributeAccessIssue]
 
         ax = df.plot(title="Loss vs Cadence", xlabel="Cadence",
                      ylabel="Loss", grid=True, colormap=self.colormap)
@@ -46,7 +46,7 @@ class ResultViewer(Viewer):
 
         df = df[['summary_result.loss']].unstack(0)
 
-        df.columns = df.columns.get_level_values(1)  # type: ignore
+        df.columns = df.columns.get_level_values(1)  # pyright: ignore[reportAttributeAccessIssue]
 
         ax = df.plot(title="Loss vs Team Size",
                      xlabel="Team Size", ylabel='Loss', grid=True,

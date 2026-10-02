@@ -11,7 +11,7 @@ from value_stream.client.web.errors import (
 from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.service.codec import encode_result
 from value_stream.service.schemas import (
-    JobAccepted, JobStatus, ModelError, OutcomeData, OutcomePage
+    JobAccepted, JobStatus, ModelError, OutcomeData, OutcomePage, Status
 )
 from value_stream.simulation import DefaultSimulationPolicy, Model, Simulation
 from value_stream.task import Task
@@ -79,8 +79,8 @@ class TestWebClient(unittest.TestCase):
                 model=models[index], tasks=tasks, policy=DefaultSimulationPolicy()
             )
             outcomes.append(OutcomeData(
-                cursor=cursor, model_index=index, status="succeeded",
-                result=encode_result(result, index),
+                cursor=cursor, model_index=index, status=Status.SUCCEEDED,
+                result=encode_result(result, index)
             ))
         client = scripted_client(outcomes, "completed")
         progress = Progress()
@@ -99,9 +99,9 @@ class TestWebClient(unittest.TestCase):
             Simulation().execute(models[1], tasks, DefaultSimulationPolicy()), 1
         )
         outcomes = [
-            OutcomeData(cursor=1, model_index=1, status="succeeded", result=success),
+            OutcomeData(cursor=1, model_index=1, status=Status.SUCCEEDED, result=success),
             OutcomeData(
-                cursor=2, model_index=0, status="failed",
+                cursor=2, model_index=0, status=Status.FAILED,
                 error=ModelError(model_index=0, code="MODEL_FAILED", message="bad"),
             ),
         ]
@@ -117,7 +117,7 @@ class TestWebClient(unittest.TestCase):
     def test_cancelled_job_is_explicit(self):
         tasks = [Task(initial_value=1, story_points=1)]
         client = scripted_client(
-            [OutcomeData(cursor=1, model_index=0, status="cancelled")], "cancelled"
+            [OutcomeData(cursor=1, model_index=0, status=Status.CANCELLED)], "cancelled"
         )
         try:
             with self.assertRaises(JobCancelledError):

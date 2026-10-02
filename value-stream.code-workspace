@@ -37,6 +37,9 @@
 			".venv",
 			".venv-*"
 		],
-		"pylint.importStrategy": "fromEnvironment"
+		"pylint.importStrategy": "fromEnvironment",
+		"python.analysis.typeEvaluation.enableTypeIgnoreComments": false,
+		"python.analysis.inlayHints.callArgumentNames": "off",
+		"python.analysis.diagnosticsSource": "Pylance + Pyright"
 	}
 }

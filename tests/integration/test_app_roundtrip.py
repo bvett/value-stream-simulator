@@ -40,11 +40,13 @@ class TestAppRoundtrip(unittest.TestCase):
             self.assertEqual(response.status_code, 202, response.text)
             run_id = response.json()["id"]
             deadline = time.monotonic() + 20
+            run = None
             while time.monotonic() < deadline:
                 run = client.get(path + "/runs/" + run_id).json()
                 if run["state"] in {"completed", "failed", "completed_with_errors"}:
                     break
                 time.sleep(0.03)
+            assert run is not None
             self.assertEqual(run["state"], "completed", run)
             self.assertEqual(len(run["outcomes"]), 9)
             self.assertEqual(
@@ -61,6 +63,7 @@ class TestAppRoundtrip(unittest.TestCase):
                 self.assertTrue(rows)
             # App-owned retained results remain readable after upstream state is gone.
             self.assertEqual(client.get(path).json()["baseline_id"], run_id)
+            assert client.portal is not None
             client.portal.call(app.state.gateway.close)
             self.assertEqual(client.get("/ready").status_code, 503)
             self.assertEqual(client.get(result_path).status_code, 200)

@@ -58,6 +58,7 @@ class TestSDLCWorkflow(unittest.TestCase):
         self.assertEqual(0, len(pending_items.items))
 
         completed_tasks = []
+        assert completed
         for t in completed.values():  # type: ignore
             completed_tasks.extend(t)
 

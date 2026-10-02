@@ -11,6 +11,7 @@ from value_stream.app.schemas import (
     ModelSettings,
     ScenarioDefinition,
     SweepRange,
+    UniformValue
 )
 from value_stream.app.settings import AppSettings
 from value_stream.service.schemas import (
@@ -25,11 +26,11 @@ from value_stream.service.schemas import (
 class TestGeneration(unittest.TestCase):
     def test_repeatable_tasks_and_teams(self):
         spec = TaskSetSpec(
-            story_points={"kind": "uniform", "minimum": 0.5, "maximum": 2}
+            story_points=UniformValue(minimum=0.5, maximum=2)
         )
         self.assertEqual(materialize_tasks(spec), materialize_tasks(spec))
         for distribution in ["normal", "linear"]:
-            settings = ModelSettings(team_size=10, distribution=distribution)
+            settings = ModelSettings(team_size=10, distribution=distribution) # pyright: ignore[reportArgumentType]
             team = materialize_team(settings, 42)
             self.assertEqual(team, materialize_team(settings, 42))
             self.assertTrue(all(0.5 <= d.efficiency <= 1.5 for d in team))
@@ -103,7 +104,7 @@ class TestMetrics(unittest.TestCase):
                 event="development",
                 event_type="end",
                 time=1,
-                status=status,
+                status=status, # pyright: ignore[reportArgumentType]
                 loss=loss,
                 task_type="development",
                 is_rework=False,

@@ -2,7 +2,7 @@ import asyncio
 import csv
 import io
 import unittest
-from uuid import uuid4
+from uuid import UUID, uuid4
 from value_stream.app.coordinator import RunCoordinator
 from value_stream.app.storage import InMemoryWorkspaceStore
 from value_stream.app.schemas import (
@@ -10,6 +10,7 @@ from value_stream.app.schemas import (
     RunRequest,
     TaskSetSpec,
     ScenarioDefinition,
+    Status,
     TERMINAL,
 )
 from value_stream.app.settings import AppSettings
@@ -86,7 +87,7 @@ class ControlledGateway:
                 if not any(o.model_index == i for o in outcomes):
                     outcomes.append(
                         OutcomeData(
-                            cursor=len(outcomes) + 1, model_index=i, status="cancelled"
+                            cursor=len(outcomes) + 1, model_index=i, status=Status.CANCELLED
                         )
                     )
         return outcomes
@@ -97,7 +98,7 @@ class ControlledGateway:
             outcomes=[o for o in values if o.cursor > after], next_cursor=len(values)
         )
 
-    async def cancel(self, job_id):
+    async def cancel(self, job_id:UUID) -> None:
         self.cancelled = True
 
     def succeed(self, index):
@@ -105,7 +106,7 @@ class ControlledGateway:
             OutcomeData(
                 cursor=len(self.pages) + 1,
                 model_index=index,
-                status="succeeded",
+                status=Status.SUCCEEDED,
                 result=ResultData(
                     model_index=index,
                     model=self.requests[0].models[index],
@@ -126,7 +127,7 @@ class TestLifecycle(unittest.IsolatedAsyncioTestCase):
             )
         )
         self.gateway = ControlledGateway()
-        self.coordinator = RunCoordinator(self.store, self.gateway)
+        self.coordinator = RunCoordinator(self.store, self.gateway) # pyright: ignore[reportArgumentType]
         self.workspace = self.store.create()
         self.preview = self.store.save_editor(
             self.workspace.id,
@@ -234,7 +235,7 @@ class TestLifecycle(unittest.IsolatedAsyncioTestCase):
             OutcomeData(
                 cursor=2,
                 model_index=0,
-                status="failed",
+                status=Status.FAILED,
                 error=ModelError(
                     model_index=0, code="MODEL_FAILED", message="fixture error"
                 ),
@@ -242,6 +243,7 @@ class TestLifecycle(unittest.IsolatedAsyncioTestCase):
         )
         self.gateway.succeed(1)
         await self.wait(lambda: status.state == "completed_with_errors")
+        assert status.outcomes[0].error is not None
         self.assertEqual(status.outcomes[0].error.code, "MODEL_FAILED")
         self.assertEqual(len(self.store.run(self.workspace.id, status.id).results), 2)
 
@@ -252,7 +254,7 @@ class TestLifecycle(unittest.IsolatedAsyncioTestCase):
         await self.wait(lambda: baseline.state == "completed")
         await asyncio.sleep(0.005)
         self.gateway = ControlledGateway()
-        self.coordinator.gateway = self.gateway
+        self.coordinator.gateway = self.gateway # pyright: ignore[reportAttributeAccessIssue]
         request = RunRequest(
             request_id=uuid4(),
             preview_digest="",
@@ -272,7 +274,7 @@ class TestLifecycle(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(first.superseded)
         self.assertEqual(first.outcomes[0].status, "succeeded")
         self.gateway = ControlledGateway()
-        self.coordinator.gateway = self.gateway
+        self.coordinator.gateway = self.gateway # pyright: ignore[reportAttributeAccessIssue]
         latest = await self.coordinator.start_run(self.workspace.id, next_request)
         self.store.finish(
             self.workspace.id, self.store.run(self.workspace.id, first.id)

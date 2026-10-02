@@ -63,7 +63,9 @@ class TestQATester(unittest.TestCase):
         self.assertAlmostEqual(self.env.now, time_cost * total_story_points)
 
         for task in self.tasks:
-            self.assertEqual(task.history.last_event().status,  # type: ignore
+            last_event = task.history.last_event()
+            assert last_event is not None
+            self.assertEqual(last_event.status, 
                              EventStatus.SUCCESS)
 
     def test_all_failures(self):

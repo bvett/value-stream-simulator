@@ -79,7 +79,8 @@ class TestTaskStore(unittest.TestCase):
         semaphore = self.env.event()
         self.env.process(get_value(semaphore))
         self.env.run(semaphore)
-        task_out: Task = semaphore.value  # type:ignore
+        assert semaphore.value
+        task_out: Task = semaphore.value  
 
         self.assertEqual(len(task_out.history.events), 2)
         event = task_out.history.events[1]
@@ -128,7 +129,8 @@ class TestTaskStore(unittest.TestCase):
             items = signal.value
             self.assertIsNotNone(items)
             self.assertTrue(isinstance(items, list))
-            self.assertEqual(len(items), limit)  # type:ignore
+            assert items
+            self.assertEqual(len(items), limit)
 
             with self.assertRaises(ValueError):
                 target.set_alarm(limit=limit * 2, signal=signal)
@@ -165,6 +167,7 @@ class TestTaskStore(unittest.TestCase):
 
         self.assertIsNotNone(signal_1.value)
         items_1 = signal_1.value
+        assert items_1
         self.assertTrue(isinstance(items_1, list))
         self.assertEqual(len(items_1), limit_1)  # type: ignore
 
@@ -187,6 +190,7 @@ class TestTaskStore(unittest.TestCase):
 
         self.assertIsNotNone(signal_2.value)
         items_2 = signal_2.value
+        assert items_2
         self.assertTrue(isinstance(items_2, list))
         self.assertEqual(len(items_2), limit_2)  # type:ignore
 
