@@ -15,13 +15,7 @@
 			"src"
 		],
 		"python.analysis.importFormat": "relative",
-		"python.testing.pytestArgs": [
-			"--cov=${workspaceFolder}/src",
-			"--cov-report=xml",
-			"--cov-config=pyproject.toml",
-			"${workspaceFolder}/tests",
-			"-s"
-		],
+
 		"python.testing.pytestEnabled": true,
 		"editor.wordWrap": "off",
 		"editor.wordWrapColumn": 72,

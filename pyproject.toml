@@ -25,11 +25,7 @@ dependencies = [
     "fastapi>=0.99",
     "uvicorn",
     "httpx",
-    "pytest",
-    "pytest-cov",
-    "pytest-mock",
-    "pytest-asyncio",
-    "httpx2>=2.13.0",
+    "httpx2>=2.13.0"
 ]
 
 description = "Conduct software delivery simulations to identify inefficiencies that cause delay and lost value."
@@ -47,9 +43,12 @@ classifiers = [
 dev = [
     "jsondiff>=2.2.1",
     "pylint>=4.0.8",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "pytest-asyncio",
 ]
 
-[tool.coverage.report]
-exclude_also = [
-    '@(abc\.)?abstractmethod',
-]
+[tool.pytest]
+addopts = ["--cov=src", "--cov-report=xml", "--cov-report=term-missing", "-s"]
+testpaths= ["tests"]

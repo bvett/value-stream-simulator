@@ -98,6 +98,16 @@
             },
             "sourceMaps": true,
             "preLaunchTask": "Studio: Run (hot reload)"
+        },
+        {
+            "name": "Python: Debug Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "purpose": ["debug-test"],
+            "justMyCode": false,
+            "env": {
+                "PYTEST_ADDOPTS": "--no-cov"
+            }
         }
     ]
 }
