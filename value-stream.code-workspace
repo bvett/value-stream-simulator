@@ -26,7 +26,8 @@
 		"editor.wordWrap": "off",
 		"editor.wordWrapColumn": 72,
 		"cSpell.words": [
-			"SDLC"
+			"SDLC",
+			"venv"
 		],
 		"pylint.args": [
 			"--disable=missing-module-docstring",

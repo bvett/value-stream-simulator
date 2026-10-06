@@ -1,0 +1,14 @@
+flowchart LR
+    Pending[Waiting for Development]
+    Development[Development]
+    PendingQA[Waiting for QA]
+    QA[QA Testing]
+    PendingDeployment[Waiting for deployment]
+    Deployment[Deployment]
+    Pending --> Development
+    Development --> PendingQA
+    PendingQA --> QA
+    QA --> PendingDeployment
+    PendingDeployment-->Deployment
+
+
