@@ -11,17 +11,23 @@ Value Stream Simulator is a tool that models a software delivery ecosystem then 
 
 ## Installation
 
-1. Python >= 3.11 is required. 
+1. Install prerequisites:
+* Python >= 3.11: 
+  * [MacOS](https://docs.python.org/3/using/mac.html#)
+  * [Windows](https://www.python.org/downloads/windows/)
+  * [Linux](https://docs.python.org/3/using/unix.html)
 
-2. Install [uv](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer)
+* [Node 22 or 24](https://nodejs.org/en/download)
 
-3. Clone this repository and cd to its root
+* [uv](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer)
+
+2. Clone this repository and cd to its root
 ```shell
 git clone https://github.com/bvett/value-stream-simulator.git
 cd value-stream-simulator
 ```
 
-4. Create and load a virtual environment:
+3. Create and load a virtual environment:
   * Linux/Mac:
 ```shell
 uv venv .venv
@@ -29,22 +35,22 @@ source .venv/bin/activate
 ```
   * Windows:
 ```shell
-uv venv venv
-venv/Scripts/activate
+uv venv .venv
+.venv\Scripts\activate
 ```
-5. Install Dependencies
+4. Install Dependencies
 ```shell
 uv sync
 uv pip install -e .
 ```
 
-6. Install Front-End Components
+5. Install Front-End Components
 ```shell
 npm ci --prefix src/value_stream/app/frontend
 npm run build --prefix src/value_stream/app/frontend
 ```
 
-7. Start the application
+6. Start the application
 ```shell
 python -m value_stream.app
 ```
