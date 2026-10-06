@@ -20,7 +20,7 @@ export default defineConfig({
     command: `${process.env.VALUE_STREAM_TEST_PYTHON || pyexe} -m value_stream.app --port 18081`,
     cwd: root,
     url: "http://127.0.0.1:18081/ready",
-    reuseExistingServer: true,
+    reuseExistingServer: false,
     timeout: 30000,
   },
 });
