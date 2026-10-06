@@ -81,11 +81,11 @@ Open the [Value Stream Simulation Studio](http://127.0.0.1:8081):
 ### Define the Work
 This panel describes a workload as a set of tasks.  A task is defined by _story points_ (relative complexity), and _initial value_.  
 
-![Define the Work](./src/doc/img/readme/01-define-the-work.png)
+<img src="./src/doc/img/readme/01-define-the-work.png" width="50%">
 
 ### Shape the Delivery System
 
-![Shape the Delivery System](./src/doc/img/readme/02-shape-the-delivery-system.png)
+<img src="./src/doc/img/readme/02-shape-the-delivery-system.png" width="50%">
 
 This is where most of work is done when creating scenarios. For the first tour, use the defaults and proceed to the next section.
 
@@ -117,7 +117,8 @@ Properties of the [delivery system](#shape-the-delivery-system), can be expresse
 
 To execute a simulation, you must first press **Preview Sweep**, which generates a set of scenarios representing all combinations of properties expressed as a 'sweep'.
 
-![Preview](./src/doc/img/readme/preview.png)
+<img src="./src/doc/img/readme/preview.png" width=50%>
+
 
 After pressing **Preview Sweep** you can expand 'Review Model Combinations' for details on the generated scenarios.
 
