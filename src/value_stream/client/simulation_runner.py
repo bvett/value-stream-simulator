@@ -36,11 +36,7 @@ class SimulationRunner:
         self._closed = False
 
     def close(self) -> None:
-        """Close the client and release its resources.
-
-
-
-        """
+        """Close the client and release its resources."""
 
         if self._closed:
             return

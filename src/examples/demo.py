@@ -11,14 +11,15 @@ from value_stream.factory import DeveloperFactory, TaskFactory
 from value_stream.client.views import ResultViewer, MetadataViewer
 from value_stream.resources import Developer, QATester, Toolchain
 
-
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
 
     logging.basicConfig(
-        force=True, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        level=logging.INFO)
+        force=True,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+    )
     logging.getLogger("httpx2").setLevel(logging.WARNING)
 
     # Arguments for the simulation.  Experiment by changing these and running the script.
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     TOOLCHAIN_CONCURRENCY = 20
 
     # Duration of a deployment
-    DEPLOYMENT_DURATION = .25
+    DEPLOYMENT_DURATION = 0.25
     DEPLOYMENT_FAILURE_RATE = 0.1
 
     QA_TEST_FAILURE_RATE = 0.15
@@ -50,53 +51,52 @@ if __name__ == "__main__":
     SUPPORT_INTERVAL = 5
 
     # Create tasks with complexities between 0.5 and 2.0
-    tasks = TaskFactory(initial_value=1,
-                        depreciation_rate=0.02,
-                        story_points=TaskFactory.uniform(.5, 2)).create(count=NUM_TASKS)
+    tasks = TaskFactory(
+        initial_value=1, depreciation_rate=0.02, story_points=TaskFactory.uniform(0.5, 2)
+    ).create(count=NUM_TASKS)
 
     # Create development teams with developers having efficiencies between 0.5 and 1.5
 
     teams: list[list[Developer]] = []
 
     for i in np.linspace(1, MAX_DEVELOPERS, DEV_TEAM_SAMPLES, dtype=int):
-        teams.append(DeveloperFactory.create(
-            count=i, efficiency=DeveloperFactory.uniform(.5, 1.5)))
+        teams.append(
+            DeveloperFactory.create(count=i, efficiency=DeveloperFactory.uniform(0.5, 1.5))
+        )
 
     qa_tester_pool = QATester.create_pool(
-        limit=NUM_QA_RESOURCES, failure_rate=QA_TEST_FAILURE_RATE,
-        failure_cost=QA_TEST_FAILURE_COST)
+        limit=NUM_QA_RESOURCES, failure_rate=QA_TEST_FAILURE_RATE, failure_cost=QA_TEST_FAILURE_COST
+    )
 
     toolchain_pool = Toolchain.create_pool(
         limit=TOOLCHAIN_CONCURRENCY,
         deployment_duration=DEPLOYMENT_DURATION,
-        failure_rate=DEPLOYMENT_FAILURE_RATE)
+        failure_rate=DEPLOYMENT_FAILURE_RATE,
+    )
 
     # Model includes the developer_ teams and range of cadences
     models = ModelFactory().create(
         teams=teams,
-        deployment_cadences=np.linspace(
-            0, MAX_CADENCE, CADENCE_SAMPLES, dtype=int),
+        deployment_cadences=np.linspace(0, MAX_CADENCE, CADENCE_SAMPLES, dtype=int),
         qa_testers=qa_tester_pool,
         toolchain_pool=toolchain_pool,
         support_intervals=[SUPPORT_INTERVAL],
-        support_task_story_points=2)
+        support_task_story_points=2,
+    )
 
     # Run the simulation with a progress bar and collect the results
     results: list[SimulationResult] = []
 
     service_url = os.environ.get("VALUE_STREAM_SERVICE_URL")
     with SimulationRunner(service_url=service_url) as runner:
-        with tqdm(desc='Running Simulation', total=len(models)) as pbar:
-            results = runner.execute(tasks=tasks,
-                                     models=models,
-                                     pbar=pbar)
+        with tqdm(desc="Running Simulation", total=len(models)) as pbar:
+            results = runner.execute(tasks=tasks, models=models, pbar=pbar)
 
     # Showcase the results using different plots
 
     viewer = ResultViewer(results)
 
-    metadata_viewer = MetadataViewer(
-        results, task_states=SimulationRunner.task_states())
+    metadata_viewer = MetadataViewer(results, task_states=SimulationRunner.task_states())
 
     viewer.loss_vs_cadence()
     viewer.loss_vs_team_size()

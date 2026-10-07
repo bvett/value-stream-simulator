@@ -10,7 +10,9 @@ class TaskGenerator:
     Useful for simulating task creation over time and the creation of unexpected toil.
     """
 
-    def __init__(self, factory: TaskFactory, group_size: int = 1, limit: Optional[int] = None) -> None:
+    def __init__(
+        self, factory: TaskFactory, group_size: int = 1, limit: Optional[int] = None
+    ) -> None:
         """Configure task generation and its output limit.
 
         Args:
@@ -94,11 +96,7 @@ class TaskGenerator:
         self.proc = env.process(gen(self.limit))
 
     def stop(self) -> None:
-        """Stop the running operation.
-
-
-
-        """
+        """Stop the running operation."""
 
         if self.proc is not None:
             self.proc.interrupt()

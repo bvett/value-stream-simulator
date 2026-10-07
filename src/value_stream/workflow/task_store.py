@@ -60,11 +60,7 @@ class TaskStore(Store):
         return result
 
     def get(self) -> StoreGet:
-        """Remove the next task and record its workflow end event.
-
-
-
-        """
+        """Remove the next task and record its workflow end event."""
 
         def record_history(event: StoreGet):
             # since this is a callback function that is invoked

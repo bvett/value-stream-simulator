@@ -28,11 +28,7 @@ class TaskHistory(BaseModel):
         return self._events
 
     def last_event(self) -> Optional[TaskEvent]:
-        """Return the most recent event, or ``None`` when history is empty.
-
-
-
-        """
+        """Return the most recent event, or ``None`` when history is empty."""
         return None if not self.events else self.events[-1]
 
     def start(

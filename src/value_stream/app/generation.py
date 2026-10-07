@@ -1,4 +1,5 @@
 """Pure, bounded materialization independent of batch ordering."""
+
 from typing import Any
 
 import hashlib

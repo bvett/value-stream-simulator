@@ -220,11 +220,7 @@ class ModelScheduler:
                 process.terminate()
 
     def close(self) -> None:
-        """Close the client and release its resources.
-
-
-
-        """
+        """Close the client and release its resources."""
         with self._lock:
             if self._closed:
                 return

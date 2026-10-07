@@ -6,7 +6,9 @@ from value_stream.task import SupportTask
 class SupportWorkflow(TaskGenerator):
     """Generates and processes recurring support tasks."""
 
-    def __init__(self, story_points: float, group_size: int = 1, limit: Optional[int] = None) -> None:
+    def __init__(
+        self, story_points: float, group_size: int = 1, limit: Optional[int] = None
+    ) -> None:
         """Configure generation of recurring support tasks.
 
         Args:

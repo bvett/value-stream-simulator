@@ -77,11 +77,7 @@ class InMemoryJobStore:
         self._submissions: dict[UUID, tuple[str, UUID]] = {}
 
     def _prune(self) -> None:
-        """Remove expired or excess jobs.
-
-
-
-        """
+        """Remove expired or excess jobs."""
         now = time.monotonic()
         expired = [
             job_id
