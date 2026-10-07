@@ -26,6 +26,8 @@ class TaskRouter(ABC):
         if isinstance(route, TaskRouter):
             return route.route(task=task, status=status)
 
+        raise ValueError("route must be a Store or TaskRouter")
+
 
 class DefaultRouter(TaskRouter):
     def __init__(self, route: "Store | TaskRouter"):
