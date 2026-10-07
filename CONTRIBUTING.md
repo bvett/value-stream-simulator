@@ -3,12 +3,51 @@ Thank you for taking an interest in this project.  It provides developer-centric
 * [Technical Details](#technical-details): Architecture diagrams, configuration, and other details on the project internals.
 
 # Development Practices
+
 ## Setting up a Workspace
 
-* Follow the **Installation** section in [README.md](README.md) to install prerequisites, dependencies, and to validate the installation.
-* Sync the development dependencies:
+1. Install prerequisites:
+* Python >= 3.11: 
+  * [MacOS](https://docs.python.org/3/using/mac.html#)
+  * [Windows](https://www.python.org/downloads/windows/)
+  * [Linux](https://docs.python.org/3/using/unix.html)
+
+* [Node 22 or 24](https://nodejs.org/en/download)
+
+* [uv](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer)
+
+2. Clone this repository and cd to its root
+```shell
+git clone https://github.com/bvett/value-stream-simulator.git
+cd value-stream-simulator
+```
+
+3. Create and load a virtual environment:
+  * Linux/Mac:
+```shell
+uv venv .venv
+source .venv/bin/activate
+```
+  * Windows:
+```shell
+uv venv .venv
+.venv\Scripts\activate
+```
+4. Install Dependencies for Development
 ```shell
 uv sync --locked --all-extras --dev
+uv pip install -e .
+```
+
+5. Install Front-End Components
+```shell
+npm ci --prefix src/value_stream/app/frontend
+npm run build --prefix src/value_stream/app/frontend
+```
+
+6. Start the application
+```shell
+python -m value_stream.app
 ```
 
 ### Visual Studio Code

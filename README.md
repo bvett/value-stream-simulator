@@ -9,61 +9,46 @@ While the adoption of best practices such as automated testing and continuous de
 
 Value Stream Simulator is a tool that models a software delivery ecosystem then distills its effectiveness to a single metric: _loss_.  Loss is the depreciation of a feature's value from the time its need is identified to the time it is delivered and used.  Lower loss is indicative of greater efficiency.  By comparing the outcomes of different models, informed decisions on improvements can be made.
 
-## Installation
+## Quick Start
 
-1. Install prerequisites:
+1. Install Python >= 3.11:
 * Python >= 3.11: 
   * [MacOS](https://docs.python.org/3/using/mac.html#)
   * [Windows](https://www.python.org/downloads/windows/)
   * [Linux](https://docs.python.org/3/using/unix.html)
 
-* [Node 22 or 24](https://nodejs.org/en/download)
-
-* [uv](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer)
-
-2. Clone this repository and cd to its root
-```shell
-git clone https://github.com/bvett/value-stream-simulator.git
-cd value-stream-simulator
-```
-
-3. Create and load a virtual environment:
+2. Create and load a virtual environment in an empty directory:
   * Linux/Mac:
 ```shell
-uv venv .venv
+mkdir value-stream-demo
+cd value-stream-demo
+python -m venv .venv
 source .venv/bin/activate
 ```
   * Windows:
 ```shell
-uv venv .venv
+md value-stream-demo
+cd value-stream-demo
+python -m venv .venv
 .venv\Scripts\activate
 ```
-4. Install Dependencies
+3. Install the value-stream package
 ```shell
-uv sync
-uv pip install -e .
+pip install value-stream
 ```
 
-5. Install Front-End Components
-```shell
-npm ci --prefix src/value_stream/app/frontend
-npm run build --prefix src/value_stream/app/frontend
-```
-
-6. Start the application
+4. Start the application service (press ctrl-c to exit when finished with the demo)
 ```shell
 python -m value_stream.app
 ```
 
-
-## Quick Start
 Simulations are performed by processing a set of tasks through one or more delivery ecosystems.  The effectiveness of each is expressed in terms of loss - both net loss (delivered value of the tasks) and process-oriented loss (specific origins of loss).
 
 Comparing outcomes enables targeted improvements that result in the greatest reduction of loss.
 
 To perform a basic simulation:
 
-1. Open the [Value Stream Simulation Studio](http://127.0.0.1:8081).  If prompted, select _Start a New Workspace_.
+1. Use a browser to open the [Value Stream Simulation Studio](http://127.0.0.1:8081).  If prompted, select _Start a New Workspace_.
 ![Landing Page](./src/doc/img/readme/landing.png)
 2. Leave team sizes at 1, 13, 25.  Leave task count at 500
 3. Scroll to the bottom of the left-side panel.  Press **Preview Sweep**, then **Run 9 Scenarios**
