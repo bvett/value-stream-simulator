@@ -1,3 +1,5 @@
+from typing import Any, Generator
+
 from simpy import Environment, Event
 
 from value_stream.task import Task, TypeRouter, StatusRouter, TaskState
@@ -18,6 +20,8 @@ class SDLCWorkflow:
     """
 
     class WorkflowState(TaskState):
+        """Enumerates states used by the SDLC workflow."""
+
         PENDING = "pending"
         DEVELOPMENT = "development"
         DEV_COMPLETE = "dev_complete"
@@ -29,7 +33,7 @@ class SDLCWorkflow:
         SUPPORT_COMPLETE = "support_complete"
 
     def __init__(self) -> None:
-        """Initializes a workflow with pending tasks"""
+        """Initializes a workflow with pending tasks."""
 
     def start(
         self,
@@ -40,9 +44,22 @@ class SDLCWorkflow:
         toolchain_manager: ResourceOperator,
         signal: Event,
         pending: TaskStore,
-    ):
+    ) -> Generator[Event, Any, None]:
         """Signals workflow completion when all tasks specified at
-        initialization are in the delivered queue"""
+        initialization are in the delivered queue.
+
+        Args:
+            env (Environment): Simulation environment.
+            tasks (list[Task]): Tasks to process.
+            developer_manager (ResourceOperator): Developer manager.
+            qa_manager (ResourceOperator): Qa manager.
+            toolchain_manager (ResourceOperator): Toolchain manager.
+            signal (Event): Event triggered when the condition is met.
+            pending (TaskStore): Pending.
+
+        Yields:
+            Event: Workflow events yielded while tasks move between stores.
+        """
 
         developed = TaskStore(env, SDLCWorkflow.WorkflowState.DEV_COMPLETE)
 

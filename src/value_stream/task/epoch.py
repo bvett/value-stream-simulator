@@ -2,6 +2,7 @@ from pydantic import BaseModel
 
 
 class Epoch(BaseModel):
+    """Converts between simulation time and epoch-relative time."""
 
     def __init__(self, offset: float):
         super().__init__()

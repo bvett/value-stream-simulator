@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 from simpy import Environment, Event, Store
 from simpy.resources.store import StorePut, StoreGet
@@ -13,7 +13,13 @@ class TaskStore(Store):
     Adds start/end events to the task history upon entry/exit
     """
 
-    def __init__(self, env: Environment, name: TaskState):
+    def __init__(self, env: Environment, name: TaskState) -> None:
+        """Create a task store for one workflow state.
+
+        Args:
+            env (Environment): Simulation environment.
+            name (TaskState): Name of the workflow state.
+        """
         super().__init__(env)
         self.name = name
 
@@ -22,7 +28,17 @@ class TaskStore(Store):
         self._baseline = 0
 
     def put(self, item: Task) -> StorePut:
+        """Add an item to the store.
 
+        Args:
+            item (Task): Task to add to the store.
+
+        Raises:
+            ValueError: If an item is added after the store alarm has been processed.
+
+        Returns:
+            StorePut: StorePut event scheduled for the task.
+        """
         result = super().put(item)
         if self._limit is not None and self._signal is not None:
             if self._signal.processed:
@@ -43,7 +59,12 @@ class TaskStore(Store):
 
         return result
 
-    def get(self):
+    def get(self) -> StoreGet:
+        """Remove the next task and record its workflow end event.
+
+
+
+        """
 
         def record_history(event: StoreGet):
             # since this is a callback function that is invoked
@@ -56,9 +77,16 @@ class TaskStore(Store):
 
         return task
 
-    def set_alarm(self, limit: int, signal: Event):
-        """raises signal when limit items are in this WorkflowState.
-        value of signal is a list of Tasks that have been added since the last alarm"""
+    def set_alarm(self, limit: int, signal: Event) -> None:
+        """Trigger a signal when the store reaches the requested item count.
+
+        Args:
+            limit (int): Store size that triggers the signal.
+            signal (Event): Event to trigger when the limit is reached.
+
+        Raises:
+            ValueError: If the item limit has already been reached or the signal has triggered.
+        """
 
         if limit <= len(self.items):
             raise ValueError("limit has already been exceeded")

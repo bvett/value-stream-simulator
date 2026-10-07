@@ -9,6 +9,8 @@ from .errors import AppError
 
 
 class SimulationGateway(Protocol):
+    """Defines the interface for submitting simulation jobs."""
+
     async def start(self): ...
     async def ready(self): ...
     async def submit(self, request: JobRequest) -> JobAccepted: ...
@@ -19,6 +21,8 @@ class SimulationGateway(Protocol):
 
 
 class HttpSimulationGateway:
+    """Submits simulation jobs through the HTTP service."""
+
     def __init__(self, url=None, max_response_bytes=65 * 1024 * 1024):
         self.url = url
         self.owned = False

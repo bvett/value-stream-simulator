@@ -19,15 +19,18 @@ class ModelFactory:
         support_intervals: Optional[Iterable] = None,
         support_task_story_points: float = 1,
     ) -> list[Model]:
-        """Creates Model objects
+        """Create one model for each team and deployment cadence combination.
 
         Args:
-            developer_teams (list[list[Developer]]): Separate collections of Developer objects
-            deployment_cadences (Iterable): List or range of deployment cadences
+            teams (Iterable[list[Developer]]): Developer teams to combine with the other model settings.
+            deployment_cadences (Iterable): Deployment cadences to test.
+            qa_testers (Iterable[QATester]): QA testers available to each model.
+            toolchain_pool (Iterable[Toolchain]): Toolchains available to each model.
+            support_intervals (Optional[Iterable]): Support intervals to test.
+            support_task_story_points (float): Work assigned to each support task.
 
         Returns:
-            list[Model]: One model is returned for each combination
-            of developer_teams and deployment_cadences.
+            list[Model]: Models generated from each team and deployment cadence combination.
         """
 
         if support_intervals is None:

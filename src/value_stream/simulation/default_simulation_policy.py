@@ -11,12 +11,14 @@ class DefaultSimulationPolicy(SimulationPolicy):
     def task_priority(
         self, tasks_1: list[Task], tasks_2: list[Task]
     ) -> Literal[0] | Literal[1] | Literal[-1]:
-        """Compares two Task lists and returns an indicator of which has higher priority
+        """Compares two Task lists and returns an indicator of which has higher priority.
+
+        Args:
+            tasks_1 (list[Task]): Tasks 1.
+            tasks_2 (list[Task]): Tasks 2.
 
         Returns:
-            int: -1 if tasks_1 is of higher priority,
-            0 if tasks_1 and tasks_2 are of equal priority, and
-            1 if tasks_2 is of higher priority
+            Literal[0] | Literal[1] | Literal[-1]: -1 if tasks_1 is of higher priority,
         """
 
         # handle use-cases when one or both lists are empty
@@ -46,6 +48,14 @@ class DefaultSimulationPolicy(SimulationPolicy):
         return 0
 
     def support_assignment_strategy(self, tasks: list[Task]) -> AssignmentStrategy:
+        """Choose an assignment strategy for support tasks.
+
+        Args:
+            tasks (list[Task]): Tasks to process.
+
+        Returns:
+            AssignmentStrategy: Strategy selected for assigning the support tasks.
+        """
         if tasks:
             task = tasks[0]
 

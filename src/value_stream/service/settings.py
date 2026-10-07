@@ -6,6 +6,8 @@ from dataclasses import dataclass, fields
 
 @dataclass(frozen=True)
 class ServiceSettings:
+    """Stores simulation service runtime settings."""
+
     max_tasks: int = 1000
     max_models: int = 500
     max_body_bytes: int = 2 * 1024 * 1024

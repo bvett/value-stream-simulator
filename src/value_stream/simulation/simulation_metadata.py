@@ -5,6 +5,8 @@ from .model import Model
 
 
 class SimulationMetadata(BaseModel):
+    """Stores metadata about one simulation run."""
+
     model: Model
     resource_metadata: list[ResourceMetadata]
     event_metadata: list[TaskEvent]

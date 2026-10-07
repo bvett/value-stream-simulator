@@ -1,4 +1,5 @@
 """Pure, bounded materialization independent of batch ordering."""
+from typing import Any
 
 import hashlib
 import itertools
@@ -28,11 +29,27 @@ from .schemas import (
 from .settings import AppSettings
 
 
-def canonical(value):
+def canonical(value: Any) -> str:
+    """Serialize a value with stable key ordering and separators.
+
+    Args:
+        value (Any): Value to normalize or inspect.
+
+    Returns:
+        str: Canonical JSON representation of the value.
+    """
     return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False, default=str)
 
 
-def fingerprint(value):
+def fingerprint(value: Any) -> str:
+    """Return the SHA-256 fingerprint of a canonical value.
+
+    Args:
+        value (Any): Value to normalize or inspect.
+
+    Returns:
+        str: Hexadecimal SHA-256 digest.
+    """
     return hashlib.sha256(canonical(value).encode()).hexdigest()
 
 
@@ -41,7 +58,16 @@ def derive_seed(domain, *values):
     return int(fingerprint([GENERATOR_VERSION, domain, *values])[:13], 16)
 
 
-def materialize_tasks(spec: TaskSetSpec):
+def materialize_tasks(spec: TaskSetSpec) -> list[TaskInput]:
+    """Build task inputs from the task set settings.
+
+    Args:
+        spec (TaskSetSpec): Task set configuration used to generate tasks.
+
+    Returns:
+        list[TaskInput]: Generated task inputs.
+    """
+
     rng = random.Random(derive_seed("tasks", spec.seed))
 
     def sample(value):
@@ -62,7 +88,16 @@ def materialize_tasks(spec: TaskSetSpec):
     ]
 
 
-def materialize_team(settings: ModelSettings, seed: int):
+def materialize_team(settings: ModelSettings, seed: int) -> list[DeveloperInput]:
+    """Build a developer team using the configured efficiency distribution.
+
+    Args:
+        settings (ModelSettings): Settings to validate or use.
+        seed (int): Random seed for repeatable simulation.
+
+    Returns:
+        list[DeveloperInput]: Generated developer inputs.
+    """
     low, high, n = settings.efficiency_min, settings.efficiency_max, settings.team_size
     rng = random.Random(derive_seed("team", seed, low, high, settings.distribution))
     values = []
@@ -80,7 +115,16 @@ def materialize_team(settings: ModelSettings, seed: int):
     return values
 
 
-def concrete_model(settings: ModelSettings, seed: int):
+def concrete_model(settings: ModelSettings, seed: int) -> ModelInput:
+    """Build a service model input from scenario settings.
+
+    Args:
+        settings (ModelSettings): Settings to validate or use.
+        seed (int): Random seed for repeatable simulation.
+
+    Returns:
+        ModelInput: Model configuration ready for submission.
+    """
     return ModelInput(
         developer_team=materialize_team(settings, seed),
         deployment_cadence=settings.deployment_cadence,
@@ -100,7 +144,19 @@ def concrete_model(settings: ModelSettings, seed: int):
     )
 
 
-def axis_values(axis, limit):
+def axis_values(axis: SweepRange | list[Any], limit: int) -> list[Any]:
+    """Expand a sweep axis into its distinct values.
+
+    Args:
+        axis (SweepRange | list[Any]): Range or explicit values to expand.
+        limit (int): Maximum number of values allowed.
+
+    Raises:
+        AppError: If the axis is empty, invalid, or exceeds the configured value limit.
+
+    Returns:
+        list[Any]: Expanded sweep values.
+    """
     if isinstance(axis, SweepRange):
         start, end, step = (Decimal(str(v)) for v in (axis.start, axis.end, axis.step))
         if start > end:
@@ -119,7 +175,16 @@ def axis_values(axis, limit):
     return values
 
 
-def validate_model_limits(settings, limits):
+def validate_model_limits(settings: ModelSettings, limits: AppSettings) -> None:
+    """Validate model settings against configured limits.
+
+    Args:
+        settings (ModelSettings): Model settings to validate.
+        limits (AppSettings): Application limits to enforce.
+
+    Raises:
+        AppError: If a model setting falls outside the configured limits.
+    """
     if max(settings.team_size, settings.qa_size, settings.toolchain_size) > limits.max_resources:
         raise AppError("LIMIT_EXCEEDED", f"Resource counts must not exceed {limits.max_resources}")
 
@@ -127,6 +192,18 @@ def validate_model_limits(settings, limits):
 def expand_scenarios(
     definitions: list[ScenarioDefinition], limits: AppSettings
 ) -> list[ConcreteScenario]:
+    """Expand scenario definitions into concrete scenarios.
+
+    Args:
+        definitions (list[ScenarioDefinition]): Definitions.
+        limits (AppSettings): Configured limits for validation.
+
+    Raises:
+        AppError: If scenario definitions are invalid or exceed the expansion limit.
+
+    Returns:
+        list[ConcreteScenario]: The resulting value.
+    """
     axes = []
     count = 0
     if len(definitions) > limits.max_definitions:

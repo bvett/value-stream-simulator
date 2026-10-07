@@ -24,7 +24,20 @@ class ResourceOperator:
         resource_policy: ResourcePolicy,
         tracker: ResourceTracker = NoOpResourceTracker(),
         cadence: int = 0,
-    ):
+    ) -> None:
+        """Configure resource scheduling for a workflow stage.
+
+        Args:
+            env (Environment): Simulation environment.
+            resources (Iterable[Resource]): Resources managed by the pool.
+            workflow_policy (WorkflowPolicy): Workflow policy.
+            resource_policy (ResourcePolicy): Resource policy.
+            tracker (ResourceTracker): Tracker for resource activity.
+            cadence (int): Number of time units between processing windows.
+
+        Raises:
+            ValueError: If the processing cadence is negative.
+        """
         self.env = env
         self._queue: list[Task] = []
 
@@ -51,13 +64,22 @@ class ResourceOperator:
 
         self._tracker = tracker
 
-    def start(self, source: TaskStore, workflow_state: TaskState, task_router: TaskRouter):
+    def start(self, source: TaskStore, workflow_state: TaskState, task_router: TaskRouter) -> None:
         """Starts processing loop that:
         1) Waits for tasks to appear in source
         2) Triggers execution on a fixed schedule or continuously
         3) Requests a resource to operate on the task
         4) Waits for the resource to operate on the task
-        5) Releases the resource"""
+        5) Releases the resource
+
+        Args:
+            source (TaskStore): Task store that supplies work.
+            workflow_state (TaskState): Workflow state associated with the operation.
+            task_router (TaskRouter): Router for completed tasks.
+
+        Raises:
+            RuntimeError: If the operator has already been started.
+        """
 
         if self._monitor_p is not None:
             raise RuntimeError("manager cannot be restarted")
@@ -76,7 +98,7 @@ class ResourceOperator:
         )
 
     def stop(self) -> None:
-        """Shutdown the manager
+        """Shutdown the manager.
 
         Raises:
             RuntimeError: if start() has not been called prior

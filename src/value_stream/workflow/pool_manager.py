@@ -1,9 +1,9 @@
+from typing import Iterator, Optional
 import itertools
 import random
-from typing import Iterator, Optional
 from uuid import UUID
 from simpy import Environment, Store
-from simpy.resources.store import StoreGet
+from simpy.resources.store import StoreGet, StorePut
 
 from value_stream.task import TaskState
 from value_stream.resources import Resource, ResourceTracker, ResourcePool
@@ -14,14 +14,23 @@ from .workflow_policy import WorkflowPolicy
 
 
 class PoolManager:
+    """Allocates and releases resources for workflow tasks."""
+
     def __init__(
         self,
         env: Environment,
         resources: Iterator[Resource],
         policy: WorkflowPolicy,
         tracker: ResourceTracker,
-    ):
+    ) -> None:
+        """Configure the resource pool and assignment policy.
 
+        Args:
+            env (Environment): Simulation environment.
+            resources (Iterator[Resource]): Resources managed by the pool.
+            policy (WorkflowPolicy): Policy used to make simulation decisions.
+            tracker (ResourceTracker): Tracker for resource activity.
+        """
         self.policy = policy
         self._tracker = tracker
 
@@ -39,8 +48,19 @@ class PoolManager:
 
         self._cyclic_support_delegator = itertools.cycle(self.resources)
 
-    def request(self, workflow_state: TaskState, tasks: list[Task]):
+    def request(self, workflow_state: TaskState, tasks: list[Task]) -> Resource | StoreGet:
+        """Request a resource for the queued tasks.
 
+        Args:
+            workflow_state (TaskState): Workflow state associated with the operation.
+            tasks (list[Task]): Tasks to process.
+
+        Raises:
+            ValueError: If no owner is registered for an owner-assigned task.
+
+        Returns:
+            Resource | StoreGet: A selected resource or a StoreGet event for the next available resource.
+        """
         strategy = self.policy.support_assignment_strategy(tasks)
 
         match strategy:
@@ -103,6 +123,14 @@ class PoolManager:
         result.callbacks = [record_owner]
         return result
 
-    def release(self, resource: Resource):
+    def release(self, resource: Resource) -> StorePut:
+        """Release a resource back to the pool.
+
+        Args:
+            resource (Resource): Resource to return to the pool.
+
+        Returns:
+            StorePut: StorePut event scheduled when the resource returns to the pool.
+        """
         resource.idle_t = self._env.now
         return self._resource_pool.put(resource)

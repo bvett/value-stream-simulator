@@ -39,6 +39,8 @@ logger = logging.getLogger(__name__)
 
 
 class BodyLimitMiddleware:
+    """Rejects requests whose bodies exceed the configured size limit."""
+
     def __init__(self, app: ASGIApp, limit: int):
         self.app, self.limit = app, limit
 
@@ -257,6 +259,8 @@ def create_app(
         frozen_results = {sid: _store.result(record, sid) for sid in record.results}
 
         class ExportStore:
+            """Stores generated exports for later download."""
+
             def result(self, record, sid):
                 return frozen_results[sid]
 
@@ -267,6 +271,8 @@ def create_app(
         )
 
     class CachedAssets(StaticFiles):
+        """Serves cached frontend assets."""
+
         async def get_response(self, path, scope):
             response = await super().get_response(path, scope)
             if response.status_code == 200:

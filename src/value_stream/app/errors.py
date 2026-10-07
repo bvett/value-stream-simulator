@@ -2,6 +2,8 @@
 
 
 class AppError(Exception):
+    """Represents a structured error returned by the application."""
+
     def __init__(self, code: str, message: str, status: int = 422, details=None):
         super().__init__(message)
         self.code, self.message, self.status, self.details = (

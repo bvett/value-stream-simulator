@@ -15,12 +15,16 @@ from .schemas import JobRequest, ModelError
 
 
 class WorkerPayload(BaseModel):
+    """Carries a model and seed to a worker process."""
+
     model_index: int = Field(ge=0)
     request: JobRequest
     max_outcome_bytes: int = Field(default=8 * 1024 * 1024, gt=0)
 
 
 class WorkerIndex(BaseModel):
+    """Stores the worker index used to select a model."""
+
     model_index: int = Field(default=0, ge=0)
 
 

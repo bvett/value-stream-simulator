@@ -12,18 +12,26 @@ from .settings import ServiceSettings
 
 
 class JobNotFound(Exception):
+    """Indicates that a requested job does not exist."""
+
     pass
 
 
 class CapacityExceeded(Exception):
+    """Indicates that the job store has reached its capacity."""
+
     pass
 
 
 class SubmissionConflict(Exception):
+    """Indicates that a submission conflicts with an existing job."""
+
     pass
 
 
 class JobStorage(Protocol):
+    """Defines storage operations for simulation jobs."""
+
     def create(self, model_count: int) -> UUID: ...
     def reserve(
         self, model_count: int, submission_id: UUID | None, fingerprint: str
@@ -43,6 +51,8 @@ class JobStorage(Protocol):
 
 @dataclass
 class _Job:
+    """Stores a job request and its current execution state."""
+
     job_id: UUID
     states: list[str]
     created_at: float
@@ -53,13 +63,25 @@ class _Job:
 
 
 class InMemoryJobStore:
-    def __init__(self, settings: ServiceSettings):
+    """Stores simulation jobs and results in memory."""
+
+    def __init__(self, settings: ServiceSettings) -> None:
+        """Initialize job retention and capacity limits.
+
+        Args:
+            settings (ServiceSettings): Settings to validate or use.
+        """
         self.settings = settings
         self._jobs: dict[UUID, _Job] = {}
         self._lock = threading.RLock()
         self._submissions: dict[UUID, tuple[str, UUID]] = {}
 
-    def _prune(self):
+    def _prune(self) -> None:
+        """Remove expired or excess jobs.
+
+
+
+        """
         now = time.monotonic()
         expired = [
             job_id
@@ -74,6 +96,17 @@ class InMemoryJobStore:
         }
 
     def _get(self, job_id: UUID) -> _Job:
+        """Return the job with the requested identifier.
+
+        Args:
+            job_id (UUID): Identifier of the job.
+
+        Raises:
+            JobNotFound: If the requested job does not exist.
+
+        Returns:
+            _Job: Stored job for the identifier.
+        """
         self._prune()
         try:
             return self._jobs[job_id]
@@ -81,9 +114,25 @@ class InMemoryJobStore:
             raise JobNotFound(str(job_id)) from exc
 
     def _retained_bytes(self) -> int:
+        """Return the number of bytes retained by the job store.
+
+        Returns:
+            int: Total bytes currently retained for job results.
+        """
         return sum(job.result_bytes for job in self._jobs.values())
 
     def create(self, model_count: int) -> UUID:
+        """Create and store a simulation job.
+
+        Args:
+            model_count (int): Model count.
+
+        Raises:
+            CapacityExceeded: If a job with the same submission identifier already exists or capacity is full.
+
+        Returns:
+            UUID: Identifier assigned to the new job.
+        """
         with self._lock:
             self._prune()
             nonterminal = sum(job.terminal_at is None for job in self._jobs.values())
@@ -104,6 +153,19 @@ class InMemoryJobStore:
     def reserve(
         self, model_count: int, submission_id: UUID | None, fingerprint: str
     ) -> tuple[UUID, bool]:
+        """Reserve capacity for a job.
+
+        Args:
+            model_count (int): Model count.
+            submission_id (UUID | None): Client supplied identifier for deduplicating submissions.
+            fingerprint (str): Fingerprint of the submitted job payload.
+
+        Raises:
+            SubmissionConflict: If the job cannot reserve its required capacity.
+
+        Returns:
+            tuple[UUID, bool]: The existing or newly reserved job identifier and whether it was created.
+        """
         with self._lock:
             self._prune()
             if submission_id is not None and submission_id in self._submissions:
@@ -117,6 +179,14 @@ class InMemoryJobStore:
             return job_id, True
 
     def status(self, job_id: UUID) -> JobStatus:
+        """Return the current job status.
+
+        Args:
+            job_id (UUID): Identifier of the job.
+
+        Returns:
+            JobStatus: Current status of the requested job.
+        """
         with self._lock:
             job = self._get(job_id)
             counts = {
@@ -136,12 +206,30 @@ class InMemoryJobStore:
             )
 
     def page(self, job_id: UUID, after: int) -> OutcomePage:
+        """Return a page of job outcomes.
+
+        Args:
+            job_id (UUID): Identifier of the job.
+            after (int): Outcome cursor after which to return records.
+
+        Returns:
+            OutcomePage: A page of outcomes after the supplied cursor.
+        """
         with self._lock:
             job = self._get(job_id)
             outcomes = [item for item in job.outcomes if item.cursor > after]
             return OutcomePage(outcomes=outcomes, next_cursor=len(job.outcomes))
 
     def start_model(self, job_id: UUID, index: int) -> bool:
+        """Mark a model as started.
+
+        Args:
+            job_id (UUID): Identifier of the job.
+            index (int): Index of the scenario or model.
+
+        Returns:
+            bool: Whether the model was newly marked as started.
+        """
         with self._lock:
             job = self._get(job_id)
             if job.states[index] != "queued":
@@ -150,7 +238,12 @@ class InMemoryJobStore:
             job.status = "running"
             return True
 
-    def _terminal(self, job: _Job):
+    def _terminal(self, job: _Job) -> None:
+        """Check whether a job has reached a terminal state.
+
+        Args:
+            job (_Job): Job.
+        """
         if all(state in ("succeeded", "failed", "cancelled") for state in job.states):
             if job.status != "cancelled":
                 job.status = "completed_with_errors" if "failed" in job.states else "completed"
@@ -163,6 +256,14 @@ class InMemoryJobStore:
         result: ResultData | None,
         error: ModelError | None,
     ) -> None:
+        """Record the completion of a model.
+
+        Args:
+            job_id (UUID): Identifier of the job.
+            index (int): Index of the scenario or model.
+            result (ResultData | None): Simulation result to retain.
+            error (ModelError | None): Error information to record.
+        """
         with self._lock:
             job = self._get(job_id)
             if job.states[index] not in ("queued", "running"):
@@ -202,6 +303,11 @@ class InMemoryJobStore:
             self._terminal(job)
 
     def cancel(self, job_id: UUID) -> None:
+        """Cancel the requested job.
+
+        Args:
+            job_id (UUID): Identifier of the job.
+        """
         with self._lock:
             job = self._get(job_id)
             if job.terminal_at is not None:

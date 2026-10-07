@@ -9,6 +9,7 @@ from .resource_metadata import ResourceMetadata
 
 
 class ResourceTracker(Protocol):
+    """Defines hooks for tracking resource work and wait times."""
 
     @property
     def data(self) -> list[ResourceMetadata]: ...
@@ -23,6 +24,7 @@ class ResourceTracker(Protocol):
 
 
 class NoOpResourceTracker:  # pylint: disable=W0613
+    """Implements resource tracking hooks without recording data."""
 
     @property
     def data(self) -> list[ResourceMetadata]:
@@ -50,8 +52,14 @@ class NoOpResourceTracker:  # pylint: disable=W0613
 
 
 class InMemoryResourceTracker:
+    """Records resource work and wait times in memory."""
 
-    def __init__(self, env: Environment):
+    def __init__(self, env: Environment) -> None:
+        """Initialize the resource activity records.
+
+        Args:
+            env (Environment): Simulation environment.
+        """
         self._env = env
         self._epoch_t = env.now
         self._data: list[ResourceMetadata] = []
@@ -60,12 +68,23 @@ class InMemoryResourceTracker:
     def data(self):
         return self._data.copy()
 
-    def register(self, workflow_state: TaskState):
+    def register(self, workflow_state: TaskState) -> None:
+        """Register a simulation run.
+
+        Args:
+            workflow_state (TaskState): Workflow state associated with the operation.
+        """
         self._data.append(
             ResourceMetadata(time=self._env.now - self._epoch_t, state=workflow_state, allocated=1)
         )
 
-    def start_work(self, workflow_state: TaskState, elapsed_t: float):
+    def start_work(self, workflow_state: TaskState, elapsed_t: float) -> None:
+        """Record the start of resource work.
+
+        Args:
+            workflow_state (TaskState): Workflow state associated with the operation.
+            elapsed_t (float): Elapsed t.
+        """
         self._data.append(
             ResourceMetadata(
                 time=self._env.now - self._epoch_t, state=workflow_state, active=1, idle_t=elapsed_t
@@ -74,8 +93,14 @@ class InMemoryResourceTracker:
 
     def complete_work(
         self, workflow_state: TaskState, status: EventStatus, elapsed_t: Optional[float] = None
-    ):
+    ) -> None:
+        """Record completed resource work.
 
+        Args:
+            workflow_state (TaskState): Workflow state associated with the operation.
+            status (EventStatus): Current outcome status.
+            elapsed_t (Optional[float]): Elapsed t.
+        """
         if status == EventStatus.FAILURE:
             self._data.append(
                 ResourceMetadata(
@@ -95,19 +120,36 @@ class InMemoryResourceTracker:
                 )
             )
 
-    def interruption(self, workflow_state: TaskState, elapsed_t: float):
+    def interruption(self, workflow_state: TaskState, elapsed_t: float) -> None:
+        """Record an interruption to resource work.
+
+        Args:
+            workflow_state (TaskState): Workflow state associated with the operation.
+            elapsed_t (float): Elapsed t.
+        """
         self._data.append(
             ResourceMetadata(
                 time=self._env.now - self._epoch_t, state=workflow_state, interruption_t=elapsed_t
             )
         )
 
-    def start_waiting(self, workflow_state: TaskState):
+    def start_waiting(self, workflow_state: TaskState) -> None:
+        """Record that a resource began waiting.
+
+        Args:
+            workflow_state (TaskState): Workflow state associated with the operation.
+        """
         self._data.append(
             ResourceMetadata(time=self._env.now - self._epoch_t, state=workflow_state, waiting=1)
         )
 
-    def complete_waiting(self, workflow_state: TaskState, waiting_t: float):
+    def complete_waiting(self, workflow_state: TaskState, waiting_t: float) -> None:
+        """Record that a resource stopped waiting.
+
+        Args:
+            workflow_state (TaskState): Workflow state associated with the operation.
+            waiting_t (float): Waiting t.
+        """
         self._data.append(
             ResourceMetadata(
                 time=self._env.now - self._epoch_t,

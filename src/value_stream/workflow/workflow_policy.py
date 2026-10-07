@@ -5,6 +5,7 @@ from .assignment_strategy import AssignmentStrategy
 
 
 class WorkflowPolicy(ABC):
+    """Defines workflow-level resource assignment decisions."""
 
     @abstractmethod
     def support_assignment_strategy(self, tasks: list[Task]) -> AssignmentStrategy:

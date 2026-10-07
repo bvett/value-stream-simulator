@@ -1,9 +1,12 @@
 """Streaming CSV exports from immutable scenario snapshots."""
 
+from typing import Generator, Literal
+
 import csv
 import io
 from .generation import canonical
 from .schemas import ENGINE_VERSION, GENERATOR_VERSION
+from .storage import RunRecord, WorkspaceStore
 
 
 def safe_text(value):
@@ -12,7 +15,21 @@ def safe_text(value):
     return value
 
 
-def export_csv(store, record, kind):
+def export_csv(
+    store: WorkspaceStore,
+    record: RunRecord,
+    kind: Literal["summary", "events", "resources"],
+) -> Generator[str, None, None]:
+    """Export a simulation result as CSV.
+
+    Args:
+        store (WorkspaceStore): Store containing the run results.
+        record (RunRecord): Run record to export.
+        kind (Literal["summary", "events", "resources"]): Data section to export.
+
+    Yields:
+        str: One CSV row at a time.
+    """
     common = [
         "scenario_id",
         "scenario_name",

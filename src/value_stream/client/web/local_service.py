@@ -12,6 +12,8 @@ from value_stream.service.app import create_app
 
 
 class _LocalService:
+    """Manages the local simulation service process."""
+
     def __init__(self):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.bind(("127.0.0.1", 0))

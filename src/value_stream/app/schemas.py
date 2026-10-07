@@ -10,15 +10,21 @@ ENGINE_VERSION = "value-stream-app-1"
 
 
 class AppModel(WireModel):
+    """Base model for application request and response data."""
+
     model_config = ConfigDict(extra="forbid", json_schema_serialization_defaults_required=True)
 
 
 class ConstantValue(AppModel):
+    """Defines a fixed value for a model setting."""
+
     kind: Literal["constant"] = "constant"
     value: FiniteFloat = Field(default=1, ge=0)
 
 
 class UniformValue(AppModel):
+    """Defines a uniformly sampled value for a model setting."""
+
     kind: Literal["uniform"] = "uniform"
     minimum: FiniteFloat = Field(ge=0)
     maximum: FiniteFloat = Field(ge=0)
@@ -34,6 +40,8 @@ ValueSpec = Annotated[ConstantValue | UniformValue, Field(discriminator="kind")]
 
 
 class TaskSetSpec(AppModel):
+    """Describes a task set used to build a simulation."""
+
     name: str = Field(default="Task set", min_length=1, max_length=120)
     count: int = Field(default=500, gt=0)
     story_points: ValueSpec = Field(default_factory=lambda: UniformValue(minimum=0.5, maximum=2))
@@ -43,6 +51,8 @@ class TaskSetSpec(AppModel):
 
 
 class ModelSettings(AppModel):
+    """Defines resource and workflow settings for a simulation model."""
+
     team_size: int = Field(default=4, gt=0)
     efficiency_min: FiniteFloat = Field(default=0.5, gt=0)
     efficiency_max: FiniteFloat = Field(default=1.5, gt=0)
@@ -69,12 +79,16 @@ SweepValue = FiniteFloat | str | None
 
 
 class SweepRange(AppModel):
+    """Defines a numeric range of values to sweep."""
+
     start: FiniteFloat
     end: FiniteFloat
     step: FiniteFloat = Field(gt=0)
 
 
 class ScenarioDefinition(AppModel):
+    """Defines a simulation scenario and its parameter values."""
+
     id: UUID = Field(default_factory=uuid4)
     name: str = Field(default="Delivery model", min_length=1, max_length=120)
     revision: int = Field(default=1, gt=0)
@@ -85,6 +99,8 @@ class ScenarioDefinition(AppModel):
 
 
 class ConcreteScenario(AppModel):
+    """Stores one fully expanded simulation scenario."""
+
     id: UUID
     definition_id: UUID
     revision: int
@@ -96,6 +112,8 @@ class ConcreteScenario(AppModel):
 
 
 class TaskSet(AppModel):
+    """Stores task-generation settings for a workspace."""
+
     id: UUID = Field(default_factory=uuid4)
     revision: int = 1
     spec: TaskSetSpec
@@ -105,12 +123,16 @@ class TaskSet(AppModel):
 
 
 class EditorRequest(AppModel):
+    """Carries editor changes submitted by a client."""
+
     expected_revision: int = Field(ge=0)
     task_spec: TaskSetSpec
     definitions: list[ScenarioDefinition] = Field(min_length=1, max_length=100)
 
 
 class Preview(AppModel):
+    """Stores the result of validating an editor request."""
+
     digest: str
     task_set_id: UUID
     workspace_revision: int
@@ -119,6 +141,8 @@ class Preview(AppModel):
 
 
 class RunRequest(AppModel):
+    """Describes a simulation run requested by a client."""
+
     request_id: UUID
     preview_digest: str
     name: str = Field(default="Baseline", min_length=1, max_length=120)
@@ -145,6 +169,8 @@ TERMINAL = {"completed", "completed_with_errors", "cancelled", "failed"}
 
 
 class OutcomeSummary(AppModel):
+    """Summarizes the result of one simulated outcome."""
+
     scenario: ConcreteScenario
     status: Status = Status.QUEUED
     cursor: int = 0
@@ -156,6 +182,8 @@ class OutcomeSummary(AppModel):
 
 
 class RunStatus(AppModel):
+    """Tracks the state and outcomes of a simulation run."""
+
     id: UUID
     name: str
     task_set_id: UUID
@@ -172,6 +200,8 @@ class RunStatus(AppModel):
 
 
 class Workspace(AppModel):
+    """Stores editable simulation inputs and run history."""
+
     id: UUID = Field(default_factory=uuid4)
     revision: int = 0
     task_spec: TaskSetSpec = Field(default_factory=TaskSetSpec)
@@ -188,10 +218,14 @@ class Workspace(AppModel):
 
 
 class ComparisonMutation(AppModel):
+    """Describes a change to a comparison workspace."""
+
     action: Literal["pin", "unpin", "baseline", "delete"]
 
 
 class StageLoss(AppModel):
+    """Stores value lost during one workflow stage."""
+
     stage: str
     label: str
     loss_percent: float
@@ -199,6 +233,8 @@ class StageLoss(AppModel):
 
 
 class ResourceActivity(AppModel):
+    """Summarizes activity for one simulation resource."""
+
     stage: str
     label: str
     durations: dict[str, float]
@@ -206,6 +242,8 @@ class ResourceActivity(AppModel):
 
 
 class Backlog(AppModel):
+    """Stores backlog counts for a simulation stage."""
+
     stage: str
     label: str
     time: list[float]
@@ -214,6 +252,8 @@ class Backlog(AppModel):
 
 
 class PlotData(AppModel):
+    """Stores chart labels and series values."""
+
     loss_percent: float | None
     stages: list[StageLoss]
     activity: list[ResourceActivity]
@@ -221,6 +261,8 @@ class PlotData(AppModel):
 
 
 class Observation(AppModel):
+    """Stores a derived observation about simulation results."""
+
     rule: str
     message: str
     evidence: str
@@ -229,12 +271,16 @@ class Observation(AppModel):
 
 
 class ResultView(AppModel):
+    """Collects metrics and observations for a result view."""
+
     scenario_id: UUID
     metrics: PlotData
     observations: list[Observation]
 
 
 class AppConfig(AppModel):
+    """Stores application runtime configuration."""
+
     limits: dict[str, int | float]
     ready: bool
     error: ErrorEnvelope | None = None

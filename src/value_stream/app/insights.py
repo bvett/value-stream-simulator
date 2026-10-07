@@ -1,9 +1,17 @@
 """Small evidence-backed observations; proposed interventions are untested."""
+from .schemas import ModelSettings, Observation, PlotData
 
-from .schemas import Observation
 
+def observations(metrics: PlotData, settings: ModelSettings) -> list[Observation]:
+    """Build evidence-backed observations from simulation metrics.
 
-def observations(metrics, settings):
+    Args:
+        metrics (PlotData): Simulation metrics to summarize.
+        settings (ModelSettings): Model settings used to suggest changes.
+
+    Returns:
+        list[Observation]: Findings derived from the supplied metrics.
+    """
     if metrics.loss_percent is None:
         return [
             Observation(

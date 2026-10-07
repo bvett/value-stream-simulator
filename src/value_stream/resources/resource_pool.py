@@ -32,6 +32,8 @@ class ResourcePool(BaseModel):
 
 
 class PooledResource:
+    """Tracks whether a resource is available to the pool."""
+
     @classmethod
     def create_pool(cls, limit: Optional[int] = None, **kwargs):
         return ResourcePool(class_name=cls, limit=limit, **kwargs)

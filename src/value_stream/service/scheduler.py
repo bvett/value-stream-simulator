@@ -14,7 +14,15 @@ from .settings import ServiceSettings
 
 
 class ModelScheduler:
-    def __init__(self, store: JobStorage, settings: ServiceSettings):
+    """Schedules simulation jobs and manages their worker processes."""
+
+    def __init__(self, store: JobStorage, settings: ServiceSettings) -> None:
+        """Configure job scheduling and worker limits.
+
+        Args:
+            store (JobStorage): Store used to retrieve or update data.
+            settings (ServiceSettings): Settings to validate or use.
+        """
         self.store = store
         self.settings = settings
         self._executor = ThreadPoolExecutor(max_workers=settings.max_model_workers)
@@ -26,6 +34,15 @@ class ModelScheduler:
         self._closed = False
 
     def submit(self, job_id: UUID, request: JobRequest) -> None:
+        """Submit a simulation job.
+
+        Args:
+            job_id (UUID): Identifier of the job.
+            request (JobRequest): Request data to process.
+
+        Raises:
+            RuntimeError: If the scheduler cannot accept the job.
+        """
         with self._lock:
             if self._closed:
                 raise RuntimeError("scheduler is closed")
@@ -36,6 +53,12 @@ class ModelScheduler:
                 self._start_job(job_id, request)
 
     def _start_job(self, job_id: UUID, request: JobRequest) -> None:
+        """Start processing a queued job.
+
+        Args:
+            job_id (UUID): Identifier of the job.
+            request (JobRequest): Request data to process.
+        """
         futures = [
             self._executor.submit(self._run_model, job_id, request, index)
             for index in range(len(request.models))
@@ -45,6 +68,11 @@ class ModelScheduler:
             future.add_done_callback(lambda _done, job=job_id: self._forget_finished(job))
 
     def _forget_finished(self, job_id: UUID) -> None:
+        """Remove completed jobs from the active set.
+
+        Args:
+            job_id (UUID): Identifier of the job.
+        """
         with self._lock:
             futures = self._futures.get(job_id)
             if futures is not None and all(future.done() for future in futures):
@@ -65,6 +93,20 @@ class ModelScheduler:
                     self._start_job(next_id, next_request)
 
     def _run_model(self, job_id: UUID, request: JobRequest, index: int) -> None:
+        """Run one model and record its result.
+
+        Args:
+            job_id (UUID): Identifier of the job.
+            request (JobRequest): Request data to process.
+            index (int): Index of the scenario or model.
+
+        Raises:
+            RuntimeError: If the model configuration or simulation execution is invalid.
+            ValueError: If the model configuration or simulation execution is invalid.
+
+        Returns:
+            None: The resulting value.
+        """
         try:
             if not self.store.start_model(job_id, index):
                 return
@@ -139,6 +181,11 @@ class ModelScheduler:
 
     @staticmethod
     def _stop_process(process: subprocess.Popen | None) -> None:
+        """Stop a worker process.
+
+        Args:
+            process (subprocess.Popen | None): Process.
+        """
         if process is None or process.poll() is not None:
             return
         process.terminate()
@@ -149,6 +196,11 @@ class ModelScheduler:
             process.communicate()
 
     def cancel(self, job_id: UUID) -> None:
+        """Cancel the requested job.
+
+        Args:
+            job_id (UUID): Identifier of the job.
+        """
         self.store.cancel(job_id)
         with self._lock:
             self._pending_jobs = deque(
@@ -168,6 +220,11 @@ class ModelScheduler:
                 process.terminate()
 
     def close(self) -> None:
+        """Close the client and release its resources.
+
+
+
+        """
         with self._lock:
             if self._closed:
                 return

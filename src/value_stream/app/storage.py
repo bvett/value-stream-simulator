@@ -1,9 +1,10 @@
 """Replaceable, bounded workspace storage. Locks protect atomic mutations."""
 
+from typing import Protocol, Optional
+
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from threading import RLock
-from typing import Protocol, Optional
 from uuid import UUID, uuid4
 import time
 
@@ -28,6 +29,8 @@ from .settings import AppSettings
 
 @dataclass
 class RunRecord:
+    """Combines a run status with its retained results."""
+
     status: RunStatus
     task_set: TaskSet
     request: RunRequest
@@ -42,6 +45,8 @@ class RunRecord:
 
 
 class WorkspaceStore(Protocol):
+    """Defines storage operations for workspaces and runs."""
+
     settings: AppSettings
 
     def create(self) -> Workspace: ...
@@ -70,7 +75,14 @@ class WorkspaceStore(Protocol):
 
 
 class InMemoryWorkspaceStore:
-    def __init__(self, settings: Optional[AppSettings] = None):
+    """Stores workspaces and run data in memory."""
+
+    def __init__(self, settings: Optional[AppSettings] = None) -> None:
+        """Initialize the in-memory workspace store.
+
+        Args:
+            settings (Optional[AppSettings]): Settings to validate or use.
+        """
         self.settings = settings or AppSettings()
         self.workspaces: dict[UUID, Workspace] = {}
         self.runs: dict[UUID, RunRecord] = {}
@@ -78,6 +90,14 @@ class InMemoryWorkspaceStore:
         self.lock = RLock()
 
     def create(self) -> Workspace:
+        """Create a workspace with its initial task set.
+
+        Raises:
+            AppError: If the workspace or task set cannot be created within configured limits.
+
+        Returns:
+            Workspace: The new workspace.
+        """
         with self.lock:
             if len(self.workspaces) >= self.settings.max_workspaces:
                 raise AppError(
@@ -90,6 +110,17 @@ class InMemoryWorkspaceStore:
             return workspace
 
     def get(self, workspace_id: UUID) -> Workspace:
+        """Return the workspace with the requested identifier.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+
+        Raises:
+            AppError: If the workspace does not exist.
+
+        Returns:
+            Workspace: The stored workspace.
+        """
         try:
             return self.workspaces[workspace_id]
         except KeyError as exc:
@@ -100,12 +131,32 @@ class InMemoryWorkspaceStore:
             ) from exc
 
     def run(self, workspace_id: UUID, run_id: UUID) -> RunRecord:
+        """Return a run record from the requested workspace.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+            run_id (UUID): Identifier of the simulation run.
+
+        Raises:
+            AppError: If the workspace or run does not exist.
+
+        Returns:
+            RunRecord: The matching run record.
+        """
         w = self.get(workspace_id)
         if run_id not in {r.id for r in w.runs}:
             raise AppError("RUN_NOT_FOUND", "Run not found", 404)
         return self.runs[run_id]
 
     def delete_workspace(self, workspace_id: UUID) -> None:
+        """Delete the requested workspace.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+
+        Raises:
+            AppError: If the workspace does not exist or cannot be removed.
+        """
         with self.lock:
             w = self.get(workspace_id)
             if any(r.state not in TERMINAL for r in w.runs):
@@ -120,15 +171,38 @@ class InMemoryWorkspaceStore:
             self.prune_cache()
 
     def active_records(self) -> list[RunRecord]:
+        """Return the active run records.
+
+        Returns:
+            list[RunRecord]: Active run records in the workspace.
+        """
         return [r for r in self.runs.values() if r.status.state not in TERMINAL]
 
     def cached_result(self, key: str) -> ResultData:
+        """Return a cached simulation result.
+
+        Args:
+            key (str): Cache key to look up.
+
+        Returns:
+            ResultData: Cached result for the supplied cache key, if present.
+        """
         self.cache.move_to_end(key)
         return self.cache[key][0]
 
     def delete_task_set(
         self, workspace_id: UUID, task_set_id: UUID, expected_revision: int
     ) -> None:
+        """Delete the requested task set.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+            task_set_id (UUID): Identifier of the task set.
+            expected_revision (int): Revision expected by the client.
+
+        Raises:
+            AppError: If the task set is missing, current, or has changed since it was read.
+        """
         with self.lock:
             w = self.get(workspace_id)
             if w.revision != expected_revision:
@@ -147,6 +221,18 @@ class InMemoryWorkspaceStore:
             w.revision += 1
 
     def save_editor(self, workspace_id: UUID, request: EditorRequest) -> Preview:
+        """Save editor changes and validate the preview.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+            request (EditorRequest): Request data to process.
+
+        Raises:
+            AppError: If the workspace revision conflicts or the proposed inputs are invalid or over limit.
+
+        Returns:
+            Preview: The resulting value.
+        """
         with self.lock:
             w = self.get(workspace_id)
             if request.expected_revision != w.revision:
@@ -203,7 +289,19 @@ class InMemoryWorkspaceStore:
         # Run summaries include their frozen model configurations, never raw results.
         return len(canonical(w.model_dump(mode="json")).encode())
 
-    def _preview(self, w: Workspace, scenarios: list[ConcreteScenario]):
+    def _preview(self, w: Workspace, scenarios: list[ConcreteScenario]) -> Preview:
+        """Build a preview for concrete scenarios.
+
+        Args:
+            w (Workspace): W.
+            scenarios (list[ConcreteScenario]): Concrete scenarios to preview.
+
+        Raises:
+            AppError: If no task set has been saved for the workspace.
+
+        Returns:
+            Preview: Preview of the concrete scenarios.
+        """
         if w.current_task_set is None:
             raise AppError("INVALID_INPUT", "Save and preview inputs first")
         digest = fingerprint(
@@ -222,10 +320,30 @@ class InMemoryWorkspaceStore:
         )
 
     def preview(self, workspace_id: UUID) -> Preview:
+        """Build a preview of the proposed changes.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+
+        Returns:
+            Preview: Preview of the current workspace inputs.
+        """
         w = self.get(workspace_id)
         return self._preview(w, expand_scenarios(w.definitions, self.settings))
 
     def previous(self, workspace: Workspace, request: RunRequest) -> RunRecord | None:
+        """Find the previous matching run.
+
+        Args:
+            workspace (Workspace): Workspace to update.
+            request (RunRequest): Request data to process.
+
+        Raises:
+            AppError: If the workspace has no matching run.
+
+        Returns:
+            RunRecord | None: Matching run record, or None when no prior run matches.
+        """
         hashed = fingerprint(request.model_dump(mode="json"))
         for status in workspace.runs:
             record = self.runs[status.id]
@@ -246,6 +364,20 @@ class InMemoryWorkspaceStore:
         scenarios: list[ConcreteScenario],
         task_set: TaskSet,
     ) -> tuple[RunRecord, bool]:
+        """Register a simulation run.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+            request (RunRequest): Request data to process.
+            scenarios (list[ConcreteScenario]): Concrete scenarios to preview.
+            task_set (TaskSet): Task set used to create the run.
+
+        Raises:
+            AppError: If the workspace is missing or capacity limits prevent registration.
+
+        Returns:
+            tuple[RunRecord, bool]: The resulting value.
+        """
         with self.lock:
             w = self.get(workspace_id)
             previous = self.previous(w, request)
@@ -329,6 +461,16 @@ class InMemoryWorkspaceStore:
             return record, True
 
     def retain_result(self, record: RunRecord, index: int, result: ResultData) -> None:
+        """Retain the result for a completed scenario.
+
+        Args:
+            record (RunRecord): Run record to update.
+            index (int): Index of the scenario or model.
+            result (ResultData): Simulation result to retain.
+
+        Raises:
+            AppError: If the result cannot be retained for the run.
+        """
         with self.lock:
             key = record.cache_keys[index]
             size = len(result.model_dump_json().encode())
@@ -351,13 +493,31 @@ class InMemoryWorkspaceStore:
             record.results[record.status.outcomes[index].scenario.id] = key
 
     def result(self, record: RunRecord, scenario_id: UUID) -> ResultData:
+        """Return the retained simulation result.
+
+        Args:
+            record (RunRecord): Run record to update.
+            scenario_id (UUID): Identifier of the scenario.
+
+        Raises:
+            AppError: If the requested scenario result is not available.
+
+        Returns:
+            ResultData: Retained result for the requested scenario.
+        """
         key = record.results.get(scenario_id)
         if key is None or key not in self.cache:
             raise AppError("RESULT_NOT_FOUND", "This scenario has no completed result", 404)
         self.cache.move_to_end(key)
         return self.cache[key][0]
 
-    def finish(self, workspace_id: UUID, record: RunRecord):
+    def finish(self, workspace_id: UUID, record: RunRecord) -> None:
+        """Mark the run as finished.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+            record (RunRecord): Run record to update.
+        """
         record.reservation = 0
         w = self.get(workspace_id)
         if (
@@ -370,6 +530,19 @@ class InMemoryWorkspaceStore:
                 w.latest_id = record.status.id
 
     def comparison(self, workspace_id: UUID, run_id: UUID, action: str) -> Workspace:
+        """Apply a comparison operation to the workspace.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+            run_id (UUID): Identifier of the simulation run.
+            action (str): Comparison action to apply.
+
+        Raises:
+            AppError: If the workspace or comparison action is invalid.
+
+        Returns:
+            Workspace: The resulting value.
+        """
         with self.lock:
             w = self.get(workspace_id)
             r = self.run(workspace_id, run_id)
@@ -405,6 +578,14 @@ class InMemoryWorkspaceStore:
             return w
 
     def prune_history(self, w: Workspace) -> None:
+        """Remove old run history.
+
+        Args:
+            w (Workspace): W.
+
+        Raises:
+            AppError: If run history cannot be pruned while preserving active records.
+        """
         protected = {w.baseline_id, w.latest_id}
         for r in list(w.runs):
             if len(w.runs) < self.settings.max_retained_runs:
@@ -416,6 +597,13 @@ class InMemoryWorkspaceStore:
             raise AppError("APP_CAPACITY", "Run history is full. Delete a comparison.", 429)
 
     def prune_for_capacity(self, required: int, protect: set[str]) -> None:
+        """Remove retained data to free capacity.
+
+        Args:
+            required (int): Required capacity.
+            protect (set[str]): Cache keys that must be retained.
+        """
+
         def used():
             return sum(v[1] for v in self.cache.values()) + sum(
                 r.reservation for r in self.runs.values()
@@ -439,7 +627,13 @@ class InMemoryWorkspaceStore:
             self.runs.pop(status.id)
             self.prune_cache(required=required, protect=protect)
 
-    def prune_cache(self, required: int = 0, protect: Optional[set[str]] = None):
+    def prune_cache(self, required: int = 0, protect: Optional[set[str]] = None) -> None:
+        """Remove cached results until capacity is available.
+
+        Args:
+            required (int): Required capacity.
+            protect (Optional[set[str]]): Cache keys that must be retained.
+        """
         references = {key for r in self.runs.values() for key in r.results.values()}
         active_keys = {
             key

@@ -15,9 +15,26 @@ class Developer(Resource):
     name: str = ""
 
     def effort(self, tasks: list[Task]) -> float:
+        """Return the developer effort for the supplied tasks.
+
+        Args:
+            tasks (list[Task]): Tasks to process.
+
+        Returns:
+            float: The developer effort assigned to the supplied tasks.
+        """
         return sum([task.remaining_work() / self.efficiency for task in tasks])
 
     def do_work(self, env: Environment, tasks: list[Task]) -> Generator[Timeout, Any, None]:
+        """Apply developer effort to tasks and yield until the work completes.
+
+        Args:
+            env (Environment): Simulation environment.
+            tasks (list[Task]): Tasks to process.
+
+        Yields:
+            Timeout: Event that completes developer work.
+        """
         start = env.now
 
         try:

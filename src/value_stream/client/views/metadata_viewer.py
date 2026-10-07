@@ -11,6 +11,8 @@ from .viewer import Viewer
 
 
 class MetadataViewer(Viewer):
+    """Displays simulation metadata."""
+
     def __init__(
         self,
         results: list[SimulationResult],

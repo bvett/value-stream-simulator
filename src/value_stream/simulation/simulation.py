@@ -17,13 +17,23 @@ logger = logging.getLogger(__name__)
 
 
 class Simulation:
+    """Runs a model against a task set and collects results."""
 
     task_states = SDLCWorkflow.WorkflowState
 
     def execute(
         self, model: Model, tasks: list[Task], policy: SimulationPolicy
     ) -> SimulationResult:
+        """Execute the requested simulation operation.
 
+        Args:
+            model (Model): Model configuration for the simulation.
+            tasks (list[Task]): Tasks to process.
+            policy (SimulationPolicy): Policy used to make simulation decisions.
+
+        Returns:
+            SimulationResult: SimulationResult containing the completed run metrics and task history.
+        """
         env = Environment()
 
         pending = TaskStore(env, SDLCWorkflow.WorkflowState.PENDING)
@@ -95,7 +105,16 @@ class Simulation:
     def _process_results(
         self, model: Model, completed_tasks: dict[Event, list[Task]], sim_duration: float
     ) -> tuple[SummaryResult, list[TaskEvent]]:
+        """Collect task and resource metrics from the completed simulation.
 
+        Args:
+            model (Model): Model configuration for the simulation.
+            completed_tasks (dict[Event, list[Task]]): Completed tasks grouped by their final event.
+            sim_duration (float): Elapsed simulation time.
+
+        Returns:
+            tuple[SummaryResult, list[TaskEvent]]: Summary metrics, task events, and resource activity for the completed run.
+        """
         total_initial_value = 0
         total_delivered_value = 0
 

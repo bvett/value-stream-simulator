@@ -4,6 +4,8 @@ from value_stream.resources import Developer, QATester, Toolchain, ResourcePool
 
 
 class Model(BaseModel):
+    """Defines the resources and settings used for one simulation."""
+
     developer_team: list[Developer]
     deployment_cadence: NonNegativeInt
     qa_testers: ResourcePool | Iterable[QATester]
@@ -18,7 +20,7 @@ class Model(BaseModel):
         toolchain_concurrency (int): Max number of deployments that can occur simultaneously
         deployment_duration (float): Duration of a deployment in time units
         deployment_cadence (int): Time interval between deployment activities.
-        support_interval (float|None): Frequency of support task generation.  
+        support_interval (float|None): Frequency of support task generation.
         support_task_story_points (float): Number of story points assigned to generated support tasks.
     """
 

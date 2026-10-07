@@ -1,6 +1,5 @@
-import copy
-import uuid
 from typing import Collection, Optional, Self
+import uuid
 
 from pydantic import BaseModel, Field, PrivateAttr
 from simpy import Environment
@@ -43,14 +42,15 @@ class Task(BaseModel):
         return self._history
 
     def value(self, epoch_t: Optional[float] = None) -> float:
-        """Calculates the value of the task at a specified time
+        """Calculates the value of the task at a specified time.
 
         Args:
-            time (Optional[float], optional): Simulation time. Defaults to None.
+            epoch_t (Optional[float]): Time in the task epoch.
 
         Returns:
-            float: depreciated value of the task
+            float: Task value at the requested epoch time.
         """
+
         if epoch_t is None:
             return self.initial_value
 
@@ -59,7 +59,15 @@ class Task(BaseModel):
         return self.initial_value * ((1 - self.depreciation_rate) ** (sim_t - self.creation_sim_t))
 
     def loss(self, from_epoch_t: float, to_epoch_t: float) -> float:
-        """Returns percentage difference between initial value and delivered value, or 0 if undelivered."""
+        """Returns percentage difference between initial value and delivered value, or 0 if undelivered.
+
+        Args:
+            from_epoch_t (float): Start time in the task epoch.
+            to_epoch_t (float): End time in the task epoch.
+
+        Returns:
+            float: Relative value change between the two epoch times.
+        """
 
         starting_value = self.value(epoch_t=from_epoch_t)
 
@@ -74,7 +82,14 @@ class Task(BaseModel):
         return self.task_name if self.task_name else ""
 
     def reset(self, epoch_start_sim_t: float = 0) -> "Task":
-        """Returns a clone of the task except history"""
+        """Returns a clone of the task except history.
+
+        Args:
+            epoch_start_sim_t (float): Simulation time at the start of the epoch.
+
+        Returns:
+                "Task": New task with the same settings and reset history.
+        """
 
         result = Task(
             task_name=self.task_name,
@@ -90,8 +105,18 @@ class Task(BaseModel):
     def remaining_work(self):
         return self.story_points - self.history.completed_story_points
 
-    def do_work(self, story_points: float):
+    def do_work(self, story_points: float) -> float:
+        """Apply work to the task.
 
+        Args:
+            story_points (float): Amount of work to apply.
+
+        Raises:
+            ValueError: If applying the work would make completed story points negative.
+
+        Returns:
+            float: Work remaining after the task reaches its story point limit, or zero.
+        """
         # negative story points are allowed to represent regression
         remaining_work = self.remaining_work()
 
@@ -112,8 +137,15 @@ class Task(BaseModel):
         event: Optional[TaskState] = None,
         status: EventStatus = EventStatus.SUCCESS,
         resource_id: Optional[uuid.UUID] = None,
-    ):
+    ) -> None:
+        """Record completion of the current task event.
 
+        Args:
+            sim_t (float): Sim t.
+            event (Optional[TaskState]): Workflow event to record.
+            status (EventStatus): Current outcome status.
+            resource_id (Optional[uuid.UUID]): Identifier of the resource handling the task.
+        """
         last_event = self.history.last_event()
 
         loss = (
@@ -133,7 +165,16 @@ class Task(BaseModel):
             is_rework=self.is_rework,
         )
 
-    def start(self, sim_t: float, event: TaskState, resource_id: Optional[uuid.UUID] = None):
+    def start(
+        self, sim_t: float, event: TaskState, resource_id: Optional[uuid.UUID] = None
+    ) -> None:
+        """Record that task work has started.
+
+        Args:
+            sim_t (float): Sim t.
+            event (TaskState): Workflow event to record.
+            resource_id (Optional[uuid.UUID]): Identifier of the resource handling the task.
+        """
         self.history.start(
             sim_time=sim_t,
             event=event,
@@ -142,7 +183,12 @@ class Task(BaseModel):
             resource_id=resource_id,
         )
 
-    def resume(self, event: TaskState):
+    def resume(self, event: TaskState) -> None:
+        """Resume the requested simulation run.
+
+        Args:
+            event (TaskState): Workflow event to record.
+        """
         self.history.resume(event=event)
 
     def terminate(
@@ -151,7 +197,15 @@ class Task(BaseModel):
         event: TaskState,
         status: EventStatus = EventStatus.SUCCESS,
         resource_id: Optional[uuid.UUID] = None,
-    ):
+    ) -> None:
+        """Record a terminal event and the task delivered value.
+
+        Args:
+            sim_t (float): Sim t.
+            event (TaskState): Workflow event to record.
+            status (EventStatus): Current outcome status.
+            resource_id (Optional[uuid.UUID]): Identifier of the resource handling the task.
+        """
         self.history.terminate(
             sim_time=sim_t,
             event=event,
@@ -165,19 +219,37 @@ class Task(BaseModel):
         self.history.delivered_value = self.value(delivered_epoch_t)
 
     def as_rework(self) -> Self:
+        """Mark the task as rework.
+
+        Returns:
+            Self: This task, marked as rework.
+        """
         self.is_rework = True
         return self
 
     def clear_rework(self) -> Self:
+        """Clear the task rework flag.
+
+        Returns:
+            Self: This task, with its rework marker cleared.
+        """
         self.is_rework = False
         return self
 
 
 class SupportTask(Task):
+    """Represents support work with no delivered business value."""
+
     def __init__(
         self, story_points: float, task_name: Optional[str] = None, creation_sim_t: float = 0.0
-    ):
+    ) -> None:
+        """Initialize a support task with no delivered value.
 
+        Args:
+            story_points (float): Amount of work to apply.
+            task_name (Optional[str]): Optional task name.
+            creation_sim_t (float): Creation sim t.
+        """
         super().__init__(
             initial_value=0,
             story_points=story_points,

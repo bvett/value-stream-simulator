@@ -18,6 +18,8 @@ class Resource(ABC, BaseModel):
     """Base class for simulation objects that operate on tasks"""
 
     class ProcessWrapper(Process):
+        """SimPy process that retains the tasks being processed."""
+
         def __init__(self, env: Environment, tasks: list[Task], generator: ProcessGenerator):
             super().__init__(env, generator)
             self.tasks = tasks
@@ -52,8 +54,20 @@ class Resource(ABC, BaseModel):
         policy: ResourcePolicy,
         workflow_state: TaskState,
         tracker: ResourceTracker,
-    ):
-        """Simulates an action on a task object"""
+    ) -> Generator[Event, Any, None]:
+        """Simulates an action on a task object.
+
+        Args:
+            env (Environment): Simulation environment.
+            tasks (list[Task]): Tasks to process.
+            task_router (TaskRouter): Router for completed tasks.
+            policy (ResourcePolicy): Policy used to make simulation decisions.
+            workflow_state (TaskState): Workflow state associated with the operation.
+            tracker (ResourceTracker): Tracker for resource activity.
+
+        Yields:
+            Event: SimPy events yielded while processing tasks.
+        """
 
         for task in tasks:
             task.start(env.now, workflow_state, resource_id=self._id)
@@ -118,7 +132,18 @@ class Resource(ABC, BaseModel):
     def do_work(self, env: Environment, tasks: list[Task]) -> Generator[Timeout, Any, None]:
         pass
 
-    def _pause(self, env: Environment):
+    def _pause(self, env: Environment) -> Generator[Event, Any, None]:
+        """Wait until interrupted work can resume.
+
+        Args:
+            env (Environment): Simulation environment.
+
+        Raises:
+            RuntimeError: If the number of suspended work signals exceeds the backlog limit.
+
+        Yields:
+            Event: SimPy events yielded while waiting for work to resume.
+        """
         while True:
             signal = env.event()
             self._suspended_work.append(signal)

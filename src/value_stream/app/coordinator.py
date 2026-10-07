@@ -1,9 +1,10 @@
 """Application run coordination, separate from routes and worker execution."""
 
+from typing import Optional
+
 import asyncio
 import logging
 import time
-from typing import Optional
 from uuid import uuid5, UUID
 from value_stream.app.schemas import RunStatus
 from value_stream.service.schemas import JobRequest, ErrorEnvelope, ResultData
@@ -18,12 +19,33 @@ logger = logging.getLogger(__name__)
 
 
 class RunCoordinator:
-    def __init__(self, store: WorkspaceStore, gateway: SimulationGateway):
+    """Coordinates workspace runs and communicates with the simulation service."""
+
+    def __init__(self, store: WorkspaceStore, gateway: SimulationGateway) -> None:
+        """Configure run coordination with its workspace store and simulation gateway.
+
+        Args:
+            store (WorkspaceStore): Store used to retrieve or update data.
+            gateway (SimulationGateway): Simulation service gateway.
+        """
         self.store, self.gateway = store, gateway
         self.tasks = {}
         self.closed = False
 
     async def start_run(self, workspace_id: UUID, request: RunRequest) -> RunStatus:
+        """Start a run for the requested workspace scenarios.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+            request (RunRequest): Request data to process.
+
+        Raises:
+            AppError: If the service is unavailable, the request is invalid, or an active run conflicts with it.
+
+        Returns:
+            RunStatus: The resulting value.
+        """
+
         if self.closed:
             raise AppError("SERVICE_UNAVAILABLE", "Application is shutting down", 503)
         w = self.store.get(workspace_id)
@@ -98,7 +120,13 @@ class RunCoordinator:
             self.launch(workspace_id, record)
         return record.status
 
-    def launch(self, workspace_id: UUID, record: RunRecord):
+    def launch(self, workspace_id: UUID, record: RunRecord) -> None:
+        """Launch execution of a simulation run.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+            record (RunRecord): Run record to update.
+        """
         record.status.retry_paused = False
         task = asyncio.create_task(self.execute(workspace_id, record))
         self.tasks[record.status.id] = task
@@ -116,9 +144,19 @@ class RunCoordinator:
         index: int,
         status: Status,
         result: Optional[ResultData] = None,
-        error=None,
+        error: ErrorEnvelope | None = None,
         cached: bool = False,
-    ):
+    ) -> None:
+        """Record the completed scenario outcome.
+
+        Args:
+            record (RunRecord): Run record to update.
+            index (int): Index of the scenario or model.
+            status (Status): Current outcome status.
+            result (Optional[ResultData]): Simulation result to retain.
+            error (ErrorEnvelope | None): Optional error returned for the scenario.
+            cached (bool): Whether the result came from the cache.
+        """
         outcome = record.status.outcomes[index]
         if outcome.cursor:
             return
@@ -134,7 +172,16 @@ class RunCoordinator:
         record.status.last_cursor += 1
         outcome.cursor = record.status.last_cursor
 
-    async def execute(self, workspace_id: UUID, record: RunRecord):
+    async def execute(self, workspace_id: UUID, record: RunRecord) -> None:
+        """Execute the requested simulation operation.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+            record (RunRecord): Run record to update.
+
+        Raises:
+            AppError: If the simulation service rejects the job or cannot be reached.
+        """
         status = record.status
         retry_start = None
         delay = self.store.settings.poll_seconds
@@ -252,7 +299,16 @@ class RunCoordinator:
             status.state = "failed"
             self.store.finish(workspace_id, record)
 
-    async def cancel_run(self, workspace_id: UUID, run_id: UUID):
+    async def cancel_run(self, workspace_id: UUID, run_id: UUID) -> RunStatus:
+        """Cancel a run that has not reached a terminal state.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+            run_id (UUID): Identifier of the simulation run.
+
+        Returns:
+            RunStatus: Updated status of the cancelled run.
+        """
         record = self.store.run(workspace_id, run_id)
         if record.status.state not in TERMINAL:
             record.status.cancel_requested = True
@@ -261,13 +317,23 @@ class RunCoordinator:
                 self.launch(workspace_id, record)
         return record.status
 
-    def resume(self, workspace_id: UUID, run_id: UUID):
+    def resume(self, workspace_id: UUID, run_id: UUID) -> RunStatus:
+        """Resume a paused simulation run.
+
+        Args:
+            workspace_id (UUID): Identifier of the workspace.
+            run_id (UUID): Identifier of the simulation run.
+
+        Returns:
+            RunStatus: Current status of the resumed run.
+        """
         record = self.store.run(workspace_id, run_id)
         if record.status.state not in TERMINAL and run_id not in self.tasks:
             self.launch(workspace_id, record)
         return record.status
 
-    async def close(self):
+    async def close(self) -> None:
+        """Close the client and release its resources."""
         self.closed = True
 
         async def cancel(record: RunRecord):

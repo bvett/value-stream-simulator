@@ -4,6 +4,8 @@ from value_stream.task import TaskState
 
 
 class ResourceMetadata(BaseModel):
+    """Stores metadata collected for one simulation resource."""
+
     model_config = ConfigDict(use_enum_values=True)
 
     time: float

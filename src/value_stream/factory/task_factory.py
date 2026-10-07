@@ -1,5 +1,5 @@
+from typing import Any, Type, Optional
 import random
-from typing import Type, Optional
 
 from simpy import Environment
 
@@ -11,27 +11,31 @@ from .factory import Factory
 class TaskFactory(Factory):
     """Utility for creating Tasks"""
 
-    def __init__(self, cls: Type[Task] = Task, **task_kwargs):
-        """Initializes a TaskFactory
+    def __init__(self, cls: Type[Task] = Task, **task_kwargs: Any) -> None:
+        """Initializes a TaskFactory.
 
         Args:
-            cls (Type[Task], optional): Creates objects of this class. Defaults to Task.
-            env (Optional[Environment], optional): If provided,
-                used for setting creation_sim_t of the tasks. Defaults to None.
+            **task_kwargs (Any): Default task constructor arguments.
         """
+
         self._task_kwargs = task_kwargs
         self.cls = cls
 
     def create(
         self, count: int, env: Optional[Environment] = None, shuffle: bool = True
     ) -> list[Task]:
-        """Creates Task objects based on TaskFactory configuration
+        """Creates Task objects based on TaskFactory configuration.
 
         Args:
-            count (int): number of tasks to create
+            count (int): Number of objects to create.
+            env (Optional[Environment]): Simulation environment.
+            shuffle (bool): Whether to randomize the created task order.
 
-            shuffle (bool, optional): Randomizes the order of the created tasks. Defaults to True.
+        Raises:
+            ValueError: If count is not positive or environment time conflicts with creation_sim_t.
 
+        Returns:
+            list[Task]: Tasks created with this factory configuration.
         """
 
         if count <= 0:

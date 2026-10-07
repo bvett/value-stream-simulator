@@ -26,7 +26,16 @@ def loss_percent(initial, delivered):
 
 
 # thin out by chunking and returning start, end, min and max from each chunk
-def reduce_points(points: list[tuple[float, int]], limit=5000):
+def reduce_points(points: list[tuple[float, int]], limit: int = 5000) -> list[tuple[float, int]]:
+    """Keep representative extrema while reducing a series to the point limit.
+
+    Args:
+        points (list[tuple[float, int]]): Ordered (time, value) points to reduce.
+        limit (int): Maximum number of points to keep.
+
+    Returns:
+        list[tuple[float, int]]: Reduced points, preserving each chunk boundary and extreme value.
+    """
     if len(points) <= limit:
         return points
     width = max(1, (len(points) + limit // 4 - 1) // (limit // 4))
@@ -43,7 +52,19 @@ def reduce_points(points: list[tuple[float, int]], limit=5000):
     return result
 
 
-def plot_data(result: ResultData, initial) -> PlotData:
+def plot_data(result: ResultData, initial: float) -> PlotData:
+    """Build plot data from a simulation result.
+
+    Args:
+        result (ResultData): Simulation result to retain.
+        initial (float): Total initial task value used to calculate loss.
+
+    Raises:
+        AppError: If the requested operation is invalid.
+
+    Returns:
+        PlotData: PlotData containing stage loss, resource activity, and backlog series.
+    """
     events: dict[str, list[float]] = defaultdict(list)
     durations: dict[str, dict[str, float]] = defaultdict(lambda: dict.fromkeys(CATEGORIES, 0.0))
     waiting: dict[str, dict[float, int]] = defaultdict(lambda: defaultdict(int))

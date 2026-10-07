@@ -16,6 +16,8 @@ from .errors import BatchSimulationError, JobCancelledError, ServiceClientError
 
 
 class WebSimulationClient:
+    """Sends simulation requests to the web service."""
+
     def __init__(
         self,
         service_url: str,

@@ -14,12 +14,19 @@ from .web.local_service import acquire_local_service, release_local_service
 
 
 class SimulationRunner:
+    """Submits model batches and retrieves their simulation results."""
 
     @classmethod
     def task_states(cls) -> Type[TaskState]:
         return Simulation.task_states
 
-    def __init__(self, service_url: str | None = None):
+    def __init__(self, service_url: str | None = None) -> None:
+        """Connect the runner to the configured simulation service.
+
+        Args:
+            service_url (str | None): Service url.
+        """
+
         configured_url = service_url or os.environ.get("VALUE_STREAM_SERVICE_URL") or None
         self._local_finalizer = None
         if configured_url is None:
@@ -29,6 +36,12 @@ class SimulationRunner:
         self._closed = False
 
     def close(self) -> None:
+        """Close the client and release its resources.
+
+
+
+        """
+
         if self._closed:
             return
         self._closed = True
@@ -50,7 +63,23 @@ class SimulationRunner:
         policy: SimulationPolicy = DefaultSimulationPolicy(),
         seed: int | None = None,
     ) -> list[SimulationResult]:
-        """Run the model batch and return results in submission order."""
+        """Run the model batch and return results in submission order.
+
+        Args:
+            tasks (list[Task]): Tasks to process.
+            models (Iterable[Model]): Models to simulate.
+            pbar (Optional[tqdm]): Optional progress bar to update.
+            policy (SimulationPolicy): Policy used to make simulation decisions.
+            seed (int | None): Random seed for repeatable simulation.
+
+        Raises:
+            RuntimeError: If the runner is closed or the requested policy is unsupported.
+            ValueError: If the runner is closed or the requested policy is unsupported.
+
+        Returns:
+            list[SimulationResult]: Results in the same order as the submitted models.
+        """
+
         if self._closed:
             raise RuntimeError("SimulationRunner is closed")
         if type(policy) is not DefaultSimulationPolicy:

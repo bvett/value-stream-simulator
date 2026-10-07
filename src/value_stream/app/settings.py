@@ -7,6 +7,8 @@ from dataclasses import dataclass, fields
 
 @dataclass(frozen=True)
 class AppSettings:
+    """Stores application settings."""
+
     max_workspaces: int = 4
     max_task_sets: int = 20
     max_definitions: int = 100

@@ -1,3 +1,4 @@
+from typing import Any
 from value_stream.resources import Developer
 
 from .factory import Factory
@@ -7,16 +8,12 @@ class DeveloperFactory(Factory):
     """Utility for creating Developer objects"""
 
     @classmethod
-    def create(cls, count: int, **kwargs) -> list[Developer]:
-        """Creates Developer objects based on DeveloperFactory configuration
+    def create(cls, count: int, **kwargs: Any) -> list[Developer]:
+        """Creates Developer objects based on DeveloperFactory configuration.
 
         Args:
             count (int): number of developers to create
-
-            **kwargs: key-value pairs passed to the Developer constructor.
-                if a value is an iterable (such as a generator), the next
-                value is used when creating the Developer
-
+            **kwargs (Any): Kwargs.
         """
 
         if count <= 0:

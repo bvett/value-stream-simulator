@@ -10,6 +10,7 @@ from .task_type import TaskType
 
 
 class TaskRouter(ABC):
+    """Defines how completed tasks move between workflow stores."""
 
     @abstractmethod
     def route(self, task: Task, status: Optional[EventStatus] = None) -> StorePut:
@@ -30,6 +31,8 @@ class TaskRouter(ABC):
 
 
 class DefaultRouter(TaskRouter):
+    """Routes tasks to a single configured destination."""
+
     def __init__(self, route: "Store | TaskRouter"):
         self._route = route
 
@@ -38,6 +41,8 @@ class DefaultRouter(TaskRouter):
 
 
 class StatusRouter(TaskRouter):
+    """Routes tasks according to their completion status."""
+
     def __init__(self, on_success: "Store | TaskRouter", on_failure: "Store | TaskRouter"):
         self._on_success = on_success
         self._on_failure = on_failure
@@ -51,6 +56,8 @@ class StatusRouter(TaskRouter):
 
 
 class TypeRouter(TaskRouter):
+    """Routes tasks according to their task type."""
+
     def __init__(self, on_support: "Store | TaskRouter", on_development: "Store | TaskRouter"):
         self._on_support = on_support
         self._on_failure = on_development

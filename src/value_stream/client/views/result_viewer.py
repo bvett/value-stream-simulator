@@ -7,6 +7,8 @@ from .viewer import Viewer
 
 
 class ResultViewer(Viewer):
+    """Displays simulation results."""
+
     def __init__(self, results: list[SimulationResult], colormap="plasma"):
         super().__init__(colormap)
         self._results_dict: list[Any] = []

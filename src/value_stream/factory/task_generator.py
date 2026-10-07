@@ -10,7 +10,15 @@ class TaskGenerator:
     Useful for simulating task creation over time and the creation of unexpected toil.
     """
 
-    def __init__(self, factory: TaskFactory, group_size: int = 1, limit: Optional[int] = None):
+    def __init__(self, factory: TaskFactory, group_size: int = 1, limit: Optional[int] = None) -> None:
+        """Configure task generation and its output limit.
+
+        Args:
+            factory (TaskFactory): Task factory used to create tasks.
+            group_size (int): Number of tasks generated in each group.
+            limit (Optional[int]): Maximum number of items allowed.
+        """
+
         self.group_size = group_size
         self.factory = factory
 
@@ -19,6 +27,15 @@ class TaskGenerator:
         self.limit = limit
 
     def _get_tasks(self, env: Environment) -> list[Task]:
+        """Generate the next group of tasks.
+
+        Args:
+            env (Environment): Simulation environment.
+
+        Returns:
+            list[Task]: The generated task group.
+        """
+
         self._batch_num += 1
         serial_num = 0
 
@@ -33,7 +50,18 @@ class TaskGenerator:
 
         return tasks
 
-    def start(self, env: Environment, target: Store, interval: float):
+    def start(self, env: Environment, target: Store, interval: float) -> None:
+        """Start generating tasks at the requested interval.
+
+        Args:
+            env (Environment): Simulation environment.
+            target (Store): Target.
+            interval (float): Interval.
+
+        Raises:
+            ValueError: If the generation interval is not positive.
+
+        """
 
         if interval <= 0:
             raise ValueError("interval must be > 0")
@@ -65,6 +93,12 @@ class TaskGenerator:
 
         self.proc = env.process(gen(self.limit))
 
-    def stop(self):
+    def stop(self) -> None:
+        """Stop the running operation.
+
+
+
+        """
+
         if self.proc is not None:
             self.proc.interrupt()

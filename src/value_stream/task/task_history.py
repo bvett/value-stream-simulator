@@ -1,6 +1,6 @@
+from typing import Any, Optional
 from pydantic import BaseModel, Field, PrivateAttr
 
-from typing import Optional
 from uuid import UUID
 
 from .epoch import Epoch
@@ -27,8 +27,12 @@ class TaskHistory(BaseModel):
     def events(self) -> list[TaskEvent]:
         return self._events
 
-    def last_event(self):
-        """Returns most recent event, or None if no events exist"""
+    def last_event(self) -> Optional[TaskEvent]:
+        """Return the most recent event, or ``None`` when history is empty.
+
+
+
+        """
         return None if not self.events else self.events[-1]
 
     def start(
@@ -38,10 +42,18 @@ class TaskHistory(BaseModel):
         task_type: TaskType,
         is_rework: bool,
         resource_id: Optional[UUID] = None,
-    ):
-        """Starts an event
+    ) -> None:
+        """Append a start event to the task history.
 
-        Events must be empty, no events in progress, or not terminated
+        Args:
+            sim_time (float): Simulation time of the event.
+            event (TaskState): Workflow event to record.
+            task_type (TaskType): Type of task being processed.
+            is_rework (bool): Whether the task is rework.
+            resource_id (Optional[UUID]): Identifier of the resource handling the task.
+
+        Raises:
+            ValueError: If time decreases, the task is already active, or it is terminal.
         """
 
         epoch_time = self.epoch.to_epoch_time(sim_time)
@@ -79,8 +91,21 @@ class TaskHistory(BaseModel):
         status: EventStatus = EventStatus.SUCCESS,
         loss: float = 0,
         resource_id: Optional[UUID] = None,
-    ):
-        """Ends a started event"""
+    ) -> None:
+        """Append an end event for the currently active task event.
+
+        Args:
+            sim_time (float): Simulation time of the event.
+            task_type (TaskType): Type of task being processed.
+            is_rework (bool): Whether the task is rework.
+            event (Optional[TaskState]): Workflow event to record.
+            status (EventStatus): Current outcome status.
+            loss (float): Loss.
+            resource_id (Optional[UUID]): Identifier of the resource handling the task.
+
+        Raises:
+            ValueError: If time decreases or no matching event is active.
+        """
 
         epoch_time = self.epoch.to_epoch_time(sim_time)
 
@@ -119,8 +144,16 @@ class TaskHistory(BaseModel):
         else:
             raise ValueError("Attempting to end a task when there is no previous task history")
 
-    def resume(self, event: TaskState):
-        """Removes the last event if event_type is END and matches event argument"""
+    def resume(self, event: TaskState) -> None:
+        """Remove the matching end event so the task can resume.
+
+        Args:
+            event (TaskState): Event whose end record should be removed.
+
+        Raises:
+            ValueError: If history is empty or the last event does not match.
+        """
+
         last_event = self.last_event()
 
         if last_event is None:
@@ -142,10 +175,20 @@ class TaskHistory(BaseModel):
         is_rework: bool,
         status: EventStatus = EventStatus.SUCCESS,
         resource_id: Optional[UUID] = None,
-    ):
-        """Adds a terminal event to the history.
+    ) -> None:
+        """Append a terminal event that prevents later events from starting.
 
-        A terminal event prevents additional events from being started"""
+        Args:
+            sim_time (float): Simulation time of the event.
+            event (TaskState): Workflow event to record.
+            task_type (TaskType): Type of task being processed.
+            is_rework (bool): Whether the task is rework.
+            status (EventStatus): Current outcome status.
+            resource_id (Optional[UUID]): Identifier of the resource handling the task.
+
+        Raises:
+            ValueError: If time decreases or the task is already terminal.
+        """
 
         epoch_time = self.epoch.to_epoch_time(sim_time)
 

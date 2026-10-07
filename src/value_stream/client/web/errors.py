@@ -5,10 +5,14 @@ from value_stream.service.schemas import ModelError
 
 
 class ServiceClientError(RuntimeError):
+    """Base error raised by the web service client."""
+
     pass
 
 
 class BatchSimulationError(ServiceClientError):
+    """Reports a failure while running a batch of simulations."""
+
     def __init__(
         self,
         successful_results: list[tuple[int, SimulationResult]],
@@ -20,4 +24,6 @@ class BatchSimulationError(ServiceClientError):
 
 
 class JobCancelledError(ServiceClientError):
+    """Reports that a simulation job was cancelled."""
+
     pass
