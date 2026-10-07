@@ -3,6 +3,7 @@
     "schemas": {
       "DeveloperInput": {
         "additionalProperties": false,
+        "description": "Defines developer configuration accepted by the service.",
         "properties": {
           "efficiency": {
             "default": 1,
@@ -21,6 +22,7 @@
       },
       "ErrorEnvelope": {
         "additionalProperties": false,
+        "description": "Wraps a service error response.",
         "properties": {
           "code": {
             "title": "Code",
@@ -52,6 +54,7 @@
       },
       "HealthResponse": {
         "additionalProperties": false,
+        "description": "Reports the service health state.",
         "properties": {
           "status": {
             "const": "ok",
@@ -65,6 +68,7 @@
       },
       "JobAccepted": {
         "additionalProperties": false,
+        "description": "Confirms that a simulation job was accepted.",
         "properties": {
           "job_id": {
             "format": "uuid",
@@ -97,6 +101,7 @@
       },
       "JobRequest": {
         "additionalProperties": false,
+        "description": "Defines a simulation job submission.",
         "properties": {
           "model_seeds": {
             "anyOf": [
@@ -163,6 +168,7 @@
       },
       "JobStatus": {
         "additionalProperties": false,
+        "description": "Stores the current state of a simulation job.",
         "properties": {
           "cancelled_models": {
             "title": "Cancelled Models",
@@ -225,6 +231,7 @@
       },
       "MetadataData": {
         "additionalProperties": false,
+        "description": "Stores serialized simulation metadata.",
         "properties": {
           "event_metadata": {
             "items": {
@@ -250,6 +257,7 @@
       },
       "ModelError": {
         "additionalProperties": false,
+        "description": "Stores an error reported for one model.",
         "properties": {
           "code": {
             "title": "Code",
@@ -275,6 +283,7 @@
       },
       "ModelInput": {
         "additionalProperties": false,
+        "description": "Defines a simulation model accepted by the service.",
         "properties": {
           "deployment_cadence": {
             "minimum": 0.0,
@@ -341,6 +350,7 @@
       },
       "OutcomeData": {
         "additionalProperties": false,
+        "description": "Stores one simulation outcome returned by a job.",
         "properties": {
           "cursor": {
             "exclusiveMinimum": 0.0,
@@ -392,6 +402,7 @@
       },
       "OutcomePage": {
         "additionalProperties": false,
+        "description": "Stores a page of simulation outcomes.",
         "properties": {
           "next_cursor": {
             "minimum": 0.0,
@@ -415,6 +426,7 @@
       },
       "QAInput": {
         "additionalProperties": false,
+        "description": "Defines QA tester configuration accepted by the service.",
         "properties": {
           "failure_cost": {
             "default": 0,
@@ -442,6 +454,7 @@
       },
       "QAListInput": {
         "additionalProperties": false,
+        "description": "Defines a list of QA tester configurations.",
         "properties": {
           "kind": {
             "const": "list",
@@ -466,6 +479,7 @@
       },
       "QAPoolInput": {
         "additionalProperties": false,
+        "description": "Defines a pool of QA testers.",
         "properties": {
           "failure_cost": {
             "default": 0,
@@ -507,6 +521,7 @@
       },
       "ResourceMetadataData": {
         "additionalProperties": false,
+        "description": "Stores serialized metadata for one resource.",
         "properties": {
           "active": {
             "title": "Active",
@@ -596,6 +611,7 @@
       },
       "ResultData": {
         "additionalProperties": false,
+        "description": "Stores one serialized simulation result.",
         "properties": {
           "metadata": {
             "$ref": "#/components/schemas/MetadataData"
@@ -623,6 +639,7 @@
       },
       "SummaryData": {
         "additionalProperties": false,
+        "description": "Stores summary metrics returned for a simulation.",
         "properties": {
           "completion_time": {
             "title": "Completion Time",
@@ -647,6 +664,7 @@
       },
       "TaskEventData": {
         "additionalProperties": false,
+        "description": "Stores one serialized task event.",
         "properties": {
           "duration": {
             "anyOf": [
@@ -727,6 +745,7 @@
       },
       "TaskInput": {
         "additionalProperties": false,
+        "description": "Defines task data accepted by the simulation service.",
         "properties": {
           "creation_sim_t": {
             "default": 0,
@@ -786,6 +805,7 @@
       },
       "ToolchainInput": {
         "additionalProperties": false,
+        "description": "Defines toolchain configuration accepted by the service.",
         "properties": {
           "deployment_duration": {
             "minimum": 0.0,
@@ -808,6 +828,7 @@
       },
       "ToolchainListInput": {
         "additionalProperties": false,
+        "description": "Defines a list of toolchain configurations.",
         "properties": {
           "kind": {
             "const": "list",
@@ -832,6 +853,7 @@
       },
       "ToolchainPoolInput": {
         "additionalProperties": false,
+        "description": "Defines a pool of toolchains.",
         "properties": {
           "deployment_duration": {
             "minimum": 0.0,

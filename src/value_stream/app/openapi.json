@@ -3,6 +3,7 @@
     "schemas": {
       "AppConfig": {
         "additionalProperties": false,
+        "description": "Stores application runtime configuration.",
         "properties": {
           "engine_version": {
             "default": "value-stream-app-1",
@@ -55,6 +56,7 @@
       },
       "Backlog": {
         "additionalProperties": false,
+        "description": "Stores backlog counts for a simulation stage.",
         "properties": {
           "label": {
             "title": "Label",
@@ -96,6 +98,7 @@
       },
       "ComparisonMutation": {
         "additionalProperties": false,
+        "description": "Describes a change to a comparison workspace.",
         "properties": {
           "action": {
             "enum": [
@@ -116,6 +119,7 @@
       },
       "ConcreteScenario": {
         "additionalProperties": false,
+        "description": "Stores one fully expanded simulation scenario.",
         "properties": {
           "definition_id": {
             "format": "uuid",
@@ -165,6 +169,7 @@
       },
       "ConstantValue-Input": {
         "additionalProperties": false,
+        "description": "Defines a fixed value for a model setting.",
         "properties": {
           "kind": {
             "const": "constant",
@@ -184,6 +189,7 @@
       },
       "ConstantValue-Output": {
         "additionalProperties": false,
+        "description": "Defines a fixed value for a model setting.",
         "properties": {
           "kind": {
             "const": "constant",
@@ -207,6 +213,7 @@
       },
       "DeveloperInput": {
         "additionalProperties": false,
+        "description": "Defines developer configuration accepted by the service.",
         "properties": {
           "efficiency": {
             "default": 1,
@@ -225,6 +232,7 @@
       },
       "EditorRequest": {
         "additionalProperties": false,
+        "description": "Carries editor changes submitted by a client.",
         "properties": {
           "definitions": {
             "items": {
@@ -254,6 +262,7 @@
       },
       "ErrorEnvelope": {
         "additionalProperties": false,
+        "description": "Wraps a service error response.",
         "properties": {
           "code": {
             "title": "Code",
@@ -285,6 +294,7 @@
       },
       "HealthResponse": {
         "additionalProperties": false,
+        "description": "Reports the service health state.",
         "properties": {
           "status": {
             "const": "ok",
@@ -298,6 +308,7 @@
       },
       "ModelInput": {
         "additionalProperties": false,
+        "description": "Defines a simulation model accepted by the service.",
         "properties": {
           "deployment_cadence": {
             "minimum": 0.0,
@@ -364,6 +375,7 @@
       },
       "ModelSettings-Input": {
         "additionalProperties": false,
+        "description": "Defines resource and workflow settings for a simulation model.",
         "properties": {
           "deployment_cadence": {
             "default": 5,
@@ -468,6 +480,7 @@
       },
       "ModelSettings-Output": {
         "additionalProperties": false,
+        "description": "Defines resource and workflow settings for a simulation model.",
         "properties": {
           "deployment_cadence": {
             "default": 5,
@@ -588,6 +601,7 @@
       },
       "Observation": {
         "additionalProperties": false,
+        "description": "Stores a derived observation about simulation results.",
         "properties": {
           "evidence": {
             "title": "Evidence",
@@ -639,6 +653,7 @@
       },
       "OutcomeSummary": {
         "additionalProperties": false,
+        "description": "Summarizes the result of one simulated outcome.",
         "properties": {
           "cached": {
             "default": false,
@@ -716,6 +731,7 @@
       },
       "PlotData": {
         "additionalProperties": false,
+        "description": "Stores chart labels and series values.",
         "properties": {
           "activity": {
             "items": {
@@ -761,6 +777,7 @@
       },
       "Preview": {
         "additionalProperties": false,
+        "description": "Stores the result of validating an editor request.",
         "properties": {
           "count": {
             "title": "Count",
@@ -799,6 +816,7 @@
       },
       "QAInput": {
         "additionalProperties": false,
+        "description": "Defines QA tester configuration accepted by the service.",
         "properties": {
           "failure_cost": {
             "default": 0,
@@ -826,6 +844,7 @@
       },
       "QAListInput": {
         "additionalProperties": false,
+        "description": "Defines a list of QA tester configurations.",
         "properties": {
           "kind": {
             "const": "list",
@@ -850,6 +869,7 @@
       },
       "QAPoolInput": {
         "additionalProperties": false,
+        "description": "Defines a pool of QA testers.",
         "properties": {
           "failure_cost": {
             "default": 0,
@@ -891,6 +911,7 @@
       },
       "ResourceActivity": {
         "additionalProperties": false,
+        "description": "Summarizes activity for one simulation resource.",
         "properties": {
           "durations": {
             "additionalProperties": {
@@ -933,6 +954,7 @@
       },
       "ResultView": {
         "additionalProperties": false,
+        "description": "Collects metrics and observations for a result view.",
         "properties": {
           "metrics": {
             "$ref": "#/components/schemas/PlotData"
@@ -960,6 +982,7 @@
       },
       "RunRequest": {
         "additionalProperties": false,
+        "description": "Describes a simulation run requested by a client.",
         "properties": {
           "definition_id": {
             "anyOf": [
@@ -1059,6 +1082,7 @@
       },
       "RunStatus": {
         "additionalProperties": false,
+        "description": "Tracks the state and outcomes of a simulation run.",
         "properties": {
           "cancel_requested": {
             "default": false,
@@ -1168,6 +1192,7 @@
       },
       "ScenarioDefinition-Input": {
         "additionalProperties": false,
+        "description": "Defines a simulation scenario and its parameter values.",
         "properties": {
           "execution_seed": {
             "default": 456,
@@ -1237,6 +1262,7 @@
       },
       "ScenarioDefinition-Output": {
         "additionalProperties": false,
+        "description": "Defines a simulation scenario and its parameter values.",
         "properties": {
           "execution_seed": {
             "default": 456,
@@ -1315,6 +1341,7 @@
       },
       "StageLoss": {
         "additionalProperties": false,
+        "description": "Stores value lost during one workflow stage.",
         "properties": {
           "label": {
             "title": "Label",
@@ -1343,6 +1370,7 @@
         "type": "object"
       },
       "Status": {
+        "description": "Enumerates the possible job states.",
         "enum": [
           "queued",
           "running",
@@ -1355,6 +1383,7 @@
       },
       "SweepRange": {
         "additionalProperties": false,
+        "description": "Defines a numeric range of values to sweep.",
         "properties": {
           "end": {
             "title": "End",
@@ -1380,6 +1409,7 @@
       },
       "TaskInput": {
         "additionalProperties": false,
+        "description": "Defines task data accepted by the simulation service.",
         "properties": {
           "creation_sim_t": {
             "default": 0,
@@ -1439,6 +1469,7 @@
       },
       "TaskSet": {
         "additionalProperties": false,
+        "description": "Stores task-generation settings for a workspace.",
         "properties": {
           "content_hash": {
             "title": "Content Hash",
@@ -1483,6 +1514,7 @@
       },
       "TaskSetSpec-Input": {
         "additionalProperties": false,
+        "description": "Describes a task set used to build a simulation.",
         "properties": {
           "count": {
             "default": 500,
@@ -1553,6 +1585,7 @@
       },
       "TaskSetSpec-Output": {
         "additionalProperties": false,
+        "description": "Describes a task set used to build a simulation.",
         "properties": {
           "count": {
             "default": 500,
@@ -1631,6 +1664,7 @@
       },
       "ToolchainInput": {
         "additionalProperties": false,
+        "description": "Defines toolchain configuration accepted by the service.",
         "properties": {
           "deployment_duration": {
             "minimum": 0.0,
@@ -1653,6 +1687,7 @@
       },
       "ToolchainListInput": {
         "additionalProperties": false,
+        "description": "Defines a list of toolchain configurations.",
         "properties": {
           "kind": {
             "const": "list",
@@ -1677,6 +1712,7 @@
       },
       "ToolchainPoolInput": {
         "additionalProperties": false,
+        "description": "Defines a pool of toolchains.",
         "properties": {
           "deployment_duration": {
             "minimum": 0.0,
@@ -1711,6 +1747,7 @@
       },
       "UniformValue-Input": {
         "additionalProperties": false,
+        "description": "Defines a uniformly sampled value for a model setting.",
         "properties": {
           "kind": {
             "const": "uniform",
@@ -1738,6 +1775,7 @@
       },
       "UniformValue-Output": {
         "additionalProperties": false,
+        "description": "Defines a uniformly sampled value for a model setting.",
         "properties": {
           "kind": {
             "const": "uniform",
@@ -1766,6 +1804,7 @@
       },
       "Workspace": {
         "additionalProperties": false,
+        "description": "Stores editable simulation inputs and run history.",
         "properties": {
           "baseline_id": {
             "anyOf": [
