@@ -38,6 +38,6 @@
 		"python.analysis.diagnosticsSource": "Pylance + Pyright",
 		"black-formatter.importStrategy": "fromEnvironment",
 		"editor.formatOnSave": true,
-		"editor.formatOnSaveMode": "modifications"
+		"editor.formatOnSaveMode": "file"
 	}
 }
