@@ -35,6 +35,9 @@
 		"pylint.importStrategy": "fromEnvironment",
 		"python.analysis.typeEvaluation.enableTypeIgnoreComments": false,
 		"python.analysis.inlayHints.callArgumentNames": "off",
-		"python.analysis.diagnosticsSource": "Pylance + Pyright"
+		"python.analysis.diagnosticsSource": "Pylance + Pyright",
+		"black-formatter.importStrategy": "fromEnvironment",
+		"editor.formatOnSave": true,
+		"editor.formatOnSaveMode": "modifications"
 	}
 }
