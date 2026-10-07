@@ -234,7 +234,7 @@ This project is very much a work-in-progress and contains features that are inco
 
 * Emulate sprints.  Currently, simulations process a single batch of tasks.  Being able to introduce multiple workloads over time will provide a more realistic view on resource utilization.
 
-* Introduce _failure rate_ as a task property, which is adjustedthroughout a simulation by the adoption of best practices and presence of antipatterns.  Replace the fixed-interval generation of support with generation triggered by post-delivery task failures.
+* Introduce _failure rate_ as a task property, which is adjusted throughout a simulation by the adoption of best practices and presence of antipatterns.  Replace the fixed-interval generation of support with generation triggered by post-delivery task failures.
 
 * Provide insight on when paying down technical debt provides more value than feature work.
 
@@ -256,3 +256,7 @@ This project is very much a work-in-progress and contains features that are inco
 
 ## License
 This project is covered by the [MIT License](LICENSE).
+
+
+## Contributing
+See [CONTRIBUTING.md](CONTRIBUTING.md)

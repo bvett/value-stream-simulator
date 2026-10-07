@@ -20,7 +20,14 @@
 		"editor.wordWrap": "off",
 		"editor.wordWrapColumn": 72,
 		"cSpell.words": [
+			"antipatterns",
+			"Docstrings",
+			"Plotly",
+			"pyproject",
+			"Pytest",
 			"SDLC",
+			"subsetting",
+			"uvicorn",
 			"venv"
 		],
 		"pylint.args": [
