@@ -13,7 +13,7 @@ class DeveloperFactory(Factory):
         Args:
             count (int): number of developers to create
 
-            **kwargs: key-value pairs passed to the Developer constructor. 
+            **kwargs: key-value pairs passed to the Developer constructor.
                 if a value is an iterable (such as a generator), the next
                 value is used when creating the Developer
 
@@ -27,8 +27,7 @@ class DeveloperFactory(Factory):
         for i in range(count):
             args = cls._generate_args(**kwargs)
 
-            developers.append(Developer(name=cls._developer_name(i),
-                                        **args))
+            developers.append(Developer(name=cls._developer_name(i), **args))
 
         return developers
 

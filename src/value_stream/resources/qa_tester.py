@@ -22,7 +22,7 @@ class QATester(Resource, PooledResource):
         else:
             result = EventStatus.SUCCESS
 
-        work = env.timeout(effort, value={'result': result})
+        work = env.timeout(effort, value={"result": result})
 
         yield work
 

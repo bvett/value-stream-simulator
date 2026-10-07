@@ -65,9 +65,9 @@ class BodyLimitMiddleware:
                 )
                 return
             if declared_size > self.max_body_bytes:
-                await _error(
-                    413, "BODY_TOO_LARGE", "request body exceeds configured limit"
-                )(scope, receive, send)
+                await _error(413, "BODY_TOO_LARGE", "request body exceeds configured limit")(
+                    scope, receive, send
+                )
                 return
 
         buffered: list[Message] = []
@@ -79,9 +79,9 @@ class BodyLimitMiddleware:
             chunk = message.get("body", b"")
             size += len(chunk)
             if size > self.max_body_bytes:
-                await _error(
-                    413, "BODY_TOO_LARGE", "request body exceeds configured limit"
-                )(scope, receive, send)
+                await _error(413, "BODY_TOO_LARGE", "request body exceeds configured limit")(
+                    scope, receive, send
+                )
                 return
             buffered.append(message)
             if not message.get("more_body", False):
@@ -118,22 +118,15 @@ def create_app(
         version="1.0.0",
         lifespan=lifespan,
     )
-    application.add_middleware(
-        BodyLimitMiddleware, max_body_bytes=settings.max_body_bytes
-    )
+    application.add_middleware(BodyLimitMiddleware, max_body_bytes=settings.max_body_bytes)
     application.state.store = store
     application.state.scheduler = scheduler
     application.state.settings = settings
 
     @application.exception_handler(RequestValidationError)
     async def invalid_input(_request: Request, exc: RequestValidationError):
-        issues = [
-            {"location": list(item["loc"]), "message": item["msg"]}
-            for item in exc.errors()
-        ]
-        return _error(
-            422, "INVALID_INPUT", "request validation failed", {"issues": issues}
-        )
+        issues = [{"location": list(item["loc"]), "message": item["msg"]} for item in exc.errors()]
+        return _error(422, "INVALID_INPUT", "request validation failed", {"issues": issues})
 
     @application.exception_handler(Exception)
     async def unexpected_error(_request: Request, exc: Exception):
@@ -160,13 +153,8 @@ def create_app(
         responses=errors,
     )
     def submit(request: JobRequest):
-        if (
-            len(request.tasks) > settings.max_tasks
-            or len(request.models) > settings.max_models
-        ):
-            return _error(
-                422, "LIMIT_EXCEEDED", "task or model count exceeds configured limit"
-            )
+        if len(request.tasks) > settings.max_tasks or len(request.models) > settings.max_models:
+            return _error(422, "LIMIT_EXCEEDED", "task or model count exceeds configured limit")
         try:
             fingerprint = hashlib.sha256(
                 json.dumps(
@@ -176,9 +164,7 @@ def create_app(
                     allow_nan=False,
                 ).encode()
             ).hexdigest()
-            job_id, created = store.reserve(
-                len(request.models), request.submission_id, fingerprint
-            )
+            job_id, created = store.reserve(len(request.models), request.submission_id, fingerprint)
         except SubmissionConflict as exc:
             return _error(409, "SUBMISSION_CONFLICT", str(exc))
         except CapacityExceeded:
@@ -195,9 +181,7 @@ def create_app(
             status_url=f"/v1/simulation-jobs/{job_id}",
         )
 
-    @application.get(
-        "/v1/simulation-jobs/{job_id}", response_model=JobStatus, responses=errors
-    )
+    @application.get("/v1/simulation-jobs/{job_id}", response_model=JobStatus, responses=errors)
     def status(job_id: UUID):
         try:
             return store.status(job_id)

@@ -7,15 +7,7 @@ from dataclasses import dataclass, field
 from typing import Protocol
 from uuid import UUID
 
-from .schemas import (
-    JobState,
-    JobStatus,
-    ModelError,
-    OutcomeData,
-    OutcomePage,
-    ResultData,
-    Status
-)
+from .schemas import JobState, JobStatus, ModelError, OutcomeData, OutcomePage, ResultData, Status
 from .settings import ServiceSettings
 
 
@@ -78,9 +70,7 @@ class InMemoryJobStore:
         for job_id in expired:
             del self._jobs[job_id]
         self._submissions = {
-            key: value
-            for key, value in self._submissions.items()
-            if value[1] in self._jobs
+            key: value for key, value in self._submissions.items() if value[1] in self._jobs
         }
 
     def _get(self, job_id: UUID) -> _Job:
@@ -100,8 +90,7 @@ class InMemoryJobStore:
             if (
                 len(self._jobs) >= self.settings.max_retained_jobs
                 or self._retained_bytes() >= self.settings.max_retained_bytes
-                or nonterminal
-                >= self.settings.max_active_jobs + self.settings.max_queued_jobs
+                or nonterminal >= self.settings.max_active_jobs + self.settings.max_queued_jobs
             ):
                 raise CapacityExceeded("job capacity is full")
             job_id = uuid.uuid4()
@@ -120,9 +109,7 @@ class InMemoryJobStore:
             if submission_id is not None and submission_id in self._submissions:
                 previous, job_id = self._submissions[submission_id]
                 if previous != fingerprint:
-                    raise SubmissionConflict(
-                        "submission ID already used for different inputs"
-                    )
+                    raise SubmissionConflict("submission ID already used for different inputs")
                 return job_id, False
             job_id = self.create(model_count)
             if submission_id is not None:
@@ -166,9 +153,7 @@ class InMemoryJobStore:
     def _terminal(self, job: _Job):
         if all(state in ("succeeded", "failed", "cancelled") for state in job.states):
             if job.status != "cancelled":
-                job.status = (
-                    "completed_with_errors" if "failed" in job.states else "completed"
-                )
+                job.status = "completed_with_errors" if "failed" in job.states else "completed"
             job.terminal_at = time.monotonic()
 
     def finish_model(

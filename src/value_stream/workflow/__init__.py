@@ -6,11 +6,13 @@ from .task_store import TaskStore, TerminalTaskStore
 from .workflow_policy import WorkflowPolicy
 from .assignment_strategy import AssignmentStrategy
 
-__all__ = ["PoolManager",
-           "ResourceOperator",
-           "SDLCWorkflow",
-           "WorkflowPolicy",
-           "TaskStore",
-           "TerminalTaskStore",
-           "SupportWorkflow",
-           "AssignmentStrategy"]
+__all__ = [
+    "PoolManager",
+    "ResourceOperator",
+    "SDLCWorkflow",
+    "WorkflowPolicy",
+    "TaskStore",
+    "TerminalTaskStore",
+    "SupportWorkflow",
+    "AssignmentStrategy",
+]

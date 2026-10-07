@@ -3,21 +3,14 @@
 from typing import Annotated, Literal
 from uuid import UUID, uuid4
 from pydantic import ConfigDict, Field, FiniteFloat, model_validator
-from value_stream.service.schemas import (
-    WireModel, 
-    ModelInput, 
-    TaskInput, 
-    ErrorEnvelope,
-    Status)
+from value_stream.service.schemas import WireModel, ModelInput, TaskInput, ErrorEnvelope, Status
 
 GENERATOR_VERSION = "1"
 ENGINE_VERSION = "value-stream-app-1"
 
 
 class AppModel(WireModel):
-    model_config = ConfigDict(
-        extra="forbid", json_schema_serialization_defaults_required=True
-    )
+    model_config = ConfigDict(extra="forbid", json_schema_serialization_defaults_required=True)
 
 
 class ConstantValue(AppModel):
@@ -43,7 +36,7 @@ ValueSpec = Annotated[ConstantValue | UniformValue, Field(discriminator="kind")]
 class TaskSetSpec(AppModel):
     name: str = Field(default="Task set", min_length=1, max_length=120)
     count: int = Field(default=500, gt=0)
-    story_points: ValueSpec = Field(default_factory=lambda: UniformValue(minimum=.5, maximum=2))
+    story_points: ValueSpec = Field(default_factory=lambda: UniformValue(minimum=0.5, maximum=2))
     initial_value: ValueSpec = Field(default_factory=ConstantValue)
     depreciation_rate: FiniteFloat = Field(default=0.02, ge=0, le=1)
     seed: int = Field(default=42, ge=0, le=2**53 - 1)
@@ -109,7 +102,6 @@ class TaskSet(AppModel):
     content_hash: str
     tasks: list[TaskInput]
     generator_version: str = GENERATOR_VERSION
-    
 
 
 class EditorRequest(AppModel):
@@ -184,7 +176,9 @@ class Workspace(AppModel):
     revision: int = 0
     task_spec: TaskSetSpec = Field(default_factory=TaskSetSpec)
     definitions: list[ScenarioDefinition] = Field(
-        default_factory=lambda: [ScenarioDefinition(sweeps={"team_size": [1, 13, 25], "deployment_cadence": [0, 5, 10]})]
+        default_factory=lambda: [
+            ScenarioDefinition(sweeps={"team_size": [1, 13, 25], "deployment_cadence": [0, 5, 10]})
+        ]
     )
     task_sets: list[TaskSet] = Field(default_factory=list)
     current_task_set: UUID | None = None

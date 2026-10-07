@@ -38,9 +38,7 @@ class HttpSimulationGateway:
 
     async def request(self, method, path, body=None):
         if self.client is None or self.client.is_closed:
-            raise AppError(
-                "SERVICE_UNAVAILABLE", "Simulation service is not connected", 503
-            )
+            raise AppError("SERVICE_UNAVAILABLE", "Simulation service is not connected", 503)
         try:
             async with self.download:
                 async with self.client.stream(method, path, json=body) as response:
@@ -102,21 +100,15 @@ class HttpSimulationGateway:
 
     async def submit(self, request):
         return JobAccepted.model_validate(
-            await self.request(
-                "POST", "/v1/simulation-jobs", request.model_dump(mode="json")
-            )
+            await self.request("POST", "/v1/simulation-jobs", request.model_dump(mode="json"))
         )
 
     async def status(self, job_id):
-        return JobStatus.model_validate(
-            await self.request("GET", f"/v1/simulation-jobs/{job_id}")
-        )
+        return JobStatus.model_validate(await self.request("GET", f"/v1/simulation-jobs/{job_id}"))
 
     async def outcomes(self, job_id, after):
         return OutcomePage.model_validate(
-            await self.request(
-                "GET", f"/v1/simulation-jobs/{job_id}/outcomes?after={after}"
-            )
+            await self.request("GET", f"/v1/simulation-jobs/{job_id}/outcomes?after={after}")
         )
 
     async def cancel(self, job_id):

@@ -8,12 +8,14 @@ from value_stream.workflow import AssignmentStrategy
 class DefaultSimulationPolicy(SimulationPolicy):
     """encapsulates control logic for a simulation"""
 
-    def task_priority(self, tasks_1: list[Task], tasks_2: list[Task]) -> Literal[0] | Literal[1] | Literal[-1]:
+    def task_priority(
+        self, tasks_1: list[Task], tasks_2: list[Task]
+    ) -> Literal[0] | Literal[1] | Literal[-1]:
         """Compares two Task lists and returns an indicator of which has higher priority
 
         Returns:
-            int: -1 if tasks_1 is of higher priority, 
-            0 if tasks_1 and tasks_2 are of equal priority, and 
+            int: -1 if tasks_1 is of higher priority,
+            0 if tasks_1 and tasks_2 are of equal priority, and
             1 if tasks_2 is of higher priority
         """
 

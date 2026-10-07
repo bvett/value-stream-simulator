@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class Epoch(BaseModel):
 
     def __init__(self, offset: float):

@@ -29,9 +29,7 @@ from .settings import AppSettings
 
 
 def canonical(value):
-    return json.dumps(
-        value, sort_keys=True, separators=(",", ":"), allow_nan=False, default=str
-    )
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False, default=str)
 
 
 def fingerprint(value):
@@ -72,9 +70,7 @@ def materialize_team(settings: ModelSettings, seed: int):
         if low == high:
             value = low
         elif settings.distribution == "linear":
-            value = (
-                low + (high - low) / 2 if n == 1 else low + (high - low) * (i / (n - 1))
-            )
+            value = low + (high - low) / 2 if n == 1 else low + (high - low) * (i / (n - 1))
         else:
             while True:
                 value = rng.gauss(low + (high - low) / 2, (high - low) / 6)
@@ -111,16 +107,12 @@ def axis_values(axis, limit):
             raise AppError("INVALID_INPUT", "Sweep start must not exceed end")
         span = (end - start) / step
         if span >= limit:
-            raise AppError(
-                "LIMIT_EXCEEDED", f"Each sweep can contain at most {limit} values"
-            )
+            raise AppError("LIMIT_EXCEEDED", f"Each sweep can contain at most {limit} values")
         count = int(span) + 1
         values = [float(start + step * i) for i in range(count)]
     else:
         if len(axis) > limit:
-            raise AppError(
-                "LIMIT_EXCEEDED", f"Each sweep can contain at most {limit} values"
-            )
+            raise AppError("LIMIT_EXCEEDED", f"Each sweep can contain at most {limit} values")
         values = list(dict.fromkeys(axis))
     if not values:
         raise AppError("INVALID_INPUT", "A sweep needs at least one value")
@@ -128,16 +120,13 @@ def axis_values(axis, limit):
 
 
 def validate_model_limits(settings, limits):
-    if (
-        max(settings.team_size, settings.qa_size, settings.toolchain_size)
-        > limits.max_resources
-    ):
-        raise AppError(
-            "LIMIT_EXCEEDED", f"Resource counts must not exceed {limits.max_resources}"
-        )
+    if max(settings.team_size, settings.qa_size, settings.toolchain_size) > limits.max_resources:
+        raise AppError("LIMIT_EXCEEDED", f"Resource counts must not exceed {limits.max_resources}")
 
 
-def expand_scenarios(definitions: list[ScenarioDefinition], limits: AppSettings) -> list[ConcreteScenario]:
+def expand_scenarios(
+    definitions: list[ScenarioDefinition], limits: AppSettings
+) -> list[ConcreteScenario]:
     axes = []
     count = 0
     if len(definitions) > limits.max_definitions:
@@ -150,8 +139,7 @@ def expand_scenarios(definitions: list[ScenarioDefinition], limits: AppSettings)
                 f"Unknown sweep properties: {', '.join(sorted(unknown))}",
             )
         values = {
-            k: axis_values(v, limits.max_axis_values)
-            for k, v in sorted(definition.sweeps.items())
+            k: axis_values(v, limits.max_axis_values) for k, v in sorted(definition.sweeps.items())
         }
         count += math.prod(len(v) for v in values.values())
         if count > limits.max_models:
@@ -185,9 +173,7 @@ def expand_scenarios(definitions: list[ScenarioDefinition], limits: AppSettings)
             if scenario_id in seen:
                 continue
             seen.add(scenario_id)
-            label = ", ".join(
-                f"{k.replace('_', ' ')}={getattr(settings, k)}" for k in changed
-            )
+            label = ", ".join(f"{k.replace('_', ' ')}={getattr(settings, k)}" for k in changed)
             scenarios.append(
                 ConcreteScenario(
                     id=scenario_id,

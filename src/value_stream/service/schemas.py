@@ -131,12 +131,13 @@ class ModelError(WireModel):
     code: str
     message: str
 
+
 class Status(StrEnum):
-    QUEUED = 'queued'
-    RUNNING = 'running'
-    SUCCEEDED = 'succeeded'
-    FAILED = 'failed'
-    CANCELLED = 'cancelled'
+    QUEUED = "queued"
+    RUNNING = "running"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
 
 
 class OutcomeData(WireModel):
@@ -168,9 +169,7 @@ class OutcomePage(WireModel):
     next_cursor: int = Field(ge=0)
 
 
-JobState = Literal[
-    "queued", "running", "completed", "completed_with_errors", "cancelled"
-]
+JobState = Literal["queued", "running", "completed", "completed_with_errors", "cancelled"]
 
 
 class JobAccepted(WireModel):

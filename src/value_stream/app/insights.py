@@ -12,7 +12,7 @@ def observations(metrics, settings):
                 evidence="Total initial value is zero.",
             )
         ]
-    result : list[Observation] = []
+    result: list[Observation] = []
     if metrics.stages:
         stage = max(metrics.stages, key=lambda item: item.loss_percent)
         if stage.loss_percent > 0:

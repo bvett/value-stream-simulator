@@ -22,7 +22,7 @@ class Toolchain(Resource, PooledResource):
         else:
             result = EventStatus.SUCCESS
 
-        work = env.timeout(self.deployment_duration, value={'result': result})
+        work = env.timeout(self.deployment_duration, value={"result": result})
 
         yield work
 

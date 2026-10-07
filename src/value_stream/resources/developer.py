@@ -21,7 +21,7 @@ class Developer(Resource):
         start = env.now
 
         try:
-            yield env.timeout(self.effort(tasks), value={'result': EventStatus.SUCCESS})
+            yield env.timeout(self.effort(tasks), value={"result": EventStatus.SUCCESS})
 
         except Interrupt:
             applied_story_points = (env.now - start) * self.efficiency

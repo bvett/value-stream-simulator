@@ -10,7 +10,9 @@ class SimulationPolicy(ResourcePolicy, WorkflowPolicy):
     """encapsulates control logic for a simulation"""
 
     @abstractmethod
-    def task_priority(self, tasks_1: list[Task], tasks_2: list[Task]) -> Literal[0] | Literal[1] | Literal[-1]:
+    def task_priority(
+        self, tasks_1: list[Task], tasks_2: list[Task]
+    ) -> Literal[0] | Literal[1] | Literal[-1]:
         pass
 
     @abstractmethod

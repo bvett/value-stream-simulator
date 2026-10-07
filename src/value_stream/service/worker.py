@@ -41,9 +41,7 @@ def run(payload: object) -> dict[str, dict[str, Any]]:
         random.seed(derive_seed(request.seed, index))
     model = decode_model(request.models[0])
     tasks = decode_tasks(request.tasks)
-    result = Simulation().execute(
-        model=model, tasks=tasks, policy=DefaultSimulationPolicy()
-    )
+    result = Simulation().execute(model=model, tasks=tasks, policy=DefaultSimulationPolicy())
     encoded = encode_result(result, index)
     max_bytes = validated.max_outcome_bytes
     if len(encoded.model_dump_json().encode("utf-8")) > max_bytes:
@@ -62,9 +60,7 @@ def main() -> None:
     try:
         payload = json.load(sys.stdin)
         output = run(payload)
-    except (
-        Exception
-    ) as exc:  # model failures must be reported without stopping the batch
+    except Exception as exc:  # model failures must be reported without stopping the batch
         try:
             index = WorkerIndex.model_validate(payload).model_index
         except Exception:

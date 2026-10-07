@@ -71,9 +71,14 @@ class BodyLimitMiddleware:
         await self.app(scope, replay, send)
 
 
-def create_app(settings : Optional[AppSettings]=None, store : Optional[WorkspaceStore]=None, gateway=None, service_url=None):
+def create_app(
+    settings: Optional[AppSettings] = None,
+    store: Optional[WorkspaceStore] = None,
+    gateway=None,
+    service_url=None,
+):
     settings = settings or AppSettings.from_environment()
-    _store : WorkspaceStore = store or InMemoryWorkspaceStore(settings)
+    _store: WorkspaceStore = store or InMemoryWorkspaceStore(settings)
     gateway = gateway or HttpSimulationGateway(
         service_url or os.getenv("VALUE_STREAM_SERVICE_URL"),
         settings.max_run_bytes + 1024 * 1024,
@@ -85,9 +90,7 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
         try:
             await gateway.start()
         except Exception:
-            logger.exception(
-                "Simulation service startup failed; workspace UI remains available"
-            )
+            logger.exception("Simulation service startup failed; workspace UI remains available")
         yield
         await coordinator.close()
         await gateway.close()
@@ -107,9 +110,7 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
     @app.exception_handler(RequestValidationError)
     @app.exception_handler(ValidationError)
     async def invalid(request, exc):
-        issues = [
-            {"location": list(e["loc"]), "message": e["msg"]} for e in exc.errors()
-        ]
+        issues = [{"location": list(e["loc"]), "message": e["msg"]} for e in exc.errors()]
         return JSONResponse(
             AppError(
                 "INVALID_INPUT",
@@ -128,8 +129,7 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
         )
 
     errors: dict[int | str, dict[str, Any]] = {
-        code: {"model": ErrorEnvelope}
-        for code in [404, 409, 413, 422, 429, 500, 502, 503]
+        code: {"model": ErrorEnvelope} for code in [404, 409, 413, 422, 429, 500, 502, 503]
     }
     prefix = "/api/v1/workspaces/{workspace_id}"
 
@@ -178,14 +178,10 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
         return _store.preview(workspace_id)
 
     @app.delete(prefix + "/task-sets/{task_set_id}", status_code=204, responses=errors)
-    async def delete_task_set(
-        workspace_id: UUID, task_set_id: UUID, expected_revision: int
-    ):
+    async def delete_task_set(workspace_id: UUID, task_set_id: UUID, expected_revision: int):
         _store.delete_task_set(workspace_id, task_set_id, expected_revision)
 
-    @app.post(
-        prefix + "/runs", response_model=RunStatus, status_code=202, responses=errors
-    )
+    @app.post(prefix + "/runs", response_model=RunStatus, status_code=202, responses=errors)
     async def start_run(workspace_id: UUID, request: RunRequest):
         return await coordinator.start_run(workspace_id, request)
 
@@ -200,11 +196,7 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
     )
     async def outcomes(workspace_id: UUID, run_id: UUID, after: int = Query(0, ge=0)):
         return sorted(
-            [
-                o
-                for o in _store.run(workspace_id, run_id).status.outcomes
-                if o.cursor > after
-            ],
+            [o for o in _store.run(workspace_id, run_id).status.outcomes if o.cursor > after],
             key=lambda o: o.cursor,
         )
 
@@ -217,18 +209,12 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
     async def cancel(workspace_id: UUID, run_id: UUID):
         return await coordinator.cancel_run(workspace_id, run_id)
 
-    @app.post(
-        prefix + "/runs/{run_id}/resume", response_model=RunStatus, responses=errors
-    )
+    @app.post(prefix + "/runs/{run_id}/resume", response_model=RunStatus, responses=errors)
     async def resume(workspace_id: UUID, run_id: UUID):
         return coordinator.resume(workspace_id, run_id)
 
-    @app.post(
-        prefix + "/runs/{run_id}/comparison", response_model=Workspace, responses=errors
-    )
-    async def comparison(
-        workspace_id: UUID, run_id: UUID, mutation: ComparisonMutation
-    ):
+    @app.post(prefix + "/runs/{run_id}/comparison", response_model=Workspace, responses=errors)
+    async def comparison(workspace_id: UUID, run_id: UUID, mutation: ComparisonMutation):
         return _store.comparison(workspace_id, run_id, mutation.action)
 
     @app.get(
@@ -239,9 +225,7 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
     async def result(workspace_id: UUID, run_id: UUID, scenario_id: UUID):
         record = _store.run(workspace_id, run_id)
         result = _store.result(record, scenario_id)
-        scenario = next(
-            o.scenario for o in record.status.outcomes if o.scenario.id == scenario_id
-        )
+        scenario = next(o.scenario for o in record.status.outcomes if o.scenario.id == scenario_id)
         metrics = plot_data(result, sum(t.initial_value for t in record.task_set.tasks))
         insights = [
             o
@@ -249,9 +233,7 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
             if o.property not in {"qa_size", "team_size", "toolchain_size"}
             or ((o.value is not None) and (int(o.value) <= settings.max_resources))
         ]
-        return ResultView(
-            scenario_id=scenario_id, metrics=metrics, observations=insights
-        )
+        return ResultView(scenario_id=scenario_id, metrics=metrics, observations=insights)
 
     @app.get(
         prefix + "/runs/{run_id}/exports/{kind}",
@@ -281,18 +263,14 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
         return StreamingResponse(
             export_csv(ExportStore(), snapshot, kind),
             media_type="text/csv; charset=utf-8",
-            headers={
-                "Content-Disposition": f'attachment; filename="{kind}-{run_id}.csv"'
-            },
+            headers={"Content-Disposition": f'attachment; filename="{kind}-{run_id}.csv"'},
         )
 
     class CachedAssets(StaticFiles):
         async def get_response(self, path, scope):
             response = await super().get_response(path, scope)
             if response.status_code == 200:
-                response.headers["Cache-Control"] = (
-                    "public, max-age=31536000, immutable"
-                )
+                response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
             return response
 
     static = Path(__file__).parent / "static"
@@ -309,8 +287,6 @@ def create_app(settings : Optional[AppSettings]=None, store : Optional[Workspace
                 },
                 status_code=503,
             )
-        return FileResponse(
-            static / "index.html", headers={"Cache-Control": "no-cache"}
-        )
+        return FileResponse(static / "index.html", headers={"Cache-Control": "no-cache"})
 
     return app

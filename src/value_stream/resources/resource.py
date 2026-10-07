@@ -44,11 +44,15 @@ class Resource(ABC, BaseModel):
     def idle_t(self, idle_t: float):
         self._idle_t = idle_t
 
-    def operate(self, env: Environment, tasks: list[Task],
-                task_router: TaskRouter,
-                policy: ResourcePolicy,
-                workflow_state: TaskState,
-                tracker: ResourceTracker):
+    def operate(
+        self,
+        env: Environment,
+        tasks: list[Task],
+        task_router: TaskRouter,
+        policy: ResourcePolicy,
+        workflow_state: TaskState,
+        tracker: ResourceTracker,
+    ):
         """Simulates an action on a task object"""
 
         for task in tasks:
@@ -69,12 +73,11 @@ class Resource(ABC, BaseModel):
             start_t = env.now
             try:
 
-                tracker.start_work(
-                    workflow_state, env.now-self._idle_t)
+                tracker.start_work(workflow_state, env.now - self._idle_t)
                 yield self._process
 
                 if self._process.value is not None:
-                    status = self._process.value['result']
+                    status = self._process.value["result"]
 
             except Interrupt:
 
@@ -84,25 +87,21 @@ class Resource(ABC, BaseModel):
 
                 interruption_start_t = env.now
 
-                tracker.complete_work(
-                    workflow_state, status, elapsed_t=env.now-start_t)
+                tracker.complete_work(workflow_state, status, elapsed_t=env.now - start_t)
 
                 yield env.process(self._pause(env))
 
-                tracker.interruption(
-                    workflow_state, elapsed_t=env.now - interruption_start_t)
+                tracker.interruption(workflow_state, elapsed_t=env.now - interruption_start_t)
 
                 continue
 
-            tracker.complete_work(
-                workflow_state, status, elapsed_t=env.now-start_t)
+            tracker.complete_work(workflow_state, status, elapsed_t=env.now - start_t)
             self._idle_t = env.now
 
             for task in tasks:
-                task.end(env.now, workflow_state,
-                         status=status, resource_id=self._id)
+                task.end(env.now, workflow_state, status=status, resource_id=self._id)
 
-                if (status == EventStatus.FAILURE):
+                if status == EventStatus.FAILURE:
                     yield task_router.route(task=task.as_rework(), status=status)
                 else:
                     yield task_router.route(task=task.clear_rework(), status=status)

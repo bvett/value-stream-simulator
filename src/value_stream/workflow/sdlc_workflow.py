@@ -31,48 +31,49 @@ class SDLCWorkflow:
     def __init__(self) -> None:
         """Initializes a workflow with pending tasks"""
 
-    def start(self, env: Environment,
-              tasks: list[Task],
-              developer_manager: ResourceOperator,
-              qa_manager: ResourceOperator,
-              toolchain_manager: ResourceOperator,
-              signal: Event,
-              pending: TaskStore):
+    def start(
+        self,
+        env: Environment,
+        tasks: list[Task],
+        developer_manager: ResourceOperator,
+        qa_manager: ResourceOperator,
+        toolchain_manager: ResourceOperator,
+        signal: Event,
+        pending: TaskStore,
+    ):
         """Signals workflow completion when all tasks specified at
         initialization are in the delivered queue"""
 
-        developed = TaskStore(
-            env, SDLCWorkflow.WorkflowState.DEV_COMPLETE)
+        developed = TaskStore(env, SDLCWorkflow.WorkflowState.DEV_COMPLETE)
 
-        qa_complete = TaskStore(
-            env, SDLCWorkflow.WorkflowState.QA_COMPLETE)
+        qa_complete = TaskStore(env, SDLCWorkflow.WorkflowState.QA_COMPLETE)
 
-        delivered = TerminalTaskStore(
-            env, SDLCWorkflow.WorkflowState.DELIVERY)
+        delivered = TerminalTaskStore(env, SDLCWorkflow.WorkflowState.DELIVERY)
 
-        support_completed = TerminalTaskStore(
-            env, SDLCWorkflow.WorkflowState.SUPPORT_COMPLETE)
+        support_completed = TerminalTaskStore(env, SDLCWorkflow.WorkflowState.SUPPORT_COMPLETE)
 
         for task in tasks:
             yield pending.put(task)
 
-        delivered.set_alarm(
-            limit=len(pending.items), signal=signal)
+        delivered.set_alarm(limit=len(pending.items), signal=signal)
 
         developer_manager.start(
             source=pending,
             workflow_state=SDLCWorkflow.WorkflowState.DEVELOPMENT,
-            task_router=TypeRouter(on_development=developed, on_support=support_completed))
+            task_router=TypeRouter(on_development=developed, on_support=support_completed),
+        )
 
         qa_manager.start(
             source=developed,
             workflow_state=SDLCWorkflow.WorkflowState.QA_TESTING,
-            task_router=StatusRouter(on_success=qa_complete, on_failure=pending))
+            task_router=StatusRouter(on_success=qa_complete, on_failure=pending),
+        )
 
         toolchain_manager.start(
             source=qa_complete,
             workflow_state=SDLCWorkflow.WorkflowState.DEPLOYMENT,
-            task_router=StatusRouter(on_success=delivered, on_failure=qa_complete))
+            task_router=StatusRouter(on_success=delivered, on_failure=qa_complete),
+        )
 
         yield signal
 

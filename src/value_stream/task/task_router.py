@@ -16,7 +16,9 @@ class TaskRouter(ABC):
         pass
 
     @classmethod
-    def _send_to(cls, task: Task, route: 'Store | TaskRouter', status: Optional[EventStatus] = None) -> StorePut:
+    def _send_to(
+        cls, task: Task, route: "Store | TaskRouter", status: Optional[EventStatus] = None
+    ) -> StorePut:
 
         if isinstance(route, Store):
             return route.put(task)
@@ -26,7 +28,7 @@ class TaskRouter(ABC):
 
 
 class DefaultRouter(TaskRouter):
-    def __init__(self, route: 'Store | TaskRouter'):
+    def __init__(self, route: "Store | TaskRouter"):
         self._route = route
 
     def route(self, task: Task, status: Optional[EventStatus] = None) -> StorePut:
@@ -34,7 +36,7 @@ class DefaultRouter(TaskRouter):
 
 
 class StatusRouter(TaskRouter):
-    def __init__(self, on_success: 'Store | TaskRouter', on_failure: 'Store | TaskRouter'):
+    def __init__(self, on_success: "Store | TaskRouter", on_failure: "Store | TaskRouter"):
         self._on_success = on_success
         self._on_failure = on_failure
 
@@ -47,7 +49,7 @@ class StatusRouter(TaskRouter):
 
 
 class TypeRouter(TaskRouter):
-    def __init__(self, on_support: 'Store | TaskRouter', on_development: 'Store | TaskRouter'):
+    def __init__(self, on_support: "Store | TaskRouter", on_development: "Store | TaskRouter"):
         self._on_support = on_support
         self._on_failure = on_development
 

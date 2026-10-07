@@ -26,7 +26,7 @@ def loss_percent(initial, delivered):
 
 
 # thin out by chunking and returning start, end, min and max from each chunk
-def reduce_points(points : list[tuple[float, int]], limit=5000):
+def reduce_points(points: list[tuple[float, int]], limit=5000):
     if len(points) <= limit:
         return points
     width = max(1, (len(points) + limit // 4 - 1) // (limit // 4))
@@ -43,11 +43,11 @@ def reduce_points(points : list[tuple[float, int]], limit=5000):
     return result
 
 
-def plot_data(result:ResultData, initial) -> PlotData:
-    events : dict[str, list[float]] = defaultdict(list)
-    durations : dict[str, dict[str, float]] = defaultdict(lambda: dict.fromkeys(CATEGORIES, 0.0))
-    waiting : dict[str, dict[float, int]] = defaultdict(lambda: defaultdict(int))
-    
+def plot_data(result: ResultData, initial) -> PlotData:
+    events: dict[str, list[float]] = defaultdict(list)
+    durations: dict[str, dict[str, float]] = defaultdict(lambda: dict.fromkeys(CATEGORIES, 0.0))
+    waiting: dict[str, dict[float, int]] = defaultdict(lambda: defaultdict(int))
+
     # summarize loss by event (workflow state)
     for event in result.metadata.event_metadata:
         if event.event_type == "end" and event.task_type == "development":
@@ -56,7 +56,7 @@ def plot_data(result:ResultData, initial) -> PlotData:
     for record in result.metadata.resource_metadata:
         # track incremental increase/decrease in waiting resources by workflow state
         waiting[record.state][record.time] += record.waiting
-        
+
         # summarize time spent by resource in each time category
         for key in CATEGORIES:
             durations[record.state][key] += getattr(record, key) or 0
@@ -81,8 +81,7 @@ def plot_data(result:ResultData, initial) -> PlotData:
                     label=label,
                     durations=durations[stage],
                     shares={
-                        k: 100 * v / total if total else None
-                        for k, v in durations[stage].items()
+                        k: 100 * v / total if total else None for k, v in durations[stage].items()
                     },
                 )
             )
@@ -91,9 +90,7 @@ def plot_data(result:ResultData, initial) -> PlotData:
             for time, delta in sorted(waiting[stage].items()):
                 current += delta
                 if current < 0:
-                    raise AppError(
-                        "INVALID_RESULT", "Resource backlog became negative", 502
-                    )
+                    raise AppError("INVALID_RESULT", "Resource backlog became negative", 502)
                 points.append((time, current))
             points.append((result.summary_result.completion_time, current))
             reduced = reduce_points(points)

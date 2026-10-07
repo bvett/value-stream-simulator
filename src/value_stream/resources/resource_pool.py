@@ -4,14 +4,14 @@ from pydantic import BaseModel, Field, PrivateAttr, ConfigDict
 
 
 class ResourcePool(BaseModel):
-    """Generates a fixed or unlimited quantity of a homogeneous resource
-    """
-    model_config = ConfigDict(extra='allow')
-    class_name : Type = Field()
-    limit : Optional[int] = Field(default=None, gt=0)
-    _i : int = PrivateAttr(default=0, init=False)
+    """Generates a fixed or unlimited quantity of a homogeneous resource"""
 
-    _pool_id : uuid.UUID = PrivateAttr(default_factory=uuid.uuid4)
+    model_config = ConfigDict(extra="allow")
+    class_name: Type = Field()
+    limit: Optional[int] = Field(default=None, gt=0)
+    _i: int = PrivateAttr(default=0, init=False)
+
+    _pool_id: uuid.UUID = PrivateAttr(default_factory=uuid.uuid4)
 
     def __next__(self):
 
@@ -26,7 +26,7 @@ class ResourcePool(BaseModel):
 
         raise StopIteration
 
-    def __iter__(self) -> Self: # pyright: ignore[reportIncompatibleMethodOverride]
+    def __iter__(self) -> Self:  # pyright: ignore[reportIncompatibleMethodOverride]
         self._i = 0
         return self
 

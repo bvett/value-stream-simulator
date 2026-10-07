@@ -46,7 +46,7 @@ class PoolManager:
         match strategy:
             case AssignmentStrategy.CYCLIC:
                 resource = next(self._cyclic_support_delegator)
-                if (resource not in self._registered_resources):
+                if resource not in self._registered_resources:
                     self._tracker.register(workflow_state)
                     self._registered_resources[resource] = None
 
@@ -54,9 +54,7 @@ class PoolManager:
 
             case AssignmentStrategy.RANDOM:
                 # realistically, if resources are unlimited, then just get next
-                if isinstance(self.resources, ResourcePool) and (
-                    self.resources.limit is None
-                ):
+                if isinstance(self.resources, ResourcePool) and (self.resources.limit is None):
                     resource = next(self.resources)
                 else:
                     if self._resources_as_list is None:
@@ -64,7 +62,7 @@ class PoolManager:
                         self._resources_as_list.extend(list(self.resources))
                     resource = random.choice(self._resources_as_list)
 
-                if (resource not in self._registered_resources):
+                if resource not in self._registered_resources:
                     self._tracker.register(workflow_state)
                     self._registered_resources[resource] = None
 
@@ -74,9 +72,7 @@ class PoolManager:
                 task = tasks[0]
 
                 if not task.task_id in self._task_owners:
-                    raise ValueError(
-                        f"Unable to identify task owner for task_id: {task.task_id}"
-                    )
+                    raise ValueError(f"Unable to identify task owner for task_id: {task.task_id}")
 
                 owner: Resource = self._task_owners[task.task_id]
                 return owner
@@ -91,7 +87,7 @@ class PoolManager:
                 resource.idle_t = self._env.now
                 self._resource_pool.put(resource)
 
-                if (resource not in self._registered_resources) :
+                if resource not in self._registered_resources:
                     self._tracker.register(workflow_state)
                     self._registered_resources[resource] = None
 

@@ -1,6 +1,7 @@
 from typing import Iterable, Optional
-from pydantic import BaseModel, computed_field,  NonNegativeInt, Field, FiniteFloat
+from pydantic import BaseModel, computed_field, NonNegativeInt, Field, FiniteFloat
 from value_stream.resources import Developer, QATester, Toolchain, ResourcePool
+
 
 class Model(BaseModel):
     developer_team: list[Developer]
@@ -25,4 +26,3 @@ class Model(BaseModel):
     @property
     def team_size(self) -> int:
         return len(self.developer_team)
-

@@ -5,12 +5,12 @@ from .simulation_metadata import SimulationMetadata
 
 
 class SummaryResult(BaseModel):
-    model : Model
-    completion_time : float
-    total_delivered_value : float
+    model: Model
+    completion_time: float
+    total_delivered_value: float
     loss: float
 
-class SimulationResult(BaseModel):
-    summary_result : SummaryResult
-    metadata : SimulationMetadata
 
+class SimulationResult(BaseModel):
+    summary_result: SummaryResult
+    metadata: SimulationMetadata

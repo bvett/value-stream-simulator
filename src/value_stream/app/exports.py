@@ -7,9 +7,7 @@ from .schemas import ENGINE_VERSION, GENERATOR_VERSION
 
 
 def safe_text(value):
-    if isinstance(value, str) and value.lstrip().startswith(
-        ("=", "+", "-", "@", "\t", "\r")
-    ):
+    if isinstance(value, str) and value.lstrip().startswith(("=", "+", "-", "@", "\t", "\r")):
         return "'" + value
     return value
 

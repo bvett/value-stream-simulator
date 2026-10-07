@@ -14,8 +14,7 @@ class Factory:
 
     @classmethod
     def _generate_args(cls, **kwargs):
-        """returns **kwargs, with any Generator being replaced by its next value
-        """
+        """returns **kwargs, with any Generator being replaced by its next value"""
         args = {}
 
         for k, v in kwargs.items():

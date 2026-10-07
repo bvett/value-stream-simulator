@@ -8,14 +8,16 @@ from .developer import Developer
 from .qa_tester import QATester
 from .toolchain import Toolchain
 
-__all__ = ["Resource",
-           "InMemoryResourceTracker",
-           "Developer",
-           "NoOpResourceTracker",
-           "QATester",
-           "PooledResource",
-           "ResourcePolicy",
-           "ResourcePool",
-           "ResourceTracker",
-           "Toolchain",
-           "ResourceMetadata"]
+__all__ = [
+    "Resource",
+    "InMemoryResourceTracker",
+    "Developer",
+    "NoOpResourceTracker",
+    "QATester",
+    "PooledResource",
+    "ResourcePolicy",
+    "ResourcePool",
+    "ResourceTracker",
+    "Toolchain",
+    "ResourceMetadata",
+]

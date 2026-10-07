@@ -17,6 +17,6 @@ class ResourceMetadata(BaseModel):
     waiting_t: Optional[float] = None
     idle_t: Optional[float] = None
 
-    @field_serializer('state')
+    @field_serializer("state")
     def serialize_event(self, state: TaskState):
         return state.value

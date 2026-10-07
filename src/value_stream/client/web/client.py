@@ -17,7 +17,9 @@ from .errors import BatchSimulationError, JobCancelledError, ServiceClientError
 
 class WebSimulationClient:
     def __init__(
-        self, service_url: str, poll_interval: float = 0.1,
+        self,
+        service_url: str,
+        poll_interval: float = 0.1,
         max_wait_seconds: float = 3600,
     ):
         self.service_url = service_url.rstrip("/")
@@ -59,10 +61,12 @@ class WebSimulationClient:
     ) -> list[SimulationResult]:
         model_list = list(models)
         request = encode_request(tasks, model_list, seed)
-        submitted = self._validate(JobAccepted,
+        submitted = self._validate(
+            JobAccepted,
             self._request(
                 "POST", "/v1/simulation-jobs", json=request.model_dump(mode="json")
-            ).json(), "job acceptance"
+            ).json(),
+            "job acceptance",
         )
         job_path = f"/v1/simulation-jobs/{submitted.job_id}"
         results: dict[int, SimulationResult] = {}
@@ -89,9 +93,7 @@ class WebSimulationClient:
                 if pbar:
                     pbar.update()
             cursor = page.next_cursor
-            status = self._validate(
-                JobStatus, self._request("GET", job_path).json(), "job status"
-            )
+            status = self._validate(JobStatus, self._request("GET", job_path).json(), "job status")
             if status.total_models != len(model_list):
                 raise ServiceClientError("service returned an unexpected model count")
             if status.status in ("completed", "completed_with_errors", "cancelled"):

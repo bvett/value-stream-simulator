@@ -39,7 +39,7 @@ class TaskStore(Store):
 
         if self._limit is not None and self._signal is not None:
             if len(self.items) == self._limit:
-                self._signal.succeed(value=self.items[self._baseline:])
+                self._signal.succeed(value=self.items[self._baseline :])
 
         return result
 
@@ -93,7 +93,7 @@ class TerminalTaskStore(TaskStore):
 
         if self._limit is not None and self._signal is not None:
             if len(self.items) == self._limit:
-                self._signal.succeed(value=self.items[self._baseline:])
+                self._signal.succeed(value=self.items[self._baseline :])
 
         return result
 

@@ -36,14 +36,10 @@ class RunCoordinator:
                 or request.property is None
                 or request.property not in ModelSettings.model_fields.keys()
             ):
-                raise AppError(
-                    "INVALID_INPUT", "Choose a source comparison and a model property"
-                )
+                raise AppError("INVALID_INPUT", "Choose a source comparison and a model property")
             source = self.store.run(workspace_id, request.source_run_id)
             if source.status.state not in TERMINAL or not source.results:
-                raise AppError(
-                    "INVALID_INPUT", "Interactive mode requires a completed comparison"
-                )
+                raise AppError("INVALID_INPUT", "Interactive mode requires a completed comparison")
             if w.current_task_set != source.task_set.id:
                 raise AppError(
                     "REVISION_CONFLICT",
@@ -57,8 +53,7 @@ class RunCoordinator:
                     request.definition_id is None
                     or o.scenario.definition_id == request.definition_id
                 )
-                and getattr(o.scenario.settings, request.property)
-                == request.family_value
+                and getattr(o.scenario.settings, request.property) == request.family_value
             ]
             if not scenarios:
                 raise AppError(
@@ -72,15 +67,15 @@ class RunCoordinator:
                 validate_model_limits(scenario.settings, self.store.settings)
                 scenario.model = concrete_model(scenario.settings, scenario.team_seed)
                 scenario.revision += 1
-                scenario.name = f"{scenario.name.split(' → ')[0]} → {request.property}={request.value}"
+                scenario.name = (
+                    f"{scenario.name.split(' → ')[0]} → {request.property}={request.value}"
+                )
             task_set = source.task_set
             # Supersession is explicit and confirmed before replacement admission.
             active = next((r for r in w.runs if r.state not in TERMINAL), None)
             if active:
                 if active.intent != "interactive":
-                    raise AppError(
-                        "RUN_ACTIVE", "Finish or cancel the manual run first", 409
-                    )
+                    raise AppError("RUN_ACTIVE", "Finish or cancel the manual run first", 409)
                 active.superseded = True
                 await self.cancel_run(workspace_id, active.id)
                 raise AppError(
@@ -98,9 +93,7 @@ class RunCoordinator:
                 )
             scenarios = preview.scenarios
             task_set = next(t for t in w.task_sets if t.id == preview.task_set_id)
-        record, created = self.store.register(
-            workspace_id, request, scenarios, task_set
-        )
+        record, created = self.store.register(workspace_id, request, scenarios, task_set)
         if created:
             self.launch(workspace_id, record)
         return record.status
@@ -118,7 +111,13 @@ class RunCoordinator:
         )
 
     def complete_outcome(
-        self, record:RunRecord, index:int, status:Status, result: Optional[ResultData]=None, error=None, cached:bool=False
+        self,
+        record: RunRecord,
+        index: int,
+        status: Status,
+        result: Optional[ResultData] = None,
+        error=None,
+        cached: bool = False,
     ):
         outcome = record.status.outcomes[index]
         if outcome.cursor:
@@ -155,19 +154,13 @@ class RunCoordinator:
                 return
             request = JobRequest(
                 tasks=record.task_set.tasks,
-                models=[
-                    status.outcomes[i].scenario.model for i in record.service_indices
-                ],
+                models=[status.outcomes[i].scenario.model for i in record.service_indices],
                 model_seeds=[
-                    status.outcomes[i].scenario.execution_seed
-                    for i in record.service_indices
+                    status.outcomes[i].scenario.execution_seed for i in record.service_indices
                 ],
                 submission_id=uuid5(status.id, "simulation"),
             )
-            if (
-                len(request.model_dump_json().encode())
-                > self.store.settings.max_body_bytes
-            ):
+            if len(request.model_dump_json().encode()) > self.store.settings.max_body_bytes:
                 raise AppError(
                     "BODY_TOO_LARGE",
                     "Expanded simulation request exceeds the body limit",
@@ -183,9 +176,7 @@ class RunCoordinator:
                         status.state = "cancelling"
                         await self.gateway.cancel(status.job_id)
                     upstream = await self.gateway.status(status.job_id)
-                    page = await self.gateway.outcomes(
-                        status.job_id, record.service_cursor
-                    )
+                    page = await self.gateway.outcomes(status.job_id, record.service_cursor)
                     for outcome in page.outcomes:
                         if outcome.cursor <= record.service_cursor:
                             continue
@@ -197,15 +188,11 @@ class RunCoordinator:
                             )
                         i = record.service_indices[outcome.model_index]
                         error = (
-                            ErrorEnvelope(
-                                code=outcome.error.code, message=outcome.error.message
-                            )
+                            ErrorEnvelope(code=outcome.error.code, message=outcome.error.message)
                             if outcome.error
                             else None
                         )
-                        self.complete_outcome(
-                            record, i, outcome.status, outcome.result, error
-                        )
+                        self.complete_outcome(record, i, outcome.status, outcome.result, error)
                     record.service_cursor = page.next_cursor
                     status.error = None
                     retry_start = None
@@ -226,19 +213,14 @@ class RunCoordinator:
                         status.state = upstream.status
                         self.store.finish(workspace_id, record)
                         return
-                    status.state = (
-                        "cancelling" if status.cancel_requested else upstream.status
-                    )
+                    status.state = "cancelling" if status.cancel_requested else upstream.status
                 except AppError as exc:
                     if exc.code != "SERVICE_UNAVAILABLE":
                         raise
                     status.state = "reconnecting"
                     status.error = ErrorEnvelope(**exc.body())
                     retry_start = retry_start or time.monotonic()
-                    if (
-                        time.monotonic() - retry_start
-                        >= self.store.settings.retry_seconds
-                    ):
+                    if time.monotonic() - retry_start >= self.store.settings.retry_seconds:
                         status.retry_paused = True
                         return
                     delay = min(5, delay * 2)
@@ -250,9 +232,7 @@ class RunCoordinator:
             error = (
                 exc
                 if isinstance(exc, AppError)
-                else AppError(
-                    "INTERNAL_ERROR", "Unexpected application execution error", 500
-                )
+                else AppError("INTERNAL_ERROR", "Unexpected application execution error", 500)
             )
             if error.code == "JOB_NOT_FOUND":
                 error = AppError(
@@ -265,9 +245,7 @@ class RunCoordinator:
                 try:
                     await self.gateway.cancel(status.job_id)
                 except Exception:
-                    logger.warning(
-                        "Unable to confirm cancellation for job %s", status.job_id
-                    )
+                    logger.warning("Unable to confirm cancellation for job %s", status.job_id)
             for i, o in enumerate(status.outcomes):
                 if not o.cursor:
                     self.complete_outcome(record, i, Status.FAILED, error=status.error)

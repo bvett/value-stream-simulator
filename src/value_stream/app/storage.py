@@ -21,7 +21,7 @@ from .schemas import (
     GENERATOR_VERSION,
     RunRequest,
     ConcreteScenario,
-    EditorRequest
+    EditorRequest,
 )
 from .settings import AppSettings
 
@@ -40,6 +40,7 @@ class RunRecord:
     result_bytes: int = 0
     created_at: float = field(default_factory=time.monotonic)
 
+
 class WorkspaceStore(Protocol):
     settings: AppSettings
 
@@ -49,21 +50,19 @@ class WorkspaceStore(Protocol):
     def save_editor(self, workspace_id: UUID, request: EditorRequest) -> Preview: ...
     def preview(self, workspace_id: UUID) -> Preview: ...
     def register(
-        self, workspace_id: UUID, request: RunRequest, scenarios: list[ConcreteScenario], task_set: TaskSet
+        self,
+        workspace_id: UUID,
+        request: RunRequest,
+        scenarios: list[ConcreteScenario],
+        task_set: TaskSet,
     ) -> tuple[RunRecord, bool]: ...
-    def retain_result(
-        self, record: RunRecord, index: int, result: ResultData
-    ) -> None: ...
-    def previous(
-        self, workspace: Workspace, request: RunRequest
-    ) -> RunRecord | None: ...
+    def retain_result(self, record: RunRecord, index: int, result: ResultData) -> None: ...
+    def previous(self, workspace: Workspace, request: RunRequest) -> RunRecord | None: ...
     def cached_result(self, key: str) -> ResultData: ...
     def result(self, record: RunRecord, scenario_id: UUID) -> ResultData: ...
     def finish(self, workspace_id: UUID, record: RunRecord) -> None: ...
     def active_records(self) -> list[RunRecord]: ...
-    def comparison(
-        self, workspace_id: UUID, run_id: UUID, action: str
-    ) -> Workspace: ...
+    def comparison(self, workspace_id: UUID, run_id: UUID, action: str) -> Workspace: ...
     def delete_workspace(self, workspace_id: UUID) -> None: ...
     def delete_task_set(
         self, workspace_id: UUID, task_set_id: UUID, expected_revision: int
@@ -106,7 +105,7 @@ class InMemoryWorkspaceStore:
             raise AppError("RUN_NOT_FOUND", "Run not found", 404)
         return self.runs[run_id]
 
-    def delete_workspace(self, workspace_id:UUID) -> None:
+    def delete_workspace(self, workspace_id: UUID) -> None:
         with self.lock:
             w = self.get(workspace_id)
             if any(r.state not in TERMINAL for r in w.runs):
@@ -127,13 +126,13 @@ class InMemoryWorkspaceStore:
         self.cache.move_to_end(key)
         return self.cache[key][0]
 
-    def delete_task_set(self, workspace_id: UUID, task_set_id: UUID, expected_revision: int) -> None:
+    def delete_task_set(
+        self, workspace_id: UUID, task_set_id: UUID, expected_revision: int
+    ) -> None:
         with self.lock:
             w = self.get(workspace_id)
             if w.revision != expected_revision:
-                raise AppError(
-                    "REVISION_CONFLICT", "Reload before deleting this task set", 409
-                )
+                raise AppError("REVISION_CONFLICT", "Reload before deleting this task set", 409)
             if task_set_id == w.current_task_set or any(
                 r.task_set_id == task_set_id for r in w.runs
             ):
@@ -157,19 +156,13 @@ class InMemoryWorkspaceStore:
                     409,
                 )
             if request.task_spec.count > self.settings.max_tasks:
-                raise AppError(
-                    "LIMIT_EXCEEDED", f"Task count exceeds {self.settings.max_tasks}"
-                )
+                raise AppError("LIMIT_EXCEEDED", f"Task count exceeds {self.settings.max_tasks}")
             if len({d.id for d in request.definitions}) != len(request.definitions):
                 raise AppError("INVALID_INPUT", "Definition IDs must be unique")
             scenarios = expand_scenarios(request.definitions, self.settings)
             spec_hash = fingerprint(request.task_spec.model_dump())
             task_set = next(
-                (
-                    t
-                    for t in w.task_sets
-                    if fingerprint(t.spec.model_dump()) == spec_hash
-                ),
+                (t for t in w.task_sets if fingerprint(t.spec.model_dump()) == spec_hash),
                 None,
             )
             if task_set is None:
@@ -188,9 +181,7 @@ class InMemoryWorkspaceStore:
             candidate = w.model_copy()
             candidate.task_sets = list(w.task_sets)
             candidate.task_spec = request.task_spec.model_copy(deep=True)
-            candidate.definitions = [
-                d.model_copy(deep=True) for d in request.definitions
-            ]
+            candidate.definitions = [d.model_copy(deep=True) for d in request.definitions]
             if task_set.id not in {t.id for t in candidate.task_sets}:
                 candidate.task_sets.append(task_set)
             candidate.current_task_set = task_set.id
@@ -198,9 +189,7 @@ class InMemoryWorkspaceStore:
                 candidate.baseline_id = candidate.latest_id = None
             candidate.revision += 1
             size = sum(
-                self.input_size(other)
-                for other in self.workspaces.values()
-                if other.id != w.id
+                self.input_size(other) for other in self.workspaces.values() if other.id != w.id
             ) + self.input_size(candidate)
             if size > self.settings.max_input_bytes:
                 raise AppError("APP_CAPACITY", "Input storage limit reached", 429)
@@ -214,7 +203,7 @@ class InMemoryWorkspaceStore:
         # Run summaries include their frozen model configurations, never raw results.
         return len(canonical(w.model_dump(mode="json")).encode())
 
-    def _preview(self, w:Workspace, scenarios: list[ConcreteScenario]):
+    def _preview(self, w: Workspace, scenarios: list[ConcreteScenario]):
         if w.current_task_set is None:
             raise AppError("INVALID_INPUT", "Save and preview inputs first")
         digest = fingerprint(
@@ -236,7 +225,7 @@ class InMemoryWorkspaceStore:
         w = self.get(workspace_id)
         return self._preview(w, expand_scenarios(w.definitions, self.settings))
 
-    def previous(self, workspace : Workspace, request: RunRequest) -> RunRecord | None:
+    def previous(self, workspace: Workspace, request: RunRequest) -> RunRecord | None:
         hashed = fingerprint(request.model_dump(mode="json"))
         for status in workspace.runs:
             record = self.runs[status.id]
@@ -250,23 +239,25 @@ class InMemoryWorkspaceStore:
                 return record
         return None
 
-    def register(self, workspace_id: UUID, request: RunRequest, scenarios: list[ConcreteScenario], task_set: TaskSet) -> tuple[RunRecord,bool]:
+    def register(
+        self,
+        workspace_id: UUID,
+        request: RunRequest,
+        scenarios: list[ConcreteScenario],
+        task_set: TaskSet,
+    ) -> tuple[RunRecord, bool]:
         with self.lock:
             w = self.get(workspace_id)
             previous = self.previous(w, request)
             if previous:
                 return previous, False
             if any(r.state not in TERMINAL for r in w.runs):
-                raise AppError(
-                    "RUN_ACTIVE", "Cancel or finish the current run first", 409
-                )
+                raise AppError("RUN_ACTIVE", "Cancel or finish the current run first", 409)
             if (
                 sum(r.status.state not in TERMINAL for r in self.runs.values())
                 >= self.settings.max_active_runs
             ):
-                raise AppError(
-                    "APP_CAPACITY", "All application execution slots are occupied", 429
-                )
+                raise AppError("APP_CAPACITY", "All application execution slots are occupied", 429)
             if (
                 request.intent == "interactive"
                 and w.runs
@@ -313,9 +304,7 @@ class InMemoryWorkspaceStore:
                 task_set_id=task_set.id,
                 state="submitting",
                 intent=request.intent,
-                outcomes=[
-                    OutcomeSummary(scenario=s.model_copy(deep=True)) for s in scenarios
-                ],
+                outcomes=[OutcomeSummary(scenario=s.model_copy(deep=True)) for s in scenarios],
             )
             record = RunRecord(
                 status=status,
@@ -326,13 +315,8 @@ class InMemoryWorkspaceStore:
                 service_indices=missing,
                 reservation=reservation,
             )
-            input_bytes = sum(
-                self.input_size(other) for other in self.workspaces.values()
-            )
-            if (
-                input_bytes + len(status.model_dump_json().encode())
-                > self.settings.max_input_bytes
-            ):
+            input_bytes = sum(self.input_size(other) for other in self.workspaces.values())
+            if input_bytes + len(status.model_dump_json().encode()) > self.settings.max_input_bytes:
                 raise AppError(
                     "APP_CAPACITY",
                     "Input snapshot memory is full. Delete old comparisons.",
@@ -344,7 +328,7 @@ class InMemoryWorkspaceStore:
                 w.latest_id = status.id
             return record, True
 
-    def retain_result(self, record: RunRecord, index:int, result:ResultData) -> None:
+    def retain_result(self, record: RunRecord, index: int, result: ResultData) -> None:
         with self.lock:
             key = record.cache_keys[index]
             size = len(result.model_dump_json().encode())
@@ -359,9 +343,7 @@ class InMemoryWorkspaceStore:
                 )
             if key not in self.cache:
                 if size > record.reservation:
-                    raise AppError(
-                        "RESULT_TOO_LARGE", "Run exceeded its reserved result budget"
-                    )
+                    raise AppError("RESULT_TOO_LARGE", "Run exceeded its reserved result budget")
                 record.reservation -= size
                 self.cache[key] = (result, size)
             self.cache.move_to_end(key)
@@ -371,9 +353,7 @@ class InMemoryWorkspaceStore:
     def result(self, record: RunRecord, scenario_id: UUID) -> ResultData:
         key = record.results.get(scenario_id)
         if key is None or key not in self.cache:
-            raise AppError(
-                "RESULT_NOT_FOUND", "This scenario has no completed result", 404
-            )
+            raise AppError("RESULT_NOT_FOUND", "This scenario has no completed result", 404)
         self.cache.move_to_end(key)
         return self.cache[key][0]
 
@@ -396,14 +376,9 @@ class InMemoryWorkspaceStore:
             if r.status.state not in TERMINAL:
                 raise AppError("RUN_ACTIVE", "Wait until the comparison finishes", 409)
             if action in {"pin", "baseline"} and not r.results:
-                raise AppError(
-                    "INVALID_INPUT", "A comparison needs at least one successful result"
-                )
+                raise AppError("INVALID_INPUT", "A comparison needs at least one successful result")
             if action == "pin":
-                if (
-                    not r.status.pinned
-                    and sum(x.pinned for x in w.runs) >= self.settings.max_pins
-                ):
+                if not r.status.pinned and sum(x.pinned for x in w.runs) >= self.settings.max_pins:
                     raise AppError(
                         "COMPARISON_LIMIT",
                         "Unpin a comparison before pinning another",
@@ -438,9 +413,7 @@ class InMemoryWorkspaceStore:
                 w.runs.remove(r)
                 self.runs.pop(r.id)
         if len(w.runs) >= self.settings.max_retained_runs:
-            raise AppError(
-                "APP_CAPACITY", "Run history is full. Delete a comparison.", 429
-            )
+            raise AppError("APP_CAPACITY", "Run history is full. Delete a comparison.", 429)
 
     def prune_for_capacity(self, required: int, protect: set[str]) -> None:
         def used():
@@ -466,7 +439,7 @@ class InMemoryWorkspaceStore:
             self.runs.pop(status.id)
             self.prune_cache(required=required, protect=protect)
 
-    def prune_cache(self, required: int=0, protect: Optional[set[str]] = None):
+    def prune_cache(self, required: int = 0, protect: Optional[set[str]] = None):
         references = {key for r in self.runs.values() for key in r.results.values()}
         active_keys = {
             key

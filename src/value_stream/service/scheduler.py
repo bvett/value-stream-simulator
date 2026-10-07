@@ -42,9 +42,7 @@ class ModelScheduler:
         ]
         self._futures[job_id] = futures
         for future in futures:
-            future.add_done_callback(
-                lambda _done, job=job_id: self._forget_finished(job)
-            )
+            future.add_done_callback(lambda _done, job=job_id: self._forget_finished(job))
 
     def _forget_finished(self, job_id: UUID) -> None:
         with self._lock:
@@ -80,9 +78,7 @@ class ModelScheduler:
                 "models": [request.models[index].model_dump(mode="json")],
                 "seed": request.seed,
                 "model_seeds": (
-                    [request.model_seeds[index]]
-                    if request.model_seeds is not None
-                    else None
+                    [request.model_seeds[index]] if request.model_seeds is not None else None
                 ),
             },
         }
@@ -129,9 +125,7 @@ class ModelScheduler:
             )
             self._stop_process(process)
         except Exception as exc:
-            error = ModelError(
-                model_index=index, code="WORKER_FAILED", message=str(exc)
-            )
+            error = ModelError(model_index=index, code="WORKER_FAILED", message=str(exc))
             self._stop_process(process)
         finally:
             with self._lock:

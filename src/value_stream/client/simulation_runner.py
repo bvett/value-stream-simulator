@@ -42,11 +42,14 @@ class SimulationRunner:
     def __exit__(self, _type, _value, _traceback):
         self.close()
 
-    def execute(self, tasks: list[Task],
-                models: Iterable[Model],
-                pbar: Optional[tqdm] = None,
-                policy: SimulationPolicy = DefaultSimulationPolicy(),
-                seed: int | None = None) -> list[SimulationResult]:
+    def execute(
+        self,
+        tasks: list[Task],
+        models: Iterable[Model],
+        pbar: Optional[tqdm] = None,
+        policy: SimulationPolicy = DefaultSimulationPolicy(),
+        seed: int | None = None,
+    ) -> list[SimulationResult]:
         """Run the model batch and return results in submission order."""
         if self._closed:
             raise RuntimeError("SimulationRunner is closed")

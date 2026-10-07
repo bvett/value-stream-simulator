@@ -7,6 +7,17 @@ from .task import SupportTask, Task
 from .task_type import TaskType
 from .task_state import TaskState
 
-__all__ = ["Epoch", "EventStatus", "SupportTask", "Task",
-           "TaskEvent", "TaskHistory", "TaskType", "TaskState",
-           "DefaultRouter", "TaskRouter", "StatusRouter", "TypeRouter"]
+__all__ = [
+    "Epoch",
+    "EventStatus",
+    "SupportTask",
+    "Task",
+    "TaskEvent",
+    "TaskHistory",
+    "TaskType",
+    "TaskState",
+    "DefaultRouter",
+    "TaskRouter",
+    "StatusRouter",
+    "TypeRouter",
+]

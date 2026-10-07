@@ -6,11 +6,11 @@ from .task_factory import TaskFactory
 
 
 class TaskGenerator:
-    """creates a set of Tasks at a regular simulation time interval. 
+    """creates a set of Tasks at a regular simulation time interval.
     Useful for simulating task creation over time and the creation of unexpected toil.
     """
 
-    def __init__(self,  factory: TaskFactory,  group_size: int = 1, limit: Optional[int] = None):
+    def __init__(self, factory: TaskFactory, group_size: int = 1, limit: Optional[int] = None):
         self.group_size = group_size
         self.factory = factory
 
@@ -62,6 +62,7 @@ class TaskGenerator:
 
                 except Interrupt:
                     break
+
         self.proc = env.process(gen(self.limit))
 
     def stop(self):
