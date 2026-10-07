@@ -265,7 +265,10 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** AppConfig */
+        /**
+         * AppConfig
+         * @description Stores application runtime configuration.
+         */
         AppConfig: {
             /**
              * Engine Version
@@ -285,7 +288,10 @@ export interface components {
             /** Ready */
             ready: boolean;
         };
-        /** Backlog */
+        /**
+         * Backlog
+         * @description Stores backlog counts for a simulation stage.
+         */
         Backlog: {
             /** Label */
             label: string;
@@ -301,7 +307,10 @@ export interface components {
             /** Waiting */
             waiting: number[];
         };
-        /** ComparisonMutation */
+        /**
+         * ComparisonMutation
+         * @description Describes a change to a comparison workspace.
+         */
         ComparisonMutation: {
             /**
              * Action
@@ -309,7 +318,10 @@ export interface components {
              */
             action: "pin" | "unpin" | "baseline" | "delete";
         };
-        /** ConcreteScenario */
+        /**
+         * ConcreteScenario
+         * @description Stores one fully expanded simulation scenario.
+         */
         ConcreteScenario: {
             /**
              * Definition Id
@@ -332,7 +344,10 @@ export interface components {
             /** Team Seed */
             team_seed: number;
         };
-        /** ConstantValue */
+        /**
+         * ConstantValue
+         * @description Defines a fixed value for a model setting.
+         */
         "ConstantValue-Input": {
             /**
              * @description discriminator enum property added by openapi-typescript
@@ -345,7 +360,10 @@ export interface components {
              */
             value: number;
         };
-        /** ConstantValue */
+        /**
+         * ConstantValue
+         * @description Defines a fixed value for a model setting.
+         */
         "ConstantValue-Output": {
             /**
              * @description discriminator enum property added by openapi-typescript
@@ -358,7 +376,10 @@ export interface components {
              */
             value: number;
         };
-        /** DeveloperInput */
+        /**
+         * DeveloperInput
+         * @description Defines developer configuration accepted by the service.
+         */
         DeveloperInput: {
             /**
              * Efficiency
@@ -371,7 +392,10 @@ export interface components {
              */
             name: string;
         };
-        /** EditorRequest */
+        /**
+         * EditorRequest
+         * @description Carries editor changes submitted by a client.
+         */
         EditorRequest: {
             /** Definitions */
             definitions: components["schemas"]["ScenarioDefinition-Input"][];
@@ -379,7 +403,10 @@ export interface components {
             expected_revision: number;
             task_spec: components["schemas"]["TaskSetSpec-Input"];
         };
-        /** ErrorEnvelope */
+        /**
+         * ErrorEnvelope
+         * @description Wraps a service error response.
+         */
         ErrorEnvelope: {
             /** Code */
             code: string;
@@ -390,7 +417,10 @@ export interface components {
             /** Message */
             message: string;
         };
-        /** HealthResponse */
+        /**
+         * HealthResponse
+         * @description Reports the service health state.
+         */
         HealthResponse: {
             /**
              * Status
@@ -399,7 +429,10 @@ export interface components {
              */
             status: "ok";
         };
-        /** ModelInput */
+        /**
+         * ModelInput
+         * @description Defines a simulation model accepted by the service.
+         */
         ModelInput: {
             /** Deployment Cadence */
             deployment_cadence: number;
@@ -417,7 +450,10 @@ export interface components {
             /** Toolchain Pool */
             toolchain_pool: components["schemas"]["ToolchainPoolInput"] | components["schemas"]["ToolchainListInput"];
         };
-        /** ModelSettings */
+        /**
+         * ModelSettings
+         * @description Defines resource and workflow settings for a simulation model.
+         */
         "ModelSettings-Input": {
             /**
              * Deployment Cadence
@@ -491,7 +527,10 @@ export interface components {
              */
             toolchain_size: number;
         };
-        /** ModelSettings */
+        /**
+         * ModelSettings
+         * @description Defines resource and workflow settings for a simulation model.
+         */
         "ModelSettings-Output": {
             /**
              * Deployment Cadence
@@ -565,7 +604,10 @@ export interface components {
              */
             toolchain_size: number;
         };
-        /** Observation */
+        /**
+         * Observation
+         * @description Stores a derived observation about simulation results.
+         */
         Observation: {
             /** Evidence */
             evidence: string;
@@ -578,7 +620,10 @@ export interface components {
             /** Value */
             value: number | string | null;
         };
-        /** OutcomeSummary */
+        /**
+         * OutcomeSummary
+         * @description Summarizes the result of one simulated outcome.
+         */
         OutcomeSummary: {
             /**
              * Cached
@@ -601,7 +646,10 @@ export interface components {
             /** @default queued */
             status: components["schemas"]["Status"];
         };
-        /** PlotData */
+        /**
+         * PlotData
+         * @description Stores chart labels and series values.
+         */
         PlotData: {
             /** Activity */
             activity: components["schemas"]["ResourceActivity"][];
@@ -612,7 +660,10 @@ export interface components {
             /** Stages */
             stages: components["schemas"]["StageLoss"][];
         };
-        /** Preview */
+        /**
+         * Preview
+         * @description Stores the result of validating an editor request.
+         */
         Preview: {
             /** Count */
             count: number;
@@ -628,7 +679,10 @@ export interface components {
             /** Workspace Revision */
             workspace_revision: number;
         };
-        /** QAInput */
+        /**
+         * QAInput
+         * @description Defines QA tester configuration accepted by the service.
+         */
         QAInput: {
             /**
              * Failure Cost
@@ -646,7 +700,10 @@ export interface components {
              */
             time_cost: number;
         };
-        /** QAListInput */
+        /**
+         * QAListInput
+         * @description Defines a list of QA tester configurations.
+         */
         QAListInput: {
             /**
              * Kind
@@ -657,7 +714,10 @@ export interface components {
             /** Resources */
             resources: components["schemas"]["QAInput"][];
         };
-        /** QAPoolInput */
+        /**
+         * QAPoolInput
+         * @description Defines a pool of QA testers.
+         */
         QAPoolInput: {
             /**
              * Failure Cost
@@ -683,7 +743,10 @@ export interface components {
              */
             time_cost: number;
         };
-        /** ResourceActivity */
+        /**
+         * ResourceActivity
+         * @description Summarizes activity for one simulation resource.
+         */
         ResourceActivity: {
             /** Durations */
             durations: {
@@ -698,7 +761,10 @@ export interface components {
             /** Stage */
             stage: string;
         };
-        /** ResultView */
+        /**
+         * ResultView
+         * @description Collects metrics and observations for a result view.
+         */
         ResultView: {
             metrics: components["schemas"]["PlotData"];
             /** Observations */
@@ -709,7 +775,10 @@ export interface components {
              */
             scenario_id: string;
         };
-        /** RunRequest */
+        /**
+         * RunRequest
+         * @description Describes a simulation run requested by a client.
+         */
         RunRequest: {
             /** Definition Id */
             definition_id?: string | null;
@@ -740,7 +809,10 @@ export interface components {
             /** Value */
             value?: number | string | null;
         };
-        /** RunStatus */
+        /**
+         * RunStatus
+         * @description Tracks the state and outcomes of a simulation run.
+         */
         RunStatus: {
             /**
              * Cancel Requested
@@ -792,7 +864,10 @@ export interface components {
              */
             task_set_id: string;
         };
-        /** ScenarioDefinition */
+        /**
+         * ScenarioDefinition
+         * @description Defines a simulation scenario and its parameter values.
+         */
         "ScenarioDefinition-Input": {
             /**
              * Execution Seed
@@ -825,7 +900,10 @@ export interface components {
              */
             team_seed: number;
         };
-        /** ScenarioDefinition */
+        /**
+         * ScenarioDefinition
+         * @description Defines a simulation scenario and its parameter values.
+         */
         "ScenarioDefinition-Output": {
             /**
              * Execution Seed
@@ -858,7 +936,10 @@ export interface components {
              */
             team_seed: number;
         };
-        /** StageLoss */
+        /**
+         * StageLoss
+         * @description Stores value lost during one workflow stage.
+         */
         StageLoss: {
             /** Label */
             label: string;
@@ -871,10 +952,14 @@ export interface components {
         };
         /**
          * Status
+         * @description Enumerates the possible job states.
          * @enum {string}
          */
         Status: "queued" | "running" | "succeeded" | "failed" | "cancelled";
-        /** SweepRange */
+        /**
+         * SweepRange
+         * @description Defines a numeric range of values to sweep.
+         */
         SweepRange: {
             /** End */
             end: number;
@@ -883,7 +968,10 @@ export interface components {
             /** Step */
             step: number;
         };
-        /** TaskInput */
+        /**
+         * TaskInput
+         * @description Defines task data accepted by the simulation service.
+         */
         TaskInput: {
             /**
              * Creation Sim T
@@ -913,7 +1001,10 @@ export interface components {
              */
             task_type: "development" | "support";
         };
-        /** TaskSet */
+        /**
+         * TaskSet
+         * @description Stores task-generation settings for a workspace.
+         */
         TaskSet: {
             /** Content Hash */
             content_hash: string;
@@ -936,7 +1027,10 @@ export interface components {
             /** Tasks */
             tasks: components["schemas"]["TaskInput"][];
         };
-        /** TaskSetSpec */
+        /**
+         * TaskSetSpec
+         * @description Describes a task set used to build a simulation.
+         */
         "TaskSetSpec-Input": {
             /**
              * Count
@@ -963,7 +1057,10 @@ export interface components {
             /** Story Points */
             story_points?: components["schemas"]["ConstantValue-Input"] | components["schemas"]["UniformValue-Input"];
         };
-        /** TaskSetSpec */
+        /**
+         * TaskSetSpec
+         * @description Describes a task set used to build a simulation.
+         */
         "TaskSetSpec-Output": {
             /**
              * Count
@@ -990,7 +1087,10 @@ export interface components {
             /** Story Points */
             story_points: components["schemas"]["ConstantValue-Output"] | components["schemas"]["UniformValue-Output"];
         };
-        /** ToolchainInput */
+        /**
+         * ToolchainInput
+         * @description Defines toolchain configuration accepted by the service.
+         */
         ToolchainInput: {
             /** Deployment Duration */
             deployment_duration: number;
@@ -1000,7 +1100,10 @@ export interface components {
              */
             failure_rate: number;
         };
-        /** ToolchainListInput */
+        /**
+         * ToolchainListInput
+         * @description Defines a list of toolchain configurations.
+         */
         ToolchainListInput: {
             /**
              * Kind
@@ -1011,7 +1114,10 @@ export interface components {
             /** Resources */
             resources: components["schemas"]["ToolchainInput"][];
         };
-        /** ToolchainPoolInput */
+        /**
+         * ToolchainPoolInput
+         * @description Defines a pool of toolchains.
+         */
         ToolchainPoolInput: {
             /** Deployment Duration */
             deployment_duration: number;
@@ -1029,7 +1135,10 @@ export interface components {
             /** Limit */
             limit: number;
         };
-        /** UniformValue */
+        /**
+         * UniformValue
+         * @description Defines a uniformly sampled value for a model setting.
+         */
         "UniformValue-Input": {
             /**
              * @description discriminator enum property added by openapi-typescript
@@ -1041,7 +1150,10 @@ export interface components {
             /** Minimum */
             minimum: number;
         };
-        /** UniformValue */
+        /**
+         * UniformValue
+         * @description Defines a uniformly sampled value for a model setting.
+         */
         "UniformValue-Output": {
             /**
              * @description discriminator enum property added by openapi-typescript
@@ -1053,7 +1165,10 @@ export interface components {
             /** Minimum */
             minimum: number;
         };
-        /** Workspace */
+        /**
+         * Workspace
+         * @description Stores editable simulation inputs and run history.
+         */
         Workspace: {
             /** Baseline Id */
             baseline_id: string | null;
