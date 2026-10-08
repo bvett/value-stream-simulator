@@ -2,8 +2,8 @@ import copy
 import itertools
 from typing import Iterable, Optional
 
-from value_stream.simulation import Model
 from value_stream.resources import Developer, QATester, Toolchain
+from .model import Model
 
 
 class ModelFactory:
