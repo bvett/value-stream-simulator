@@ -183,3 +183,4 @@ src/value_stream/app/frontend/*.tsbuildinfo
 src/value_stream/app/static/
 src/value_stream/app/frontend/test-results/
 src/value_stream/app/frontend/playwright-report/
+src/value_stream/app/frontend/coverage/coverage-final.json
