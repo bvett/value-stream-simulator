@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 
 from simpy import Environment, Event, Store
 from simpy.resources.store import StorePut, StoreGet

@@ -8,7 +8,7 @@ import json
 import math
 import random
 from decimal import Decimal
-from uuid import UUID, uuid5
+from uuid import uuid5
 from pydantic import ValidationError
 from value_stream.service.schemas import (
     DeveloperInput,
