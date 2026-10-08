@@ -1,5 +1,6 @@
 """Single-origin web application and JSON contract."""
 
+import copy
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -252,7 +253,6 @@ def create_app(
                 409,
             )
         # Snapshot both rows and result references before streaming across threads.
-        import copy
 
         snapshot = copy.copy(record)
         snapshot.status = record.status.model_copy(deep=True)

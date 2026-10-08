@@ -1,9 +1,11 @@
 """HTTP-only simulation boundary with bounded reads and owned startup."""
 
 import asyncio
+import json
 from typing import Protocol
 from uuid import UUID
 import httpx
+from value_stream.client.web.local_service import acquire_local_service, release_local_service
 from value_stream.service.schemas import JobRequest, JobAccepted, JobStatus, OutcomePage
 from .errors import AppError
 
@@ -32,7 +34,6 @@ class HttpSimulationGateway:
 
     async def start(self):
         if not self.url:
-            from value_stream.client.web.local_service import acquire_local_service
 
             self.url = await asyncio.to_thread(acquire_local_service)
             self.owned = True
@@ -55,7 +56,6 @@ class HttpSimulationGateway:
                                 "Service response exceeds the configured limit",
                                 502,
                             )
-                    import json
 
                     try:
                         value = json.loads(data)
@@ -124,7 +124,6 @@ class HttpSimulationGateway:
         if self.client:
             await self.client.aclose()
         if self.owned:
-            from value_stream.client.web.local_service import release_local_service
 
             await asyncio.to_thread(release_local_service)
             self.owned = False
