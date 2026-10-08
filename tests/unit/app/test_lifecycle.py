@@ -2,12 +2,14 @@ import asyncio
 import csv
 import io
 import unittest
+from unittest.mock import patch
 from uuid import UUID, uuid4
 from value_stream.app.coordinator import RunCoordinator
 from value_stream.app.storage import InMemoryWorkspaceStore
 from value_stream.app.schemas import (
     EditorRequest,
     RunRequest,
+    RunStatus,
     TaskSetSpec,
     ScenarioDefinition,
     Status,
@@ -227,6 +229,26 @@ class TestLifecycle(unittest.IsolatedAsyncioTestCase):
             self.gateway.succeed(i)
         self.coordinator.resume(self.workspace.id, status.id)
         await self.wait(lambda: status.state == "completed")
+
+    async def test_resume_as_soon_as_connection_budget_expires(self):
+        self.gateway.fail_reads = True
+        status, _ = await self.start()
+        original_setattr = RunStatus.__setattr__
+        resumed = False
+
+        def resume_on_pause(target, name, value):
+            nonlocal resumed
+            original_setattr(target, name, value)
+            if target is status and name == "retry_paused" and value:
+                resumed = True
+                self.gateway.fail_reads = False
+                for i in range(3):
+                    self.gateway.succeed(i)
+                self.coordinator.resume(self.workspace.id, status.id)
+
+        with patch.object(RunStatus, "__setattr__", resume_on_pause):
+            await self.wait(lambda: status.state == "completed")
+        self.assertTrue(resumed)
 
     async def test_failure_does_not_discard_success(self):
         status, _ = await self.start()

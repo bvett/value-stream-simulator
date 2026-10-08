@@ -268,6 +268,10 @@ class RunCoordinator:
                     status.error = ErrorEnvelope(**exc.body())
                     retry_start = retry_start or time.monotonic()
                     if time.monotonic() - retry_start >= self.store.settings.retry_seconds:
+                        # Publish the pause only after the run can be relaunched.
+                        # A caller may resume as soon as retry_paused becomes true.
+                        if self.tasks.get(status.id) is asyncio.current_task():
+                            self.tasks.pop(status.id)
                         status.retry_paused = True
                         return
                     delay = min(5, delay * 2)
