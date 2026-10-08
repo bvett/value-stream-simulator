@@ -14,19 +14,13 @@ from .settings import ServiceSettings
 class JobNotFound(Exception):
     """Indicates that a requested job does not exist."""
 
-    pass
-
 
 class CapacityExceeded(Exception):
     """Indicates that the job store has reached its capacity."""
 
-    pass
-
 
 class SubmissionConflict(Exception):
     """Indicates that a submission conflicts with an existing job."""
-
-    pass
 
 
 class JobStorage(Protocol):
