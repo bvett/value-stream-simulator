@@ -16,9 +16,7 @@ class Toolchain(Resource, PooledResource):
     deployment_duration: FiniteFloat = Field(ge=0)
     failure_rate: FiniteFloat = Field(default=0, ge=0, le=1)
 
-    def do_work(
-        self, env: Environment, tasks: list[Task]
-    ) -> Generator[Timeout, Any, dict[str, EventStatus]]:
+    def do_work(self, env: Environment, tasks: list[Task]) -> Generator[Timeout, Any, Any | None]:
         """Deploy tasks and yield until the deployment completes.
 
         Args:

@@ -16,9 +16,7 @@ class QATester(Resource, PooledResource):
     failure_rate: FiniteFloat = Field(default=0.0, ge=0, le=1)
     failure_cost: FiniteFloat = Field(default=0.0, ge=0, le=1)
 
-    def do_work(
-        self, env: Environment, tasks: list[Task]
-    ) -> Generator[Timeout, Any, dict[str, EventStatus]]:
+    def do_work(self, env: Environment, tasks: list[Task]) -> Generator[Timeout, Any, Any | None]:
         """Test tasks and yield until the QA work completes.
 
         Args:
