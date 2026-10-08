@@ -2,8 +2,8 @@
 
 import json
 from pathlib import Path
-from .server import create_app
 from value_stream.service.app import create_app as create_service
+from .server import create_app
 
 
 def main():

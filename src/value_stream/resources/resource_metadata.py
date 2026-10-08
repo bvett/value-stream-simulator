@@ -1,5 +1,5 @@
-from pydantic import BaseModel, ConfigDict, field_serializer
 from typing import Optional
+from pydantic import BaseModel, ConfigDict, field_serializer
 from value_stream.task import TaskState
 
 

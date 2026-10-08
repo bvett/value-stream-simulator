@@ -1,7 +1,8 @@
 from enum import StrEnum
-from pydantic import BaseModel, field_serializer
 from typing import Optional
 from uuid import UUID
+
+from pydantic import BaseModel, field_serializer
 
 from .event_status import EventStatus
 from .task_type import TaskType

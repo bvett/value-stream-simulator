@@ -1,7 +1,7 @@
 from typing import Optional
-from pydantic import BaseModel, Field, PrivateAttr
-
 from uuid import UUID
+
+from pydantic import BaseModel, Field, PrivateAttr
 
 from .epoch import Epoch
 from .event_status import EventStatus
