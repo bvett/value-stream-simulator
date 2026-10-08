@@ -104,12 +104,34 @@ jobs:
         npm run test:e2e
     - name: Verify wheel assets
       run: |
-        uv build --wheel --out-dir dist/app
+        uv build --sdist --wheel --out-dir dist/app
         uv run python -c "import glob, zipfile; names = zipfile.ZipFile(glob.glob('dist/app/*.whl')[0]).namelist(); assert 'value_stream/app/static/index.html' in names; assert any('/static/assets/' in n for n in names); assert not any('/frontend/' in n for n in names)"
     - uses: actions/upload-artifact@v7
       if: always()
       with:
-        name: simulation-app-browser-evidence
+        name: python-artifacts
         path: |
-          .agent/artifacts/simulation-app/*.png
-          src/value_stream/app/frontend/test-results
+          dist/app/*
+  publish-to-pypi:
+    name: Publish Python distribution to PyPI
+    if: startsWith(github.ref, 'ref/tags/v')
+    needs: 
+      - test
+      - browser-app
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/value-stream
+    permissions:
+      id-token: write
+    
+    steps:
+    - name: Download distribution
+      uses: actions/download-artifact@v6
+      with:
+        name: python-package-distributions
+        path: dist/app
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+
+

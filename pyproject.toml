@@ -12,7 +12,7 @@ exclude = ["src/value_stream/app/frontend/**"]
 
 [project]
 name = "value-stream"
-version = "0.1.6"
+dynamic = ["version"]
 requires-python = ">=3.11"
 authors = [
     {name="Brian Vetter", email="bvetter@gmail.com"},
@@ -48,6 +48,8 @@ classifiers = [
 Repository = "https://github.com/bvett/value-stream-simulator.git"
 Issues = "https://github.com/bvett/value-stream-simulator/issues"
 
+[tool.hatch.version]
+path = "src/value_stream/__version__.py"
 
 [dependency-groups]
 dev = [

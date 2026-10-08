@@ -23,6 +23,7 @@
 			"antipatterns",
 			"Docstrings",
 			"Plotly",
+			"pypi",
 			"pyproject",
 			"Pytest",
 			"SDLC",
