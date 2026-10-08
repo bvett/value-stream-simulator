@@ -59,7 +59,8 @@ class Task(BaseModel):
         return self.initial_value * ((1 - self.depreciation_rate) ** (sim_t - self.creation_sim_t))
 
     def loss(self, from_epoch_t: float, to_epoch_t: float) -> float:
-        """Returns percentage difference between initial value and delivered value, or 0 if undelivered.
+        """Returns percentage difference between initial value and delivered value, or
+            0 if undelivered.
 
         Args:
             from_epoch_t (float): Start time in the task epoch.

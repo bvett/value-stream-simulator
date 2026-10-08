@@ -32,7 +32,8 @@ class Simulation:
             policy (SimulationPolicy): Policy used to make simulation decisions.
 
         Returns:
-            SimulationResult: SimulationResult containing the completed run metrics and task history.
+            SimulationResult: SimulationResult containing the completed run metrics
+                and task history.
         """
         env = Environment()
 
@@ -113,7 +114,8 @@ class Simulation:
             sim_duration (float): Elapsed simulation time.
 
         Returns:
-            tuple[SummaryResult, list[TaskEvent]]: Summary metrics, task events, and resource activity for the completed run.
+            tuple[SummaryResult, list[TaskEvent]]: Summary metrics, task events, and resource
+                activity for the completed run.
         """
         total_initial_value = 0
         total_delivered_value = 0

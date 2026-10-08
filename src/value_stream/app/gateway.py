@@ -98,7 +98,8 @@ class HttpSimulationGateway:
         if not {"model_seeds", "submission_id"} <= properties.keys():
             raise AppError(
                 "SERVICE_INCOMPATIBLE",
-                "Update the simulation service: model seeds and submission identifiers are required.",
+                "Update the simulation service: model seeds and submission "
+                "identifiers are required.",
                 503,
             )
 

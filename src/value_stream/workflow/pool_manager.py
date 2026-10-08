@@ -59,7 +59,8 @@ class PoolManager:
             ValueError: If no owner is registered for an owner-assigned task.
 
         Returns:
-            Resource | StoreGet: A selected resource or a StoreGet event for the next available resource.
+            Resource | StoreGet: A selected resource or a StoreGet event for the next
+                available resource.
         """
         strategy = self.policy.support_assignment_strategy(tasks)
 

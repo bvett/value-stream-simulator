@@ -21,7 +21,8 @@ class Model(BaseModel):
         deployment_duration (float): Duration of a deployment in time units
         deployment_cadence (int): Time interval between deployment activities.
         support_interval (float|None): Frequency of support task generation.
-        support_task_story_points (float): Number of story points assigned to generated support tasks.
+        support_task_story_points (float): Number of story points assigned to generated 
+            support tasks.
     """
 
     @computed_field

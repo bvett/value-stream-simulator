@@ -223,7 +223,8 @@ def expand_scenarios(
         if count > limits.max_models:
             raise AppError(
                 "LIMIT_EXCEEDED",
-                f"Sweep produces more than {limits.max_models} models. Reduce the sweep or configure a higher limit.",
+                f"Sweep produces more than {limits.max_models} models. Reduce the sweep or "
+                "configure a higher limit.",
             )
         axes.append(values)
     scenarios: list[ConcreteScenario] = []

@@ -22,7 +22,8 @@ class ModelFactory:
         """Create one model for each team and deployment cadence combination.
 
         Args:
-            teams (Iterable[list[Developer]]): Developer teams to combine with the other model settings.
+            teams (Iterable[list[Developer]]): Developer teams to combine with the other
+                model settings.
             deployment_cadences (Iterable): Deployment cadences to test.
             qa_testers (Iterable[QATester]): QA testers available to each model.
             toolchain_pool (Iterable[Toolchain]): Toolchains available to each model.

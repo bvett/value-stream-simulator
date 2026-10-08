@@ -29,7 +29,8 @@ def observations(metrics: PlotData, settings: ModelSettings) -> list[Observation
                 Observation(
                     rule="stage_loss",
                     message=f"{stage.label} has the largest observed mean stage-visit loss.",
-                    evidence=f"{stage.loss_percent:.2f}% across {stage.visits} visits. These means are not an additive breakdown of total loss.",
+                    evidence=f"{stage.loss_percent:.2f}% across {stage.visits} visits. "
+                    "These means are not an additive breakdown of total loss.",
                     property=(
                         "deployment_cadence"
                         if stage.stage == "qa_complete" and settings.deployment_cadence
@@ -50,8 +51,10 @@ def observations(metrics: PlotData, settings: ModelSettings) -> list[Observation
             result.append(
                 Observation(
                     rule="backlog",
-                    message=f"{queue.label} has the largest observed resource-request backlog. Try additional capacity.",
-                    evidence=f"Peak: {peak} waiting requests; a request may contain several tasks. Improvement is untested.",
+                    message=f"{queue.label} has the largest observed resource-request backlog. "
+                    "Try additional capacity.",
+                    evidence=f"Peak: {peak} waiting requests; a request may contain several tasks. "
+                    "Improvement is untested.",
                     property=field,
                     value=getattr(settings, field) + 1 if field else None,
                 )
@@ -66,8 +69,10 @@ def observations(metrics: PlotData, settings: ModelSettings) -> list[Observation
             result.append(
                 Observation(
                     rule="failed_work",
-                    message=f"{item.label} records time spent on failed work. Test a lower failure rate.",
-                    evidence=f"Recorded failed-work duration: {item.durations['failure_t']:.2f} time units. Improvement is untested.",
+                    message=f"{item.label} records time spent on failed work. "
+                    "Test a lower failure rate.",
+                    evidence=f"Recorded failed-work duration: {item.durations['failure_t']:.2f} "
+                    "time units. Improvement is untested.",
                     property=field,
                     value=getattr(settings, field) / 2 if field else None,
                 )

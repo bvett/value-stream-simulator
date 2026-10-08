@@ -14,7 +14,8 @@ def main():
     args = parser.parse_args()
     if not (Path(__file__).parent / "static" / "index.html").is_file():
         parser.error(
-            "Build the UI first: npm ci --prefix src/value_stream/app/frontend && npm run build --prefix src/value_stream/app/frontend"
+            "Build the UI first: npm ci --prefix src/value_stream/app/frontend && "
+            "npm run build --prefix src/value_stream/app/frontend"
         )
     uvicorn.run(
         create_app(service_url=args.service_url),

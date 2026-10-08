@@ -228,7 +228,8 @@ class InMemoryWorkspaceStore:
             request (EditorRequest): Request data to process.
 
         Raises:
-            AppError: If the workspace revision conflicts or the proposed inputs are invalid or over limit.
+            AppError: If the workspace revision conflicts or the proposed inputs are
+                invalid or over limit.
 
         Returns:
             Preview: The resulting value.
@@ -427,7 +428,8 @@ class InMemoryWorkspaceStore:
             if used + reservation > self.settings.max_result_bytes:
                 raise AppError(
                     "APP_CAPACITY",
-                    "Result memory is full. Unpin or delete comparisons before running more models.",
+                    "Result memory is full. Unpin or delete comparisons before "
+                    "running more models.",
                     429,
                 )
             status = RunStatus(

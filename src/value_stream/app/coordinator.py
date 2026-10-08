@@ -40,7 +40,8 @@ class RunCoordinator:
             request (RunRequest): Request data to process.
 
         Raises:
-            AppError: If the service is unavailable, the request is invalid, or an active run conflicts with it.
+            AppError: If the service is unavailable, the request is invalid, or an active run
+                conflicts with it.
 
         Returns:
             RunStatus: The resulting value.
@@ -288,7 +289,8 @@ class RunCoordinator:
             if error.code == "JOB_NOT_FOUND":
                 error = AppError(
                     "SERVICE_JOB_LOST",
-                    "The simulation job expired or the service restarted. Completed results were retained.",
+                    "The simulation job expired or the service restarted. "
+                    "Completed results were retained.",
                     404,
                 )
             status.error = ErrorEnvelope(**error.body())

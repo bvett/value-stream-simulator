@@ -118,7 +118,8 @@ class InMemoryJobStore:
             model_count (int): Model count.
 
         Raises:
-            CapacityExceeded: If a job with the same submission identifier already exists or capacity is full.
+            CapacityExceeded: If a job with the same submission identifier already exists
+                or capacity is full.
 
         Returns:
             UUID: Identifier assigned to the new job.
@@ -154,7 +155,8 @@ class InMemoryJobStore:
             SubmissionConflict: If the job cannot reserve its required capacity.
 
         Returns:
-            tuple[UUID, bool]: The existing or newly reserved job identifier and whether it was created.
+            tuple[UUID, bool]: The existing or newly reserved job identifier
+                and whether it was created.
         """
         with self._lock:
             self._prune()
