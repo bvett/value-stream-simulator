@@ -12,31 +12,8 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true 
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v7
-    
-    - name: Set up Python
-      uses: actions/setup-python@v7
-      with:
-        python-version: '3.11'
-
-    - name: Install uv
-      uses: astral-sh/setup-uv@v10.1.0
-      with:
-        enable-cache: true
-
-    
-    - name: Install project
-      run: |
-        uv sync --locked --all-extras --dev
-    
-    - name: Lint with pylint
-      run: |
-        uv run pylint src/value_stream --disable=missing-module-docstring --disable=missing-class-docstring --disable=missing-function-docstring
-      continue-on-error: true
-
+  call-reusable:
+    uses: ./.github/workflows/lint.yml
   test:
     runs-on: ubuntu-latest
     strategy:
