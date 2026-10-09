@@ -1,0 +1,32 @@
+name: Validate
+
+on: workflow_call
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/setup-python@v7
+      with:
+        python-version: '3.11'
+    - uses: astral-sh/setup-uv@v10.1.0
+      with:
+        enable-cache: true
+    - uses: actions/setup-node@v7
+      with:
+        node-version: '24'
+        cache: npm
+        cache-dependency-path: src/value_stream/app/frontend/package-lock.json
+    - run: uv sync --locked --all-extras --dev
+    - run: npm ci --prefix src/value_stream/app/frontend
+    - name: Check generated contracts and types
+      run: |
+        uv run python -m value_stream.app.contracts
+        npm run generate:api --prefix src/value_stream/app/frontend
+        git diff --exit-code -- src/value_stream/app/openapi.json src/value_stream/service/openapi.json src/value_stream/app/frontend/src/api.generated.ts
+    - name: Verify wheel assets
+      run: |
+        uv build --sdist --wheel --out-dir dist/app
+        uv run python -c "import glob, zipfile; names = zipfile.ZipFile(glob.glob('dist/app/*.whl')[0]).namelist(); assert 'value_stream/app/static/index.html' in names; assert any('/static/assets/' in n for n in names); assert not any('/frontend/' in n for n in names)"

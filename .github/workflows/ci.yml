@@ -12,7 +12,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true 
 
 jobs:
-  call-reusable:
+  lint:
     uses: ./.github/workflows/lint.yml
   test:
     runs-on: ubuntu-latest
@@ -68,35 +68,30 @@ jobs:
         cache-dependency-path: src/value_stream/app/frontend/package-lock.json
     - run: uv sync --locked --all-extras --dev
     - run: npm ci --prefix src/value_stream/app/frontend
-    - name: Check generated contracts and types
-      run: |
-        uv run python -m value_stream.app.contracts
-        npm run generate:api --prefix src/value_stream/app/frontend
-        git diff --exit-code -- src/value_stream/app/openapi.json src/value_stream/service/openapi.json src/value_stream/app/frontend/src/api.generated.ts
-    - run: npm run typecheck --prefix src/value_stream/app/frontend
-    - run: npm test --prefix src/value_stream/app/frontend -- --run
     - run: npm run build --prefix src/value_stream/app/frontend
+    - run: npm test --prefix src/value_stream/app/frontend -- --run
+    
     - name: Install browser and run production UI tests
       working-directory: src/value_stream/app/frontend
       run: |
         npx playwright install --with-deps chromium
         npm run test:e2e
-    - name: Verify wheel assets
-      run: |
-        uv build --sdist --wheel --out-dir dist/app
-        uv run python -c "import glob, zipfile; names = zipfile.ZipFile(glob.glob('dist/app/*.whl')[0]).namelist(); assert 'value_stream/app/static/index.html' in names; assert any('/static/assets/' in n for n in names); assert not any('/frontend/' in n for n in names)"
     - uses: actions/upload-artifact@v7
       if: always()
       with:
         name: python-artifacts
         path: |
           dist/app/*
+  validate:
+      uses: ./.github/workflows/validate.yml
+      needs:
+        - test
+        - browser-app
   publish-to-pypi:
     name: Publish Python distribution to PyPI
     if: startsWith(github.ref, 'refs/tags/')
     needs: 
-      - test
-      - browser-app
+      - validate
     runs-on: ubuntu-latest
     environment:
       name: pypi
