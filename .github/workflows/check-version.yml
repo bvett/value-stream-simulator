@@ -15,7 +15,6 @@ jobs:
       with:
         enable-cache: true
     - run: uv sync --locked --all-extras --dev
-    - run: source .venv/bin/activate
     - name: Validate package version consistency
       run: |
         TAG_VERSION=${GITHUB_REF#refs/tags/v}
