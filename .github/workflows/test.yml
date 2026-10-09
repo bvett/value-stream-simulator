@@ -1,0 +1,62 @@
+name: Test
+
+on: workflow_call
+
+jobs:
+  test-python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12', '3.13', '3.14']
+    
+    steps:
+    - uses: actions/checkout@v7
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v7
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - uses: astral-sh/setup-uv@v10.1.0
+      with:
+        enable-cache: true
+
+    - run: uv sync --locked --all-extras --dev
+
+    - name: Run tests
+      run: uv run pytest --cov=src/value_stream --cov-report=xml --cov-report=term-missing
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      if: matrix.python-version == '3.11'
+      with:
+        files: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/setup-python@v7
+      with:
+        python-version: '3.11'
+    - uses: astral-sh/setup-uv@v10.1.0
+      with:
+        enable-cache: true
+    - uses: actions/setup-node@v7
+      with:
+        node-version: '24'
+        cache: npm
+        cache-dependency-path: src/value_stream/app/frontend/package-lock.json
+    - run: uv sync --locked --all-extras --dev
+    - run: npm ci --prefix src/value_stream/app/frontend
+    - run: npm run build --prefix src/value_stream/app/frontend
+    - run: npm test --prefix src/value_stream/app/frontend -- --run
+    
+    - name: Install browser and run production UI tests
+      working-directory: src/value_stream/app/frontend
+      run: |
+        npx playwright install --with-deps chromium
+        npm run test:e2e

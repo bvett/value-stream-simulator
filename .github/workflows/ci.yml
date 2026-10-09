@@ -2,112 +2,19 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop, feature/web-app ]
-    tags: 
-      - '*'
-  pull_request:
-    branches: [ main, develop ]
+    branches: [ main, feature/* ]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true 
+  pull_request:
+    branches: [ main ]
 
 jobs:
   lint:
     uses: ./.github/workflows/lint.yml
+
   test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.11', '3.12', '3.13', '3.14']
-    
-    steps:
-    - uses: actions/checkout@v7
-    
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v7
-      with:
-        python-version: ${{ matrix.python-version }}
-    
-    - name: Install uv
-      uses: astral-sh/setup-uv@v10.1.0
-      with:
-        enable-cache: true
+    uses: ./.github/workflows/test.yml
 
-
-    - name: Install project
-      run: |
-        uv sync --locked --all-extras --dev
-
-    - name: Run tests with pytest
-      run: |
-        uv run pytest --cov=src/value_stream --cov-report=xml --cov-report=term-missing
-    
-    - name: Upload coverage reports
-      uses: codecov/codecov-action@v3
-      if: matrix.python-version == '3.11'
-      with:
-        files: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
-
-  browser-app:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-python@v7
-      with:
-        python-version: '3.11'
-    - uses: astral-sh/setup-uv@v10.1.0
-      with:
-        enable-cache: true
-    - uses: actions/setup-node@v7
-      with:
-        node-version: '24'
-        cache: npm
-        cache-dependency-path: src/value_stream/app/frontend/package-lock.json
-    - run: uv sync --locked --all-extras --dev
-    - run: npm ci --prefix src/value_stream/app/frontend
-    - run: npm run build --prefix src/value_stream/app/frontend
-    - run: npm test --prefix src/value_stream/app/frontend -- --run
-    
-    - name: Install browser and run production UI tests
-      working-directory: src/value_stream/app/frontend
-      run: |
-        npx playwright install --with-deps chromium
-        npm run test:e2e
-    - uses: actions/upload-artifact@v7
-      if: always()
-      with:
-        name: python-artifacts
-        path: |
-          dist/app/*
   validate:
-      uses: ./.github/workflows/validate.yml
-      needs:
-        - test
-        - browser-app
-  publish-to-pypi:
-    name: Publish Python distribution to PyPI
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: 
-      - validate
-    runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/value-stream
-    permissions:
-      id-token: write
-    
-    steps:
-    - name: Download distribution
-      uses: actions/download-artifact@v6
-      with:
-        name: python-artifacts
-        path: dist/app
-    - name: Publish distribution to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        packages-dir: dist/app/
-
-
+    uses: ./.github/workflows/validate.yml
+    needs:
+      - test

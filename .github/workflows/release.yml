@@ -1,0 +1,40 @@
+name: Release
+
+on:
+    push:
+      tags: 
+        - 'v*'
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+
+  test:
+    uses: ./.github/workflows/test.yml
+
+  validate:
+      uses: ./.github/workflows/validate.yml
+      needs:
+        - test
+
+  publish-to-pypi:
+    name: Publish Python distribution to PyPI
+    needs: 
+      - validate
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/value-stream
+    permissions:
+      id-token: write
+    
+    steps:
+    - name: Download distribution
+      uses: actions/download-artifact@v6
+      with:
+        name: python-artifacts
+        path: dist/app
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: dist/app/
