@@ -8,24 +8,17 @@ on:
 jobs:
 
   check-version:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Validate package version consistency
-        run: |
-          TAG_VERSION=${GITHUB_REF#refs/tags/v}
-          PACKAGE_VERSION=$(python -c "import value_stream.__version__ as v; print(v.__version__)")
-
-          if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
-            echo "Version mismatch! GitHub tag is $TAG_VERSION but package version is $PACKAGE_VERSION."
-            exit 1
-          fi
+    uses: ./.github/workflows/check-version.yml
 
   lint:
     uses: ./.github/workflows/lint.yml
+    needs:
+      - check-version
 
   test:
     uses: ./.github/workflows/test.yml
+    needs:
+      - check-version
 
   validate:
       uses: ./.github/workflows/validate.yml
