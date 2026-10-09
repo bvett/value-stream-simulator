@@ -116,7 +116,7 @@ jobs:
           dist/app/*
   publish-to-pypi:
     name: Publish Python distribution to PyPI
-    if: startsWith(github.ref, 'ref/tags/')
+    if: startsWith(github.ref, 'refs/tags/')
     needs: 
       - test
       - browser-app
