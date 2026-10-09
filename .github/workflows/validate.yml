@@ -26,6 +26,7 @@ jobs:
         uv run python -m value_stream.app.contracts
         npm run generate:api --prefix src/value_stream/app/frontend
         git diff --exit-code -- src/value_stream/app/openapi.json src/value_stream/service/openapi.json src/value_stream/app/frontend/src/api.generated.ts
+        npm run build --prefix src/value_stream/app/frontend
     - name: Verify wheel assets
       run: |
         uv build --sdist --wheel --out-dir dist/app
