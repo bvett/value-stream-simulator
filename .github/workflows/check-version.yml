@@ -15,7 +15,7 @@ jobs:
       with:
         enable-cache: true
     - run: uv sync --locked --all-extras --dev
-    - run: .venv/bin/activate
+    - run: source .venv/bin/activate
     - run: uv pip list
     - name: Validate package version consistency
       run: |
