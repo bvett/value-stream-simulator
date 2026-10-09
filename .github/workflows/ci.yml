@@ -3,7 +3,8 @@ name: CI
 on:
   push:
     branches: [ main, feature/* ]
-    tags-ignore: [ 'v*']
+    tags-ignore: 
+      - '*'
 
   pull_request:
     branches: [ main ]
