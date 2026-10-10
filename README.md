@@ -1,5 +1,11 @@
 # Value Stream Simulator
+![Python Version](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Fbvett%2Fvalue-stream-simulator%2Frefs%2Fheads%2Fmain%2Fpyproject.toml)
+![Status](https://img.shields.io/pypi/status/value-stream)
+![License](https://img.shields.io/github/license/bvett/value-stream-simulator)
+
 ![Build Status](https://github.com/bvett/value-stream-simulator/actions/workflows/ci.yml/badge.svg)
+![Coverage](https://img.shields.io/codecov/c/github/bvett/value-stream-simulator)
+
 
 Stop value leaks in your software delivery pipeline.
 
