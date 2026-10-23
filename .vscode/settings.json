@@ -21,5 +21,11 @@
             "packageManager": "ms-python.python:pip"
         }
     ],
-    "editor.defaultFormatter": "ms-python.black-formatter"
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+    },
+    "[yaml][github-actions-workflow]": {
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true
+    },
 }
