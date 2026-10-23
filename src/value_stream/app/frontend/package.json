@@ -30,7 +30,7 @@
     "openapi-typescript": "^7.6.0",
     "prettier": "^3.9.9",
     "typescript": "^5.8.0",
-    "vite": "^6.4.0",
+    "vite": "^6.4.5",
     "vitest": "4.1.11"
   },
   "engines": {
