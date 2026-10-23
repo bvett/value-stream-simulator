@@ -28,4 +28,8 @@
         "editor.tabSize": 2,
         "editor.insertSpaces": true
     },
+    "sonarlint.connectedMode.project": {
+        "connectionId": "bvett",
+        "projectKey": "bvett_value-stream-simulator"
+    },
 }
