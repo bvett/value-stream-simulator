@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feature/quality-fixes
+  workflow_dispatch:
 
 jobs:
   sonarqube:
