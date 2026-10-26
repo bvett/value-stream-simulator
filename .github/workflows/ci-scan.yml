@@ -1,0 +1,24 @@
+name: CI and Scan
+
+on:
+  push:
+    branches: [main]
+    tags-ignore:
+      - "*"
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+
+  test:
+    uses: ./.github/workflows/test.yml
+
+  scan:
+    uses: ./.github/workflows/sonarqube.yml
+    needs:
+      - test
+
+  validate:
+    uses: ./.github/workflows/validate.yml
+    needs:
+      - test
