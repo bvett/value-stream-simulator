@@ -15,6 +15,7 @@ jobs:
 
   scan:
     uses: ./.github/workflows/sonarqube.yml
+    secrets: inherit
     needs:
       - test
 
