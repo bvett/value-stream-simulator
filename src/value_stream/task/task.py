@@ -241,21 +241,6 @@ class Task(BaseModel):
 class SupportTask(Task):
     """Represents support work with no delivered business value."""
 
-    def __init__(
-        self, story_points: float, task_name: Optional[str] = None, creation_sim_t: float = 0.0
-    ) -> None:
-        """Initialize a support task with no delivered value.
-
-        Args:
-            story_points (float): Amount of work to apply.
-            task_name (Optional[str]): Optional task name.
-            creation_sim_t (float): Creation sim t.
-        """
-        super().__init__(
-            initial_value=0,
-            story_points=story_points,
-            depreciation_rate=0,
-            task_name=task_name,
-            creation_sim_t=creation_sim_t,
-            task_type=TaskType.SUPPORT,
-        )
+    initial_value: float = Field(default=0.0, ge=0, frozen=True, init=False)
+    depreciation_rate: float = Field(default=0.0, ge=0, le=1, init=False)
+    task_type: TaskType = Field(default=TaskType.SUPPORT, init=False)

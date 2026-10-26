@@ -33,30 +33,32 @@ class TestTaskFactory(unittest.TestCase):
             self.assertEqual(v.task_name, tasks_2[i].task_name)
 
     def test_create_sd(self):
-        factory = TaskFactory(story_points=TaskFactory.uniform(
-            1, 10), initial_value=3, depreciation_rate=.5,)
+        factory = TaskFactory(
+            story_points=TaskFactory.uniform(1, 10),
+            initial_value=3,
+            depreciation_rate=0.5,
+        )
 
         tasks = factory.create(count=1, shuffle=False)
 
         self.assertEqual(tasks[0].initial_value, 3)
-        self.assertEqual(tasks[0].depreciation_rate, .5)
+        self.assertEqual(tasks[0].depreciation_rate, 0.5)
 
     def test_shuffle(self):
-        factory = TaskFactory(story_points=2,
-                              initial_value=100)
+        sample_size = 50
+        factory = TaskFactory(story_points=2, initial_value=100)
 
-        tasks_1 = factory.create(count=5, shuffle=True)
-        tasks_2 = factory.create(count=5, shuffle=True)
+        tasks_1 = factory.create(count=sample_size, shuffle=True)
+        tasks_2 = factory.create(count=sample_size, shuffle=True)
 
         mismatch = False
         for i, task in enumerate(tasks_1):
             mismatch |= task.task_name != tasks_2[i].task_name
 
-        self.assertEqual(mismatch, True)
+        self.assertTrue(mismatch)
 
     def test_creation_time(self):
-        factory = TaskFactory(
-            story_points=1, initial_value=0, creation_sim_t=42)
+        factory = TaskFactory(story_points=1, initial_value=0, creation_sim_t=42)
         task = factory.create(1)[0]
         self.assertEqual(42, task.creation_sim_t)
 
