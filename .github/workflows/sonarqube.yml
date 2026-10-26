@@ -16,7 +16,6 @@ jobs:
         uses: actions/download-artifact@v6
         with:
           name: coverage-artifacts
-          path: /
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9
         env:
