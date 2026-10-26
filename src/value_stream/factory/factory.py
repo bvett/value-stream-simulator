@@ -5,7 +5,7 @@ import numpy as np
 class Factory:
     """Provides shared helpers for creating configured simulation objects."""
 
-    _rng = np.random.default_rng()
+    _rng = np.random.default_rng(42)
 
     @classmethod
     def uniform(cls, low: float, high: float) -> Generator[float, Any, None]:

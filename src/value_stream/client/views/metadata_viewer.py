@@ -39,7 +39,7 @@ class MetadataViewer(Viewer):
             ["metadata.model.deployment_cadence", "metadata.model.team_size"], inplace=True
         )
 
-        df.sort_index(inplace=True)
+        df = df.sort_index()
 
         df = df[(df["event_type"] == "end")][["event", "loss", "status"]]
 
@@ -100,7 +100,7 @@ class MetadataViewer(Viewer):
             inplace=True,
         )
 
-        df_all.sort_index(inplace=True)
+        df_all = df_all.sort_index()
 
         df_all = df_all.groupby(
             ["metadata.model.deployment_cadence", "metadata.model.team_size", "state", "time"]
@@ -177,7 +177,7 @@ class MetadataViewer(Viewer):
             df_all["state"], categories=[e.value for e in self._task_states], ordered=True
         )
 
-        df_all.sort_index(inplace=True)
+        df_all = df_all.sort_index()
 
         df_all = df_all.groupby(
             ["metadata.model.deployment_cadence", "metadata.model.team_size", "state", "time"]
@@ -212,11 +212,11 @@ class MetadataViewer(Viewer):
 
                 group = group.droplevel([0, 1])["waiting"].unstack(["state"])
                 # group = group.droplevel([0, 1])  # .unstack(['state'])
-                group.sort_index(inplace=True)
+                group = group.sort_index()
 
                 group = group.cumsum()
 
-                group.ffill(inplace=True)
+                group = group.ffill()
 
                 ax = axs[cadence_i, team_i]
                 group.plot(ax=ax, legend=False, xlabel="", ylabel="", colormap=self.colormap)
