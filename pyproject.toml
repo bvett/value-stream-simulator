@@ -29,7 +29,9 @@ dependencies = [
     "fastapi>=0.99",
     "uvicorn",
     "httpx",
-    "httpx2>=2.13.0"
+    "httpx2>=2.13.0",
+    "platformdirs>=4,<5",
+    "filelock>=3.12,<4"
 ]
 
 description = "Stop value leaks in your software delivery pipeline."
@@ -59,6 +61,7 @@ dev = [
     "pytest-cov",
     "pytest-mock",
     "pytest-asyncio",
+    "pyright>=1.1,<2",
     "black>=26.10.0",
     "twine>=7.0.0",
 ]

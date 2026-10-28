@@ -1,0 +1,15 @@
+{
+  "include": [
+    "../src/value_stream/service/persistence",
+    "../tests/unit/service/persistence"
+  ],
+  "extraPaths": ["../src"],
+  "venvPath": "..",
+  "venv": ".venv",
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "standard",
+  "reportArgumentType": "error",
+  "reportMissingParameterType": "error",
+  "reportMissingTypeArgument": "error",
+  "enableTypeIgnoreComments": false
+}
