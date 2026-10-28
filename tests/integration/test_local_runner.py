@@ -1,5 +1,7 @@
 import unittest
 from unittest.mock import patch
+from fastapi import FastAPI
+from value_stream.service.persistence.config import DatabaseConfig
 
 from value_stream.client import SimulationRunner
 from value_stream.client.web.errors import BatchSimulationError
@@ -12,16 +14,14 @@ from value_stream.service.settings import ServiceSettings
 
 
 class TestLocalRunner(unittest.TestCase):
-    def test_local_service_and_viewers(self):
+    def test_local_service_and_viewers(self) -> None:
         tasks = [Task(initial_value=1, story_points=1, task_name="A")]
         models = [
             Model(
                 developer_team=[Developer(name="Dev")],
                 deployment_cadence=cadence,
                 qa_testers=QATester.create_pool(limit=1),
-                toolchain_pool=Toolchain.create_pool(
-                    limit=1, deployment_duration=0.25
-                ),
+                toolchain_pool=Toolchain.create_pool(limit=1, deployment_duration=0.25),
             )
             for cadence in (0, 1)
         ]
@@ -35,14 +35,14 @@ class TestLocalRunner(unittest.TestCase):
             metadata = MetadataViewer(results, task_states=runner.task_states())
             self.assertEqual(len(metadata._results_dict), 2)
 
-    def test_reuses_local_service(self):
+    def test_reuses_local_service(self) -> None:
         first = SimulationRunner()
         second = SimulationRunner()
         self.assertEqual(first.client.service_url, second.client.service_url)
         first.close()
         second.close()
 
-    def test_partial_failure_is_indexed_in_runner_error(self):
+    def test_partial_failure_is_indexed_in_runner_error(self) -> None:
         tasks = [Task(initial_value=1, story_points=1)]
         models = [
             Model(
@@ -55,9 +55,13 @@ class TestLocalRunner(unittest.TestCase):
             )
             for rate in (1, 0)
         ]
+
+        def service_app(database: DatabaseConfig) -> FastAPI:
+            return create_app(ServiceSettings(max_model_seconds=1), database=database)
+
         with patch(
             "value_stream.client.web.local_service.create_app",
-            side_effect=lambda: create_app(ServiceSettings(max_model_seconds=1)),
+            side_effect=service_app,
         ):
             with SimulationRunner() as runner:
                 with self.assertRaises(BatchSimulationError) as caught:

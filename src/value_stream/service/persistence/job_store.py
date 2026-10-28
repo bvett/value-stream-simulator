@@ -210,27 +210,33 @@ class SqliteJobStore(JobOperations):
         return self._sql.execute("SELECT coalesce(sum(result_bytes),0) FROM jobs").fetchone()[0]
 
     def _get(self, job_id: UUID) -> _Job:
-        """Load a detached snapshot, including version-validated outcomes."""
+        """Load transition metadata without decoding immutable committed outcomes.
+
+        SQL snapshots carry the committed cursor and only newly appended outcomes;
+        page() is the explicit read boundary for retained result payloads.
+        """
         self._prune()
         row = self._sql.execute(
-            "SELECT state,created_at,result_bytes,terminal_at FROM jobs WHERE id=?", (str(job_id),)
+            "SELECT state,created_at,result_bytes,terminal_at,last_cursor FROM jobs WHERE id=?",
+            (str(job_id),),
         ).fetchone()
         if row is None:
             raise JobNotFound(str(job_id))
-        job = _Job(job_id, [], row[1], status=row[0], result_bytes=row[2], terminal_at=row[3])
-        for state, version, text in self._sql.execute(
-            "SELECT state,payload_version,payload_json FROM job_models "
-            "WHERE job_id=? ORDER BY model_index",
-            (str(job_id),),
-        ):
-            job.states.append(state)
-            if text is not None:
-                outcome = self.payloads.deserialize("outcome", version, text)
-                if not isinstance(outcome, OutcomeData):
-                    raise TypeError("Expected an outcome payload")
-                job.outcomes.append(outcome)
-        job.outcomes.sort(key=lambda item: item.cursor)
-        return job
+        states = [
+            item[0]
+            for item in self._sql.execute(
+                "SELECT state FROM job_models WHERE job_id=? ORDER BY model_index", (str(job_id),)
+            )
+        ]
+        return _Job(
+            job_id,
+            states,
+            row[1],
+            status=row[0],
+            result_bytes=row[2],
+            terminal_at=row[3],
+            last_cursor=row[4],
+        )
 
     def status(self, job_id: UUID) -> JobStatus:
         """Poll relational counters without decoding retained result payloads."""
@@ -296,7 +302,7 @@ class SqliteJobStore(JobOperations):
         ).fetchone()[0]
         self._sql.execute(
             "UPDATE jobs SET state=?,result_bytes=?,terminal_at=?,last_cursor=? WHERE id=?",
-            (job.status, job.result_bytes, job.terminal_at, len(job.outcomes), str(job.job_id)),
+            (job.status, job.result_bytes, job.terminal_at, job.last_cursor, str(job.job_id)),
         )
         outcomes = {outcome.model_index: outcome for outcome in job.outcomes}
         for index, state in enumerate(job.states):

@@ -63,6 +63,7 @@ class _Job:
     outcomes: list[OutcomeData] = field(default_factory=list[OutcomeData])
     result_bytes: int = 0
     terminal_at: float | None = None
+    last_cursor: int = 0
 
 
 class JobOperations(ABC):
@@ -114,7 +115,7 @@ class JobOperations(ABC):
                         job.states[index] = "failed"
                         job.outcomes.append(
                             OutcomeData(
-                                cursor=len(job.outcomes) + 1,
+                                cursor=job.last_cursor + 1,
                                 model_index=index,
                                 status=Status.FAILED,
                                 error=ModelError(
@@ -124,6 +125,7 @@ class JobOperations(ABC):
                                 ),
                             )
                         )
+                        job.last_cursor += 1
                 self._terminal(job)
                 self._save(job)
 
@@ -151,7 +153,7 @@ class JobOperations(ABC):
                 succeeded_models=counts["succeeded"],
                 failed_models=counts["failed"],
                 cancelled_models=counts["cancelled"],
-                last_cursor=len(job.outcomes),
+                last_cursor=job.last_cursor,
             )
 
     def page(self, job_id: UUID, after: int) -> OutcomePage:
@@ -167,7 +169,7 @@ class JobOperations(ABC):
         with self._atomic():
             job = self._get(job_id)
             outcomes = [item for item in job.outcomes if item.cursor > after]
-            return OutcomePage(outcomes=outcomes, next_cursor=len(job.outcomes))
+            return OutcomePage(outcomes=outcomes, next_cursor=job.last_cursor)
 
     def start_model(self, job_id: UUID, index: int) -> bool:
         """Mark a model as started.
@@ -249,13 +251,14 @@ class JobOperations(ABC):
             job.states[index] = state
             job.outcomes.append(
                 OutcomeData(
-                    cursor=len(job.outcomes) + 1,
+                    cursor=job.last_cursor + 1,
                     model_index=index,
                     status=state,
                     result=result,
                     error=error,
                 )
             )
+            job.last_cursor += 1
             self._terminal(job)
             self._save(job)
 
@@ -275,11 +278,12 @@ class JobOperations(ABC):
                     job.states[index] = "cancelled"
                     job.outcomes.append(
                         OutcomeData(
-                            cursor=len(job.outcomes) + 1,
+                            cursor=job.last_cursor + 1,
                             model_index=index,
                             status=Status.CANCELLED,
                         )
                     )
+                    job.last_cursor += 1
             job.terminal_at = time.time()
             self._save(job)
 

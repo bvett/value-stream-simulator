@@ -282,6 +282,15 @@ os._exit(23)
             self.assertEqual(store.status(job).succeeded_models, 1)
             self.assertTrue(store.start_model(job, 1))
             self.assertEqual(store.page(job, 1).outcomes, [])
+            # Transitioning later models must not decode retained large results.
+            store.finish_model(job, 1, None, None)
+            other = store.create(2)
+            store.finish_model(other, 0, result(), None)
+            store.cancel(other)
+            interrupted = store.create(1)
+            store.interrupt_unfinished()
+            self.assertEqual(store.status(interrupted).failed_models, 1)
+
         for index in (-1, 2):
             with self.assertRaises(IndexError):
                 store.start_model(job, index)

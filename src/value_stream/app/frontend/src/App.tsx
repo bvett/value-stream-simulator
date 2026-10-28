@@ -435,9 +435,9 @@ export default function App() {
           </p>
         </div>
         <span className="session-note">
-          Temporary workspace
+          Saved workspace
           <br />
-          <strong>Saved until server shutdown</strong>
+          <strong>Saved until you delete it</strong>
         </span>
       </div>
       {error && (

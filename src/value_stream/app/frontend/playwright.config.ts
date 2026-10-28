@@ -17,10 +17,11 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: `${process.env.VALUE_STREAM_TEST_PYTHON || pyexe} -m value_stream.app --port 18081`,
+    command: `${process.env.VALUE_STREAM_TEST_PYTHON || pyexe} ${path.join(root, "tests", "browser_server.py")} --port 18081`,
     cwd: root,
     url: "http://127.0.0.1:18081/ready",
     reuseExistingServer: false,
+    gracefulShutdown: { signal: "SIGTERM", timeout: 10000 },
     timeout: 30000,
   },
 });

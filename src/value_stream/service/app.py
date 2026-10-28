@@ -1,6 +1,7 @@
 """HTTP application for version 1 simulation jobs."""
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 import hashlib
 import json
 import logging
@@ -15,7 +16,6 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from .job_store import (
     CapacityExceeded,
-    InMemoryJobStore,
     JobNotFound,
     JobStorage,
     SubmissionConflict,
@@ -30,6 +30,8 @@ from .schemas import (
     OutcomePage,
 )
 from .settings import ServiceSettings
+from .persistence.config import DatabaseConfig
+from .persistence.job_store import SqliteJobStore
 
 logger = logging.getLogger(__name__)
 
@@ -103,20 +105,49 @@ class BodyLimitMiddleware:
 def create_app(
     settings: ServiceSettings | None = None,
     store: JobStorage | None = None,
+    database: str | Path | DatabaseConfig | None = None,
+    data_dir: str | Path | None = None,
 ) -> FastAPI:
     settings = settings or ServiceSettings.from_environment()
-    store = store or InMemoryJobStore(settings)
-    scheduler = ModelScheduler(store, settings)
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+        opened: JobStorage | None = None
+        scheduler: ModelScheduler | None = None
         try:
+            if store is not None:
+                opened = store
+            else:
+                config = (
+                    database
+                    if isinstance(database, DatabaseConfig)
+                    else DatabaseConfig.resolve("simulation", database=database, data_dir=data_dir)
+                )
+                opened = SqliteJobStore(config, settings)
+            opened.interrupt_unfinished()
+            scheduler = ModelScheduler(opened, settings)
+            application.state.store = opened
+            application.state.scheduler = scheduler
+            application.state.startup_error = None
             yield
+        except Exception as exc:
+            application.state.startup_error = str(exc)
+            raise
         finally:
             try:
-                scheduler.close()
+                if scheduler is not None:
+                    scheduler.close()
             finally:
-                store.close()
+                if opened is not None:
+                    opened.close()
+
+    def current_store() -> JobStorage:
+        """Resolve the lifespan-owned store for each request."""
+        return application.state.store
+
+    def current_scheduler() -> ModelScheduler:
+        """Resolve the scheduler only after recovery has completed."""
+        return application.state.scheduler
 
     application = FastAPI(
         title="Value Stream Simulation Service",
@@ -125,7 +156,7 @@ def create_app(
     )
     application.add_middleware(BodyLimitMiddleware, max_body_bytes=settings.max_body_bytes)
     application.state.store = store
-    application.state.scheduler = scheduler
+    application.state.scheduler = None
     application.state.settings = settings
 
     @application.exception_handler(RequestValidationError)
@@ -169,27 +200,29 @@ def create_app(
                     allow_nan=False,
                 ).encode()
             ).hexdigest()
-            job_id, created = store.reserve(len(request.models), request.submission_id, fingerprint)
+            job_id, created = current_store().reserve(
+                len(request.models), request.submission_id, fingerprint
+            )
         except SubmissionConflict as exc:
             return _error(409, "SUBMISSION_CONFLICT", str(exc))
         except CapacityExceeded:
             return _error(429, "JOB_CAPACITY", "job capacity is full")
         try:
             if created:
-                scheduler.submit(job_id, request)
+                current_scheduler().submit(job_id, request)
         except Exception:
-            store.cancel(job_id)
+            current_store().cancel(job_id)
             raise
         return JobAccepted(
             job_id=job_id,
-            status=store.status(job_id).status,
+            status=current_store().status(job_id).status,
             status_url=f"/v1/simulation-jobs/{job_id}",
         )
 
     @application.get("/v1/simulation-jobs/{job_id}", response_model=JobStatus, responses=errors)
     def status(job_id: UUID) -> JobStatus | JSONResponse:
         try:
-            return store.status(job_id)
+            return current_store().status(job_id)
         except JobNotFound:
             return _error(404, "JOB_NOT_FOUND", "job is unknown or expired")
 
@@ -200,7 +233,7 @@ def create_app(
     )
     def outcomes(job_id: UUID, after: int = Query(default=0, ge=0)) -> OutcomePage | JSONResponse:
         try:
-            return store.page(job_id, after)
+            return current_store().page(job_id, after)
         except JobNotFound:
             return _error(404, "JOB_NOT_FOUND", "job is unknown or expired")
 
@@ -212,8 +245,8 @@ def create_app(
     )
     def cancel(job_id: UUID) -> JobStatus | JSONResponse:
         try:
-            scheduler.cancel(job_id)
-            return store.status(job_id)
+            current_scheduler().cancel(job_id)
+            return current_store().status(job_id)
         except JobNotFound:
             return _error(404, "JOB_NOT_FOUND", "job is unknown or expired")
 

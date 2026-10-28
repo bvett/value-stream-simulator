@@ -52,7 +52,32 @@ Its simulation worker subprocesses (and any external service selected with
 Frontend edits update through Vite hot reload in every development profile.
 Python auto-reload is enabled in the run task, but disabled during F5 debugging
 for stable breakpoints; restart the Python debug session after Python edits.
-Restarting the API clears the in-memory simulation workspace and results.
+Restarting the API preserves saved workspaces, inputs, comparisons, and completed
+results in SQLite. Data remains until explicitly deleted. By default the application
+and its owned simulation service use separate `application.sqlite3` and
+`simulation.sqlite3` files in the platform's user data directory for `value-stream`.
+Set `VALUE_STREAM_DATA_DIR` to choose another directory, or use
+`VALUE_STREAM_APP_DATABASE` and `VALUE_STREAM_SERVICE_DATABASE` for explicit files.
+The application CLI accepts `--database`, `--data-dir`, and `--service-database`;
+explicit filenames take precedence over environment values. The standalone service
+supports `python -m value_stream.service --database PATH --port 8080`. Each file
+permits one active service owner; choose separate files for independent instances.
+
+Local work that has not finished when its service stops is interrupted; committed
+outcomes remain available after restart. When `VALUE_STREAM_SERVICE_URL` or
+`--service-url` selects an external service, stopping the app detaches polling
+without cancelling that service's jobs. The next app startup reconnects to known
+job IDs using their saved result cursors. A changed service identity fails the
+unfinished run instead of contacting an endpoint from saved data. An unavailable
+service leaves retained results readable and pauses polling after bounded retries;
+use Resume when it is available again. An expired job fails only the unfinished
+outcomes.
+
+If a submission was accepted upstream but its job ID was not saved before the app
+stopped, the app marks that run interrupted and does not automatically submit it
+again. The external service may retain that unacknowledged job until its normal
+expiry. `--service-database` configures only the owned local service and cannot be
+combined with an external service URL.
 
 Stopping either the browser debugger or Python debugger stops the linked debug
 session. **The Vite background task remains available for the next F5 run.** To

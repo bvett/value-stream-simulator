@@ -1,6 +1,6 @@
 import unittest
-from typing import Callable
-from uuid import uuid4
+from typing import Callable, NoReturn
+from uuid import UUID, uuid4
 from dataclasses import replace
 from unittest.mock import patch
 import httpx
@@ -20,6 +20,7 @@ from value_stream.app.gateway import HttpSimulationGateway
 from value_stream.app.generation import expand_scenarios
 from value_stream.service.schemas import (
     ResultData,
+    JobRequest,
     SummaryData,
     MetadataData,
     Status,
@@ -221,6 +222,18 @@ class NoService:
         pass
 
     async def ready(self) -> None:
+        raise AppError("SERVICE_UNAVAILABLE", "offline", 503)
+
+    async def submit(self, request: JobRequest) -> NoReturn:
+        raise AppError("SERVICE_UNAVAILABLE", "offline", 503)
+
+    async def status(self, job_id: UUID) -> NoReturn:
+        raise AppError("SERVICE_UNAVAILABLE", "offline", 503)
+
+    async def outcomes(self, job_id: UUID, after: int) -> NoReturn:
+        raise AppError("SERVICE_UNAVAILABLE", "offline", 503)
+
+    async def cancel(self, job_id: UUID) -> NoReturn:
         raise AppError("SERVICE_UNAVAILABLE", "offline", 503)
 
 

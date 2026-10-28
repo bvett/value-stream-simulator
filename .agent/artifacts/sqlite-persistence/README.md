@@ -179,3 +179,61 @@ uv run pyright --project .agent/pyright-persistence.json
 Result: **0 errors, 0 warnings, 0 informations**. Black checks all seven changed/new Python files; error-level Pylint on the four production modules and `git diff --check` pass.
 
 Default factory/database selection, lazy lifespan startup, and application reconnection remain Milestone 4. This milestone supports explicit `create_app(store=SqliteJobStore(config, settings))`; service lifespan closes the injected store. Direct scheduler callers close their store after joining through `scheduler.close()`. All test databases and processes are temporary and task-owned.
+
+## Milestone 4 — default SQLite lifecycle and application recovery
+
+Both service factories now open their default SQLite adapter during FastAPI lifespan. Construction, imports, OpenAPI generation, and CLI help acquire no databases, locks, schedulers, or workers. Injected stores bypass path resolution and participate in recovery and cleanup. Application flags are `--database`, `--data-dir`, and `--service-database`; the standalone `python -m value_stream.service` supports `--database`, `--data-dir`, `--host`, and `--port`. Environment equivalents remain separate from the numeric application limits.
+
+The local-service singleton records its resolved database identity, preserves reference counting, and rejects a different requested database while owned. Its constructor creates no database. Startup failures propagate an actionable diagnostic without leaking an unhandled Uvicorn thread exit. A failed owned service leaves retained application data available with readiness false; a failed application database stops startup. Nested cleanup closes stores even if gateway or scheduler initialization/shutdown fails.
+
+Runs persist upstream kind and identity before submission. Matching external jobs recover by polling their saved job ID/cursor, without constructing a new request or submitting again. Changed identities receive `SERVICE_CHANGED`; missing durable acknowledgements receive `RUN_INTERRUPTED`; expired jobs receive `SERVICE_JOB_LOST` for unfinished outcomes. External application shutdown detaches polling without cancellation. Local shutdown drains committed outcomes and marks interrupted work failed, preserving explicit user cancellation. A five-second timeout retains the last checkpoint for the next startup.
+
+Final Python validation:
+
+```bash
+UV_CACHE_DIR=/private/tmp/value-stream-uv-cache \
+MPLCONFIGDIR=/private/tmp/value-stream-mpl \
+uv run pytest -o addopts='' --cov=src/value_stream --cov-report=xml \
+  --cov-report=json:/private/tmp/value-stream-m4-full-coverage.json tests -q
+```
+
+Result: **283 tests and 94 subtests passed in 22.95 seconds**, with five existing pandas warnings. Whole-package line coverage is **97.03%**; `coverage.xml` was generated.
+
+| Milestone 4 production module | Covered executable lines | Coverage |
+| --- | ---: | ---: |
+| `app/coordinator.py` | 199 / 205 | 97.07% |
+| `app/gateway.py` | 95 / 95 | 100% |
+| `app/server.py` | 184 / 202 | 91.09% |
+| `app/exports.py` | 41 / 42 | 97.62% |
+| `app/__main__.py` | 17 / 18 | 94.44% |
+| `service/app.py` | 136 / 147 | 92.52% |
+| `service/__main__.py` | 13 / 14 | 92.86% |
+| `client/web/local_service.py` | 76 / 83 | 91.57% |
+| `service/job_store.py` | 166 / 167 | 99.40% |
+| `service/persistence/job_store.py` | 169 / 173 | 97.69% |
+
+Prior persistence/recovery modules retain their gates. No custom coverage exclusions or diagnostic suppressions were added. The expanded Pyright configuration checks **33 files** with **0 errors, 0 warnings, 0 informations**; an AST check confirms all function signatures are annotated. Black checks all 16 affected Python files, error-level Pylint passes for all ten production modules, and whitespace checks pass.
+
+`tests/integration/test_startup_recovery.py` adds 18 tests covering these behaviors:
+
+- A real external HTTP job is acknowledged before application shutdown. Worker execution is gated until the application has stopped, then completes while it is down. A fresh application owner restores both outcomes with cursors 1 and 2, one saved run, and usable exports. Scheduler spies reject any resubmission or shutdown cancellation.
+- A partially completed external job preserves its first saved outcome and cursor across application-store close/reopen; later completions appear once, without reordering or duplicate checkpoints.
+- Owned-local startup opens a partially completed simulation database, retains the committed success, drains all three outcomes, and maps remaining work to `RUN_INTERRUPTED`. Worker launch is patched to fail during this recovery, proving no execution is restarted.
+- Unknown acknowledgement, changed endpoint, expired job, disconnected/paused polling, saved cancellation, shutdown while awaiting acceptance, local successful-page draining, unavailable service, and shutdown timeout retain the required state. Timeout tests verify the five-second budget and no falsely advanced cursor.
+- Temporary explicit/default paths, repeated lifespans, injected stores with invalid ignored database environment values, CLI forwarding, separate files, singleton identity, second-owner rejection, corrupt initialization, failed scheduler initialization, and failed gateway close preserve resource ownership and cleanup.
+- Subprocess checks import both services, construct OpenAPI, and invoke both CLI help commands while prohibiting thread/executor/worker startup. The selected data directory remains absent.
+
+Frontend validation from `src/value_stream/app/frontend`:
+
+```bash
+npm run build
+npm run typecheck
+npm run test -- --run
+npm run test:e2e
+```
+
+The build and type checks pass, **all 3 Vitest tests pass**, and **all 3 Playwright cases pass in 39.8 seconds**: real simulations/cache/exports/refresh/charts/accessibility, invalid-input contracts, and incremental results with cancellation. Chromium launch was blocked by macOS Mach-port permissions inside the sandbox; the authorized run outside it passes. The browser server now uses `tests/browser_server.py` with temporary database configuration, graceful SIGTERM, and cleanup after Uvicorn replays that signal. Pytest's autouse fixture likewise isolates default database resolution from all developer data. HTTP contract snapshots remain unchanged.
+
+`docs/studio-workspace.md` now documents persistent locations, flags, service ownership, external reconnection, and unacknowledged external jobs surviving until service expiry. Sample generation/import, exact documentation views, packaging/distribution, and final CI/documentation work remain Milestones 5 and 6.
+
+A repeat browser run exposed a 100-scenario cancellation timeout caused by SQL transitions decoding all previously retained results. The fix keeps `last_cursor` separate from pending outcome objects, reads only relational state/counters for transitions, and appends only new outcome JSON. A unit regression guard prohibits historical payload deserialization during completion, cancellation, and interruption. The final browser run passes the unchanged stress test; no schema/wire change or increased test timeout was needed. A post-run directory check confirms no `value-stream-browser-*` temporary directories remain. The UI retention label now says workspaces are saved until deleted.
