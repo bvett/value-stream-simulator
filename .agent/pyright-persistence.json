@@ -1,7 +1,14 @@
 {
   "include": [
     "../src/value_stream/service/persistence",
-    "../tests/unit/service/persistence"
+    "../tests/unit/service/persistence",
+    "../src/value_stream/app/storage.py",
+    "../src/value_stream/app/sqlite_storage.py",
+    "../src/value_stream/app/coordinator.py",
+    "../tests/unit/app/test_boundaries.py",
+    "../tests/unit/app/test_lifecycle.py",
+    "../tests/unit/app/test_sqlite_storage.py",
+    "../tests/integration/test_persistence_roundtrip.py"
   ],
   "extraPaths": ["../src"],
   "venvPath": "..",

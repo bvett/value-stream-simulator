@@ -1,7 +1,5 @@
-import asyncio
-import csv
-import io
 import unittest
+from typing import Callable
 from uuid import uuid4
 from dataclasses import replace
 from unittest.mock import patch
@@ -9,29 +7,28 @@ import httpx
 from fastapi.testclient import TestClient
 from value_stream.app.errors import AppError
 from value_stream.app.settings import AppSettings
-from value_stream.app.storage import InMemoryWorkspaceStore
+from value_stream.app.storage import CompletedOutcome, InMemoryWorkspaceStore, RunRecord
 from value_stream.app.schemas import (
     EditorRequest,
     TaskSetSpec,
     ScenarioDefinition,
     RunRequest,
     ModelSettings,
-    RunStatus,
 )
 from value_stream.app.server import create_app
 from value_stream.app.gateway import HttpSimulationGateway
 from value_stream.app.generation import expand_scenarios
-from value_stream.app.metrics import plot_data
 from value_stream.service.schemas import (
     ResultData,
     SummaryData,
     MetadataData,
-    ResourceMetadataData,
+    Status,
+    ErrorEnvelope,
 )
 
 
 class TestStorageLimits(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.store = InMemoryWorkspaceStore(
             AppSettings(
                 max_workspaces=1,
@@ -53,7 +50,7 @@ class TestStorageLimits(unittest.TestCase):
         self.w = self.store.get(self.w.id)
         self.task_set = self.w.task_sets[0]
 
-    def record(self):
+    def record(self) -> RunRecord:
         return self.store.register(
             self.w.id,
             RunRequest(request_id=uuid4(), preview_digest=self.preview.digest),
@@ -61,21 +58,21 @@ class TestStorageLimits(unittest.TestCase):
             self.task_set,
         )[0]
 
-    def complete(self, record):
+    def complete(self, record: RunRecord) -> RunRecord:
         result = ResultData(
             model_index=0,
             model=self.preview.scenarios[0].model,
-            summary_result=SummaryData(
-                completion_time=1, loss=-0.5, total_delivered_value=0.5
-            ),
+            summary_result=SummaryData(completion_time=1, loss=-0.5, total_delivered_value=0.5),
             metadata=MetadataData(event_metadata=[], resource_metadata=[]),
         )
-        self.store.retain_result(record, 0, result)
-        record.status.outcomes[0].status = "succeeded"
-        record.status.state = "completed"
-        self.store.finish(self.w.id, record)
+        return self.store.complete_outcomes(
+            self.w.id,
+            record.status.id,
+            [CompletedOutcome(0, Status.SUCCEEDED, result)],
+            terminal_state="completed",
+        )
 
-    def test_pin_history_delete_and_capacity(self):
+    def test_pin_history_delete_and_capacity(self) -> None:
         with self.assertRaises(AppError):
             self.store.create()
         first = self.record()
@@ -83,25 +80,23 @@ class TestStorageLimits(unittest.TestCase):
             self.store.delete_workspace(self.w.id)
         with self.assertRaises(AppError):
             self.store.comparison(self.w.id, first.status.id, "pin")
-        self.complete(first)
+        first = self.complete(first)
         self.store.comparison(self.w.id, first.status.id, "pin")
         second = self.record()
-        self.complete(second)
+        second = self.complete(second)
         with self.assertRaisesRegex(AppError, "Unpin"):
             self.store.comparison(self.w.id, second.status.id, "pin")
         self.store.comparison(self.w.id, first.status.id, "unpin")
         self.store.comparison(self.w.id, second.status.id, "pin")
         self.store.comparison(self.w.id, second.status.id, "baseline")
         self.store.comparison(self.w.id, first.status.id, "delete")
-        self.assertTrue(
-            self.store.result(second, second.status.outcomes[0].scenario.id)
-        )
+        self.assertTrue(self.store.result(second, second.status.outcomes[0].scenario.id))
         self.store.delete_workspace(self.w.id)
         self.assertEqual(len(self.store.cache), 0)
         with self.assertRaises(AppError):
             self.store.get(self.w.id)
 
-    def test_result_budget_and_protected_retention(self):
+    def test_result_budget_and_protected_retention(self) -> None:
         self.store.settings = replace(
             self.store.settings,
             max_model_bytes=10,
@@ -111,11 +106,19 @@ class TestStorageLimits(unittest.TestCase):
         record = self.record()
         with self.assertRaisesRegex(AppError, "storage limit"):
             self.complete(record)
-        record.status.state = "failed"
-        self.store.finish(self.w.id, record)
+        record = self.store.complete_outcomes(
+            self.w.id,
+            record.status.id,
+            [
+                CompletedOutcome(
+                    0, Status.FAILED, error=ErrorEnvelope(code="LIMIT", message="Too large")
+                )
+            ],
+            terminal_state="failed",
+        )
         self.assertEqual(record.reservation, 0)
 
-    def test_task_set_reuse_deletion_and_model_resource_limit(self):
+    def test_task_set_reuse_deletion_and_model_resource_limit(self) -> None:
         request = EditorRequest(
             expected_revision=1,
             task_spec=TaskSetSpec(count=2),
@@ -132,7 +135,7 @@ class TestStorageLimits(unittest.TestCase):
                 self.store.settings,
             )
 
-    def test_input_budget_and_missing_objects(self):
+    def test_input_budget_and_missing_objects(self) -> None:
         self.store.settings = replace(self.store.settings, max_input_bytes=1)
         with self.assertRaisesRegex(AppError, "Input storage"):
             self.store.save_editor(
@@ -149,7 +152,7 @@ class TestStorageLimits(unittest.TestCase):
         with self.assertRaises(AppError):
             self.store.get(uuid4())
 
-    def test_settings_environment(self):
+    def test_settings_environment(self) -> None:
         with patch.dict(
             "os.environ",
             {
@@ -167,7 +170,9 @@ class TestStorageLimits(unittest.TestCase):
 
 
 class TestGateway(unittest.IsolatedAsyncioTestCase):
-    async def gateway(self, handler, limit=10000):
+    async def gateway(
+        self, handler: Callable[[httpx.Request], httpx.Response], limit: int = 10000
+    ) -> HttpSimulationGateway:
         gateway = HttpSimulationGateway("http://fixture", limit)
         gateway.client = httpx.AsyncClient(
             transport=httpx.MockTransport(handler), base_url="http://fixture"
@@ -175,24 +180,18 @@ class TestGateway(unittest.IsolatedAsyncioTestCase):
         self.addAsyncCleanup(gateway.close)
         return gateway
 
-    async def test_compatibility_and_errors(self):
-        gateway = await self.gateway(
-            lambda r: httpx.Response(200, json={"status": "ok"})
-        )
+    async def test_compatibility_and_errors(self) -> None:
+        gateway = await self.gateway(lambda r: httpx.Response(200, json={"status": "ok"}))
         with self.assertRaisesRegex(AppError, "Update the simulation service"):
             await gateway.ready()
         gateway2 = await self.gateway(
-            lambda r: httpx.Response(
-                429, json={"code": "JOB_CAPACITY", "message": "full"}
-            )
+            lambda r: httpx.Response(429, json={"code": "JOB_CAPACITY", "message": "full"})
         )
         with self.assertRaisesRegex(AppError, "full"):
             await gateway2.status(uuid4())
 
-    async def test_bounded_body_invalid_json_disconnect_and_close(self):
-        huge = await self.gateway(
-            lambda r: httpx.Response(200, content=b"x" * 100), limit=20
-        )
+    async def test_bounded_body_invalid_json_disconnect_and_close(self) -> None:
+        huge = await self.gateway(lambda r: httpx.Response(200, content=b"x" * 100), limit=20)
         with self.assertRaisesRegex(AppError, "exceeds"):
             await huge.request("GET", "/")
         invalid = await self.gateway(lambda r: httpx.Response(200, content="not json"))
@@ -203,7 +202,7 @@ class TestGateway(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(AppError, "non-object"):
             await non_object.request("GET", "/")
 
-        def disconnected(request):
+        def disconnected(request: httpx.Request) -> httpx.Response:
             raise httpx.ConnectError("offline")
 
         offline = await self.gateway(disconnected)
@@ -215,18 +214,18 @@ class TestGateway(unittest.IsolatedAsyncioTestCase):
 
 
 class NoService:
-    async def start(self):
+    async def start(self) -> None:
         pass
 
-    async def close(self):
+    async def close(self) -> None:
         pass
 
-    async def ready(self):
+    async def ready(self) -> None:
         raise AppError("SERVICE_UNAVAILABLE", "offline", 503)
 
 
 class TestAppErrors(unittest.TestCase):
-    def test_request_errors_config_and_static_separation(self):
+    def test_request_errors_config_and_static_separation(self) -> None:
         app = create_app(settings=AppSettings(max_body_bytes=1000), gateway=NoService())
         with TestClient(app) as client:
             self.assertFalse(client.get("/api/v1/config").json()["ready"])
@@ -235,13 +234,9 @@ class TestAppErrors(unittest.TestCase):
             self.assertEqual(client.get("/api/v1/missing").status_code, 404)
             w = client.post("/api/v1/workspaces").json()
             path = "/api/v1/workspaces/" + w["id"]
-            self.assertEqual(
-                client.put(path + "/editor", content="x" * 1001).status_code, 413
-            )
+            self.assertEqual(client.put(path + "/editor", content="x" * 1001).status_code, 413)
             invalid = client.put(path + "/editor", json={})
             self.assertEqual(invalid.status_code, 422)
             self.assertEqual(invalid.json()["code"], "INVALID_INPUT")
-            self.assertEqual(
-                client.get(path + "/runs/" + str(uuid4())).status_code, 404
-            )
+            self.assertEqual(client.get(path + "/runs/" + str(uuid4())).status_code, 404)
             self.assertEqual(client.delete(path).status_code, 204)
