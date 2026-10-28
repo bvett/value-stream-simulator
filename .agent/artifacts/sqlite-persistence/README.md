@@ -132,3 +132,50 @@ UV_CACHE_DIR=/private/tmp/value-stream-uv-cache uv run python -m pylint \
 The full non-blocking Pylint run still suggests complexity improvements for the data transfer classes and coordinator. No lint suppression was added.
 
 No startup flags, default database selection, simulation job persistence/recovery, or bundled samples are introduced by this milestone. `create_app(store=SqliteWorkspaceStore(config, settings))` supports explicit injection now; callers close the adapter. Default startup and lifespan ownership are implemented in Milestone 4. All test databases and child processes are temporary and task-owned.
+
+## Milestone 3 — durable simulation jobs and interruption recovery
+
+`service/persistence/job_store.py` adds simulation schema version 2 with jobs, indexed model outcomes, and cascading idempotent submission mappings. JSON versions are independent of schema versions. Read-only preflight validates payloads and relational model identities, outcome cursors, terminal state, and byte counters. `JobOperations` shares transitions across both adapters using detached snapshots; SQLite does not retain a memory mirror. Status polling reads relational counters, and paging decodes only outcomes after the supplied cursor.
+
+The adapter constructor acquires ownership and completes recovery before TTL pruning or scheduler construction. Recovery preserves committed successes/errors, appends `JOB_INTERRUPTED` failures in unfinished model-index order, and never launches workers. Terminal timestamps are UTC epoch values in both adapters. Service shutdown closes scheduling, commits interruptions, terminates and joins workers outside database transactions, and then closes the injected store. User-cancelled jobs remain cancelled.
+
+Final validation:
+
+```bash
+UV_CACHE_DIR=/private/tmp/value-stream-uv-cache \
+MPLCONFIGDIR=/private/tmp/value-stream-mpl \
+uv run pytest -o addopts='' --cov=src/value_stream --cov-report=xml \
+  --cov-report=json:/private/tmp/value-stream-m3-full-coverage.json tests -q
+```
+
+Result: **265 tests and 94 subtests passed in 18.55 seconds**, with five existing pandas warnings. Package line coverage is **96.29%**. `coverage.xml` was generated.
+
+| Milestone 3 production module | Covered executable lines | Coverage |
+| --- | ---: | ---: |
+| `service/job_store.py` | 162 / 163 | 99.39% |
+| `service/persistence/job_store.py` | 176 / 181 | 97.24% |
+| `service/scheduler.py` | 132 / 135 | 97.78% |
+| `service/app.py` | 115 / 126 | 91.27% |
+
+All prior persistence/recovery modules continue to exceed their 90% gates. No custom coverage exclusions were added.
+
+The new tests in `tests/unit/service/test_sqlite_job_store.py` and `test_scheduler.py` provide these checks:
+
+- Both adapters handle ordered paging, detached responses, duplicate completions, cancellation preserving successes, concurrent completions and cancellation races, indexed failures, capacity, and matching/conflicting submission retries.
+- A child process commits one successful result and one error, starts another model, then exits with `os._exit(23)` without closing SQLite. The next owner reads the identical successful result and original error, appends exactly two interruption failures, and preserves the same page after another reopen. Worker launch is patched to fail throughout recovery, proving no resubmission.
+- Restart tests retain an out-of-order completed result, finalize queued and running models, and preserve submission mappings at full capacity. Patched UTC timestamps prove TTL starts when recovery makes the job terminal; later expiry cascades the mapping and permits a new submission with that ID.
+- Faults injected after actual SQL writes prove counters, byte usage, outcomes, and cursors roll back together. A failed startup recovery leaves the prior cursor intact and releases ownership so the next owner can recover once.
+- A real version-one database migrates with a verified backup. Inconsistent relational counters/state and unsupported future payload versions stop opening without replacing the file.
+- Real model subprocesses complete through the HTTP API with either store. A reopened SQLite-backed service returns the identical page and resolves a submission retry without invoking the scheduler. A separate shutdown case stops an active real worker, retains earlier success, and releases ownership only after the worker has joined.
+- Worker regressions cover timeout/kill escalation, launch failure, nonzero exit, oversized output, malformed output, incorrect model indexes, queue skipping, and closed scheduler rejection. Invalid worker results are cleared before recording a `WORKER_FAILED` outcome.
+
+The expanded gate checks **23 Python files**, with complete function signatures and no ignores or casts:
+
+```bash
+UV_CACHE_DIR=/private/tmp/value-stream-uv-cache \
+uv run pyright --project .agent/pyright-persistence.json
+```
+
+Result: **0 errors, 0 warnings, 0 informations**. Black checks all seven changed/new Python files; error-level Pylint on the four production modules and `git diff --check` pass.
+
+Default factory/database selection, lazy lifespan startup, and application reconnection remain Milestone 4. This milestone supports explicit `create_app(store=SqliteJobStore(config, settings))`; service lifespan closes the injected store. Direct scheduler callers close their store after joining through `scheduler.close()`. All test databases and processes are temporary and task-owned.

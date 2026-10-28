@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import hashlib
 import json
 import logging
-from typing import Any
+from typing import Any, AsyncIterator
 from uuid import UUID
 
 from fastapi import FastAPI, Query, Request
@@ -109,9 +109,14 @@ def create_app(
     scheduler = ModelScheduler(store, settings)
 
     @asynccontextmanager
-    async def lifespan(_app: FastAPI):
-        yield
-        scheduler.close()
+    async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+        try:
+            yield
+        finally:
+            try:
+                scheduler.close()
+            finally:
+                store.close()
 
     application = FastAPI(
         title="Value Stream Simulation Service",
@@ -124,12 +129,12 @@ def create_app(
     application.state.settings = settings
 
     @application.exception_handler(RequestValidationError)
-    async def invalid_input(_request: Request, exc: RequestValidationError):
+    async def invalid_input(_request: Request, exc: RequestValidationError) -> JSONResponse:
         issues = [{"location": list(item["loc"]), "message": item["msg"]} for item in exc.errors()]
         return _error(422, "INVALID_INPUT", "request validation failed", {"issues": issues})
 
     @application.exception_handler(Exception)
-    async def unexpected_error(_request: Request, exc: Exception):
+    async def unexpected_error(_request: Request, exc: Exception) -> JSONResponse:
         logger.exception("unexpected service error", exc_info=exc)
         return _error(500, "INTERNAL_ERROR", "unexpected service error")
 
@@ -143,7 +148,7 @@ def create_app(
     }
 
     @application.get("/health", response_model=HealthResponse)
-    def health():
+    def health() -> HealthResponse:
         return HealthResponse()
 
     @application.post(
@@ -152,7 +157,7 @@ def create_app(
         status_code=202,
         responses=errors,
     )
-    def submit(request: JobRequest):
+    def submit(request: JobRequest) -> JobAccepted | JSONResponse:
         if len(request.tasks) > settings.max_tasks or len(request.models) > settings.max_models:
             return _error(422, "LIMIT_EXCEEDED", "task or model count exceeds configured limit")
         try:
@@ -182,7 +187,7 @@ def create_app(
         )
 
     @application.get("/v1/simulation-jobs/{job_id}", response_model=JobStatus, responses=errors)
-    def status(job_id: UUID):
+    def status(job_id: UUID) -> JobStatus | JSONResponse:
         try:
             return store.status(job_id)
         except JobNotFound:
@@ -193,7 +198,7 @@ def create_app(
         response_model=OutcomePage,
         responses=errors,
     )
-    def outcomes(job_id: UUID, after: int = Query(default=0, ge=0)):
+    def outcomes(job_id: UUID, after: int = Query(default=0, ge=0)) -> OutcomePage | JSONResponse:
         try:
             return store.page(job_id, after)
         except JobNotFound:
@@ -205,7 +210,7 @@ def create_app(
         status_code=202,
         responses=errors,
     )
-    def cancel(job_id: UUID):
+    def cancel(job_id: UUID) -> JobStatus | JSONResponse:
         try:
             scheduler.cancel(job_id)
             return store.status(job_id)

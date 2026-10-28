@@ -8,9 +8,17 @@
     "../tests/unit/app/test_boundaries.py",
     "../tests/unit/app/test_lifecycle.py",
     "../tests/unit/app/test_sqlite_storage.py",
-    "../tests/integration/test_persistence_roundtrip.py"
+    "../tests/integration/test_persistence_roundtrip.py",
+    "../src/value_stream/service/job_store.py",
+    "../src/value_stream/service/scheduler.py",
+    "../src/value_stream/service/app.py",
+    "../tests/unit/service/test_job_store.py",
+    "../tests/unit/service/test_sqlite_job_store.py",
+    "../tests/unit/service/test_scheduler.py"
   ],
-  "extraPaths": ["../src"],
+  "extraPaths": [
+    "../src"
+  ],
   "venvPath": "..",
   "venv": ".venv",
   "pythonVersion": "3.11",

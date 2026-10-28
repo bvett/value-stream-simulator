@@ -27,10 +27,10 @@ class ModelScheduler:
         self.settings = settings
         self._executor = ThreadPoolExecutor(max_workers=settings.max_model_workers)
         self._lock = threading.RLock()
-        self._futures: dict[UUID, list[Future]] = {}
+        self._futures: dict[UUID, list[Future[None]]] = {}
         self._active_jobs: set[UUID] = set()
         self._pending_jobs: deque[tuple[UUID, JobRequest]] = deque()
-        self._processes: dict[tuple[UUID, int], subprocess.Popen] = {}
+        self._processes: dict[tuple[UUID, int], subprocess.Popen[bytes]] = {}
         self._closed = False
 
     def submit(self, job_id: UUID, request: JobRequest) -> None:
@@ -136,7 +136,10 @@ class ModelScheduler:
             )
             with self._lock:
                 self._processes[(job_id, index)] = process
-                cancelled = self.store.status(job_id).status == "cancelled"
+                cancelled = self._closed or self.store.status(job_id).status not in (
+                    "queued",
+                    "running",
+                )
             if cancelled:
                 process.terminate()
                 return
@@ -167,6 +170,7 @@ class ModelScheduler:
             )
             self._stop_process(process)
         except Exception as exc:
+            result = None
             error = ModelError(model_index=index, code="WORKER_FAILED", message=str(exc))
             self._stop_process(process)
         finally:
@@ -180,7 +184,7 @@ class ModelScheduler:
                 pass
 
     @staticmethod
-    def _stop_process(process: subprocess.Popen | None) -> None:
+    def _stop_process(process: subprocess.Popen[bytes] | None) -> None:
         """Stop a worker process.
 
         Args:
@@ -225,10 +229,19 @@ class ModelScheduler:
             if self._closed:
                 return
             self._closed = True
-            job_ids = list(self._futures) + [job_id for job_id, _ in self._pending_jobs]
-        for job_id in job_ids:
+        try:
+            # Terminal outcomes commit before any late worker callback can publish.
+            self.store.interrupt_unfinished()
+        finally:
+            with self._lock:
+                self._pending_jobs.clear()
+                futures = [future for group in self._futures.values() for future in group]
+                processes = list(self._processes.values())
+            for future in futures:
+                future.cancel()
             try:
-                self.cancel(job_id)
-            except JobNotFound:
-                pass
-        self._executor.shutdown(wait=True, cancel_futures=True)
+                for process in processes:
+                    if process.poll() is None:
+                        process.terminate()
+            finally:
+                self._executor.shutdown(wait=True, cancel_futures=True)
