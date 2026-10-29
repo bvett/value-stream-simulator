@@ -30,10 +30,13 @@
     "../src/value_stream/app/schemas.py",
     "../src/examples/build_sample_databases.py",
     "../src/value_stream/app/contracts.py",
-    "../tests/unit/app/test_samples.py"
+    "../tests/unit/app/test_samples.py",
+    "../scripts",
+    "../tests/unit/validation/test_distribution.py"
   ],
   "extraPaths": [
-    "../src"
+    "../src",
+    ".."
   ],
   "venvPath": "..",
   "venv": ".venv",

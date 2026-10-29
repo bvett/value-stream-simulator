@@ -10,3 +10,27 @@ coverage.xml
 **/playwright-report
 **/*.tsbuildinfo
 .agent
+
+# Rebuild application assets in the Node stage; never copy local runtime databases.
+src/value_stream/app/static
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite*-wal
+*.sqlite*-shm
+*.sqlite*-journal
+*.sqlite*.lock
+*.sqlite*.*.backup
+.*.sqlite*.*.tmp
+*.db-wal
+*.db-shm
+*.db-journal
+*.db.lock
+*.db.*.backup
+.*.db.*.tmp
+!src/value_stream/service/persistence/samples/application.sqlite3
+!src/value_stream/service/persistence/samples/simulation.sqlite3
+
+# Release artifacts are validated separately, not sent into container builds.
+dist
+build

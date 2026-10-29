@@ -60,7 +60,7 @@ Utilize best practices in UI design to guide the user and avoid repetitive data 
 
 ### Other Requirements
 
-- Put storage behind a replaceable interface, using an in-memory implementation for V1. Application life means the life of the server: browser refreshes retain task sets, model definitions, and retained comparisons. Document configurable retention limits; state need not survive server shutdown.
+- Put storage behind a replaceable interface with SQLite as the V1 default and a compatible memory adapter for tests. Retain workspaces, inputs, comparisons, and completed results across server restarts until explicit deletion. Admission limits reject additional work without pruning saved history. Manage temporary caches and simulation jobs separately.
 - Include unit and integration tests
 - Handle invalid input, execution failures, and connection failures with a documented error contract.
 - Provide an option to package and run the application as a Docker image, and support local standalone startup from the command line.
@@ -72,8 +72,43 @@ Utilize best practices in UI design to guide the user and avoid repetitive data 
 
 ## Intended use and future scope
 
-Version 1 is for individuals demonstrating the value-stream project and runs as a single server instance. Horizontal scaling, shared multi-user deployment, authentication, policy extensibility, service discovery, persistent results, and machine-learning optimization are later phases. Keep storage, job coordination, and simulation execution separable, with stable identifiers, to allow future shared storage and distributed workers. V1 does not implement distributed infrastructure or claim multi-instance support.
+Version 1 is for individuals demonstrating the value-stream project and runs as a single server instance. Horizontal scaling, shared multi-user deployment, authentication, policy extensibility, service discovery, and machine-learning optimization are later phases. Keep storage, job coordination, and simulation execution separable, with stable identifiers, to allow future shared storage and distributed workers. V1 does not implement distributed infrastructure or claim multi-instance support.
 
 ## Implementation design prerequisites
 
 - Write an ExecPlan for this significant feature before coding, following `.agent/PLANS.md` as required by `AGENTS.md`.
+
+## Persistence and documentation views
+
+The agreed persistence behavior is in `docs/specifications/sqlite.md`; implementation
+and acceptance evidence are in `.agent/SQLITE_PERSISTENCE_EXECPLAN.md`. The operator
+guide at `docs/persistence.md` defines filename/environment/CLI precedence, empty
+explicit databases versus bundled defaults, owner errors, migrations and retained
+verified backups, persistent volumes, import decisions, and restart limits.
+
+The application owns `application.sqlite3`; an owned-local simulation service owns
+a different `simulation.sqlite3`. Open stores, recover work, and create coordinators
+only during lifespan. Close polling/gateway resources before releasing storage.
+External shutdown detaches without cancelling acknowledged service jobs, and startup
+reconnects from the saved cursor only when the configured identity matches. Unknown
+acknowledgements, changed services, and expired jobs produce explicit errors without
+automatic resubmission. Local interruptions preserve committed successes and user
+cancellation intent. No recovery step automatically reruns models.
+
+Version schemas and JSON payloads independently; use stable relational identities
+and versioned evolving JSON, optional defaults, and explicit incompatible upgrades.
+Migration requires a verified backup and transaction; any failure stops startup.
+Unsupported future versions, corruption, and permission errors never trigger database
+replacement. Persist outcomes and processing cursors atomically with UTC timestamps.
+
+Bundle completed README examples with stable IDs. Explicit URLs select workspace,
+ordered comparisons, run-scoped scenario, and chart tab independently of browser
+storage. Historical views leave current editor inputs and baseline unchanged.
+Examples remain editable/deletable, which can break links. Explicit offline sample
+import preserves existing records, reports ID conflicts, and skips whole conflicting
+workspace aggregates. Retained results preserve their original engine provenance.
+
+Keep at least 90% measured coverage for every persistence/recovery module and a clean
+standard-mode type gate for all affected implementation/tests, without suppressing
+argument-type findings. Include fresh-browser links, real restart durability,
+migration failures, payload compatibility, and sample import acceptance.

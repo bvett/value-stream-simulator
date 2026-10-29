@@ -5,8 +5,10 @@ These diagrams describe the current implementation in `src/value_stream/`. The
 The **simulation service** (`service/`) accepts bounded jobs and runs each model
 in a worker subprocess. The application can start a loopback service in its own
 process, or connect to an external one with `VALUE_STREAM_SERVICE_URL`. In both
-cases, the boundary between them is HTTP. Both stores are in memory; restarting
-either server loses its state.
+cases, the boundary between them is HTTP. Each service owns a separate SQLite
+database. The application retains saved work until explicit deletion; simulation
+jobs have a separate terminal-job TTL. See [persistence and operation](persistence.md)
+for configuration, migration/backup recovery, sample import, and persistent volumes.
 
 ## System architecture
 
@@ -20,7 +22,7 @@ flowchart LR
 
     subgraph Application[Application API - app]
         Routes[FastAPI routes]
-        Store[InMemoryWorkspaceStore]
+        Store[SqliteWorkspaceStore]
         Coordinator[RunCoordinator]
         Gateway[HttpSimulationGateway]
         Views[Metrics, insights, CSV exports]
@@ -34,7 +36,7 @@ flowchart LR
 
     subgraph Service[Simulation job service - service]
         Jobs[FastAPI job routes]
-        JobStore[InMemoryJobStore]
+        JobStore[SqliteJobStore]
         Scheduler[ModelScheduler]
         Jobs --> JobStore
         Jobs --> Scheduler
@@ -114,7 +116,11 @@ classDiagram
         +save_editor() Preview
         +preview() Preview
         +register()
-        +retain_result() void
+        +patch_run() RunRecord
+        +complete_outcomes() RunRecord
+    }
+    class SqliteWorkspaceStore {
+        +database
     }
     class InMemoryWorkspaceStore {
         +workspaces
@@ -167,11 +173,13 @@ classDiagram
         +results
         +service_indices
     }
+    WorkspaceStore <|.. SqliteWorkspaceStore
     WorkspaceStore <|.. InMemoryWorkspaceStore
     SimulationGateway <|.. HttpSimulationGateway
     RunCoordinator --> WorkspaceStore : reads and updates
     RunCoordinator --> SimulationGateway : submits and polls
-    InMemoryWorkspaceStore o-- Workspace : retains
+    SqliteWorkspaceStore o-- Workspace : persists
+    InMemoryWorkspaceStore o-- Workspace : test snapshots
     InMemoryWorkspaceStore o-- RunRecord : retains
     Workspace o-- TaskSet
     Workspace o-- RunStatus
@@ -216,7 +224,10 @@ sequenceDiagram
 
 The scheduler limits active jobs and model workers, queues excess accepted jobs,
 and applies a per-model timeout. Submission IDs make retries idempotent when the
-payload matches. The outcome cursor lets clients request only newer results.
+payload matches. The outcome cursor lets clients request only newer results. Outcomes and cursors
+commit atomically. Idempotent submission mappings survive service restart until
+job expiry; queued/running work is finalized as interrupted without launching
+recovered workers.
 
 ## Simulation service: principal classes
 
@@ -230,6 +241,10 @@ classDiagram
         +start_model() bool
         +finish_model() void
         +cancel() void
+    }
+    class SqliteJobStore {
+        +database
+        +interrupt_unfinished() void
     }
     class InMemoryJobStore {
         +jobs
@@ -264,6 +279,7 @@ classDiagram
         +summary_result
         +metadata
     }
+    JobStorage <|.. SqliteJobStore
     JobStorage <|.. InMemoryJobStore
     ModelScheduler --> JobStorage : records outcomes
     ModelScheduler ..> JobRequest : schedules models
@@ -276,6 +292,36 @@ classDiagram
 `service/worker.py` is the subprocess entry point. `service/codec.py` translates
 wire models to simulation objects and translates completed results back to wire
 data. Each worker receives one model, even when a job requests many models.
+
+## Storage ownership and recovery
+
+`service/persistence` supplies locking, versioned schemas/payloads, verified backups,
+and the simulation adapter; `app/sqlite_storage.py` supplies the workspace adapter.
+Stable relational identities/counters/cursors accompany evolving JSON payloads.
+The schema version and each JSON version evolve independently, using optional
+property defaults or explicit incompatible upgrades. Protocol-compatible memory
+adapters remain for tests; the factories use SQLite during lifespan. Module imports,
+OpenAPI generation, and help do not acquire databases or workers.
+
+Each local file has one owner. Startup validates kind, integrity, supported versions,
+and relationships without replacing incompatible data. Migrations first create a
+verified backup, then run transactionally; failures stop startup. Writes use WAL,
+full synchronization, and short serialized transactions. No network or worker waits
+occur inside a database transaction.
+
+On application shutdown, external polling detaches without cancelling upstream jobs;
+a later owner reconnects using the recorded identity, job ID, and committed cursor.
+Local shutdown drains successes within a bounded budget and finalizes missing work;
+service recovery preserves committed outcomes and marks unfinished models interrupted.
+No automatic model re-execution occurs. Changed endpoints, lost jobs, and unknown
+acknowledgements produce explicit terminal errors, retaining successful results.
+
+Default startup copies verified bundled snapshots only into absent default paths.
+Explicit database paths start empty. The application bundle contains completed README
+results and stable view URLs; the simulation bundle is empty. Users can edit/delete
+examples, and the offline aggregate importer adds missing samples without replacing
+existing records. Package resources remain templates; [the operator guide](persistence.md)
+describes paths, owner errors, backups, import conflicts, and volumes.
 
 ## Simulation engine: principal classes
 

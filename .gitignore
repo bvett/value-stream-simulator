@@ -45,6 +45,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+coverage.json
 *.cover
 *.py,cover
 .hypothesis/
@@ -184,3 +185,22 @@ src/value_stream/app/static/
 src/value_stream/app/frontend/test-results/
 src/value_stream/app/frontend/playwright-report/
 src/value_stream/app/frontend/coverage/coverage-final.json
+
+# Writable runtime databases and their auxiliary files; release snapshots stay tracked.
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite*-wal
+*.sqlite*-shm
+*.sqlite*-journal
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite*.lock
+*.db.lock
+*.sqlite*.*.backup
+*.db.*.backup
+.*.sqlite*.*.tmp
+.*.db.*.tmp
+!src/value_stream/service/persistence/samples/application.sqlite3
+!src/value_stream/service/persistence/samples/simulation.sqlite3

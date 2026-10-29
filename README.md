@@ -62,6 +62,10 @@ pip install value-stream
 python -m value_stream.app
 ```
 
+Workspaces and completed results survive restart. See [SQLite persistence and
+operation](docs/persistence.md) for data locations, backups, explicit sample import,
+recovery limits, and Docker volume commands.
+
 Simulations are performed by processing a set of tasks through one or more delivery ecosystems. The effectiveness of each is expressed in terms of loss - both net loss (delivered value of the tasks) and process-oriented loss (specific origins of loss).
 
 Comparing outcomes enables targeted improvements that result in the greatest reduction of loss.

@@ -79,6 +79,13 @@ again. The external service may retain that unacknowledged job until its normal
 expiry. `--service-database` configures only the owned local service and cannot be
 combined with an external service URL.
 
+For filename precedence, explicit empty databases, verified backups and migration
+recovery, one-owner errors, offline sample import, mutable documentation links,
+and persistent Docker volumes, see [SQLite persistence and operation](persistence.md).
+The packaged examples need no model execution; existing databases are never replaced
+when a release adds examples. Stop the app before explicit sample import. Keep the
+same mounted `/data` volume when replacing either container.
+
 Stopping either the browser debugger or Python debugger stops the linked debug
 session. **The Vite background task remains available for the next F5 run.** To
 shut down fully, use **Tasks: Terminate Task → Studio: Frontend**, or press Ctrl+C

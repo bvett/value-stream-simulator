@@ -295,3 +295,133 @@ All **13 Playwright cases pass in 2.2 minutes**, including nine manifest URLs op
 A final focused run of the efficiency/small-team cases passes **2 cases in 16.5 seconds** after checking reversed legend ordering, preservation of a scoped scenario when another comparison is added, clearing it when its owning run is removed, and the URL-selected export. Browser runs use authorized execution outside the sandbox because macOS blocks Chromium startup inside it. Ports 18181/18182 avoid an unrelated server already using the default test port; no unrelated process was stopped. Post-run checks find no browser/restart temporary directories or owned servers.
 
 Visually reviewed screenshots with actual plot data: [efficiency comparison](efficiency-11.png) and [small-team detail](small-team.png). README plot images were not replaced. Sample packaging declarations, installed-wheel/container checks, final operational documentation, and CI gates remain Milestone 6.
+
+## Milestone 6 — distributions, installed packages, volumes, and CI
+
+All six milestones are complete. Both Hatchling targets explicitly include the two
+published snapshots, their manifest, and compiled UI assets, while excluding frontend
+source. Compiled assets in the sdist allow a wheel rebuild without Node. Runtime
+SQLite files, journals, locks, backups, and staging files are ignored; exact exceptions
+keep the two published snapshots tracked. Container build contexts exclude runtime
+data and host-built UI assets. Both images default `VALUE_STREAM_DATA_DIR=/data`,
+declare that volume, and keep one worker per service.
+
+`docs/persistence.md` is the operator guide for path precedence, bundled/empty startup,
+ownership, retention, migrations/backups, restoration, import conflicts, mutable links,
+external recovery limits, and volume commands. README, studio documentation,
+architecture, and both component specifications now agree with the durable behavior;
+single-user scope, authentication deferral, extensibility, and ExecPlan requirements
+remain intact.
+
+Final regression command:
+
+```bash
+UV_CACHE_DIR=/private/tmp/value-stream-uv-cache \
+MPLCONFIGDIR=/private/tmp/value-stream-mpl \
+uv run pytest -o addopts='' --cov=src --cov-report=xml \
+  --cov-report=json:/private/tmp/value-stream-m6-coverage.json tests -q
+uv run python scripts/check_persistence_coverage.py /private/tmp/value-stream-m6-coverage.json
+uv run pyright --project .agent/pyright-persistence.json
+```
+
+Result: **297 tests and 101 subtests pass in 46.96 seconds**, with five existing pandas
+warnings. `coverage.xml` is generated. Library coverage is **4463/4600 lines, 97.02%**.
+All **17** gated modules pass the 90% requirement; percentages range from **90.78% to
+100%**. Infrastructure discovery is recursive and automatically includes executable
+new modules; missing report entries fail. New gate tests cover exact/below-threshold
+coverage, missing modules, nested additions, corrupt samples, incomplete archives,
+and read-only cleanup. No coverage exclusions were added.
+
+Pyright checks **45 files**, with **0 errors, 0 warnings, 0 informations**. An AST check
+confirms complete signatures. Black, error-level Pylint, `uv lock --check`, regenerated
+OpenAPI/TypeScript equality, and `git diff --check` pass. No type suppressions were
+introduced. The existing frontend unit/URL and fresh-browser/restart tests remain in
+the frontend CI job; no frontend logic changed in this milestone.
+
+### Actual archive inventory
+
+```bash
+uv build --sdist --wheel --out-dir /private/tmp/value-stream-m6-dist
+uv run python scripts/verify_distributions.py \
+  --wheel /private/tmp/value-stream-m6-dist/value_stream-0.1.25-py3-none-any.whl \
+  --sdist /private/tmp/value-stream-m6-dist/value_stream-0.1.25.tar.gz
+```
+
+| Artifact | Measured size | Verified contents |
+| --- | ---: | --- |
+| `value_stream-0.1.25-py3-none-any.whl` | 3,553,994 bytes | Both snapshots, manifest, compiled index/assets; no frontend source |
+| `value_stream-0.1.25.tar.gz` | 8,399,307 bytes | Both snapshots, manifest, compiled assets; no frontend source |
+
+Both archives verify release `readme-v1`, all **9** views, sample checksums/integrity,
+frozen IDs/specs, result provenance, and referenced rows. This validation never runs
+README models. A separate `uv build SDIST --wheel --out-dir
+/private/tmp/value-stream-m6-sdist-wheel` succeeds, and the resulting wheel passes the
+same archive validation. Sample hashes remain the exact values recorded in Milestone 5.
+
+### Installed read-only wheel
+
+```bash
+uv run python scripts/verify_installed.py \
+  /private/tmp/value-stream-m6-dist/value_stream-0.1.25-py3-none-any.whl
+```
+
+The actual wheel was installed with `uv pip --no-deps --target` into a task-owned
+location outside the checkout. Installed files and directories were made read-only,
+then restored for cleanup. Import/help/schema construction left the selected data
+directory absent. Cold application lifespans copied the default snapshots into writable
+data, retained a newly created workspace, and returned identical result CSV bytes.
+A `Popen` guard prohibited model execution. The installed tree's full content
+fingerprint stayed unchanged. A separate service-only process rejected application
+imports, opened only its empty simulation database, and passed health/schema checks.
+
+Measured identities and hash:
+
+- Bundled workspace: `9e9c2f69-a5fd-5849-9f63-0469d1a5d465`.
+- Bundled run: `4d84ad6d-7702-51c4-ab3a-514d9da20832`.
+- New persisted user-test workspace: `3e4dba96-5d79-4d93-b8cd-56574c63cf8d`.
+- Identical summary CSV SHA-256 before/after restart:
+  `299de0554aefb5939acbdd7653184d89731abb34bc6d0c6f05911061cc1f1dd3`.
+
+### Real container recreation
+
+The user made a Docker daemon available after the initial check found none. Both
+images built successfully. Docker Buildx needed an authorized run outside the sandbox
+to write its metadata; no automatic-approval rejection remains.
+
+```bash
+docker build -t value-stream-service:codex-m6 -f Dockerfile .
+docker build -t value-stream-application:codex-m6 -f Dockerfile.app .
+uv run python scripts/verify_containers.py \
+  --application-image value-stream-application:codex-m6 \
+  --service-image value-stream-service:codex-m6
+```
+
+Image IDs:
+
+- Application: `sha256:3a11ce3f3f009bd9a74ab1a9ff0859ceeff03ed316041666b885dfcc869dfa58`.
+- Simulation service: `sha256:e4f43d5777f9acd0cf58e64b06fa76da9e1771a0a057d378596ac63bb36edad3`.
+
+Each check starts with a unique named volume, executes an actual small simulation,
+stops/removes the first container, and creates a replacement using that same volume.
+A new application workspace/run and a service job survive; their output hashes match
+exactly. Repeating the service submission returns its original job ID. The service
+image has no Node executable and imports no application at service startup.
+
+| Persisted item | Actual identifier/hash |
+| --- | --- |
+| New application workspace | `95266866-3655-4123-bd33-ca64750a8432` |
+| New application run | `91cca97c-5b6f-4a31-b9bd-e6c9dc82daa8` |
+| Application CSV SHA-256 | `23103ae94c95a85e1a7d620d3660844510e358e8d6a4a3171184064f52f80d2c` |
+| Service job and retry target | `7cf7f5b5-91fc-4024-9f65-a6720d6578ce` |
+| Service outcomes SHA-256 | `061a2e111f31469ade229e64a5bf3effd50f10b1b422cdd47c1ef07066db32e9` |
+
+Finally-block cleanup and explicit Docker inventory checks confirm no task-owned
+containers or volumes remain. No unrelated Docker resources or user databases were
+removed. The two tagged images and build outputs remain reviewable artifacts.
+
+CI now repeats per-file coverage, scoped types, frozen bundle validation, import/help
+no-I/O behavior, real archive inventory, read-only installed-wheel restart, and real
+container recreation. Coverage artifacts have distinct matrix names and are retained
+on failures. GitHub's Python-version matrix was configured, not executed locally;
+local Python checks used 3.11 and both Linux containers used 3.11. The full six-milestone
+objective has no remaining implementation or acceptance work.
