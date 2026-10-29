@@ -29,5 +29,4 @@ class TestDeveloperFactory(unittest.TestCase):
 
     def test_create_sd(self):
 
-        DeveloperFactory.create(
-            5, efficiency=DeveloperFactory.uniform(.5, 1.5))
+        DeveloperFactory.create(5, efficiency=DeveloperFactory.uniform(0.5, 1.5))

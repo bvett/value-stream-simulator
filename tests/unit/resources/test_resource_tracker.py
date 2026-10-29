@@ -40,19 +40,17 @@ class TestResourceTracker(unittest.TestCase):
                 summary_data.allocated += metadata.allocated
                 summary_data.waiting += metadata.waiting
 
-                summary_data.failure_t = add(
-                    summary_data.failure_t, metadata.failure_t)
+                summary_data.failure_t = add(summary_data.failure_t, metadata.failure_t)
 
                 summary_data.idle_t = add(summary_data.idle_t, metadata.idle_t)
 
                 summary_data.interruption_t = add(
-                    summary_data.interruption_t, metadata.interruption_t)
+                    summary_data.interruption_t, metadata.interruption_t
+                )
 
-                summary_data.success_t = add(
-                    summary_data.success_t, metadata.success_t)
+                summary_data.success_t = add(summary_data.success_t, metadata.success_t)
 
-                summary_data.waiting_t = add(
-                    summary_data.waiting_t, metadata.waiting_t)
+                summary_data.waiting_t = add(summary_data.waiting_t, metadata.waiting_t)
 
         return result
 

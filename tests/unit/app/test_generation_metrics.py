@@ -11,7 +11,7 @@ from value_stream.app.schemas import (
     ModelSettings,
     ScenarioDefinition,
     SweepRange,
-    UniformValue
+    UniformValue,
 )
 from value_stream.app.settings import AppSettings
 from value_stream.service.schemas import (
@@ -25,18 +25,16 @@ from value_stream.service.schemas import (
 
 class TestGeneration(unittest.TestCase):
     def test_repeatable_tasks_and_teams(self):
-        spec = TaskSetSpec(
-            story_points=UniformValue(minimum=0.5, maximum=2)
-        )
+        spec = TaskSetSpec(story_points=UniformValue(minimum=0.5, maximum=2))
         self.assertEqual(materialize_tasks(spec), materialize_tasks(spec))
         for distribution in ["normal", "linear"]:
-            settings = ModelSettings(team_size=10, distribution=distribution) # pyright: ignore[reportArgumentType]
+            settings = ModelSettings(
+                team_size=10, distribution=distribution
+            )  # pyright: ignore[reportArgumentType]
             team = materialize_team(settings, 42)
             self.assertEqual(team, materialize_team(settings, 42))
             self.assertTrue(all(0.5 <= d.efficiency <= 1.5 for d in team))
-        self.assertEqual(
-            materialize_team(ModelSettings(team_size=1), 42)[0].efficiency, 1
-        )
+        self.assertEqual(materialize_team(ModelSettings(team_size=1), 42)[0].efficiency, 1)
         short = materialize_team(ModelSettings(team_size=2, distribution="normal"), 42)
         self.assertEqual(
             short,
@@ -44,23 +42,16 @@ class TestGeneration(unittest.TestCase):
         )
 
     def test_sweep_order_identity_and_shared_teams(self):
-        definition = ScenarioDefinition(
-            sweeps={"team_size": [2, 4], "deployment_cadence": [1, 5]}
-        )
+        definition = ScenarioDefinition(sweeps={"team_size": [2, 4], "deployment_cadence": [1, 5]})
         first = expand_scenarios([definition], AppSettings())
         definition.sweeps["team_size"] = [4, 2]
         second = expand_scenarios([definition], AppSettings())
         self.assertEqual({s.id: s for s in first}, {s.id: s for s in second})
         self.assertEqual(len(first), 4)
         self.assertEqual(first[0].model.developer_team, first[2].model.developer_team)
-        definition.sweeps = {
-            "deployment_duration": SweepRange(start=0.1, end=0.3, step=0.1)
-        }
+        definition.sweeps = {"deployment_duration": SweepRange(start=0.1, end=0.3, step=0.1)}
         self.assertEqual(
-            [
-                s.settings.deployment_duration
-                for s in expand_scenarios([definition], AppSettings())
-            ],
+            [s.settings.deployment_duration for s in expand_scenarios([definition], AppSettings())],
             [0.1, 0.2, 0.3],
         )
 
@@ -84,9 +75,7 @@ class TestGeneration(unittest.TestCase):
         )
         with self.assertRaisesRegex(AppError, "more than 500"):
             expand_scenarios([definition], AppSettings())
-        definition.sweeps = {
-            "deployment_duration": SweepRange(start=0, end=1e308, step=1e-308)
-        }
+        definition.sweeps = {"deployment_duration": SweepRange(start=0, end=1e308, step=1e-308)}
         with self.assertRaisesRegex(AppError, "at most"):
             expand_scenarios([definition], AppSettings())
         definition.sweeps = {"team_size": [1.5]}
@@ -104,7 +93,7 @@ class TestMetrics(unittest.TestCase):
                 event="development",
                 event_type="end",
                 time=1,
-                status=status, # pyright: ignore[reportArgumentType]
+                status=status,  # pyright: ignore[reportArgumentType]
                 loss=loss,
                 task_type="development",
                 is_rework=False,
@@ -112,9 +101,7 @@ class TestMetrics(unittest.TestCase):
             for status, loss in [("success", -0.1), ("failure", -0.3)]
         ]
         records = [
-            ResourceMetadataData(
-                time=0, state="development", waiting=1, allocated=1, active=0
-            ),
+            ResourceMetadataData(time=0, state="development", waiting=1, allocated=1, active=0),
             ResourceMetadataData(
                 time=2,
                 state="development",
@@ -129,9 +116,7 @@ class TestMetrics(unittest.TestCase):
         result = ResultData(
             model_index=0,
             model=model,
-            summary_result=SummaryData(
-                completion_time=4, total_delivered_value=2, loss=-0.5
-            ),
+            summary_result=SummaryData(completion_time=4, total_delivered_value=2, loss=-0.5),
             metadata=MetadataData(event_metadata=events, resource_metadata=records),
         )
         metrics = plot_data(result, 4)
@@ -169,9 +154,7 @@ class TestObservations(unittest.TestCase):
                     visits=8,
                 )
             ],
-            backlog=[
-                Backlog(stage="qa_testing", label="QA", time=[0, 2], waiting=[0, 4])
-            ],
+            backlog=[Backlog(stage="qa_testing", label="QA", time=[0, 2], waiting=[0, 4])],
             activity=[
                 ResourceActivity(
                     stage="qa_testing",
@@ -181,9 +164,15 @@ class TestObservations(unittest.TestCase):
                 )
             ],
         )
-        settings = ModelSettings(qa_failure_rate=0.4, qa_size=2, qa_failure_cost=0, 
-                                 toolchain_size=1, deployment_failure_rate=0, support_interval=None,
-                                 support_task_story_points=1)
+        settings = ModelSettings(
+            qa_failure_rate=0.4,
+            qa_size=2,
+            qa_failure_cost=0,
+            toolchain_size=1,
+            deployment_failure_rate=0,
+            support_interval=None,
+            support_task_story_points=1,
+        )
         suggestions = observations(metrics, settings)
         self.assertEqual(
             [(s.property, s.value) for s in suggestions],
@@ -191,6 +180,4 @@ class TestObservations(unittest.TestCase):
         )
         self.assertTrue(all(s.evidence for s in suggestions))
         metrics.loss_percent = None
-        self.assertTrue(
-            all(s.property is None for s in observations(metrics, settings))
-        )
+        self.assertTrue(all(s.property is None for s in observations(metrics, settings)))

@@ -8,9 +8,7 @@ from value_stream.workflow import SDLCWorkflow
 
 class TestSupportTask(unittest.TestCase):
     def test_support_task(self):
-        task = SupportTask(story_points=2,
-                           task_name="INC-001",
-                           creation_sim_t=2)
+        task = SupportTask(story_points=2, task_name="INC-001", creation_sim_t=2)
 
         self.assertEqual(task.depreciation_rate, 0)
         self.assertEqual(task.history.completed_story_points, 0)
@@ -40,12 +38,16 @@ class TestSupportTask(unittest.TestCase):
     def test_loss(self):
 
         # No loss
-        task = SupportTask(task_name="", story_points=1,
-                           creation_sim_t=0)
+        task = SupportTask(task_name="", story_points=1, creation_sim_t=0)
 
         epoch = task.history.epoch
 
         task.terminate(25, SDLCWorkflow.WorkflowState.DELIVERY)
 
-        self.assertEqual(task.loss(from_epoch_t=epoch.to_epoch_time(
-            task.creation_sim_t), to_epoch_t=epoch.to_epoch_time(25)), 0)
+        self.assertEqual(
+            task.loss(
+                from_epoch_t=epoch.to_epoch_time(task.creation_sim_t),
+                to_epoch_t=epoch.to_epoch_time(25),
+            ),
+            0,
+        )

@@ -20,11 +20,9 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
     def setUp(self):
         self.env = Environment()
         self.tracker = NoOpResourceTracker()
-        self.source = TaskStore(
-            self.env, SDLCWorkflow.WorkflowState.DEV_COMPLETE)
+        self.source = TaskStore(self.env, SDLCWorkflow.WorkflowState.DEV_COMPLETE)
         self.workflow_state = SDLCWorkflow.WorkflowState.DEPLOYMENT
-        self.target = TerminalTaskStore(
-            self.env, SDLCWorkflow.WorkflowState.DELIVERY)
+        self.target = TerminalTaskStore(self.env, SDLCWorkflow.WorkflowState.DELIVERY)
 
         self.task_router = DefaultRouter(self.target)
         self.policy = DefaultSimulationPolicy()
@@ -32,19 +30,24 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
     def test_validation(self):
 
         with self.assertRaises(ValueError):
-            next(iter(Toolchain.create_pool(
-                 limit=10, deployment_duration=-1)))
+            next(iter(Toolchain.create_pool(limit=10, deployment_duration=-1)))
 
-        self.assertIsNotNone(
-            next(iter(Toolchain.create_pool(limit=5, deployment_duration=0))))
+        self.assertIsNotNone(next(iter(Toolchain.create_pool(limit=5, deployment_duration=0))))
 
     def test_noop_deployment(self):
         tasks = []
 
-        toolchain = Toolchain(
-            deployment_duration=0)
-        self.env.process(toolchain.operate(
-            self.env, tasks, task_router=self.task_router, workflow_state=self.workflow_state, policy=self.policy, tracker=self.tracker))
+        toolchain = Toolchain(deployment_duration=0)
+        self.env.process(
+            toolchain.operate(
+                self.env,
+                tasks,
+                task_router=self.task_router,
+                workflow_state=self.workflow_state,
+                policy=self.policy,
+                tracker=self.tracker,
+            )
+        )
 
         self.env.run()
 
@@ -58,13 +61,20 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         DEPLOYMENT_DURATION = 0.5
 
         for _ in range(NUM_TASKS):
-            tasks.append(
-                Task(story_points=1, initial_value=1))
+            tasks.append(Task(story_points=1, initial_value=1))
 
         toolchain = Toolchain(deployment_duration=DEPLOYMENT_DURATION)
 
-        self.env.process(toolchain.operate(
-            self.env, tasks, task_router=self.task_router, workflow_state=self.workflow_state, policy=self.policy, tracker=self.tracker))
+        self.env.process(
+            toolchain.operate(
+                self.env,
+                tasks,
+                task_router=self.task_router,
+                workflow_state=self.workflow_state,
+                policy=self.policy,
+                tracker=self.tracker,
+            )
+        )
 
         self.env.run()
 
@@ -72,16 +82,24 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         self.assertEqual(self.env.now, DEPLOYMENT_DURATION)
 
         for task in tasks:
-            self.assertEqual(self.duration(task.history,
-                                           SDLCWorkflow.WorkflowState.DEPLOYMENT), DEPLOYMENT_DURATION)
+            self.assertEqual(
+                self.duration(task.history, SDLCWorkflow.WorkflowState.DEPLOYMENT),
+                DEPLOYMENT_DURATION,
+            )
 
     def test_serial_deployment(self):
 
         NUM_TASKS = 5
         DEPLOYMENT_DURATION = 0.5
 
-        toolchain = ResourceOperator(self.env, Toolchain.create_pool(limit=1, deployment_duration=DEPLOYMENT_DURATION),
-                                     cadence=1, workflow_policy=self.policy, resource_policy=self.policy, tracker=self.tracker)
+        toolchain = ResourceOperator(
+            self.env,
+            Toolchain.create_pool(limit=1, deployment_duration=DEPLOYMENT_DURATION),
+            cadence=1,
+            workflow_policy=self.policy,
+            resource_policy=self.policy,
+            tracker=self.tracker,
+        )
 
         def put_tasks():
             for _ in range(NUM_TASKS):
@@ -90,8 +108,7 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         self.env.process(put_tasks())
         self.env.run()
 
-        toolchain.start(self.source, self.workflow_state,
-                        task_router=self.task_router)
+        toolchain.start(self.source, self.workflow_state, task_router=self.task_router)
 
         self.env.run(until=NUM_TASKS * DEPLOYMENT_DURATION)
 
@@ -101,22 +118,24 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         for _ in range(limit):
             yield store.put(Task(story_points=1, initial_value=1))
 
-    def run_scenario(self, num_tasks: int,
-                     deployment_duration: float,
-                     cadence: int,
-                     concurrency: int):
+    def run_scenario(
+        self, num_tasks: int, deployment_duration: float, cadence: int, concurrency: int
+    ):
 
         self.env.process(self.create_tasks(num_tasks, self.source))
 
         self.env.run()
 
         toolchain = ResourceOperator(
-            self.env, Toolchain.create_pool(
-                limit=concurrency, deployment_duration=deployment_duration),
-            cadence=cadence, workflow_policy=self.policy, resource_policy=self.policy, tracker=self.tracker)
+            self.env,
+            Toolchain.create_pool(limit=concurrency, deployment_duration=deployment_duration),
+            cadence=cadence,
+            workflow_policy=self.policy,
+            resource_policy=self.policy,
+            tracker=self.tracker,
+        )
 
-        toolchain.start(self.source, self.workflow_state,
-                        task_router=self.task_router)
+        toolchain.start(self.source, self.workflow_state, task_router=self.task_router)
 
         self.assertEqual(len(self.source.items), num_tasks)
 
@@ -129,9 +148,11 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
         result: Optional[float] = None
 
         for event in reversed(history.events):
-            if ((event.event == SDLCWorkflow.WorkflowState.DELIVERY) and
-                (event.event_type == TaskEvent.EventType.TERMINAL) and
-                    (event.status == EventStatus.SUCCESS)):
+            if (
+                (event.event == SDLCWorkflow.WorkflowState.DELIVERY)
+                and (event.event_type == TaskEvent.EventType.TERMINAL)
+                and (event.status == EventStatus.SUCCESS)
+            ):
                 result = event.time
                 break
 
@@ -143,32 +164,20 @@ class TestToolchainManager(unittest.TestCase, TestUtils):
     def test_scenario_1(self):
         # Continuous delivery, no concurrency
 
-        self.run_scenario(num_tasks=5,
-                          deployment_duration=.25,
-                          cadence=0,
-                          concurrency=1)
+        self.run_scenario(num_tasks=5, deployment_duration=0.25, cadence=0, concurrency=1)
 
-        self.assertEqual(
-            max([self.delivered_time(i.history) for i in self.target.items]), 1.25)
+        self.assertEqual(max([self.delivered_time(i.history) for i in self.target.items]), 1.25)
 
     def test_scenario_2(self):
         # Continuous delivery, with concurrency
 
-        self.run_scenario(num_tasks=5,
-                          deployment_duration=.25,
-                          cadence=0,
-                          concurrency=2)
+        self.run_scenario(num_tasks=5, deployment_duration=0.25, cadence=0, concurrency=2)
 
-        self.assertEqual(
-            max([self.delivered_time(i.history) for i in self.target.items]), 0.75)
+        self.assertEqual(max([self.delivered_time(i.history) for i in self.target.items]), 0.75)
 
     def test_scenario_3(self):
         # Regular delivery, no concurrency
 
-        self.run_scenario(num_tasks=5,
-                          deployment_duration=.25,
-                          cadence=2,
-                          concurrency=1)
+        self.run_scenario(num_tasks=5, deployment_duration=0.25, cadence=2, concurrency=1)
 
-        self.assertEqual(
-            max([self.delivered_time(i.history) for i in self.target.items]), 2.25)
+        self.assertEqual(max([self.delivered_time(i.history) for i in self.target.items]), 2.25)

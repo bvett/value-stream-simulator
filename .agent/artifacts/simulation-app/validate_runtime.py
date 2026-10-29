@@ -17,9 +17,7 @@ html = client.get("/")
 assert html.status_code == 200 and html.headers["cache-control"] == "no-cache"
 for asset in re.findall(r'(?:src|href)="(/assets/[^\"]+)"', html.text):
     response = client.get(asset)
-    assert (
-        response.status_code == 200 and "immutable" in response.headers["cache-control"]
-    )
+    assert response.status_code == 200 and "immutable" in response.headers["cache-control"]
 assert client.get("/api/v1/missing").status_code == 404
 w = client.post("/api/v1/workspaces").json()
 p = "/api/v1/workspaces/" + w["id"]
@@ -37,9 +35,7 @@ rejected = client.put(
         "definitions": w["definitions"] + [extra],
     },
 )
-assert (
-    rejected.status_code == 422 and rejected.json()["code"] == "LIMIT_EXCEEDED"
-), rejected.text
+assert rejected.status_code == 422 and rejected.json()["code"] == "LIMIT_EXCEEDED", rejected.text
 preview = client.put(
     p + "/editor",
     json={
@@ -130,15 +126,11 @@ if label == "docker":
             break
         time.sleep(0.05)
     assert run["state"] == "cancelled", run
-    result["cancelled_models"] = sum(
-        o["status"] == "cancelled" for o in run["outcomes"]
-    )
+    result["cancelled_models"] = sum(o["status"] == "cancelled" for o in run["outcomes"])
     result["retained_successes_after_cancel"] = sum(
         o["status"] == "succeeded" for o in run["outcomes"]
     )
-    assert (
-        result["cancelled_models"] > 0 and result["retained_successes_after_cancel"] > 0
-    )
+    assert result["cancelled_models"] > 0 and result["retained_successes_after_cancel"] > 0
     assert client.get(cancel_path + "/exports/summary").status_code == 200
 Path(".agent/artifacts/simulation-app/" + label + "-validation.json").write_text(
     json.dumps(result, indent=2) + "\n"

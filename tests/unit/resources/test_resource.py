@@ -16,21 +16,26 @@ class TestResource(unittest.TestCase):
         self.target = Store(self.env)
         self.target_for_failures = Store(self.env)
 
-        self.task_router = StatusRouter(
-            on_success=self.target, on_failure=self.target_for_failures)
+        self.task_router = StatusRouter(on_success=self.target, on_failure=self.target_for_failures)
         self.policy = DefaultSimulationPolicy()
 
     def run_and_assert(self, resource: Resource, expected_status: EventStatus):
 
-        self.env.process(resource.operate(
-            env=self.env, tasks=[self.task], task_router=self.task_router,
-            policy=self.policy, tracker=self.tracker, workflow_state=SDLCWorkflow.WorkflowState.DEVELOPMENT))
+        self.env.process(
+            resource.operate(
+                env=self.env,
+                tasks=[self.task],
+                task_router=self.task_router,
+                policy=self.policy,
+                tracker=self.tracker,
+                workflow_state=SDLCWorkflow.WorkflowState.DEVELOPMENT,
+            )
+        )
         self.env.run()
 
         self.assertEqual(self.env.now, 1.0)
         self.assertEqual(len(self.task.history.events), 2)
-        self.assertEqual(
-            self.task.history.events[1].status, expected_status)
+        self.assertEqual(self.task.history.events[1].status, expected_status)
 
     def test_default_result(self):
         resource = DefaultQAResource()
@@ -69,8 +74,7 @@ class DefaultQAResource(Resource):
 class SuccessQAResource(Resource):
 
     def do_work(self, env: Environment, tasks: list[Task]):
-        work = env.timeout(tasks[0].story_points, value={
-                           'result': EventStatus.SUCCESS})
+        work = env.timeout(tasks[0].story_points, value={"result": EventStatus.SUCCESS})
         yield work
         return work.value
 
@@ -78,7 +82,6 @@ class SuccessQAResource(Resource):
 class FailureQAResource(Resource):
 
     def do_work(self, env: Environment, tasks: list[Task]):
-        work = env.timeout(tasks[0].story_points, value={
-                           'result': EventStatus.FAILURE})
+        work = env.timeout(tasks[0].story_points, value={"result": EventStatus.FAILURE})
         yield work
         return work.value

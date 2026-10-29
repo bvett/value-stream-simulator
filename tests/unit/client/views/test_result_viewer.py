@@ -22,39 +22,40 @@ class TestResultViewer(unittest.TestCase):
         self.max_cadence = 7
         self.cadence_samples = 3
 
-        developer_teams = [DeveloperFactory.create(
-            team_size, efficiency=1.0) for team_size in np.linspace(1, self.team_size, self.team_size_samples, dtype=int)]
+        developer_teams = [
+            DeveloperFactory.create(team_size, efficiency=1.0)
+            for team_size in np.linspace(1, self.team_size, self.team_size_samples, dtype=int)
+        ]
 
         self.num_teams = len(developer_teams)
 
         qa_tester_pool = QATester.create_pool(limit=5)
-        toolchain_pool = Toolchain.create_pool(
-            limit=2, deployment_duration=.25)
+        toolchain_pool = Toolchain.create_pool(limit=2, deployment_duration=0.25)
 
         models = ModelFactory.create(
             teams=developer_teams,
-            deployment_cadences=np.linspace(
-                0, self.max_cadence, self.cadence_samples, dtype=int),
+            deployment_cadences=np.linspace(0, self.max_cadence, self.cadence_samples, dtype=int),
             qa_testers=qa_tester_pool,
             toolchain_pool=toolchain_pool,
-            support_intervals=[None])
+            support_intervals=[None],
+        )
 
-        tasks = TaskFactory(initial_value=1,
-                            depreciation_rate=0, story_points=1.0).create(count=self.num_tasks)
+        tasks = TaskFactory(initial_value=1, depreciation_rate=0, story_points=1.0).create(
+            count=self.num_tasks
+        )
 
         self.simulation_results = [
-            simulation.execute(
-                tasks=tasks, 
-                model=model, 
-                policy=DefaultSimulationPolicy()) for model in models]
+            simulation.execute(tasks=tasks, model=model, policy=DefaultSimulationPolicy())
+            for model in models
+        ]
 
-    @patch('matplotlib.pyplot.show')
+    @patch("matplotlib.pyplot.show")
     def test_loss_vs_cadence(self, mock_pyplot_show):
         ResultViewer(self.simulation_results).loss_vs_cadence()
 
         mock_pyplot_show.assert_called_once()
 
-    @patch('matplotlib.pyplot.show')
+    @patch("matplotlib.pyplot.show")
     def test_loss_vs_team_size(self, mock_pyplot_show):
 
         ResultViewer(self.simulation_results).loss_vs_team_size()

@@ -6,12 +6,19 @@ from tqdm import tqdm
 
 from value_stream.client.web.client import WebSimulationClient
 from value_stream.client.web.errors import (
-    BatchSimulationError, JobCancelledError, ServiceClientError
+    BatchSimulationError,
+    JobCancelledError,
+    ServiceClientError,
 )
 from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.service.codec import encode_result
 from value_stream.service.schemas import (
-    JobAccepted, JobStatus, ModelError, OutcomeData, OutcomePage, Status
+    JobAccepted,
+    JobStatus,
+    ModelError,
+    OutcomeData,
+    OutcomePage,
+    Status,
 )
 from value_stream.simulation import DefaultSimulationPolicy, Model, Simulation
 from value_stream.task import Task
@@ -19,7 +26,8 @@ from value_stream.task import Task
 
 def model(cadence=0):
     return Model(
-        developer_team=[Developer()], deployment_cadence=cadence,
+        developer_team=[Developer()],
+        deployment_cadence=cadence,
         qa_testers=QATester.create_pool(limit=1),
         toolchain_pool=Toolchain.create_pool(limit=1, deployment_duration=0.25),
     )
@@ -31,7 +39,8 @@ def scripted_client(outcomes, state):
     def handle(request):
         if request.method == "POST":
             value = JobAccepted(
-                job_id=job_id, status="queued",
+                job_id=job_id,
+                status="queued",
                 status_url=f"/v1/simulation-jobs/{job_id}",
             )
             return httpx.Response(202, json=value.model_dump(mode="json"))
@@ -43,8 +52,11 @@ def scripted_client(outcomes, state):
             )
             return httpx.Response(200, json=page.model_dump(mode="json"))
         status = JobStatus(
-            job_id=job_id, status=state, total_models=len(outcomes),
-            queued_models=0, running_models=0,
+            job_id=job_id,
+            status=state,
+            total_models=len(outcomes),
+            queued_models=0,
+            running_models=0,
             succeeded_models=sum(o.status == "succeeded" for o in outcomes),
             failed_models=sum(o.status == "failed" for o in outcomes),
             cancelled_models=sum(o.status == "cancelled" for o in outcomes),
@@ -78,10 +90,14 @@ class TestWebClient(unittest.TestCase):
             result = Simulation().execute(
                 model=models[index], tasks=tasks, policy=DefaultSimulationPolicy()
             )
-            outcomes.append(OutcomeData(
-                cursor=cursor, model_index=index, status=Status.SUCCEEDED,
-                result=encode_result(result, index)
-            ))
+            outcomes.append(
+                OutcomeData(
+                    cursor=cursor,
+                    model_index=index,
+                    status=Status.SUCCEEDED,
+                    result=encode_result(result, index),
+                )
+            )
         client = scripted_client(outcomes, "completed")
         progress = Progress()
         try:
@@ -101,7 +117,9 @@ class TestWebClient(unittest.TestCase):
         outcomes = [
             OutcomeData(cursor=1, model_index=1, status=Status.SUCCEEDED, result=success),
             OutcomeData(
-                cursor=2, model_index=0, status=Status.FAILED,
+                cursor=2,
+                model_index=0,
+                status=Status.FAILED,
                 error=ModelError(model_index=0, code="MODEL_FAILED", message="bad"),
             ),
         ]
@@ -164,7 +182,8 @@ class TestWebClient(unittest.TestCase):
         def handle(request):
             if request.method == "POST":
                 accepted = JobAccepted(
-                    job_id=job_id, status="queued",
+                    job_id=job_id,
+                    status="queued",
                     status_url=f"/v1/simulation-jobs/{job_id}",
                 )
                 return httpx.Response(202, json=accepted.model_dump(mode="json"))
@@ -173,19 +192,21 @@ class TestWebClient(unittest.TestCase):
                     200, json=OutcomePage(outcomes=[], next_cursor=0).model_dump(mode="json")
                 )
             status = JobStatus(
-                job_id=job_id, status="queued", total_models=1,
-                queued_models=1, running_models=0, succeeded_models=0,
-                failed_models=0, cancelled_models=0, last_cursor=0,
+                job_id=job_id,
+                status="queued",
+                total_models=1,
+                queued_models=1,
+                running_models=0,
+                succeeded_models=0,
+                failed_models=0,
+                cancelled_models=0,
+                last_cursor=0,
             )
             return httpx.Response(200, json=status.model_dump(mode="json"))
 
-        client = WebSimulationClient(
-            "http://test", poll_interval=0.001, max_wait_seconds=0.01
-        )
+        client = WebSimulationClient("http://test", poll_interval=0.001, max_wait_seconds=0.01)
         client._http.close()
-        client._http = httpx.Client(
-            transport=httpx.MockTransport(handle), base_url="http://test"
-        )
+        client._http = httpx.Client(transport=httpx.MockTransport(handle), base_url="http://test")
         try:
             with self.assertRaisesRegex(ServiceClientError, "wait limit"):
                 client.execute([Task(initial_value=1, story_points=1)], [model()])
@@ -197,29 +218,48 @@ class TestWebClient(unittest.TestCase):
 
         def handle(request):
             if request.method == "POST":
-                return httpx.Response(202, json={
-                    "job_id": str(job_id), "status": "queued",
-                    "status_url": f"/v1/simulation-jobs/{job_id}",
-                })
+                return httpx.Response(
+                    202,
+                    json={
+                        "job_id": str(job_id),
+                        "status": "queued",
+                        "status_url": f"/v1/simulation-jobs/{job_id}",
+                    },
+                )
             if request.url.path.endswith("/outcomes"):
-                return httpx.Response(200, json={
-                    "outcomes": [{
-                        "cursor": 1, "model_index": 0, "status": "succeeded",
-                        "result": None, "error": None,
-                    }],
-                    "next_cursor": 1,
-                })
-            return httpx.Response(200, json={
-                "job_id": str(job_id), "status": "completed", "total_models": 1,
-                "queued_models": 0, "running_models": 0, "succeeded_models": 1,
-                "failed_models": 0, "cancelled_models": 0, "last_cursor": 1,
-            })
+                return httpx.Response(
+                    200,
+                    json={
+                        "outcomes": [
+                            {
+                                "cursor": 1,
+                                "model_index": 0,
+                                "status": "succeeded",
+                                "result": None,
+                                "error": None,
+                            }
+                        ],
+                        "next_cursor": 1,
+                    },
+                )
+            return httpx.Response(
+                200,
+                json={
+                    "job_id": str(job_id),
+                    "status": "completed",
+                    "total_models": 1,
+                    "queued_models": 0,
+                    "running_models": 0,
+                    "succeeded_models": 1,
+                    "failed_models": 0,
+                    "cancelled_models": 0,
+                    "last_cursor": 1,
+                },
+            )
 
         client = WebSimulationClient("http://test")
         client._http.close()
-        client._http = httpx.Client(
-            transport=httpx.MockTransport(handle), base_url="http://test"
-        )
+        client._http = httpx.Client(transport=httpx.MockTransport(handle), base_url="http://test")
         try:
             with self.assertRaisesRegex(ServiceClientError, "malformed outcomes"):
                 client.execute([Task(initial_value=1, story_points=1)], [model()])

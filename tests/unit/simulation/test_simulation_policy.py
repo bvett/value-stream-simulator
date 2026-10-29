@@ -10,24 +10,23 @@ class TestDefaultSimulationPolicy(unittest.TestCase):
     def test_support_assignment_strategy(self):
         policy = DefaultSimulationPolicy()
 
-        dev_task = Task(initial_value=1, story_points=1,
-                        task_type=TaskType.DEVELOPMENT)
-        support_task = Task(initial_value=1, story_points=1,
-                            task_type=TaskType.SUPPORT)
-        rework_task = Task(initial_value=1, story_points=1,
-                           task_type=TaskType.DEVELOPMENT).as_rework()
+        dev_task = Task(initial_value=1, story_points=1, task_type=TaskType.DEVELOPMENT)
+        support_task = Task(initial_value=1, story_points=1, task_type=TaskType.SUPPORT)
+        rework_task = Task(
+            initial_value=1, story_points=1, task_type=TaskType.DEVELOPMENT
+        ).as_rework()
 
-        scenarios = [([dev_task], AssignmentStrategy.NEXT_AVAILABLE),
-                     ([support_task], AssignmentStrategy.RANDOM),
-                     ([rework_task], AssignmentStrategy.OWNER),
-                     ([dev_task, support_task],
-                      AssignmentStrategy.NEXT_AVAILABLE),
-                     ([support_task, dev_task], AssignmentStrategy.RANDOM)]
+        scenarios = [
+            ([dev_task], AssignmentStrategy.NEXT_AVAILABLE),
+            ([support_task], AssignmentStrategy.RANDOM),
+            ([rework_task], AssignmentStrategy.OWNER),
+            ([dev_task, support_task], AssignmentStrategy.NEXT_AVAILABLE),
+            ([support_task, dev_task], AssignmentStrategy.RANDOM),
+        ]
 
         for scenario in scenarios:
             tasks, strategy = scenario
-            self.assertEqual(
-                strategy, policy.support_assignment_strategy(tasks))
+            self.assertEqual(strategy, policy.support_assignment_strategy(tasks))
 
     def test_priority(self):
 
@@ -47,7 +46,7 @@ class TestDefaultSimulationPolicy(unittest.TestCase):
             ([dev], [dev], 0),
             ([dev], [support], 1),
             ([support], [dev], -1),
-            ([support], [support], -1)
+            ([support], [support], -1),
         ]
 
         for t1, t2, result in scenarios:

@@ -28,47 +28,59 @@ class TestResourceOperator(unittest.TestCase):
 
         # catch negative cadence
         with self.assertRaises(ValueError):
-            _ = ResourceOperator(env=self.env,
-                                 resources=self.resources,
-                                 cadence=-1,
-                                 workflow_policy=self.policy,
-                                 resource_policy=self.policy,
-                                 tracker=self.tracker)
+            _ = ResourceOperator(
+                env=self.env,
+                resources=self.resources,
+                cadence=-1,
+                workflow_policy=self.policy,
+                resource_policy=self.policy,
+                tracker=self.tracker,
+            )
 
         # attempt to start twice in succession
         with self.assertRaises(RuntimeError):
-            manager = ResourceOperator(env=self.env,
-                                       resources=self.resources,
-                                       workflow_policy=self.policy,
-                                       resource_policy=self.policy,
-                                       tracker=self.tracker)
+            manager = ResourceOperator(
+                env=self.env,
+                resources=self.resources,
+                workflow_policy=self.policy,
+                resource_policy=self.policy,
+                tracker=self.tracker,
+            )
 
             for _ in range(2):
-                manager.start(source=self.source,
-                              workflow_state=self.workflow_state,
-                              task_router=self.task_router)
+                manager.start(
+                    source=self.source,
+                    workflow_state=self.workflow_state,
+                    task_router=self.task_router,
+                )
 
         # attempt to start after stopping
         with self.assertRaises(RuntimeError):
-            manager = ResourceOperator(env=self.env,
-                                       resources=self.resources,
-                                       workflow_policy=self.policy,
-                                       resource_policy=self.policy,
-                                       tracker=self.tracker)
+            manager = ResourceOperator(
+                env=self.env,
+                resources=self.resources,
+                workflow_policy=self.policy,
+                resource_policy=self.policy,
+                tracker=self.tracker,
+            )
             for _ in range(2):
-                manager.start(source=self.source,
-                              workflow_state=self.workflow_state,
-                              task_router=self.task_router)
+                manager.start(
+                    source=self.source,
+                    workflow_state=self.workflow_state,
+                    task_router=self.task_router,
+                )
 
                 manager.stop()
 
         # attempt to stop a manager that has not been started
         with self.assertRaises(RuntimeError):
-            manager = ResourceOperator(env=self.env,
-                                       resources=self.resources,
-                                       workflow_policy=self.policy,
-                                       resource_policy=self.policy,
-                                       tracker=self.tracker)
+            manager = ResourceOperator(
+                env=self.env,
+                resources=self.resources,
+                workflow_policy=self.policy,
+                resource_policy=self.policy,
+                tracker=self.tracker,
+            )
 
             manager.stop()
 
@@ -78,17 +90,19 @@ class TestResourceOperator(unittest.TestCase):
 
         num_tasks = 100
 
-        operator = ResourceOperator(env=self.env,
-                                    resources=self.resources,
-                                    workflow_policy=self.policy,
-                                    resource_policy=self.policy,
-                                    tracker=self.tracker)
+        operator = ResourceOperator(
+            env=self.env,
+            resources=self.resources,
+            workflow_policy=self.policy,
+            resource_policy=self.policy,
+            tracker=self.tracker,
+        )
 
-        operator.start(source=self.source, workflow_state=self.workflow_state,
-                       task_router=self.task_router)
+        operator.start(
+            source=self.source, workflow_state=self.workflow_state, task_router=self.task_router
+        )
 
-        tasks = TaskFactory(initial_value=1, story_points=1).create(
-            count=num_tasks, env=self.env)
+        tasks = TaskFactory(initial_value=1, story_points=1).create(count=num_tasks, env=self.env)
 
         for task in tasks:
             self.source.put(task)
@@ -102,8 +116,7 @@ class TestResourceOperator(unittest.TestCase):
         def process_rework():
             rework_task: Task = yield self.target.get()
             # rework_task.do_work(story_points=-0.25)
-            print(
-                f"rework_task: {rework_task.task_name}  {rework_task.remaining_work()}")
+            print(f"rework_task: {rework_task.task_name}  {rework_task.remaining_work()}")
             yield self.source.put(rework_task.as_rework())
 
         self.env.process(process_rework())

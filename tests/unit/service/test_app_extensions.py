@@ -29,9 +29,7 @@ class TestApplicationExtensions(unittest.TestCase):
         store = InMemoryJobStore(ServiceSettings())
         key = uuid4()
         with ThreadPoolExecutor(8) as executor:
-            results = list(
-                executor.map(lambda _: store.reserve(1, key, "same"), range(20))
-            )
+            results = list(executor.map(lambda _: store.reserve(1, key, "same"), range(20)))
         self.assertEqual(len({r[0] for r in results}), 1)
         self.assertEqual(sum(r[1] for r in results), 1)
         with self.assertRaises(SubmissionConflict):
@@ -49,15 +47,11 @@ class TestApplicationExtensions(unittest.TestCase):
             self.assertEqual(a.json()["job_id"], b.json()["job_id"])
             self.assertEqual(submit.call_count, 1)
             self.payload["tasks"][0]["story_points"] += 1
-            self.assertEqual(
-                client.post("/v1/simulation-jobs", json=self.payload).status_code, 409
-            )
+            self.assertEqual(client.post("/v1/simulation-jobs", json=self.payload).status_code, 409)
 
     def test_explicit_seed_independent_of_index_with_support(self):
         model = self.payload["models"][0]
-        model["developer_team"] = [
-            {"name": str(i), "efficiency": 0.5 + i} for i in range(3)
-        ]
+        model["developer_team"] = [{"name": str(i), "efficiency": 0.5 + i} for i in range(3)]
         model["support_interval"] = 2
         model["support_task_story_points"] = 0.2
         model["qa_testers"]["failure_rate"] = 0.2

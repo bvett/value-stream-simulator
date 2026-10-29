@@ -19,21 +19,21 @@ class TestModelFactory(unittest.TestCase):
 
         teams: list[list[Developer]] = []
 
-        for i in range(1, NUM_TEAMS+1):
+        for i in range(1, NUM_TEAMS + 1):
             teams.append(DeveloperFactory.create(i))
 
         qa_tester_pool = QATester.create_pool(limit=5)
-        toolchain_pool = Toolchain.create_pool(
-            limit=2, deployment_duration=4.5)
+        toolchain_pool = Toolchain.create_pool(limit=2, deployment_duration=4.5)
 
-        models = ModelFactory.create(teams=teams,
-                                     deployment_cadences=cadences,
-                                     qa_testers=qa_tester_pool,
-                                     toolchain_pool=toolchain_pool,
-                                     support_intervals=support_intervals)
+        models = ModelFactory.create(
+            teams=teams,
+            deployment_cadences=cadences,
+            qa_testers=qa_tester_pool,
+            toolchain_pool=toolchain_pool,
+            support_intervals=support_intervals,
+        )
 
-        self.assertEqual(len(models), NUM_TEAMS *
-                         NUM_CADENCES * len(support_intervals))
+        self.assertEqual(len(models), NUM_TEAMS * NUM_CADENCES * len(support_intervals))
         for model in models:
             self.assertIn(model.deployment_cadence, cadences)
 
@@ -42,14 +42,15 @@ class TestModelFactory(unittest.TestCase):
         team = [Developer()]
 
         qa_tester_pool = QATester.create_pool(limit=5)
-        toolchain_pool = Toolchain.create_pool(
-            limit=2, deployment_duration=4.5)
+        toolchain_pool = Toolchain.create_pool(limit=2, deployment_duration=4.5)
 
-        models = ModelFactory.create(teams=[team],
-                                     deployment_cadences=[1],
-                                     qa_testers=qa_tester_pool,
-                                     toolchain_pool=toolchain_pool,
-                                     support_intervals=None)
+        models = ModelFactory.create(
+            teams=[team],
+            deployment_cadences=[1],
+            qa_testers=qa_tester_pool,
+            toolchain_pool=toolchain_pool,
+            support_intervals=None,
+        )
 
         self.assertEqual(1, len(models))
         self.assertIsNone(models[0].support_interval)

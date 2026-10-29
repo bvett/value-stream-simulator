@@ -57,7 +57,7 @@ class TestPoolManager(unittest.TestCase):
             yield env.timeout(1)
 
     class TestState(TaskState):
-        DEFAULT = 'default'
+        DEFAULT = "default"
 
     def setUp(self):
         self.env = Environment()
@@ -73,17 +73,18 @@ class TestPoolManager(unittest.TestCase):
         self.state = self.TestState.DEFAULT
 
         num_tasks = 10
-        self.tasks: list[Task] = TaskFactory(
-            story_points=1, initial_value=1).create(num_tasks)
+        self.tasks: list[Task] = TaskFactory(story_points=1, initial_value=1).create(num_tasks)
 
-        self.support_tasks: list[Task] = TaskFactory(
-            cls=SupportTask, story_points=1).create(num_tasks)
+        self.support_tasks: list[Task] = TaskFactory(cls=SupportTask, story_points=1).create(
+            num_tasks
+        )
 
-    def run_scenario(self, manager: PoolManager, task: Task, resource_allocation: dict[Resource, int]):
+    def run_scenario(
+        self, manager: PoolManager, task: Task, resource_allocation: dict[Resource, int]
+    ):
         r = manager.request(self.state, [task])
 
-        self.assertTrue(isinstance(r, Resource)
-                        or isinstance(r, StoreGet))
+        self.assertTrue(isinstance(r, Resource) or isinstance(r, StoreGet))
 
         resource: Optional[Resource] = None
 
@@ -91,8 +92,7 @@ class TestPoolManager(unittest.TestCase):
             resource = yield r
 
             if resource is None:
-                raise ValueError(
-                    "unexpected None for resource during test execution")
+                raise ValueError("unexpected None for resource during test execution")
 
             yield self.env.process(resource.do_work(self.env, [task]))
             yield manager.release(resource)
@@ -101,8 +101,8 @@ class TestPoolManager(unittest.TestCase):
             resource = r
             yield self.env.process(r.do_work(self.env, [task]))
 
-        if (resource is not None):
-            if (resource not in resource_allocation):
+        if resource is not None:
+            if resource not in resource_allocation:
                 resource_allocation[resource] = 1
             else:
                 resource_allocation[resource] += 1
@@ -113,13 +113,17 @@ class TestPoolManager(unittest.TestCase):
             env=self.env,
             resources=iter(self.resources),
             policy=self.PolicyCyclic(),
-            tracker=self.tracker)
+            tracker=self.tracker,
+        )
 
         resource_allocation: dict[Resource, int] = {}
 
         for task in self.tasks:
-            self.env.process(self.run_scenario(
-                task=task, manager=manager, resource_allocation=resource_allocation))
+            self.env.process(
+                self.run_scenario(
+                    task=task, manager=manager, resource_allocation=resource_allocation
+                )
+            )
 
         self.env.run()
 
@@ -127,8 +131,7 @@ class TestPoolManager(unittest.TestCase):
         for _, v in resource_allocation.items():
             self.assertEqual(2, v)
 
-        self.assertEqual(len(self.resources), len(
-            manager._registered_resources))
+        self.assertEqual(len(self.resources), len(manager._registered_resources))
 
         allocated = 0
         for metadata in self.tracker.data:
@@ -137,14 +140,17 @@ class TestPoolManager(unittest.TestCase):
 
         self.assertEqual(len(self.resources), allocated)
 
-    def create_batches(self, batch_size: int, num_batches: int, manager: PoolManager) -> list[list[Resource]]:
+    def create_batches(
+        self, batch_size: int, num_batches: int, manager: PoolManager
+    ) -> list[list[Resource]]:
         batches: list[list[Resource]] = []
         for _ in range(num_batches):
             resources: list[Resource] = []
 
             for _ in range(batch_size):
                 resource: Resource = manager.request(
-                    self.state, self.tasks)   # pyright: ignore[reportAssignmentType]
+                    self.state, self.tasks
+                )  # pyright: ignore[reportAssignmentType]
                 self.assertTrue(isinstance(resource, Resource))
                 resources.append(resource)
 
@@ -157,14 +163,14 @@ class TestPoolManager(unittest.TestCase):
             env=self.env,
             resources=iter(self.resources),
             policy=self.PolicyCyclic(),
-            tracker=self.tracker)
+            tracker=self.tracker,
+        )
 
         num_batches = 3
-        batches = self.create_batches(
-            batch_size=15, num_batches=num_batches, manager=manager)
+        batches = self.create_batches(batch_size=15, num_batches=num_batches, manager=manager)
 
-        for i in range(num_batches-1):
-            self.assertEqual(batches[i], batches[i+1])
+        for i in range(num_batches - 1):
+            self.assertEqual(batches[i], batches[i + 1])
 
     def test_next_available(self):
         """validates resources are returned in the same order across different sequences of requests"""
@@ -174,21 +180,24 @@ class TestPoolManager(unittest.TestCase):
             env=self.env,
             resources=iter(self.resources),
             policy=self.PolicyNext(),
-            tracker=self.tracker)
+            tracker=self.tracker,
+        )
 
         resources: list[Resource] = []
 
-        def make_requests(count: int, result: Optional[list[Resource]]) -> Generator[StoreGet, Any, None]:
+        def make_requests(
+            count: int, result: Optional[list[Resource]]
+        ) -> Generator[StoreGet, Any, None]:
 
             for _ in range(count):
                 request = manager.request(self.state, self.tasks)
                 self.assertTrue(isinstance(request, StoreGet))
                 try:
-                    resource = yield request   # pyright: ignore[reportReturnType]
+                    resource = yield request  # pyright: ignore[reportReturnType]
                     if result is not None:
                         result.append(resource)
                 except Interrupt:
-                    request.cancel() # pyright: ignore[reportAttributeAccessIssue]
+                    request.cancel()  # pyright: ignore[reportAttributeAccessIssue]
 
         self.env.process(make_requests(len(self.resources), resources))
 
@@ -218,21 +227,24 @@ class TestPoolManager(unittest.TestCase):
         self.env.process(release_resources(resources))
         self.env.run()
 
-        self.assertEqual(len(self.resources), len(
-            manager._resource_pool.items))
+        self.assertEqual(len(self.resources), len(manager._resource_pool.items))
 
     def test_random(self):
         manager = PoolManager(
             env=self.env,
             resources=iter(self.resources),
             policy=self.PolicyRandom(),
-            tracker=self.tracker)
+            tracker=self.tracker,
+        )
 
         resource_allocation: dict[Resource, int] = {}
 
         for task in self.tasks:
-            self.env.process(self.run_scenario(
-                task=task, manager=manager, resource_allocation=resource_allocation))
+            self.env.process(
+                self.run_scenario(
+                    task=task, manager=manager, resource_allocation=resource_allocation
+                )
+            )
 
         self.env.run()
 
@@ -245,47 +257,44 @@ class TestPoolManager(unittest.TestCase):
 
         self.assertEqual(len(self.tasks), total_allocations)
         self.assertIsNotNone(manager._resources_as_list)
-        self.assertEqual(len(self.resources), len(
-            manager._resources_as_list))  # pyright: ignore[reportArgumentType]
+        self.assertEqual(
+            len(self.resources), len(manager._resources_as_list)
+        )  # pyright: ignore[reportArgumentType]
 
     def test_random_ordering(self):
         manager = PoolManager(
             env=self.env,
             resources=iter(self.resources),
             policy=self.PolicyRandom(),
-            tracker=self.tracker)
+            tracker=self.tracker,
+        )
 
         # Technically, there is a nonzero probability of generating 5 identical sequences of 20
         num_batches = 5
-        batches = self.create_batches(
-            batch_size=20, num_batches=num_batches, manager=manager)
+        batches = self.create_batches(batch_size=20, num_batches=num_batches, manager=manager)
 
-        for i in range(num_batches-1):
-            self.assertNotEqual(batches[i], batches[i+1])
+        for i in range(num_batches - 1):
+            self.assertNotEqual(batches[i], batches[i + 1])
 
     def test_owner(self):
         #
         policy = self.DynamicPolicy(strategy=AssignmentStrategy.NEXT_AVAILABLE)
 
         manager = PoolManager(
-            env=self.env,
-            resources=iter(self.resources),
-            policy=policy,
-            tracker=self.tracker)
+            env=self.env, resources=iter(self.resources), policy=policy, tracker=self.tracker
+        )
 
         # First, establish ownership by choosing the next available resource
-        task_group_1 = TaskFactory(
-            initial_value=1, story_points=1).create(5, self.env)
+        task_group_1 = TaskFactory(initial_value=1, story_points=1).create(5, self.env)
 
-        task_group_2 = TaskFactory(
-            initial_value=1, story_points=1).create(5, self.env)
+        task_group_2 = TaskFactory(initial_value=1, story_points=1).create(5, self.env)
 
         def request(tasks: list[Task]) -> Generator[StoreGet, Any, Any]:
 
             request = manager.request(self.state, tasks)
             self.assertTrue(isinstance(request, StoreGet))
 
-            resource = yield request   # pyright: ignore[reportReturnType]
+            resource = yield request  # pyright: ignore[reportReturnType]
 
             return resource
 
@@ -297,7 +306,7 @@ class TestPoolManager(unittest.TestCase):
 
         self.env.run()
 
-        resource_1: Resource = p1.value   # pyright: ignore[reportAssignmentType]
+        resource_1: Resource = p1.value  # pyright: ignore[reportAssignmentType]
         resource_2: Resource = p2.value  # pyright: ignore[reportAssignmentType]
 
         self.env.process(release(resource_1))
@@ -309,8 +318,12 @@ class TestPoolManager(unittest.TestCase):
 
         policy.strategy = AssignmentStrategy.OWNER
 
-        r1: Resource = manager.request(self.state, task_group_1)  # pyright: ignore[reportAssignmentType]
-        r2: Resource = manager.request(self.state, task_group_2)   # pyright: ignore[reportAssignmentType]
+        r1: Resource = manager.request(
+            self.state, task_group_1
+        )  # pyright: ignore[reportAssignmentType]
+        r2: Resource = manager.request(
+            self.state, task_group_2
+        )  # pyright: ignore[reportAssignmentType]
 
         self.assertEqual(r1, resource_1)
         self.assertEqual(r2, resource_2)
@@ -325,24 +338,19 @@ class TestPoolManager(unittest.TestCase):
     def test_random_with_unlimited_pool(self):
         # attempt to use with an unlimited resource pool
 
-        unlimited_pool = Toolchain.create_pool(
-            limit=None,
-            deployment_duration=1,
-            failure_rate=1)
+        unlimited_pool = Toolchain.create_pool(limit=None, deployment_duration=1, failure_rate=1)
 
         manager = PoolManager(
-            env=self.env,
-            resources=unlimited_pool,
-            policy=self.PolicyRandom(),
-            tracker=self.tracker)
+            env=self.env, resources=unlimited_pool, policy=self.PolicyRandom(), tracker=self.tracker
+        )
 
         iterations = 10
         toolchains = []
         for _ in range(iterations):
             toolchains.append(manager.request(self.state, self.tasks))
 
-        for i in range(iterations-1):
-            self.assertNotEqual(toolchains[i], toolchains[i+1])
+        for i in range(iterations - 1):
+            self.assertNotEqual(toolchains[i], toolchains[i + 1])
 
     def test_multi_policy(self):
         # check that resources iterator isn't at the end when _resources_as_list is populated.
@@ -353,7 +361,8 @@ class TestPoolManager(unittest.TestCase):
             env=self.env,
             resources=iter([simple_resource]),
             policy=self.DefaultPolicy(),
-            tracker=self.tracker)
+            tracker=self.tracker,
+        )
 
         regular_task = Task(initial_value=1, story_points=1)
         support_task = SupportTask(story_points=1)
@@ -362,7 +371,7 @@ class TestPoolManager(unittest.TestCase):
 
             request = manager.request(self.state, tasks)
             if isinstance(request, StoreGet):
-                resource = yield request  # type:ignore
+                resource = yield request  # type: ignore
             else:
                 resource = request
 
@@ -374,7 +383,8 @@ class TestPoolManager(unittest.TestCase):
 
         r1: Resource = p1.value  # pyright: ignore[reportAssignmentType]
         r2: Resource = manager.request(
-            self.state, [support_task])   # pyright: ignore[reportAssignmentType]
+            self.state, [support_task]
+        )  # pyright: ignore[reportAssignmentType]
 
         self.assertEqual(simple_resource, r1)
         self.assertEqual(simple_resource, r2)

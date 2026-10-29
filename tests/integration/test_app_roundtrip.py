@@ -15,9 +15,7 @@ from value_stream.app.settings import AppSettings
 
 class TestAppRoundtrip(unittest.TestCase):
     def test_local_service_browser_contract_and_retention(self):
-        app = create_app(
-            settings=AppSettings(poll_seconds=0.01, min_interactive_seconds=0.01)
-        )
+        app = create_app(settings=AppSettings(poll_seconds=0.01, min_interactive_seconds=0.01))
         with TestClient(app) as client:
             self.assertEqual(client.get("/ready").status_code, 200)
             w = client.post("/api/v1/workspaces").json()
@@ -49,12 +47,8 @@ class TestAppRoundtrip(unittest.TestCase):
             assert run is not None
             self.assertEqual(run["state"], "completed", run)
             self.assertEqual(len(run["outcomes"]), 9)
-            self.assertEqual(
-                client.post(path + "/runs", json=payload).json()["id"], run_id
-            )
-            result_path = (
-                f"{path}/runs/{run_id}/results/{run['outcomes'][0]['scenario']['id']}"
-            )
+            self.assertEqual(client.post(path + "/runs", json=payload).json()["id"], run_id)
+            result_path = f"{path}/runs/{run_id}/results/{run['outcomes'][0]['scenario']['id']}"
             self.assertEqual(client.get(result_path).status_code, 200)
             for kind in ["summary", "events", "resources"]:
                 export = client.get(f"{path}/runs/{run_id}/exports/{kind}")
@@ -67,9 +61,7 @@ class TestAppRoundtrip(unittest.TestCase):
             client.portal.call(app.state.gateway.close)
             self.assertEqual(client.get("/ready").status_code, 503)
             self.assertEqual(client.get(result_path).status_code, 200)
-            self.assertEqual(
-                client.put(path + "/editor", json=request).status_code, 409
-            )
+            self.assertEqual(client.put(path + "/editor", json=request).status_code, 409)
             invalid = {**payload, "request_id": str(uuid4()), "preview_digest": "stale"}
             self.assertEqual(client.post(path + "/runs", json=invalid).status_code, 409)
 
@@ -90,39 +82,42 @@ class TestAppRoundtrip(unittest.TestCase):
             release_local_service()
 
     def test_contract_snapshot(self):
-        exclude_paths = ['paths./ready.get.responses.413.description',
-                         'paths./ready.get.responses.422.description',
-                         'paths./api/v1/workspaces.post.responses.413.description',
-                         'paths./api/v1/workspaces.post.responses.422.description',
-                         'paths./api/v1/workspaces/{workspace_id}.get.responses.413.description',
-                         'paths./api/v1/workspaces/{workspace_id}.get.responses.422.description',
-                         'paths./api/v1/workspaces/{workspace_id}.delete.responses.413.description',
-                         'paths./api/v1/workspaces/{workspace_id}.delete.responses.422.description',
-                         'paths./api/v1/workspaces/{workspace_id}/editor.put.responses.413.description',
-                         'paths./api/v1/workspaces/{workspace_id}/editor.put.responses.422.description',
-                         'paths./api/v1/workspaces/{workspace_id}/preview.post.responses.413.description',
-                         'paths./api/v1/workspaces/{workspace_id}/preview.post.responses.422.description',
-                         'paths./api/v1/workspaces/{workspace_id}/task-sets/{task_set_id}.delete.responses.413.description',
-                         'paths./api/v1/workspaces/{workspace_id}/task-sets/{task_set_id}.delete.responses.422.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs.post.responses.413.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs.post.responses.422.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}.get.responses.413.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}.get.responses.422.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}.delete.responses.413.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}.delete.responses.422.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/outcomes.get.responses.413.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/outcomes.get.responses.422.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/resume.post.responses.413.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/resume.post.responses.422.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/comparison.post.responses.413.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/comparison.post.responses.422.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/results/{scenario_id}.get.responses.413.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/results/{scenario_id}.get.responses.422.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/exports/{kind}.get.responses.413.description',
-                         'paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/exports/{kind}.get.responses.422.description',
-                         ]
+        exclude_paths = [
+            "paths./ready.get.responses.413.description",
+            "paths./ready.get.responses.422.description",
+            "paths./api/v1/workspaces.post.responses.413.description",
+            "paths./api/v1/workspaces.post.responses.422.description",
+            "paths./api/v1/workspaces/{workspace_id}.get.responses.413.description",
+            "paths./api/v1/workspaces/{workspace_id}.get.responses.422.description",
+            "paths./api/v1/workspaces/{workspace_id}.delete.responses.413.description",
+            "paths./api/v1/workspaces/{workspace_id}.delete.responses.422.description",
+            "paths./api/v1/workspaces/{workspace_id}/editor.put.responses.413.description",
+            "paths./api/v1/workspaces/{workspace_id}/editor.put.responses.422.description",
+            "paths./api/v1/workspaces/{workspace_id}/preview.post.responses.413.description",
+            "paths./api/v1/workspaces/{workspace_id}/preview.post.responses.422.description",
+            "paths./api/v1/workspaces/{workspace_id}/task-sets/{task_set_id}.delete.responses.413.description",
+            "paths./api/v1/workspaces/{workspace_id}/task-sets/{task_set_id}.delete.responses.422.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs.post.responses.413.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs.post.responses.422.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}.get.responses.413.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}.get.responses.422.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}.delete.responses.413.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}.delete.responses.422.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/outcomes.get.responses.413.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/outcomes.get.responses.422.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/resume.post.responses.413.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/resume.post.responses.422.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/comparison.post.responses.413.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/comparison.post.responses.422.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/results/{scenario_id}.get.responses.413.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/results/{scenario_id}.get.responses.422.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/exports/{kind}.get.responses.413.description",
+            "paths./api/v1/workspaces/{workspace_id}/runs/{run_id}/exports/{kind}.get.responses.422.description",
+        ]
 
-        
-        diff = JsonDiffer().diff(json.loads(Path("src/value_stream/app/openapi.json").read_text()), 
-                                 create_app().openapi(), exclude_paths=exclude_paths)
+        diff = JsonDiffer().diff(
+            json.loads(Path("src/value_stream/app/openapi.json").read_text()),
+            create_app().openapi(),
+            exclude_paths=exclude_paths,
+        )
         self.assertEqual(diff, {})

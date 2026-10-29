@@ -20,29 +20,28 @@ class TestSimulation(unittest.TestCase):
 
         deployment_cadence = 0
 
-        qa_tester_pool = QATester.create_pool(
-            limit=None, time_cost=qa_tester_time_cost)
-        toolchain_pool = Toolchain.create_pool(
-            limit=None, deployment_duration=.25)
+        qa_tester_pool = QATester.create_pool(limit=None, time_cost=qa_tester_time_cost)
+        toolchain_pool = Toolchain.create_pool(limit=None, deployment_duration=0.25)
 
         simulation = Simulation()
 
         developers = DeveloperFactory().create(
-            count=num_developers, efficiency=developer_efficiency)
+            count=num_developers, efficiency=developer_efficiency
+        )
 
-        tasks = TaskFactory(initial_value=task_initial_value,
-                            story_points=task_story_points,
-                            depreciation_rate=0.05).create(num_tasks)
+        tasks = TaskFactory(
+            initial_value=task_initial_value, story_points=task_story_points, depreciation_rate=0.05
+        ).create(num_tasks)
 
-        model = Model(developer_team=developers,
-                      deployment_cadence=deployment_cadence,
-                      qa_testers=qa_tester_pool,
-                      toolchain_pool=toolchain_pool,
-                      support_interval=None)
+        model = Model(
+            developer_team=developers,
+            deployment_cadence=deployment_cadence,
+            qa_testers=qa_tester_pool,
+            toolchain_pool=toolchain_pool,
+            support_interval=None,
+        )
 
-        result = simulation.execute(model=model,
-                                    tasks=tasks,
-                                    policy=DefaultSimulationPolicy())
+        result = simulation.execute(model=model, tasks=tasks, policy=DefaultSimulationPolicy())
 
         summary = result.summary_result
 
@@ -50,7 +49,8 @@ class TestSimulation(unittest.TestCase):
         event_metadata = result.metadata.event_metadata
 
         max_delivery_t = max(
-            event.time for event in event_metadata
+            event.time
+            for event in event_metadata
             if event.event == SDLCWorkflow.WorkflowState.DELIVERY
             and event.status == EventStatus.SUCCESS
         )
@@ -63,9 +63,7 @@ class TestSimulation(unittest.TestCase):
         for event in event_metadata:
             if event.event_type == TaskEvent.EventType.END:
                 losses_by_event.setdefault(event.event, []).append(event.loss)
-        total_mean_loss = sum(
-            sum(losses) / len(losses) for losses in losses_by_event.values()
-        )
+        total_mean_loss = sum(sum(losses) / len(losses) for losses in losses_by_event.values())
 
         self.assertAlmostEqual(summary.loss, total_mean_loss)
 
@@ -73,19 +71,20 @@ class TestSimulation(unittest.TestCase):
 
         # validate delivered value by applying loss to total original value
 
-        self.assertAlmostEqual(summary.total_delivered_value,
-                               total_original_value * (1+summary.loss))
+        self.assertAlmostEqual(
+            summary.total_delivered_value, total_original_value * (1 + summary.loss)
+        )
 
         # Validate the amount of time a resource is busy against the amount of time events were in the respective workflow state
 
         for state in {resource.state for resource in resource_metadata}:
             resource_total = sum(
                 resource.success_t or 0.0
-                for resource in resource_metadata if resource.state == state
+                for resource in resource_metadata
+                if resource.state == state
             )
             event_total = sum(
-                event.duration or 0.0
-                for event in event_metadata if event.event == state
+                event.duration or 0.0 for event in event_metadata if event.event == state
             )
 
             self.assertEqual(resource_total, event_total)
@@ -104,27 +103,23 @@ class TestSimulation(unittest.TestCase):
 
     def test_delivery_of_no_value(self):
         qa_tester_pool = QATester.create_pool(limit=None, time_cost=1)
-        toolchain_pool = Toolchain.create_pool(
-            limit=None, deployment_duration=.25)
+        toolchain_pool = Toolchain.create_pool(limit=None, deployment_duration=0.25)
 
         simulation = Simulation()
 
-        developers = DeveloperFactory().create(
-            count=1, efficiency=1)
+        developers = DeveloperFactory().create(count=1, efficiency=1)
 
-        tasks = TaskFactory(initial_value=0,
-                            story_points=1,
-                            depreciation_rate=0.05).create(100)
+        tasks = TaskFactory(initial_value=0, story_points=1, depreciation_rate=0.05).create(100)
 
-        model = Model(developer_team=developers,
-                      deployment_cadence=0,
-                      qa_testers=qa_tester_pool,
-                      toolchain_pool=toolchain_pool,
-                      support_interval=None)
+        model = Model(
+            developer_team=developers,
+            deployment_cadence=0,
+            qa_testers=qa_tester_pool,
+            toolchain_pool=toolchain_pool,
+            support_interval=None,
+        )
 
-        result = simulation.execute(model=model,
-                                    tasks=tasks,
-                                    policy=DefaultSimulationPolicy())
+        result = simulation.execute(model=model, tasks=tasks, policy=DefaultSimulationPolicy())
 
         summary = result.summary_result
 
@@ -134,28 +129,24 @@ class TestSimulation(unittest.TestCase):
     def test_support_enabled(self):
 
         qa_tester_pool = QATester.create_pool(limit=None, time_cost=0)
-        toolchain_pool = Toolchain.create_pool(
-            limit=None, deployment_duration=0)
+        toolchain_pool = Toolchain.create_pool(limit=None, deployment_duration=0)
 
         simulation = Simulation()
 
-        developers = DeveloperFactory().create(
-            count=1, efficiency=1)
+        developers = DeveloperFactory().create(count=1, efficiency=1)
 
-        tasks = TaskFactory(initial_value=1,
-                            story_points=1,
-                            depreciation_rate=0.05).create(100)
+        tasks = TaskFactory(initial_value=1, story_points=1, depreciation_rate=0.05).create(100)
 
-        model = Model(developer_team=developers,
-                      deployment_cadence=0,
-                      qa_testers=qa_tester_pool,
-                      toolchain_pool=toolchain_pool,
-                      support_interval=1.5,
-                      support_task_story_points=0.5)
+        model = Model(
+            developer_team=developers,
+            deployment_cadence=0,
+            qa_testers=qa_tester_pool,
+            toolchain_pool=toolchain_pool,
+            support_interval=1.5,
+            support_task_story_points=0.5,
+        )
 
-        result = simulation.execute(model=model,
-                                    tasks=tasks,
-                                    policy=DefaultSimulationPolicy())
+        result = simulation.execute(model=model, tasks=tasks, policy=DefaultSimulationPolicy())
 
         summary = result.summary_result
 
@@ -163,25 +154,23 @@ class TestSimulation(unittest.TestCase):
 
     def test_no_tasks(self):
         qa_tester_pool = QATester.create_pool(limit=None, time_cost=0)
-        toolchain_pool = Toolchain.create_pool(
-            limit=None, deployment_duration=0)
+        toolchain_pool = Toolchain.create_pool(limit=None, deployment_duration=0)
 
         simulation = Simulation()
 
-        developers = DeveloperFactory().create(
-            count=1, efficiency=1)
+        developers = DeveloperFactory().create(count=1, efficiency=1)
 
-        model = Model(developer_team=developers,
-                      deployment_cadence=0,
-                      qa_testers=qa_tester_pool,
-                      toolchain_pool=toolchain_pool,
-                      support_interval=1.5,
-                      support_task_story_points=0.5)
+        model = Model(
+            developer_team=developers,
+            deployment_cadence=0,
+            qa_testers=qa_tester_pool,
+            toolchain_pool=toolchain_pool,
+            support_interval=1.5,
+            support_task_story_points=0.5,
+        )
 
         with self.assertRaises(ValueError):
-            simulation.execute(model=model,
-                               tasks=[],
-                               policy=DefaultSimulationPolicy())
+            simulation.execute(model=model, tasks=[], policy=DefaultSimulationPolicy())
 
     def test_circuit_breaker(self):
         # validate the ability to detect and prevent runaway simulations that will never complete
@@ -193,26 +182,22 @@ class TestSimulation(unittest.TestCase):
         support_story_points = 2
 
         qa_tester_pool = QATester.create_pool(limit=None, time_cost=0)
-        toolchain_pool = Toolchain.create_pool(
-            limit=None, deployment_duration=0)
+        toolchain_pool = Toolchain.create_pool(limit=None, deployment_duration=0)
 
         simulation = Simulation()
 
-        developers = DeveloperFactory().create(
-            count=1, efficiency=1)
+        developers = DeveloperFactory().create(count=1, efficiency=1)
 
-        tasks = TaskFactory(initial_value=1,
-                            story_points=1,
-                            depreciation_rate=0.05).create(100)
+        tasks = TaskFactory(initial_value=1, story_points=1, depreciation_rate=0.05).create(100)
 
-        model = Model(developer_team=developers,
-                      deployment_cadence=0,
-                      qa_testers=qa_tester_pool,
-                      toolchain_pool=toolchain_pool,
-                      support_interval=0.5,
-                      support_task_story_points=2)
+        model = Model(
+            developer_team=developers,
+            deployment_cadence=0,
+            qa_testers=qa_tester_pool,
+            toolchain_pool=toolchain_pool,
+            support_interval=0.5,
+            support_task_story_points=2,
+        )
 
         with self.assertRaises(RuntimeError):
-            simulation.execute(model=model,
-                               tasks=tasks,
-                               policy=DefaultSimulationPolicy())
+            simulation.execute(model=model, tasks=tasks, policy=DefaultSimulationPolicy())

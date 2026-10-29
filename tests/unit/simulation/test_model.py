@@ -11,20 +11,23 @@ class TestModel(unittest.TestCase):
         self.developer_team = [Developer(efficiency=1.0)]
 
         self.qa_tester_pool = QATester.create_pool(limit=5)
-        self.toolchain_pool = Toolchain.create_pool(
-            limit=None, deployment_duration=0)
+        self.toolchain_pool = Toolchain.create_pool(limit=None, deployment_duration=0)
 
     def test_validation(self):
 
-        _ = Model(developer_team=self.developer_team,
-                  deployment_cadence=0,
-                  qa_testers=self.qa_tester_pool,
-                  toolchain_pool=self.toolchain_pool,
-                  support_interval=None)
+        _ = Model(
+            developer_team=self.developer_team,
+            deployment_cadence=0,
+            qa_testers=self.qa_tester_pool,
+            toolchain_pool=self.toolchain_pool,
+            support_interval=None,
+        )
 
         with self.assertRaises(ValueError):
-            Model(developer_team=self.developer_team,
-                  deployment_cadence=-1,
-                  qa_testers=self.qa_tester_pool,
-                  toolchain_pool=self.toolchain_pool,
-                  support_interval=None)
+            Model(
+                developer_team=self.developer_team,
+                deployment_cadence=-1,
+                qa_testers=self.qa_tester_pool,
+                toolchain_pool=self.toolchain_pool,
+                support_interval=None,
+            )

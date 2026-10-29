@@ -10,10 +10,10 @@ from value_stream.task import DefaultRouter, StatusRouter, TypeRouter
 class TestTaskRouter(unittest.TestCase):
     def setUp(self):
 
-        self.support_task = Task(
-            initial_value=1, story_points=1, task_type=TaskType.SUPPORT)
+        self.support_task = Task(initial_value=1, story_points=1, task_type=TaskType.SUPPORT)
         self.development_task = Task(
-            initial_value=1, story_points=1, task_type=TaskType.DEVELOPMENT)
+            initial_value=1, story_points=1, task_type=TaskType.DEVELOPMENT
+        )
 
         self.env = Environment()
 
@@ -34,8 +34,7 @@ class TestTaskRouter(unittest.TestCase):
 
     def test_status_router(self):
 
-        router = StatusRouter(
-            on_success=self.successful_queue, on_failure=self.failure_queue)
+        router = StatusRouter(on_success=self.successful_queue, on_failure=self.failure_queue)
 
         router.route(self.development_task, EventStatus.SUCCESS)
         self.assertEqual(1, len(self.successful_queue.items))
@@ -47,8 +46,7 @@ class TestTaskRouter(unittest.TestCase):
 
     def test_type_router(self):
 
-        router = TypeRouter(on_support=self.support_queue,
-                            on_development=self.development_queue)
+        router = TypeRouter(on_support=self.support_queue, on_development=self.development_queue)
 
         router.route(self.development_task, EventStatus.SUCCESS)
         router.route(self.development_task, EventStatus.FAILURE)
@@ -69,10 +67,10 @@ class TestTaskRouter(unittest.TestCase):
         # combine support and status, assert length of resulting queues
 
         status_router = StatusRouter(
-            on_success=self.successful_queue, on_failure=self.failure_queue)
+            on_success=self.successful_queue, on_failure=self.failure_queue
+        )
 
-        type_router = TypeRouter(
-            on_support=self.support_queue, on_development=status_router)
+        type_router = TypeRouter(on_support=self.support_queue, on_development=status_router)
 
         type_router.route(self.support_task, EventStatus.SUCCESS)
         type_router.route(self.support_task, EventStatus.FAILURE)

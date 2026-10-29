@@ -14,9 +14,8 @@ class TestToolchain(unittest.TestCase):
         self.tracker = NoOpResourceTracker()
 
         self.tasks: list[Task] = TaskFactory(
-            initial_value=1,
-            depreciation_rate=0,
-            story_points=(x for x in range(2, 8, 2))).create(3)
+            initial_value=1, depreciation_rate=0, story_points=(x for x in range(2, 8, 2))
+        ).create(3)
 
         self.env = Environment()
 
@@ -31,7 +30,7 @@ class TestToolchain(unittest.TestCase):
         _ = Toolchain(deployment_duration=100)
         _ = Toolchain(deployment_duration=0)
         _ = Toolchain(deployment_duration=1, failure_rate=0.5)
-        _ = Toolchain(deployment_duration=.5, failure_rate=0)
+        _ = Toolchain(deployment_duration=0.5, failure_rate=0)
         _ = Toolchain(deployment_duration=1, failure_rate=1)
 
         with self.assertRaises(ValueError):
@@ -48,8 +47,16 @@ class TestToolchain(unittest.TestCase):
 
         toolchain = Toolchain(deployment_duration=deployment_duration)
 
-        self.env.process(toolchain.operate(
-            self.env, self.tasks, workflow_state=self.workflow_state, task_router=self.task_router, policy=self.policy, tracker=self.tracker))
+        self.env.process(
+            toolchain.operate(
+                self.env,
+                self.tasks,
+                workflow_state=self.workflow_state,
+                task_router=self.task_router,
+                policy=self.policy,
+                tracker=self.tracker,
+            )
+        )
 
         self.env.run()
 
@@ -58,16 +65,22 @@ class TestToolchain(unittest.TestCase):
         for task in self.tasks:
             last_event = task.history.last_event()
             assert last_event is not None
-            self.assertEqual(last_event.status, 
-                             EventStatus.SUCCESS)
+            self.assertEqual(last_event.status, EventStatus.SUCCESS)
 
     def test_all_failures(self):
 
         toolchain = Toolchain(deployment_duration=1, failure_rate=1)
-        self.env.process(toolchain.operate(
-            self.env, self.tasks, workflow_state=self.workflow_state, task_router=self.task_router, policy=self.policy, tracker=self.tracker))
+        self.env.process(
+            toolchain.operate(
+                self.env,
+                self.tasks,
+                workflow_state=self.workflow_state,
+                task_router=self.task_router,
+                policy=self.policy,
+                tracker=self.tracker,
+            )
+        )
         self.env.run()
 
         for task in self.target.items:
-            self.assertEqual(task.history.last_event().status,  # type: ignore
-                             EventStatus.FAILURE)
+            self.assertEqual(task.history.last_event().status, EventStatus.FAILURE)  # type: ignore
