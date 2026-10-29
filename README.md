@@ -85,6 +85,45 @@ For a deeper understanding of usage, refer to the following sections:
 5. [View Results](#view-results)
 6. [Other Features](#other-features)
 
+## Completed README examples
+
+Start the app on port 8081, then use **Open README example** or one of these links.
+A new default database includes these completed results; opening a link does not
+submit simulations and needs no prior browser storage. Explicit database filenames
+start empty. Existing databases are never replaced automatically.
+
+- [README baseline](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&tab=team-size)
+- [Efficiency 11 comparison](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&run=a94806f2-de2d-519d-82d3-105cdef32a19&tab=team-size)
+- [Team 1, interval 0](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2F37e637a5-0fe7-528a-95b1-9faba07d22ac&tab=stage-loss)
+- [Team 25, interval 10](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=stage-loss)
+- [README deployment intervals](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&tab=deployment-interval)
+- [Team 1, interval 0: resource-utilization](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2F37e637a5-0fe7-528a-95b1-9faba07d22ac&tab=resource-utilization)
+- [Team 1, interval 0: resource-backlog](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2F37e637a5-0fe7-528a-95b1-9faba07d22ac&tab=resource-backlog)
+- [Team 25, interval 10: resource-utilization](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=resource-utilization)
+- [Team 25, interval 10: resource-backlog](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=resource-backlog)
+
+Examples belong to your writable workspace: editing or deleting them can change or
+break these links. To add missing examples, stop the app and import explicitly:
+
+```bash
+python -m value_stream.app.sample_import --database /path/to/application.sqlite3
+```
+
+Omit `--database` to use the normal data-directory defaults; `--data-dir DIR` is
+also supported. Import preserves existing records, reports ID conflicts, and skips
+the entire conflicting workspace. Exit codes are 0 for success/no-op, 2 for reported
+conflicts, and 1 for an operational or validation failure. `--source PATH` accepts a
+compatible closed sample database. Delete an edited example workspace explicitly
+before reimporting it if you want the original version. Historical results retain
+the engine and generator provenance recorded when they were produced.
+
+Regenerate release samples explicitly with
+`python src/examples/build_sample_databases.py --output-dir NEW_DIRECTORY`.
+The generator refuses to overwrite output, freezes the manifest's complete specs
+and seeds, and executes actual model workers. Resource UUID metadata need not be
+byte-identical across regenerations. The simulation database bundle is empty;
+service job expiry does not remove the application examples.
+
 ## Usage
 
 Open the [Value Stream Simulation Studio](http://127.0.0.1:8081):
@@ -153,6 +192,8 @@ A scenarios complete, results are rendered in a series of plots, accessible via 
 
 #### Value Lost vs Team Size
 
+[Open the completed example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&tab=team-size).
+
 ![Value Lost vs. Team Size](./src/doc/img/readme/results-value-lost-vs-team-size.png)
 
 This plot shows how team size affects loss. Unsurprisingly, when creating scenarios using the defaults, it shows loss is reduced by having larger development teams. By plotting deployment cadence as separate series, it (also unsurprisingly) shows the gains that come from releasing more often. The benefits of frequent releases are greater when applied to larger teams, due to having more tasks completing development and waiting for the next deployment window.
@@ -163,6 +204,8 @@ Fair question, but recall this plot is using rather simplistic inputs. In more c
 
 #### Value Lost vs Deployment Interval
 
+[Open the completed example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&tab=deployment-interval).
+
 ![Value Lost vs. Deployment Interval](./src/doc/img/readme/results-value-lost-vs-deployment-interval.png)
 
 This plot is a pivot of [Value Lost vs Team Size](#value-lost-vs-team-size), showing how loss is affected by release cadence. While the reductions in loss are not as significant compared with scaling up a development team, adoption of a shorter deployment interval (higher release frequency) can be achieved at a comparatively lower cost.
@@ -170,6 +213,8 @@ This plot is a pivot of [Value Lost vs Team Size](#value-lost-vs-team-size), sho
 As with the previous example, the purpose of this plot isn't to render a common understanding, but rather to provide insight when a scenario produces a counterintuitive result.
 
 #### Mean Stage Loss
+
+[Open the completed example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2F37e637a5-0fe7-528a-95b1-9faba07d22ac&tab=stage-loss).
 
 Where [Value Lost vs Team Size](#value-lost-vs-team-size) and [Value Lost vs. Deployment Interval](#value-lost-vs-deployment-interval) provide a summary view of loss for each scenario, _Mean Stage Loss_ provides an introspective view on where loss is occurring within a scenario:
 
@@ -192,6 +237,8 @@ Now, choose _deployment cadence=10, team_size=25_ :
 While the greatest loss is still happening in the _Waiting for Development_ state, at around 18% it's significantly less given the much larger pool of development resources. But also notice the loss happening further down the pipeline - the increased throughput of development effort results in about 7.5% loss in _Waiting for Deployment_. This highlights the amount of value wasted by having complete features waiting for a release window. (Switch to _deployment cadence=0, team size=25_ to see what difference continuous delivery makes in this case.)
 
 #### Resource Utilization
+
+[Open the completed example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=resource-utilization).
 
 Where [Mean Stage Loss](#mean-stage-loss) seeks to highlight areas where perhaps additional resource allocation is needed, _Resource Utilization_ provides a view of how allocated resources are being used.
 
@@ -216,6 +263,8 @@ This comparison also shows how, in the 1-developer scenario, the QA testing stag
 
 #### Resource Backlog
 
+[Open the completed example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=resource-backlog).
+
 Resource backlog counts waiting **resource requests** over time, and will generally mirror the results presented in [Mean Stage Loss](#mean-stage-loss):
 
 ![Resource Backlog](./src/doc/img/readme/results-resource-backlog.png)
@@ -223,6 +272,8 @@ Resource backlog counts waiting **resource requests** over time, and will genera
 Note that the Y-Axis scale is logarithmic, to help represent both the numerically larger backlogs that occur waiting for development resources, versus the queues that form waiting for QA or deployment resources.
 
 #### Interactive Mode
+
+[Open the completed example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&run=a94806f2-de2d-519d-82d3-105cdef32a19&tab=team-size).
 
 Ticking _Interactive Mode_ in the _What If_ panel enables side-by-side comparison of simulation results. When active, you can adjust a single property to observe how it affects the outcome.
 

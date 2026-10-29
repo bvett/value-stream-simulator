@@ -24,7 +24,13 @@
     "../tests/conftest.py",
     "../tests/integration/test_startup_recovery.py",
     "../tests/integration/test_local_runner.py",
-    "../tests/browser_server.py"
+    "../tests/browser_server.py",
+    "../src/value_stream/app/sample_import.py",
+    "../src/value_stream/app/examples.py",
+    "../src/value_stream/app/schemas.py",
+    "../src/examples/build_sample_databases.py",
+    "../src/value_stream/app/contracts.py",
+    "../tests/unit/app/test_samples.py"
   ],
   "extraPaths": [
     "../src"

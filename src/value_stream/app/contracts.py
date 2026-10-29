@@ -6,7 +6,7 @@ from value_stream.service.app import create_app as create_service
 from .server import create_app
 
 
-def main():
+def main() -> None:
     root = Path(__file__).resolve().parents[1]
     for name, factory in [("app", create_app), ("service", create_service)]:
         (root / name / "openapi.json").write_text(

@@ -237,3 +237,61 @@ The build and type checks pass, **all 3 Vitest tests pass**, and **all 3 Playwri
 `docs/studio-workspace.md` now documents persistent locations, flags, service ownership, external reconnection, and unacknowledged external jobs surviving until service expiry. Sample generation/import, exact documentation views, packaging/distribution, and final CI/documentation work remain Milestones 5 and 6.
 
 A repeat browser run exposed a 100-scenario cancellation timeout caused by SQL transitions decoding all previously retained results. The fix keeps `last_cursor` separate from pending outcome objects, reads only relational state/counters for transitions, and appends only new outcome JSON. A unit regression guard prohibits historical payload deserialization during completion, cancellation, and interruption. The final browser run passes the unchanged stress test; no schema/wire change or increased test timeout was needed. A post-run directory check confirms no `value-stream-browser-*` temporary directories remain. The UI retention label now says workspaces are saved until deleted.
+
+## Milestone 5 — completed examples, explicit import, and exact views
+
+The release `readme-v1` contains a 44,957,696-byte application snapshot and a 45,056-byte empty simulation snapshot. The application has one fixed workspace, one 500-task set, and two completed nine-scenario runs. All eighteen model executions ran through actual worker subprocesses with explicit model seeds; no numerical result was invented. The generator and frozen `src/examples/sample_spec.json` retain full explicit inputs, while the manifest records model/task settings, seeds, namespace, and engine/generator provenance. Resource UUID metadata need not reproduce byte-for-byte.
+
+Verified SHA-256 hashes:
+
+| Snapshot | SHA-256 |
+| --- | --- |
+| `application.sqlite3` | `8ed01093085fd8245d7d5b10c5b4f301b0d02b9796e6e47d2b935c647f4be238` |
+| `simulation.sqlite3` | `6053186c2e3102f42e41ce534e6ffe34e917238a9b12238941fa53b7e8021fcc` |
+
+The snapshots are checkpointed in DELETE journal mode, pass integrity/foreign-key checks, and have no required sidecars. The builder refuses existing output files. It removes orphan SHM files only from its private, closed, successfully checkpointed output. No user database was used to generate these files.
+
+Stable identities verified through import and browser restoration:
+
+- Workspace: `9e9c2f69-a5fd-5849-9f63-0469d1a5d465`.
+- Baseline: `4d84ad6d-7702-51c4-ab3a-514d9da20832`.
+- Efficiency comparison: `a94806f2-de2d-519d-82d3-105cdef32a19`.
+- Small-team detail: `37e637a5-0fe7-528a-95b1-9faba07d22ac`.
+- Large-team detail: `a193bc90-db6a-52e0-8bc7-2c1e8e0a2157`.
+
+The manifest has nine views covering both comparisons, deployment intervals, and both detail extremes across stage loss, utilization, and backlog. `GET /api/v1/examples` exposes only release/name/slug/relative URL, filtering references that users delete. The UI links to the README baseline, and README sections link to the exact manifest views. Explicit URLs preserve comparison order, the owning run/scenario pair, chart tab, and unrelated parameters through polling, refresh, and back/forward. Historical task-set views leave editor state unchanged and disable incompatible actions. Export defaults to the URL-selected comparison.
+
+`python -m value_stream.app.sample_import --database PATH [--source PATH]` is the offline import interface. Source kind/schema/payloads, checksum for the default bundle, relationships, bounds, IDs, cursors, and result/scenario models are validated before target creation. Supported payloads and byte counters are normalized in memory. Imports add complete missing workspace aggregates in one transaction, preserve existing records, treat identical content as unchanged, and skip whole conflicting aggregates. Shared result keys require matching content and provenance. Source files remain unchanged. CLI statuses are 0 for success/no-op, 2 for conflicts, and 1 for failure. An intentional SQL failure after insertion proves rollback; malformed sources do not create a target.
+
+Final Python command:
+
+```bash
+UV_CACHE_DIR=/private/tmp/value-stream-uv-cache \
+MPLCONFIGDIR=/private/tmp/value-stream-mpl \
+uv run pytest -o addopts='' --cov=src --cov-report=xml \
+  --cov-report=json:/private/tmp/value-stream-m5-final-coverage.json tests -q
+```
+
+Result: **293 tests and 101 subtests pass in 41.69 seconds**. `coverage.xml` is generated. Five existing pandas deprecation warnings remain. Library coverage is **4462/4600 lines, 97.00%**; the command also measures the sample builder under `src/examples`.
+
+| Milestone 5 persistence module | Covered executable lines | Coverage |
+| --- | ---: | ---: |
+| `src/examples/build_sample_databases.py` | 110 / 115 | 95.65% |
+| `app/sample_import.py` | 203 / 209 | 97.13% |
+| `app/examples.py` | 29 / 31 | 93.55% |
+| `app/storage.py` | 451 / 455 | 99.12% |
+| `app/server.py` | 187 / 206 | 90.78% |
+
+All prior persistence/recovery gates remain passing. The standard-mode Pyright gate covers **39 files** and reports **0 errors, 0 warnings, 0 informations**. An AST check confirms complete function signatures. No type-ignore directives, casts, or coverage exclusions were added. Black checks all eight affected Python files; error-level Pylint and whitespace checks pass. Application OpenAPI and generated TypeScript were regenerated; existing contract tests pass.
+
+Frontend validation passes `npm run build` and **15 Vitest tests** across editor, parser, and app-selection cases. Browser validation from `src/value_stream/app/frontend`:
+
+```bash
+VALUE_STREAM_TEST_PORT=18181 VALUE_STREAM_RESTART_TEST_PORT=18182 npm run test:e2e
+```
+
+All **13 Playwright cases pass in 2.2 minutes**, including nine manifest URLs opened in fresh contexts, nonempty Plotly traces, exact detail/tab selection, exports, reload, and every URL reopened after a real server stop/start against the same separate data directory. No link submits a simulation. Historical editing remains disabled without changing the current saved task set; invalid/deleted IDs show unavailable views, and deleted examples disappear from discovery. The existing simulation/cancellation browser cases also pass.
+
+A final focused run of the efficiency/small-team cases passes **2 cases in 16.5 seconds** after checking reversed legend ordering, preservation of a scoped scenario when another comparison is added, clearing it when its owning run is removed, and the URL-selected export. Browser runs use authorized execution outside the sandbox because macOS blocks Chromium startup inside it. Ports 18181/18182 avoid an unrelated server already using the default test port; no unrelated process was stopped. Post-run checks find no browser/restart temporary directories or owned servers.
+
+Visually reviewed screenshots with actual plot data: [efficiency comparison](efficiency-11.png) and [small-team detail](small-team.png). README plot images were not replaced. Sample packaging declarations, installed-wheel/container checks, final operational documentation, and CI gates remain Milestone 6.

@@ -17,6 +17,7 @@ from pydantic import ValidationError
 from value_stream.service.schemas import ErrorEnvelope, HealthResponse, ResultData
 from value_stream.service.persistence.config import DatabaseConfig, ensure_distinct_databases
 from .settings import AppSettings
+from .examples import available_examples
 from .storage import WorkspaceStore, RunRecord
 from .sqlite_storage import SqliteWorkspaceStore
 from .gateway import HttpSimulationGateway, SimulationGateway
@@ -24,6 +25,7 @@ from .coordinator import RunCoordinator
 from .errors import AppError
 from .schemas import (
     Workspace,
+    ExampleCatalog,
     EditorRequest,
     Preview,
     RunRequest,
@@ -235,6 +237,11 @@ def create_app(
             return AppConfig(
                 limits=asdict(settings), ready=False, error=ErrorEnvelope(**exc.body())
             )
+
+    @app.get("/api/v1/examples", response_model=ExampleCatalog)
+    async def examples() -> ExampleCatalog:
+        """List documentation views whose saved data has not been deleted."""
+        return available_examples(current_store())
 
     @app.post(
         "/api/v1/workspaces",

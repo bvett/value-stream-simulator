@@ -1,0 +1,165 @@
+{
+  "format_version": 1,
+  "release": "readme-v1",
+  "databases": {
+    "application": {
+      "filename": "application.sqlite3",
+      "sha256": "8ed01093085fd8245d7d5b10c5b4f301b0d02b9796e6e47d2b935c647f4be238"
+    },
+    "simulation": {
+      "filename": "simulation.sqlite3",
+      "sha256": "6053186c2e3102f42e41ce534e6ffe34e917238a9b12238941fa53b7e8021fcc"
+    }
+  },
+  "examples": [
+    {
+      "slug": "baseline",
+      "name": "README baseline",
+      "workspace_id": "9e9c2f69-a5fd-5849-9f63-0469d1a5d465",
+      "run_ids": [
+        "4d84ad6d-7702-51c4-ab3a-514d9da20832"
+      ],
+      "scenario_id": null,
+      "url": "/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&tab=team-size"
+    },
+    {
+      "slug": "efficiency-11",
+      "name": "Efficiency 11 comparison",
+      "workspace_id": "9e9c2f69-a5fd-5849-9f63-0469d1a5d465",
+      "run_ids": [
+        "4d84ad6d-7702-51c4-ab3a-514d9da20832",
+        "a94806f2-de2d-519d-82d3-105cdef32a19"
+      ],
+      "scenario_id": null,
+      "url": "/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&run=a94806f2-de2d-519d-82d3-105cdef32a19&tab=team-size"
+    },
+    {
+      "slug": "small-team",
+      "name": "Team 1, interval 0",
+      "workspace_id": "9e9c2f69-a5fd-5849-9f63-0469d1a5d465",
+      "run_ids": [
+        "4d84ad6d-7702-51c4-ab3a-514d9da20832"
+      ],
+      "scenario_id": "37e637a5-0fe7-528a-95b1-9faba07d22ac",
+      "url": "/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2F37e637a5-0fe7-528a-95b1-9faba07d22ac&tab=stage-loss"
+    },
+    {
+      "slug": "large-team",
+      "name": "Team 25, interval 10",
+      "workspace_id": "9e9c2f69-a5fd-5849-9f63-0469d1a5d465",
+      "run_ids": [
+        "4d84ad6d-7702-51c4-ab3a-514d9da20832"
+      ],
+      "scenario_id": "a193bc90-db6a-52e0-8bc7-2c1e8e0a2157",
+      "url": "/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=stage-loss"
+    },
+    {
+      "slug": "baseline-interval",
+      "name": "README deployment intervals",
+      "workspace_id": "9e9c2f69-a5fd-5849-9f63-0469d1a5d465",
+      "run_ids": [
+        "4d84ad6d-7702-51c4-ab3a-514d9da20832"
+      ],
+      "scenario_id": null,
+      "url": "/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&tab=deployment-interval"
+    },
+    {
+      "slug": "small-team-resource-utilization",
+      "name": "Team 1, interval 0: resource-utilization",
+      "workspace_id": "9e9c2f69-a5fd-5849-9f63-0469d1a5d465",
+      "run_ids": [
+        "4d84ad6d-7702-51c4-ab3a-514d9da20832"
+      ],
+      "scenario_id": "37e637a5-0fe7-528a-95b1-9faba07d22ac",
+      "url": "/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2F37e637a5-0fe7-528a-95b1-9faba07d22ac&tab=resource-utilization"
+    },
+    {
+      "slug": "small-team-resource-backlog",
+      "name": "Team 1, interval 0: resource-backlog",
+      "workspace_id": "9e9c2f69-a5fd-5849-9f63-0469d1a5d465",
+      "run_ids": [
+        "4d84ad6d-7702-51c4-ab3a-514d9da20832"
+      ],
+      "scenario_id": "37e637a5-0fe7-528a-95b1-9faba07d22ac",
+      "url": "/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2F37e637a5-0fe7-528a-95b1-9faba07d22ac&tab=resource-backlog"
+    },
+    {
+      "slug": "large-team-resource-utilization",
+      "name": "Team 25, interval 10: resource-utilization",
+      "workspace_id": "9e9c2f69-a5fd-5849-9f63-0469d1a5d465",
+      "run_ids": [
+        "4d84ad6d-7702-51c4-ab3a-514d9da20832"
+      ],
+      "scenario_id": "a193bc90-db6a-52e0-8bc7-2c1e8e0a2157",
+      "url": "/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=resource-utilization"
+    },
+    {
+      "slug": "large-team-resource-backlog",
+      "name": "Team 25, interval 10: resource-backlog",
+      "workspace_id": "9e9c2f69-a5fd-5849-9f63-0469d1a5d465",
+      "run_ids": [
+        "4d84ad6d-7702-51c4-ab3a-514d9da20832"
+      ],
+      "scenario_id": "a193bc90-db6a-52e0-8bc7-2c1e8e0a2157",
+      "url": "/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=resource-backlog"
+    }
+  ],
+  "regeneration": {
+    "task_spec": {
+      "name": "Task set",
+      "count": 500,
+      "story_points": {
+        "kind": "uniform",
+        "minimum": 0.5,
+        "maximum": 2.0
+      },
+      "initial_value": {
+        "kind": "constant",
+        "value": 1.0
+      },
+      "depreciation_rate": 0.02,
+      "seed": 42
+    },
+    "definition": {
+      "id": "12d4733f-6d92-5a4b-8d10-2238695ddccc",
+      "name": "README delivery model",
+      "revision": 1,
+      "settings": {
+        "team_size": 4,
+        "efficiency_min": 0.5,
+        "efficiency_max": 1.5,
+        "distribution": "linear",
+        "deployment_cadence": 5,
+        "qa_size": 5,
+        "qa_time_cost": 0.1,
+        "qa_failure_rate": 0.15,
+        "qa_failure_cost": 0.25,
+        "toolchain_size": 20,
+        "deployment_duration": 0.25,
+        "deployment_failure_rate": 0.1,
+        "support_interval": 5.0,
+        "support_task_story_points": 2.0
+      },
+      "sweeps": {
+        "team_size": [
+          1.0,
+          13.0,
+          25.0
+        ],
+        "deployment_cadence": [
+          0.0,
+          5.0,
+          10.0
+        ]
+      },
+      "team_seed": 123,
+      "execution_seed": 456
+    },
+    "comparison": {
+      "efficiency_max": 11
+    },
+    "engine_version": "value-stream-app-1",
+    "generator_version": "1",
+    "namespace": "910d3063-8b52-5e53-af65-411d7dbfacbd"
+  }
+}

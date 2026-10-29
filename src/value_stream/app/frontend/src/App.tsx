@@ -7,6 +7,12 @@ import {
   useState,
 } from "react";
 import { api, ApiError, terminal } from "./types";
+import {
+  parseLocation,
+  serializeLocation,
+  validateLocation,
+  tabSlugs,
+} from "./location";
 import type {
   Workspace,
   TaskSpec,
@@ -40,6 +46,10 @@ const percent = (v: number | null | undefined) =>
   v == null ? "N/A" : `${v.toFixed(2)}%`;
 
 export default function App() {
+  const [viewError, setViewError] = useState<Error>();
+  const [examples, setExamples] = useState<{ name: string; url: string }[]>([]);
+  const explicitRuns = useRef(false);
+  const synced = useRef(false);
   const [workspace, setWorkspace] = useState<Workspace>();
   const [taskSpec, setTaskSpec] = useState<TaskSpec>();
   const [definitions, setDefinitions] = useState<Definition[]>([]);
@@ -94,31 +104,88 @@ export default function App() {
     let disposed = false;
     async function init() {
       try {
+        const selection = parseLocation(location.search);
         const id =
-          new URLSearchParams(location.search).get("workspace") ||
-          localStorage.getItem("value-stream-workspace");
-        let w: Workspace;
-        if (id) w = await api<Workspace>(`/api/v1/workspaces/${id}`);
-        else w = await api<Workspace>("/api/v1/workspaces", "POST");
+          selection.workspace || localStorage.getItem("value-stream-workspace");
+        const w = id
+          ? await api<Workspace>(`/api/v1/workspaces/${id}`)
+          : await api<Workspace>("/api/v1/workspaces", "POST");
         if (disposed) return;
+        validateLocation({ ...selection, workspace: w.id }, w);
+        explicitRuns.current = selection.runs !== undefined;
+        setSelectedRuns(selection.runs || []);
+        setExportRun(selection.runs?.[0] || "");
+        setDetailSelection(
+          selection.scenario
+            ? `${selection.scenario.run}/${selection.scenario.id}`
+            : "",
+        );
+        if (selection.tab) setTab(tabSlugs.indexOf(selection.tab));
         localStorage.setItem("value-stream-workspace", w.id);
-        history.replaceState(null, "", `?workspace=${w.id}`);
         workspaceRef.current = w;
         setWorkspace(w);
         setTaskSpec(w.task_spec);
         setDefinitions(w.definitions);
+        setViewError(undefined);
         setConfig(await api<Config>("/api/v1/config"));
+        setExamples(
+          (
+            await api<{ examples: { name: string; url: string }[] }>(
+              "/api/v1/examples",
+            )
+          ).examples,
+        );
       } catch (e) {
-        if (!disposed) setError(e as Error);
+        if (!disposed) setViewError(e as Error);
       }
     }
+    const navigate = () => {
+      void init();
+    };
+    window.addEventListener("popstate", navigate);
     void init();
     return () => {
       disposed = true;
+      window.removeEventListener("popstate", navigate);
     };
   }, []);
 
-  const selectedContext = workspace?.current_task_set;
+  const selectedContext =
+    (explicitRuns.current
+      ? workspace?.runs.find((r) => r.id === selectedRuns[0])?.task_set_id
+      : undefined) ?? workspace?.current_task_set;
+  const historical =
+    !!workspace && selectedContext !== workspace.current_task_set;
+  useEffect(() => {
+    if (!workspace) return;
+    try {
+      const [run, id] = detailSelection.split("/");
+      validateLocation(
+        {
+          workspace: workspace.id,
+          runs: explicitRuns.current ? selectedRuns : undefined,
+          scenario: detailSelection ? { run, id } : undefined,
+        },
+        workspace,
+      );
+      const query = serializeLocation(
+        {
+          workspace: workspace.id,
+          runs: selectedRuns.length ? selectedRuns : undefined,
+          scenario: detailSelection ? { run, id } : undefined,
+          tab: tabSlugs[tab],
+        },
+        location.search,
+      );
+      if (query !== location.search) {
+        if (synced.current) history.pushState(null, "", query);
+        else history.replaceState(null, "", query);
+      }
+      synced.current = true;
+    } catch (e) {
+      setViewError(e as Error);
+    }
+  }, [workspace, selectedRuns, detailSelection, tab]);
   useEffect(() => {
     if (!workspace) return;
     const visible = workspace.runs
@@ -131,7 +198,7 @@ export default function App() {
             !terminal(r)),
       )
       .map((r) => r.id);
-    setSelectedRuns(visible);
+    if (!explicitRuns.current) setSelectedRuns(visible);
     const available = [...workspace.runs]
       .reverse()
       .find((r) => terminal(r) && r.task_set_id === selectedContext);
@@ -159,7 +226,11 @@ export default function App() {
     return () => clearInterval(timer);
   }, [workspace?.id, load]);
 
-  const runs = workspace?.runs.filter((r) => selectedRuns.includes(r.id)) || [];
+  const runs = selectedRuns.flatMap((id) =>
+    workspace?.runs.find((r) => r.id === id)
+      ? [workspace.runs.find((r) => r.id === id)!]
+      : [],
+  );
   const outcomes = runs.flatMap((run) =>
     run.outcomes.map((outcome) => ({ run, outcome })),
   );
@@ -175,7 +246,7 @@ export default function App() {
         ? successful.filter(
             (o) => `${o.run.id}/${o.outcome.scenario.id}` === detailSelection,
           )
-        : successful.slice(0, Math.min(seriesLimit, 12));
+        : successful.slice(0, tab >= 2 ? Math.min(seriesLimit, 12) : 1);
       const result = [];
       for (const item of selection) {
         const key = `${item.run.id}/${item.outcome.scenario.id}`;
@@ -196,7 +267,7 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [workspace?.id, successfulKey, detailSelection, seriesLimit]);
+  }, [workspace?.id, successfulKey, detailSelection, seriesLimit, tab]);
 
   const basePath = workspace ? `/api/v1/workspaces/${workspace.id}` : "";
   const active = workspace?.runs.find((r) => !terminal(r));
@@ -279,6 +350,8 @@ export default function App() {
     });
     setPreview(result);
     setDirty(false);
+    explicitRuns.current = false;
+    setDetailSelection("");
     await load(workspace.id);
   }
   async function startManual() {
@@ -289,6 +362,8 @@ export default function App() {
       name: comparisonName,
       intent: "manual",
     });
+    explicitRuns.current = false;
+    setDetailSelection("");
     await load(workspace.id);
     setComparisonName("Comparison");
   }
@@ -342,7 +417,7 @@ export default function App() {
   function commitInteractive(value = interactiveValue) {
     if (!baseline || !interactive) return;
     const key = JSON.stringify([baseline.id, property, effectiveFamily, value]);
-    if (lastInteractive.current === key) return;
+    if (historical || lastInteractive.current === key) return;
     lastInteractive.current = key;
     pending.current = {
       request_id: crypto.randomUUID(),
@@ -370,6 +445,10 @@ export default function App() {
     await api(`${basePath}/runs/${run.id}/comparison`, "POST", {
       action: type,
     });
+    if (type === "delete") {
+      setSelectedRuns((current) => current.filter((id) => id !== run.id));
+      if (detailSelection.startsWith(run.id + "/")) setDetailSelection("");
+    }
     await load(workspace!.id, type === "baseline");
   }
   function selectTab(index: number) {
@@ -382,13 +461,17 @@ export default function App() {
     location.href = `?workspace=${w.id}`;
   }
 
-  if (!workspace || !taskSpec)
+  if (!workspace || !taskSpec || viewError)
     return (
       <main className="startup">
         <span className="brand-symbol">↗</span>
         <h1>Value Stream</h1>
-        <p>{error?.message || "Opening your simulation workspace…"}</p>
-        {error && (
+        <p>
+          {viewError?.message ||
+            error?.message ||
+            "Opening your simulation workspace…"}
+        </p>
+        {(error || viewError) && (
           <button onClick={() => void action(newWorkspace)}>
             Start a new workspace
           </button>
@@ -438,6 +521,12 @@ export default function App() {
           Saved workspace
           <br />
           <strong>Saved until you delete it</strong>
+          {!!examples.length && (
+            <>
+              <br />
+              <a href={examples[0].url}>Open README example</a>
+            </>
+          )}
         </span>
       </div>
       {error && (
@@ -490,6 +579,22 @@ export default function App() {
           </button>
         </div>
       )}
+      {historical && (
+        <div className="notice">
+          Viewing a historical task set. Editing and interactive comparisons
+          require current results.{" "}
+          <button
+            onClick={() => {
+              explicitRuns.current = false;
+              setSelectedRuns([]);
+              setDetailSelection("");
+              setInteractive(false);
+            }}
+          >
+            Return to current results
+          </button>
+        </div>
+      )}
       <main className="workspace-grid">
         <aside className="input-panel">
           <form
@@ -498,8 +603,10 @@ export default function App() {
               void action(previewInputs);
             }}
           >
-            <TaskEditor value={taskSpec} change={editTasks} />
-            <ModelEditor definitions={definitions} change={editDefinitions} />
+            <fieldset disabled={historical}>
+              <TaskEditor value={taskSpec} change={editTasks} />
+              <ModelEditor definitions={definitions} change={editDefinitions} />
+            </fieldset>
             <div className="launch-panel">
               <p className="hint">
                 Up to {config?.limits.max_models ?? 100} models and{" "}
@@ -508,7 +615,7 @@ export default function App() {
               <button
                 className="secondary full"
                 type="submit"
-                disabled={busy || !!active}
+                disabled={busy || !!active || historical}
               >
                 Preview sweep
               </button>
@@ -538,7 +645,12 @@ export default function App() {
                 className="primary full"
                 type="button"
                 disabled={
-                  busy || !!active || dirty || !preview || !comparisonName
+                  busy ||
+                  !!active ||
+                  historical ||
+                  dirty ||
+                  !preview ||
+                  !comparisonName
                 }
                 onClick={() => void action(startManual)}
               >
@@ -631,13 +743,20 @@ export default function App() {
                       <input
                         type="checkbox"
                         checked={selectedRuns.includes(run.id)}
-                        onChange={(e) =>
-                          setSelectedRuns(
-                            e.target.checked
-                              ? [...selectedRuns, run.id]
-                              : selectedRuns.filter((id) => id !== run.id),
+                        onChange={(e) => {
+                          explicitRuns.current = true;
+                          const next = e.target.checked
+                            ? [...selectedRuns, run.id]
+                            : selectedRuns.filter((id) => id !== run.id);
+                          if (
+                            detailSelection &&
+                            !next.includes(detailSelection.split("/")[0])
                           )
-                        }
+                            setDetailSelection("");
+                          if (!next.includes(exportRun))
+                            setExportRun(next[0] || "");
+                          setSelectedRuns(next);
+                        }}
                       />
                       <span>
                         {run.name}
@@ -674,6 +793,7 @@ export default function App() {
                             ⋯
                           </summary>
                           <button
+                            disabled={historical}
                             onClick={() =>
                               void action(() =>
                                 mutateComparison(run, "baseline"),
@@ -709,6 +829,7 @@ export default function App() {
                   <input
                     type="checkbox"
                     checked={interactive}
+                    disabled={historical}
                     onChange={(e) => {
                       setInteractive(e.target.checked);
                       if (!e.target.checked) pending.current = null;
@@ -970,6 +1091,7 @@ export default function App() {
                     {observation.property && (
                       <button
                         className="secondary"
+                        disabled={historical}
                         onClick={() => {
                           setInteractive(true);
                           setProperty(observation.property as keyof Settings);

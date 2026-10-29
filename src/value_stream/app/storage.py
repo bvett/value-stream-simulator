@@ -282,6 +282,10 @@ class WorkspaceOperations(ABC):
         if current > self.settings.max_input_bytes and current > previous:
             raise AppError("APP_CAPACITY", "Input storage limit reached. Delete saved data.", 429)
 
+    def _new_id(self, kind: str) -> UUID:
+        """Allocate an internal identity; offline sample builders may override it."""
+        return uuid4()
+
     def create(self) -> Workspace:
         """Create a workspace atomically within configured input/count limits."""
         with self._atomic():
@@ -290,7 +294,7 @@ class WorkspaceOperations(ABC):
                 raise AppError(
                     "APP_CAPACITY", "Workspace limit reached. Delete an unused workspace.", 429
                 )
-            workspace = Workspace()
+            workspace = Workspace(id=self._new_id("workspace"))
             self._write_workspace(workspace)
             self._check_inputs(usage.input_bytes)
             return self.get(workspace.id)
@@ -320,6 +324,7 @@ class WorkspaceOperations(ABC):
                     )
                 tasks = materialize_tasks(request.task_spec)
                 task_set = TaskSet(
+                    id=self._new_id("task_set"),
                     spec=request.task_spec.model_copy(deep=True),
                     tasks=tasks,
                     content_hash=fingerprint([t.model_dump() for t in tasks]),
@@ -456,7 +461,7 @@ class WorkspaceOperations(ABC):
                     429,
                 )
             status = RunStatus(
-                id=uuid4(),
+                id=self._new_id("run"),
                 name=request.name,
                 task_set_id=task_set.id,
                 state="submitting",
