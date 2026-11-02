@@ -524,7 +524,7 @@ export default function App() {
           {!!examples.length && (
             <>
               <br />
-              <a href={examples[0].url}>Open README example</a>
+              <a href={examples[0].url}>Open sample workspace</a>
             </>
           )}
         </span>

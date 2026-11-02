@@ -71,7 +71,7 @@ async function verify(page: Page, url: string) {
       page.getByRole("combobox", { name: "Detail selection" }),
     ).toHaveValue(query.get("scenario")!);
   await expect(
-    page.getByRole("link", { name: "Open README example", exact: true }),
+    page.getByRole("link", { name: "Open sample workspace", exact: true }),
   ).toBeVisible();
   expect(submissions).toEqual([]);
 }
