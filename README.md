@@ -21,7 +21,7 @@ While the adoption of best practices such as automated testing and continuous de
 
 Value Stream Simulator is a tool that models a software delivery ecosystem then distills its effectiveness to a single metric: _loss_. Loss is the depreciation of a feature's value from the time its need is identified to the time it is delivered and used. Lower loss is indicative of greater efficiency. By comparing the outcomes of different models, informed decisions on improvements can be made.
 
-## Quick Start
+## Installation
 
 1. Install Python >= 3.11:
 
@@ -62,9 +62,28 @@ pip install value-stream
 python -m value_stream.app
 ```
 
-Workspaces and completed results survive restart. See [SQLite persistence and
-operation](docs/persistence.md) for data locations, backups, explicit sample import,
-recovery limits, and Docker volume commands.
+## Usage
+
+After starting the application service, open the [Value Stream Simulation Studio](http://127.0.0.1:8081):
+![Landing Page](./src/doc/img/readme/landing.png)
+
+### Managing Workspaces
+
+A _workspace_ is where simulations are executed and the results explored and compared. Starting the application for the first time creates a blank workspace, and any changes are persisted between service restarts. Workspaces are created and deleted via the _New Workspace_ and _Delete Workspace_ options located in the upper-right and lower-right margins of the interface.
+
+#### Loading a Sample Workspace
+
+The example presented in this walkthrough is also available as a sample workspace included in the default application database. Select the _Open Sample Workspace_ link (upper-right of the interface) to load and explore it. Note that any changes to this workspace are retained between restarts.
+
+New examples may be included in future releases. To import these into an existing database, run:
+
+```bash
+python -m value_stream.app.sample_import
+```
+
+Optionally, use either the `--database` or `--data-dir` option to point to an application database file or database directory.
+
+This command is non-destructive; conflicts are noted in the results and not overwritten.
 
 Simulations are performed by processing a set of tasks through one or more delivery ecosystems. The effectiveness of each is expressed in terms of loss - both net loss (delivered value of the tasks) and process-oriented loss (specific origins of loss).
 
@@ -88,50 +107,6 @@ For a deeper understanding of usage, refer to the following sections:
 4. [Run Scenarios](#run-scenarios)
 5. [View Results](#view-results)
 6. [Other Features](#other-features)
-
-## Completed README examples
-
-Start the app on port 8081, then use **Open README example** or one of these links.
-A new default database includes these completed results; opening a link does not
-submit simulations and needs no prior browser storage. Explicit database filenames
-start empty. Existing databases are never replaced automatically.
-
-- [README baseline](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&tab=team-size)
-- [Efficiency 11 comparison](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&run=a94806f2-de2d-519d-82d3-105cdef32a19&tab=team-size)
-- [Team 1, interval 0](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2F37e637a5-0fe7-528a-95b1-9faba07d22ac&tab=stage-loss)
-- [Team 25, interval 10](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=stage-loss)
-- [README deployment intervals](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&tab=deployment-interval)
-- [Team 1, interval 0: resource-utilization](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2F37e637a5-0fe7-528a-95b1-9faba07d22ac&tab=resource-utilization)
-- [Team 1, interval 0: resource-backlog](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2F37e637a5-0fe7-528a-95b1-9faba07d22ac&tab=resource-backlog)
-- [Team 25, interval 10: resource-utilization](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=resource-utilization)
-- [Team 25, interval 10: resource-backlog](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=resource-backlog)
-
-Examples belong to your writable workspace: editing or deleting them can change or
-break these links. To add missing examples, stop the app and import explicitly:
-
-```bash
-python -m value_stream.app.sample_import --database /path/to/application.sqlite3
-```
-
-Omit `--database` to use the normal data-directory defaults; `--data-dir DIR` is
-also supported. Import preserves existing records, reports ID conflicts, and skips
-the entire conflicting workspace. Exit codes are 0 for success/no-op, 2 for reported
-conflicts, and 1 for an operational or validation failure. `--source PATH` accepts a
-compatible closed sample database. Delete an edited example workspace explicitly
-before reimporting it if you want the original version. Historical results retain
-the engine and generator provenance recorded when they were produced.
-
-Regenerate release samples explicitly with
-`python src/examples/build_sample_databases.py --output-dir NEW_DIRECTORY`.
-The generator refuses to overwrite output, freezes the manifest's complete specs
-and seeds, and executes actual model workers. Resource UUID metadata need not be
-byte-identical across regenerations. The simulation database bundle is empty;
-service job expiry does not remove the application examples.
-
-## Usage
-
-Open the [Value Stream Simulation Studio](http://127.0.0.1:8081):
-![Landing Page](./src/doc/img/readme/landing.png)
 
 ### Define the Work
 
@@ -196,9 +171,9 @@ A scenarios complete, results are rendered in a series of plots, accessible via 
 
 #### Value Lost vs Team Size
 
-[Open the completed example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&tab=team-size).
-
 ![Value Lost vs. Team Size](./src/doc/img/readme/results-value-lost-vs-team-size.png)
+
+[Open this example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&tab=team-size)
 
 This plot shows how team size affects loss. Unsurprisingly, when creating scenarios using the defaults, it shows loss is reduced by having larger development teams. By plotting deployment cadence as separate series, it (also unsurprisingly) shows the gains that come from releasing more often. The benefits of frequent releases are greater when applied to larger teams, due to having more tasks completing development and waiting for the next deployment window.
 
@@ -208,9 +183,9 @@ Fair question, but recall this plot is using rather simplistic inputs. In more c
 
 #### Value Lost vs Deployment Interval
 
-[Open the completed example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&tab=deployment-interval).
-
 ![Value Lost vs. Deployment Interval](./src/doc/img/readme/results-value-lost-vs-deployment-interval.png)
+
+[Open this example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&tab=deployment-interval)
 
 This plot is a pivot of [Value Lost vs Team Size](#value-lost-vs-team-size), showing how loss is affected by release cadence. While the reductions in loss are not as significant compared with scaling up a development team, adoption of a shorter deployment interval (higher release frequency) can be achieved at a comparatively lower cost.
 
@@ -218,11 +193,11 @@ As with the previous example, the purpose of this plot isn't to render a common 
 
 #### Mean Stage Loss
 
-[Open the completed example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2F37e637a5-0fe7-528a-95b1-9faba07d22ac&tab=stage-loss).
-
 Where [Value Lost vs Team Size](#value-lost-vs-team-size) and [Value Lost vs. Deployment Interval](#value-lost-vs-deployment-interval) provide a summary view of loss for each scenario, _Mean Stage Loss_ provides an introspective view on where loss is occurring within a scenario:
 
 ![Mean Stage Loss](./src/doc/img/readme/results-mean-stage-loss.png)
+
+[Open this example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2F37e637a5-0fe7-528a-95b1-9faba07d22ac&tab=stage-loss)
 
 The simulation processes the tasks through a workflow that models the software development lifecycle:
 
@@ -242,11 +217,11 @@ While the greatest loss is still happening in the _Waiting for Development_ stat
 
 #### Resource Utilization
 
-[Open the completed example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=resource-utilization).
-
 Where [Mean Stage Loss](#mean-stage-loss) seeks to highlight areas where perhaps additional resource allocation is needed, _Resource Utilization_ provides a view of how allocated resources are being used.
 
 ![Resource Utilization](./src/doc/img/readme/results-resource-utilization.png)
+
+[Open this example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=resource-utilization)
 
 A _Resource_ operates on a task by moving it between stages of the task workflow. Examples include developers, QA testers (both manual and automated), and deployment. Resource utilization can be optimized by examining the percentage of time a resource spends in the following states:
 
@@ -267,23 +242,23 @@ This comparison also shows how, in the 1-developer scenario, the QA testing stag
 
 #### Resource Backlog
 
-[Open the completed example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=resource-backlog).
-
 Resource backlog counts waiting **resource requests** over time, and will generally mirror the results presented in [Mean Stage Loss](#mean-stage-loss):
 
 ![Resource Backlog](./src/doc/img/readme/results-resource-backlog.png)
 
+[Open this example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&scenario=4d84ad6d-7702-51c4-ab3a-514d9da20832%2Fa193bc90-db6a-52e0-8bc7-2c1e8e0a2157&tab=resource-backlog)
+
 Note that the Y-Axis scale is logarithmic, to help represent both the numerically larger backlogs that occur waiting for development resources, versus the queues that form waiting for QA or deployment resources.
 
 #### Interactive Mode
-
-[Open the completed example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&run=a94806f2-de2d-519d-82d3-105cdef32a19&tab=team-size).
 
 Ticking _Interactive Mode_ in the _What If_ panel enables side-by-side comparison of simulation results. When active, you can adjust a single property to observe how it affects the outcome.
 
 For example, you can compare how [Value Lost vs Team Size](#value-lost-vs-team-size) is affected when the maximum developer efficiency is turned up to 11:
 
 ![Interactive Mode](./src/doc/img/readme/interactive-mode.png)
+
+[Open this example](http://127.0.0.1:8081/?workspace=9e9c2f69-a5fd-5849-9f63-0469d1a5d465&run=4d84ad6d-7702-51c4-ab3a-514d9da20832&run=a94806f2-de2d-519d-82d3-105cdef32a19&tab=team-size)
 
 ### Other Features
 
