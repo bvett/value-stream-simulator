@@ -1,22 +1,30 @@
 """Streaming CSV exports from immutable scenario snapshots."""
 
-from typing import Generator, Literal
+from typing import Any, Generator, Literal, Protocol
+from uuid import UUID
+from value_stream.service.schemas import ResultData, TaskEventData
 
 import csv
 import io
 from .generation import canonical
 from .schemas import ENGINE_VERSION, GENERATOR_VERSION
-from .storage import RunRecord, WorkspaceStore
+from .storage import RunRecord
 
 
-def safe_text(value):
+class ResultReader(Protocol):
+    """Minimal read boundary used by live stores and frozen CSV snapshots."""
+
+    def result(self, record: RunRecord, scenario_id: UUID) -> ResultData: ...
+
+
+def safe_text(value: Any) -> Any:
     if isinstance(value, str) and value.lstrip().startswith(("=", "+", "-", "@", "\t", "\r")):
         return "'" + value
     return value
 
 
 def export_csv(
-    store: WorkspaceStore,
+    store: ResultReader,
     record: RunRecord,
     kind: Literal["summary", "events", "resources"],
 ) -> Generator[str, None, None]:
@@ -125,10 +133,10 @@ def export_csv(
                 else result.metadata.resource_metadata
             )
 
-            def event_rows():
+            def event_rows() -> Generator[list[Any], None, None]:
                 for item in data:
                     values = item.model_dump(mode="json")
-                    if kind == "events":
+                    if isinstance(item, TaskEventData):
                         values["stage_loss_percent"] = -100 * item.loss
                     yield [values.get(f) for f in fields]
 

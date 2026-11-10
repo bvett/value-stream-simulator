@@ -13,7 +13,7 @@ from value_stream.factory import DeveloperFactory, TaskFactory
 
 class TestSimulationRunner(unittest.TestCase):
 
-    @patch('value_stream.client.simulation_runner.WebSimulationClient.execute')
+    @patch("value_stream.client.simulation_runner.WebSimulationClient.execute")
     def test_all(self, mock_client_execute):
 
         NUM_TASKS = 10
@@ -23,29 +23,25 @@ class TestSimulationRunner(unittest.TestCase):
 
         simulation_runner = SimulationRunner(service_url="http://example.test")
 
-        teams = [DeveloperFactory.create(
-            count=NUM_DEVELOPERS, efficiency=1.0)]
+        teams = [DeveloperFactory.create(count=NUM_DEVELOPERS, efficiency=1.0)]
 
         qa_tester_pool = QATester.create_pool(limit=1)
-        toolchain_pool = Toolchain.create_pool(
-            limit=2, deployment_duration=.25)
+        toolchain_pool = Toolchain.create_pool(limit=2, deployment_duration=0.25)
 
         models = ModelFactory.create(
             teams=teams,
             deployment_cadences=range(MAX_CADENCE, -1, -1),
             qa_testers=qa_tester_pool,
             toolchain_pool=toolchain_pool,
-            support_intervals=[SUPPORT_INTERVAL])
+            support_intervals=[SUPPORT_INTERVAL],
+        )
 
-        tasks = TaskFactory(initial_value=1,
-                            depreciation_rate=0,
-                            story_points=1.0).create(count=NUM_TASKS)
+        tasks = TaskFactory(initial_value=1, depreciation_rate=0, story_points=1.0).create(
+            count=NUM_TASKS
+        )
 
         with tqdm(total=len(models)) as pbar:
-            _ = simulation_runner.execute(
-                tasks=tasks,
-                models=models,
-                pbar=pbar)
+            _ = simulation_runner.execute(tasks=tasks, models=models, pbar=pbar)
 
         self.assertEqual(mock_client_execute.call_count, 1)
         submitted_models = list(mock_client_execute.call_args.kwargs["models"])

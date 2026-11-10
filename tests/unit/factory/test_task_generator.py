@@ -13,8 +13,7 @@ class TestTaskGenerator(unittest.TestCase):
         self.target = Store(self.env)
 
     def test_start(self):
-        generator = TaskGenerator(factory=TaskFactory(
-            story_points=1, initial_value=1))
+        generator = TaskGenerator(factory=TaskFactory(story_points=1, initial_value=1))
 
         generator.start(self.env, target=self.target, interval=1)
 
@@ -26,7 +25,8 @@ class TestTaskGenerator(unittest.TestCase):
 
     def test_multi(self):
         generator = TaskGenerator(
-            group_size=3, factory=TaskFactory(story_points=1, initial_value=1))
+            group_size=3, factory=TaskFactory(story_points=1, initial_value=1)
+        )
 
         generator.start(self.env, target=self.target, interval=1)
 
@@ -39,7 +39,8 @@ class TestTaskGenerator(unittest.TestCase):
     def test_limit(self):
         limit = 3
         generator = TaskGenerator(
-            group_size=3, factory=TaskFactory(story_points=1, initial_value=1), limit=3)
+            group_size=3, factory=TaskFactory(story_points=1, initial_value=1), limit=3
+        )
 
         generator.start(self.env, target=self.target, interval=1)
 
@@ -54,8 +55,9 @@ class TestTaskGenerator(unittest.TestCase):
     def test_validation(self):
 
         with self.assertRaises(ValueError):
-            TaskGenerator(factory=TaskFactory(
-                story_points=1, initial_value=1)).start(self.env, self.target, interval=0)
+            TaskGenerator(factory=TaskFactory(story_points=1, initial_value=1)).start(
+                self.env, self.target, interval=0
+            )
 
     def test_creation_time(self):
 
@@ -89,7 +91,8 @@ class TestTaskGenerator(unittest.TestCase):
         generated_tasks: list[Task] = []
 
         self.env.process(
-            monitor(self.env, self.target, times=actual_creation_times, tasks=generated_tasks))
+            monitor(self.env, self.target, times=actual_creation_times, tasks=generated_tasks)
+        )
 
         self.env.run(1 + starting_t + (interval * num_intervals))
 
@@ -101,17 +104,17 @@ class TestTaskGenerator(unittest.TestCase):
             task: Task = v
             self.assertEqual(expected_creation_times[k], task.creation_sim_t)
 
-            self.assertEqual(
-                expected_creation_times[k], task.history.epoch.to_sim_time(0))
+            self.assertEqual(expected_creation_times[k], task.history.epoch.to_sim_time(0))
 
-            self.assertEqual(task.initial_value, task.value(
-                task.history.epoch.to_epoch_time(expected_creation_times[k])))
+            self.assertEqual(
+                task.initial_value,
+                task.value(task.history.epoch.to_epoch_time(expected_creation_times[k])),
+            )
 
         self.assertListEqual(expected_creation_times, actual_creation_times)
 
     def test_stop(self):
-        generator = TaskGenerator(factory=TaskFactory(
-            story_points=1, initial_value=1))
+        generator = TaskGenerator(factory=TaskFactory(story_points=1, initial_value=1))
 
         generator.start(self.env, target=self.target, interval=1)
 

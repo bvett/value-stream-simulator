@@ -292,6 +292,55 @@
         "title": "ErrorEnvelope",
         "type": "object"
       },
+      "ExampleCatalog": {
+        "additionalProperties": false,
+        "description": "Release identity and links whose referenced data still exists.",
+        "properties": {
+          "examples": {
+            "items": {
+              "$ref": "#/components/schemas/ExampleLink"
+            },
+            "title": "Examples",
+            "type": "array"
+          },
+          "release": {
+            "title": "Release",
+            "type": "string"
+          }
+        },
+        "required": [
+          "release",
+          "examples"
+        ],
+        "title": "ExampleCatalog",
+        "type": "object"
+      },
+      "ExampleLink": {
+        "additionalProperties": false,
+        "description": "Public display metadata for an available bundled documentation view.",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "url": {
+            "pattern": "^/\\?workspace=",
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "url"
+        ],
+        "title": "ExampleLink",
+        "type": "object"
+      },
       "HealthResponse": {
         "additionalProperties": false,
         "description": "Reports the service health state.",
@@ -1915,6 +1964,25 @@
           }
         },
         "summary": "Config"
+      }
+    },
+    "/api/v1/examples": {
+      "get": {
+        "description": "List documentation views whose saved data has not been deleted.",
+        "operationId": "examples_api_v1_examples_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExampleCatalog"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Examples"
       }
     },
     "/api/v1/workspaces": {

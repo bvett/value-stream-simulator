@@ -1,6 +1,6 @@
 """Versioned browser/application wire contract."""
 
-from typing import Annotated, Literal
+from typing import Self, Annotated, Literal
 from uuid import UUID, uuid4
 from pydantic import ConfigDict, Field, FiniteFloat, model_validator
 from value_stream.service.schemas import WireModel, ModelInput, TaskInput, ErrorEnvelope, Status
@@ -30,7 +30,7 @@ class UniformValue(AppModel):
     maximum: FiniteFloat = Field(ge=0)
 
     @model_validator(mode="after")
-    def ordered(self):
+    def ordered(self) -> Self:
         if self.minimum > self.maximum:
             raise ValueError("minimum must not exceed maximum")
         return self
@@ -69,7 +69,7 @@ class ModelSettings(AppModel):
     support_task_story_points: FiniteFloat = Field(default=2, ge=0)
 
     @model_validator(mode="after")
-    def ordered(self):
+    def ordered(self) -> Self:
         if self.efficiency_min > self.efficiency_max:
             raise ValueError("minimum efficiency must not exceed maximum")
         return self
@@ -286,3 +286,18 @@ class AppConfig(AppModel):
     error: ErrorEnvelope | None = None
     generator_version: str = GENERATOR_VERSION
     engine_version: str = ENGINE_VERSION
+
+
+class ExampleLink(AppModel):
+    """Public display metadata for an available bundled documentation view."""
+
+    slug: str
+    name: str
+    url: str = Field(pattern=r"^/\?workspace=")
+
+
+class ExampleCatalog(AppModel):
+    """Release identity and links whose referenced data still exists."""
+
+    release: str
+    examples: list[ExampleLink]

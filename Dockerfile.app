@@ -6,6 +6,8 @@ COPY src/value_stream/app/frontend/ ./
 RUN npm run build
 
 FROM python:3.11-slim
+ENV VALUE_STREAM_DATA_DIR=/data
+VOLUME ["/data"]
 WORKDIR /app
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src

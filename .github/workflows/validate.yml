@@ -30,10 +30,21 @@ jobs:
           npm run generate:api --prefix src/value_stream/app/frontend
           git diff --exit-code -- src/value_stream/app/openapi.json src/value_stream/service/openapi.json src/value_stream/app/frontend/src/api.generated.ts
           npm run build --prefix src/value_stream/app/frontend
+      - name: Check persistence types, frozen bundle, and import/help startup behavior
+        run: |
+          uv run pyright --project .agent/pyright-persistence.json
+          uv run python scripts/verify_distributions.py
+          uv run pytest -o addopts='' tests/integration/test_startup_recovery.py::TestStartup::test_factories_imports_contracts_and_help_do_not_start_resources -q
       - name: Verify wheel assets
         run: |
           uv build --sdist --wheel --out-dir dist/app
-          uv run python -c "import glob, zipfile; names = zipfile.ZipFile(glob.glob('dist/app/*.whl')[0]).namelist(); assert 'value_stream/app/static/index.html' in names; assert any('/static/assets/' in n for n in names); assert not any('/frontend/' in n for n in names)"
+          uv run python scripts/verify_distributions.py --wheel "$(find dist/app -name '*.whl' -print -quit)" --sdist "$(find dist/app -name '*.tar.gz' -print -quit)"
+          uv run python scripts/verify_installed.py "$(find dist/app -name '*.whl' -print -quit)"
+      - name: Verify real container recreation with persistent volumes
+        run: |
+          docker build -t value-stream-service:ci -f Dockerfile .
+          docker build -t value-stream-application:ci -f Dockerfile.app .
+          uv run python scripts/verify_containers.py --application-image value-stream-application:ci --service-image value-stream-service:ci
       - name: Store artifacts
         uses: actions/upload-artifact@v7
         if: always()

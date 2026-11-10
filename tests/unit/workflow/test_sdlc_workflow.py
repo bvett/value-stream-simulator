@@ -22,36 +22,39 @@ class TestSDLCWorkflow(unittest.TestCase):
 
         tasks = factory.create(count=num_tasks)
 
-        pending_items = TaskStore(
-            env=env, name=SDLCWorkflow.WorkflowState.PENDING)
+        pending_items = TaskStore(env=env, name=SDLCWorkflow.WorkflowState.PENDING)
 
         policy = DefaultSimulationPolicy()
 
-        developer_manager = ResourceOperator(env, resources=[Developer()],
-                                             workflow_policy=policy,
-                                             resource_policy=policy)
+        developer_manager = ResourceOperator(
+            env, resources=[Developer()], workflow_policy=policy, resource_policy=policy
+        )
 
-        qa_tester_pool = QATester.create_pool(
-            limit=1, failure_rate=0)
+        qa_tester_pool = QATester.create_pool(limit=1, failure_rate=0)
 
-        toolchain_pool = Toolchain.create_pool(
-            limit=1,
-            deployment_duration=1,
-            failure_rate=0)
+        toolchain_pool = Toolchain.create_pool(limit=1, deployment_duration=1, failure_rate=0)
 
         qa_manager = ResourceOperator(
-            env, qa_tester_pool, workflow_policy=policy, resource_policy=policy)
+            env, qa_tester_pool, workflow_policy=policy, resource_policy=policy
+        )
 
         toolchain_manager = ResourceOperator(
-            env, toolchain_pool, workflow_policy=policy, resource_policy=policy, cadence=0)
+            env, toolchain_pool, workflow_policy=policy, resource_policy=policy, cadence=0
+        )
 
         workflow = SDLCWorkflow()
 
-        env.process(workflow.start(env=env, tasks=tasks,
-                                   pending=pending_items, signal=signal,
-                                   developer_manager=developer_manager,
-                                   qa_manager=qa_manager,
-                                   toolchain_manager=toolchain_manager))
+        env.process(
+            workflow.start(
+                env=env,
+                tasks=tasks,
+                pending=pending_items,
+                signal=signal,
+                developer_manager=developer_manager,
+                qa_manager=qa_manager,
+                toolchain_manager=toolchain_manager,
+            )
+        )
 
         completed = env.run(AllOf(env, [signal]))
 
