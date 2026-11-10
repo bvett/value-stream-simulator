@@ -16,9 +16,9 @@ jobs:
           # Disabling shallow clones is recommended for improving the relevancy of reporting
           fetch-depth: 0
       - name: Retrieve coverage artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
-          name: coverage-artifacts
+          name: coverage-artifacts-3.11
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9
         env:
