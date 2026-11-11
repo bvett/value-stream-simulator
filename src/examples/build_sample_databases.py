@@ -10,6 +10,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode
 from uuid import UUID, NAMESPACE_URL, uuid5
 
 from value_stream.app.generation import concrete_model
@@ -201,7 +202,6 @@ def build(output_dir: Path, *, task_count: int | None = None) -> dict[str, Any]:
         slug: str, name: str, runs: list[UUID], tab: str, scenario: UUID | None = None
     ) -> None:
         """Record stable manifest identities alongside their exact relative URL."""
-        from urllib.parse import urlencode
 
         pairs = [("workspace", str(workspace.id))] + [("run", str(run)) for run in runs]
         if scenario is not None:
