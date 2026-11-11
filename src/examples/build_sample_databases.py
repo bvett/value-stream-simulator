@@ -115,7 +115,7 @@ def build(output_dir: Path, *, task_count: int | None = None) -> dict[str, Any]:
     if any((output_dir / name).exists() for name in names):
         raise FileExistsError("Refusing to overwrite sample output")
     output_dir.mkdir(parents=True, exist_ok=True)
-    frozen = json.loads(Path(__file__).with_name("sample_spec.json").read_text())
+    frozen = json.loads(Path(__file__).with_name("sample_spec.json").read_text(encoding="utf-8"))
     tasks = TaskSetSpec.model_validate(frozen["task_spec"])
     if task_count is not None:
         tasks.count = task_count
