@@ -21,8 +21,7 @@ class TestToolchainPool(unittest.TestCase):
     def test_limited_iteration(self):
 
         limit = 3
-        toolchain_pool = Toolchain.create_pool(
-            limit=limit, deployment_duration=1)
+        toolchain_pool = Toolchain.create_pool(limit=limit, deployment_duration=1)
 
         # test for successive iterations
         for _ in range(2):
@@ -37,8 +36,7 @@ class TestToolchainPool(unittest.TestCase):
 
     def test_unlimited_iteration(self):
 
-        toolchain_pool = Toolchain.create_pool(
-            limit=None, deployment_duration=1)
+        toolchain_pool = Toolchain.create_pool(limit=None, deployment_duration=1)
 
         # Realistically, not practical or useful to test up to sys.maxsize
         # Test to ensure basic mechanism works, then deal with an n+1 bug
@@ -50,9 +48,7 @@ class TestToolchainPool(unittest.TestCase):
     def test_kwargs(self):
 
         deployment_duration = 4.75
-        toolchain_pool = Toolchain.create_pool(
-            limit=3, deployment_duration=deployment_duration)
+        toolchain_pool = Toolchain.create_pool(limit=3, deployment_duration=deployment_duration)
 
         for toolchain in toolchain_pool:
-            self.assertEqual(toolchain.deployment_duration,
-                             deployment_duration)
+            self.assertEqual(toolchain.deployment_duration, deployment_duration)

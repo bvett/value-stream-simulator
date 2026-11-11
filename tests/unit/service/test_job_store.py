@@ -1,18 +1,18 @@
 import time
 import unittest
 
-from value_stream.service.job_store import (
-    CapacityExceeded, InMemoryJobStore, JobNotFound
-)
+from value_stream.service.job_store import CapacityExceeded, InMemoryJobStore, JobNotFound
 from value_stream.service.schemas import ModelError
 from value_stream.service.settings import ServiceSettings
 
 
 class TestJobStore(unittest.TestCase):
-    def test_indexed_errors_cursor_capacity_and_expiry(self):
+    def test_indexed_errors_cursor_capacity_and_expiry(self) -> None:
         settings = ServiceSettings(
-            max_active_jobs=1, max_queued_jobs=1,
-            max_retained_jobs=2, job_ttl_seconds=0.02,
+            max_active_jobs=1,
+            max_queued_jobs=1,
+            max_retained_jobs=2,
+            job_ttl_seconds=0.02,
         )
         store = InMemoryJobStore(settings)
         first = store.create(2)
@@ -22,11 +22,15 @@ class TestJobStore(unittest.TestCase):
         self.assertTrue(store.start_model(first, 0))
         self.assertTrue(store.start_model(first, 1))
         store.finish_model(
-            first, 0, result=None,
+            first,
+            0,
+            result=None,
             error=ModelError(model_index=0, code="MODEL_FAILED", message="bad model"),
         )
         store.finish_model(
-            first, 1, result=None,
+            first,
+            1,
+            result=None,
             error=ModelError(model_index=1, code="MODEL_TIMEOUT", message="too slow"),
         )
         self.assertEqual(store.status(first).status, "completed_with_errors")

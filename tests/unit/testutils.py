@@ -25,8 +25,7 @@ class TestUtils:
                     start_t = e.time
 
         if (start_t is None) or (end_t is None):
-            raise ValueError(
-                "Unable to find matching end and start times for event " + str(event))
+            raise ValueError("Unable to find matching end and start times for event " + str(event))
 
         return (start_t, end_t)
 

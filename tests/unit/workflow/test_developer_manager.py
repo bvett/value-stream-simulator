@@ -6,7 +6,6 @@ from value_stream.task import Task, DefaultRouter
 from value_stream.simulation import DefaultSimulationPolicy
 from value_stream.workflow import ResourceOperator, TaskStore
 
-
 # pylint:disable=missing-class-docstring,missing-function-docstring
 
 
@@ -17,8 +16,7 @@ class TestDeveloperManager(unittest.TestCase):
         self.tracker = NoOpResourceTracker()
         self.source = TaskStore(self.env, SDLCWorkflow.WorkflowState.PENDING)
         self.workflow_state = SDLCWorkflow.WorkflowState.DEVELOPMENT
-        self.target = TaskStore(
-            self.env, SDLCWorkflow.WorkflowState.DEV_COMPLETE)
+        self.target = TaskStore(self.env, SDLCWorkflow.WorkflowState.DEV_COMPLETE)
         self.task_router = DefaultRouter(self.target)
         self.policy = DefaultSimulationPolicy()
 
@@ -36,7 +34,12 @@ class TestDeveloperManager(unittest.TestCase):
         self.assertEqual(len(self.source.items), 5)
 
         team = ResourceOperator(
-            self.env, self.create_developers(2), workflow_policy=self.policy, resource_policy=self.policy, tracker=self.tracker)
+            self.env,
+            self.create_developers(2),
+            workflow_policy=self.policy,
+            resource_policy=self.policy,
+            tracker=self.tracker,
+        )
 
         team.start(self.source, self.workflow_state, self.task_router)
 

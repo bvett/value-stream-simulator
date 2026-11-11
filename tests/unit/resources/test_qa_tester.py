@@ -13,9 +13,9 @@ class TestQATester(unittest.TestCase):
 
     def setUp(self):
 
-        self.tasks: list[Task] = TaskFactory(initial_value=1,
-                                             depreciation_rate=0,
-                                             story_points=(x for x in range(2, 8, 2))).create(3)
+        self.tasks: list[Task] = TaskFactory(
+            initial_value=1, depreciation_rate=0, story_points=(x for x in range(2, 8, 2))
+        ).create(3)
 
         self.env = Environment()
         self.tracker = NoOpResourceTracker()
@@ -33,7 +33,7 @@ class TestQATester(unittest.TestCase):
         _ = QATester(failure_rate=0)
         _ = QATester(failure_rate=0.5)
         _ = QATester(failure_rate=1)
-        _ = QATester(failure_cost=.15)
+        _ = QATester(failure_cost=0.15)
         _ = QATester(failure_cost=0)
         _ = QATester(failure_cost=1)
 
@@ -55,8 +55,16 @@ class TestQATester(unittest.TestCase):
 
         total_story_points = sum([t.story_points for t in self.tasks])
 
-        self.env.process(tester.operate(
-            self.env, self.tasks, workflow_state=self.workflow_state, task_router=self.task_router, policy=self.policy, tracker=self.tracker))
+        self.env.process(
+            tester.operate(
+                self.env,
+                self.tasks,
+                workflow_state=self.workflow_state,
+                task_router=self.task_router,
+                policy=self.policy,
+                tracker=self.tracker,
+            )
+        )
 
         self.env.run()
 
@@ -65,8 +73,7 @@ class TestQATester(unittest.TestCase):
         for task in self.tasks:
             last_event = task.history.last_event()
             assert last_event is not None
-            self.assertEqual(last_event.status, 
-                             EventStatus.SUCCESS)
+            self.assertEqual(last_event.status, EventStatus.SUCCESS)
 
     def test_all_failures(self):
 
@@ -74,13 +81,20 @@ class TestQATester(unittest.TestCase):
             task.do_work(task.story_points)
 
         tester = QATester(failure_rate=1)
-        self.env.process(tester.operate(
-            self.env, self.tasks, workflow_state=self.workflow_state, task_router=self.task_router, policy=self.policy, tracker=self.tracker))
+        self.env.process(
+            tester.operate(
+                self.env,
+                self.tasks,
+                workflow_state=self.workflow_state,
+                task_router=self.task_router,
+                policy=self.policy,
+                tracker=self.tracker,
+            )
+        )
         self.env.run()
 
         for task in self.target.items:
-            self.assertEqual(task.history.last_event().status,  # type: ignore
-                             EventStatus.FAILURE)
+            self.assertEqual(task.history.last_event().status, EventStatus.FAILURE)  # type: ignore
             self.assertEqual(task.remaining_work(), 0)
 
     def test_failure_cost(self):
@@ -91,11 +105,18 @@ class TestQATester(unittest.TestCase):
 
         tester = QATester(failure_rate=1, failure_cost=failure_cost)
 
-        self.env.process(tester.operate(
-            self.env, self.tasks, workflow_state=self.workflow_state, task_router=self.task_router, policy=self.policy, tracker=self.tracker))
+        self.env.process(
+            tester.operate(
+                self.env,
+                self.tasks,
+                workflow_state=self.workflow_state,
+                task_router=self.task_router,
+                policy=self.policy,
+                tracker=self.tracker,
+            )
+        )
 
         self.env.run()
 
         for task in self.target.items:
-            self.assertAlmostEqual(task.remaining_work(),
-                                   task.story_points * failure_cost)
+            self.assertAlmostEqual(task.remaining_work(), task.story_points * failure_cost)

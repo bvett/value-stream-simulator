@@ -15,10 +15,8 @@ class TestTaskStore(unittest.TestCase):
 
     def setUp(self):
         self.env = Environment()
-        self.state = TaskStore(
-            self.env, SDLCWorkflow.WorkflowState.DEVELOPMENT)
-        self.terminal_state = TerminalTaskStore(
-            self.env, SDLCWorkflow.WorkflowState.DELIVERY)
+        self.state = TaskStore(self.env, SDLCWorkflow.WorkflowState.DEVELOPMENT)
+        self.terminal_state = TerminalTaskStore(self.env, SDLCWorkflow.WorkflowState.DELIVERY)
 
     def test_put(self):
         task = Task(initial_value=50.0, story_points=1.0, creation_sim_t=0)
@@ -41,8 +39,7 @@ class TestTaskStore(unittest.TestCase):
         self.assertEqual(event.status, EventStatus.SUCCESS)
 
     def test_put_terminal(self):
-        task = Task(initial_value=50.0, story_points=1.0,
-                    creation_sim_t=0, depreciation_rate=0.1)
+        task = Task(initial_value=50.0, story_points=1.0, creation_sim_t=0, depreciation_rate=0.1)
 
         self.assertEqual(len(self.state.items), 0)
         self.env.run(until=1)
@@ -69,8 +66,7 @@ class TestTaskStore(unittest.TestCase):
                 t = yield self.state.get()
                 e.succeed(t)
 
-        task = Task(initial_value=50.0, story_points=1.0,
-                    creation_sim_t=0, depreciation_rate=0.1)
+        task = Task(initial_value=50.0, story_points=1.0, creation_sim_t=0, depreciation_rate=0.1)
 
         self.env.run(until=1)
 
@@ -80,7 +76,7 @@ class TestTaskStore(unittest.TestCase):
         self.env.process(get_value(semaphore))
         self.env.run(semaphore)
         assert semaphore.value
-        task_out: Task = semaphore.value  
+        task_out: Task = semaphore.value
 
         self.assertEqual(len(task_out.history.events), 2)
         event = task_out.history.events[1]
@@ -91,8 +87,7 @@ class TestTaskStore(unittest.TestCase):
         self.assertEqual(event.status, EventStatus.SUCCESS)
 
     def test_get_terminal(self):
-        task = Task(initial_value=50.0, story_points=1.0,
-                    creation_sim_t=0, depreciation_rate=0.1)
+        task = Task(initial_value=50.0, story_points=1.0, creation_sim_t=0, depreciation_rate=0.1)
 
         self.env.run(until=1)
         self.terminal_state.put(task)
@@ -106,9 +101,10 @@ class TestTaskStore(unittest.TestCase):
 
         env = Environment()
 
-        targets: list[TaskStore] = [TerminalTaskStore(
-            env, SDLCWorkflow.WorkflowState.DEPLOYMENT),
-            TaskStore(env, SDLCWorkflow.WorkflowState.DEPLOYMENT)]
+        targets: list[TaskStore] = [
+            TerminalTaskStore(env, SDLCWorkflow.WorkflowState.DEPLOYMENT),
+            TaskStore(env, SDLCWorkflow.WorkflowState.DEPLOYMENT),
+        ]
 
         for target in targets:
 
@@ -119,9 +115,7 @@ class TestTaskStore(unittest.TestCase):
             signal = env.event()
             limit = 10
             target.set_alarm(limit=limit, signal=signal)
-            generator.start(env,
-                            target=target,
-                            interval=1)
+            generator.start(env, target=target, interval=1)
 
             env.run(until=signal)
             generator.stop()
@@ -136,8 +130,7 @@ class TestTaskStore(unittest.TestCase):
                 target.set_alarm(limit=limit * 2, signal=signal)
 
     def test_validation(self):
-        target = TerminalTaskStore(
-            self.env, SDLCWorkflow.WorkflowState.DEPLOYMENT)
+        target = TerminalTaskStore(self.env, SDLCWorkflow.WorkflowState.DEPLOYMENT)
 
         with self.assertRaises(ValueError):
             signal = self.env.event()
@@ -149,8 +142,7 @@ class TestTaskStore(unittest.TestCase):
 
     def test_restart(self):
 
-        target = TerminalTaskStore(
-            self.env, SDLCWorkflow.WorkflowState.DEPLOYMENT)
+        target = TerminalTaskStore(self.env, SDLCWorkflow.WorkflowState.DEPLOYMENT)
 
         factory = TaskFactory(initial_value=0, story_points=1)
         generator = TaskGenerator(factory)
@@ -158,9 +150,7 @@ class TestTaskStore(unittest.TestCase):
         signal_1 = self.env.event()
         limit_1 = 10
         target.set_alarm(limit=limit_1, signal=signal_1)
-        generator.start(self.env,
-                        target=target,
-                        interval=1)
+        generator.start(self.env, target=target, interval=1)
 
         self.env.run(until=signal_1)
         generator.stop()
@@ -182,9 +172,7 @@ class TestTaskStore(unittest.TestCase):
 
         target.set_alarm(limit_1 + limit_2, signal_2)
 
-        generator.start(self.env,
-                        target=target,
-                        interval=1)
+        generator.start(self.env, target=target, interval=1)
         self.env.run(until=signal_2)
         generator.stop()
 
@@ -192,7 +180,7 @@ class TestTaskStore(unittest.TestCase):
         items_2 = signal_2.value
         assert items_2
         self.assertTrue(isinstance(items_2, list))
-        self.assertEqual(len(items_2), limit_2)  # type:ignore
+        self.assertEqual(len(items_2), limit_2)  # type: ignore
 
         self.assertEqual(limit_1 + limit_2, len(target.items))
 

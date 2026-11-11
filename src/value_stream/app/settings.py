@@ -9,7 +9,7 @@ from dataclasses import dataclass, fields
 class AppSettings:
     """Stores application settings."""
 
-    max_workspaces: int = 4
+    max_workspaces: int = 10
     max_task_sets: int = 20
     max_definitions: int = 100
     max_tasks: int = 1000

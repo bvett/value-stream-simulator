@@ -1,0 +1,47 @@
+{
+  "task_spec": {
+    "name": "Task set",
+    "count": 500,
+    "story_points": {
+      "kind": "uniform",
+      "minimum": 0.5,
+      "maximum": 2.0
+    },
+    "initial_value": {
+      "kind": "constant",
+      "value": 1.0
+    },
+    "depreciation_rate": 0.02,
+    "seed": 42
+  },
+  "settings": {
+    "team_size": 4,
+    "efficiency_min": 0.5,
+    "efficiency_max": 1.5,
+    "distribution": "linear",
+    "deployment_cadence": 5,
+    "qa_size": 5,
+    "qa_time_cost": 0.1,
+    "qa_failure_rate": 0.15,
+    "qa_failure_cost": 0.25,
+    "toolchain_size": 20,
+    "deployment_duration": 0.25,
+    "deployment_failure_rate": 0.1,
+    "support_interval": 5.0,
+    "support_task_story_points": 2.0
+  },
+  "team_seed": 123,
+  "execution_seed": 456,
+  "sweeps": {
+    "team_size": [
+      1,
+      13,
+      25
+    ],
+    "deployment_cadence": [
+      0,
+      5,
+      10
+    ]
+  }
+}

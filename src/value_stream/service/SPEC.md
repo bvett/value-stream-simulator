@@ -24,23 +24,53 @@ The implementation design and validation milestones are in `.agent/SIMULATION_SE
 - After a partially failed job reaches its terminal state, `SimulationRunner.execute` raises a dedicated batch error that carries successful `SimulationResult` objects in submission order and model-indexed errors. A fully successful job retains the existing `list[SimulationResult]` return type. The client must not silently omit failed models or put error objects in a list consumed by the existing viewers.
 - Accept an optional seed with each job. Derive an independent, repeatable random stream for each submitted model from the job seed and model index, so scheduling and completion order do not change seeded simulation outcomes. The seed governs randomness during simulation; task/model factory randomness before submission is outside its scope.
 - Accept optional `model_seeds`, containing one nonnegative seed per submitted model, as an alternative to the job-level `seed`. Explicit seeds are used directly and remain stable when models are reordered or submitted as a subset. Supplying both seed forms or a mismatched seed count is invalid. Existing job-level seed derivation remains unchanged.
-- Accept an optional UUID `submission_id`. Identical retries return the original job without rescheduling; reuse with different content returns HTTP 409 `SUBMISSION_CONFLICT`. Reservation is atomic, and retry lookup precedes admission checks. Idempotency lasts until job expiry or server shutdown; it is not persistent exactly-once execution across service restarts.
+- Accept an optional UUID `submission_id`. Identical retries return the original job without rescheduling; reuse with different content returns HTTP 409 `SUBMISSION_CONFLICT`. Reservation is atomic, and retry lookup precedes admission checks. Idempotency mappings survive service restarts until job expiry. Interrupted models are finalized rather than automatically rerun; this does not claim exactly-once execution for an unacknowledged submission.
 - Include unit and integration tests, including a service/client round trip and compatibility checks for the existing viewers.
 - Handle invalid input, execution failures, and client connection failures with a documented error contract.
 - Provide an option to package and run the service as a Docker image.
-- Keep simulation state isolated per model. Put job state behind a replaceable storage interface so a later multi-instance deployment can use shared storage. Version 1 may store jobs in memory; results need not survive service restarts.
+- Keep simulation state isolated per model. Put job state behind a replaceable storage interface so a later multi-instance deployment can use shared storage. Version 1 uses SQLite by default, with a compatible memory adapter for tests. Committed outcomes survive restart until their separate terminal-job TTL expires. Finalize queued/running models with JOB_INTERRUPTED while preserving completed outcomes and cursor order; do not restart model execution.
 - Add configurable protections against excessive resource use, including admission and execution limits. Select initial defaults during design and document their errors in the API contract.
 
 ## Intended use and future scope
 
-Version 1 is for individuals demonstrating the value-stream project. A shared, multi-user deployment, authentication, policy extensibility, service discovery, persistent results, and a browser web application are later phases. The version 1 design should leave room for these capabilities; it does not need to expose unused authentication or multi-user behavior.
+Version 1 is for individuals demonstrating the value-stream project. A shared, multi-user deployment, authentication, policy extensibility, service discovery, and broader browser integration are later phases. The version 1 design should leave room for these capabilities; it does not need to expose unused authentication or multi-user behavior.
 
 ## Implementation design prerequisites
 
 - Write an ExecPlan for this significant feature before coding, following `.agent/PLANS.md` as required by `AGENTS.md`.
 - Select a worker strategy that keeps model execution and random state isolated without blocking HTTP request handling. Verify that seeded results do not depend on concurrent scheduling. Document concurrency limits and cancellation semantics.
 - Define OpenAPI 3.1 schemas for tasks, models, resource pools, summary results, task events, resource metadata, job status, and errors. Preserve fields and types needed by current viewers; account for enums and UUIDs. Decide whether the Python client reuses submitted model objects in reconstructed results or creates equivalent objects.
-- Define job-state retention and expiry, behavior when a job ID is unknown or expired, and what happens to running jobs when the in-memory service stops. Expose per-model progress and errors without losing successful results.
+- Define job-state retention and expiry, behavior when a job ID is unknown or expired, and what happens to running jobs when the simulation service stops. Expose per-model progress and errors without losing successful results.
 - Choose configurable defaults for task count, model count, concurrency, run duration, and request/response size. Reject excess load with documented errors.
 - Establish a round-trip test that passes reconstructed results through `ResultViewer` and `MetadataViewer`, and test local service startup and shutdown as well as remote connection failures.
 - Add a CI contract-alignment check that detects new simulation input fields omitted from the wire schemas or codecs. Review the generated OpenAPI contract when the server schema changes, and test the HTTP contract without the Python client.
+
+## Persistence lifecycle and operation
+
+`docs/specifications/sqlite.md` records the agreed SQLite requirements, with current
+implementation/evidence in `.agent/SQLITE_PERSISTENCE_EXECPLAN.md`. See
+`docs/persistence.md` for path precedence, environment variables and CLI options,
+explicit empty filenames, verified bundled defaults, backup restoration, owner errors,
+volume mounts, sample import, and application/external-job recovery limits.
+
+The simulation service owns only `simulation.sqlite3`. Infrastructure and its job
+adapter belong under `service`; startup imports no application adapter or frontend.
+Module imports, factory/OpenAPI construction, and help create no files, schedulers,
+or workers. Lifespan acquires ownership, validates/migrates, finalizes interrupted
+work before TTL pruning, and only then accepts requests. Shutdown stops scheduling,
+commits interruption outcomes before late callbacks, joins workers, and releases
+storage. User cancellation stays cancelled. Persist UTC terminal timestamps.
+
+Each database has one owner and separate schema/JSON versions. Stable relational
+columns accompany evolving JSON payloads, with defaults for new optional properties
+and explicit incompatible upgrades. Migration first creates a verified retained
+backup, then runs transactionally; failure stops startup. Newer versions, corruption,
+and permission failures do not replace the database. Model outcomes, result bytes,
+job status, and cursor allocation commit atomically. No worker wait holds the lock.
+
+The default simulation sample is empty and valid. Completed documentation results
+live in the application's independently retained database and are not removed by
+job expiry. Container images use writable `/data` volumes and one worker. Require
+at least 90% measured coverage of persistence/recovery code, including restart,
+transaction failure, compatibility, idempotency, cancellation, and expiry; keep all
+affected Python code/tests typed without diagnostic suppression.

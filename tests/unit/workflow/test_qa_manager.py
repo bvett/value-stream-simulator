@@ -27,7 +27,13 @@ class TestQAManager(unittest.TestCase):
 
         self.workflow_state = SDLCWorkflow.WorkflowState.QA_TESTING
 
-    def _process_task(self, task: Task, m: PoolManager, task_router: TaskRouter,  workflow_state: SDLCWorkflow.WorkflowState):
+    def _process_task(
+        self,
+        task: Task,
+        m: PoolManager,
+        task_router: TaskRouter,
+        workflow_state: SDLCWorkflow.WorkflowState,
+    ):
         e = m.request(self.workflow_state, [task])
 
         if isinstance(e, StoreGet):
@@ -35,19 +41,33 @@ class TestQAManager(unittest.TestCase):
         else:
             operator: Resource = e
 
-        yield self.env.process(operator.operate(self.env, [task], task_router=task_router, workflow_state=workflow_state, policy=self.policy, tracker=self.tracker))
+        yield self.env.process(
+            operator.operate(
+                self.env,
+                [task],
+                task_router=task_router,
+                workflow_state=workflow_state,
+                policy=self.policy,
+                tracker=self.tracker,
+            )
+        )
         yield m.release(operator)
 
     def _test_loop(self, m: PoolManager, t: TaskRouter):
         for task in self.tasks:
-            self.env.process(self._process_task(
-                task, m, task_router=t, workflow_state=self.workflow_state))
+            self.env.process(
+                self._process_task(task, m, task_router=t, workflow_state=self.workflow_state)
+            )
 
     def test_serial(self):
 
         # 1 QA Tester, 2 Tasks
         manager = PoolManager(
-            self.env, tracker=self.tracker, resources=QATester.create_pool(limit=1), policy=self.policy)
+            self.env,
+            tracker=self.tracker,
+            resources=QATester.create_pool(limit=1),
+            policy=self.policy,
+        )
         target = Store(self.env)
         task_router = DefaultRouter(target)
 
@@ -55,13 +75,17 @@ class TestQAManager(unittest.TestCase):
         self.env.run()
 
         self.assertEqual(len(target.items), len(self.tasks))
-        self.assertEqual(self.env.now, sum(self.complexities)*0.1)
+        self.assertEqual(self.env.now, sum(self.complexities) * 0.1)
 
     def test_parallel(self):
         # 2 QA Testers, 2 tasks
 
         manager = PoolManager(
-            self.env, tracker=self.tracker, resources=QATester.create_pool(limit=2), policy=self.policy)
+            self.env,
+            tracker=self.tracker,
+            resources=QATester.create_pool(limit=2),
+            policy=self.policy,
+        )
         target = Store(self.env)
         task_router = DefaultRouter(target)
 
@@ -69,12 +93,13 @@ class TestQAManager(unittest.TestCase):
         self.env.run()
 
         self.assertEqual(len(target.items), len(self.tasks))
-        self.assertEqual(self.env.now, max(self.complexities)*0.1)
+        self.assertEqual(self.env.now, max(self.complexities) * 0.1)
 
     def test_parallel_2(self):
         # unlimited QA Testers, 2 tasks
         manager = PoolManager(
-            self.env, tracker=self.tracker, resources=QATester.create_pool(), policy=self.policy)
+            self.env, tracker=self.tracker, resources=QATester.create_pool(), policy=self.policy
+        )
         target = Store(self.env)
         task_router = DefaultRouter(target)
 
@@ -82,7 +107,7 @@ class TestQAManager(unittest.TestCase):
         self.env.run()
 
         self.assertEqual(len(target.items), len(self.tasks))
-        self.assertEqual(self.env.now, max(self.complexities)*0.1)
+        self.assertEqual(self.env.now, max(self.complexities) * 0.1)
 
     def test_validation(self):
         with self.assertRaises(ValueError):

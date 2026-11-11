@@ -21,6 +21,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/examples": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Examples
+         * @description List documentation views whose saved data has not been deleted.
+         */
+        get: operations["examples_api_v1_examples_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workspaces": {
         parameters: {
             query?: never;
@@ -416,6 +436,28 @@ export interface components {
             } | null;
             /** Message */
             message: string;
+        };
+        /**
+         * ExampleCatalog
+         * @description Release identity and links whose referenced data still exists.
+         */
+        ExampleCatalog: {
+            /** Examples */
+            examples: components["schemas"]["ExampleLink"][];
+            /** Release */
+            release: string;
+        };
+        /**
+         * ExampleLink
+         * @description Public display metadata for an available bundled documentation view.
+         */
+        ExampleLink: {
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /** Url */
+            url: string;
         };
         /**
          * HealthResponse
@@ -1219,6 +1261,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AppConfig"];
+                };
+            };
+        };
+    };
+    examples_api_v1_examples_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExampleCatalog"];
                 };
             };
         };
