@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import os
 import sqlite3
 import subprocess
 import sys
@@ -278,6 +279,14 @@ def main() -> None:
     """Build release artifacts explicitly; generation is never part of startup."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, required=True)
+
+    output_dir = parser.parse_args().output_dir
+    output_dir_path = os.path.realpath(output_dir)
+    base_dir = os.path.realpath(os.getcwd())
+
+    if output_dir_path != base_dir and not output_dir_path.startswith(base_dir + os.sep):
+        raise ValueError(f"path {output_dir!r} is outside of the current directory")
+
     build(parser.parse_args().output_dir)
 
 
