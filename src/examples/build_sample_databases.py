@@ -3,12 +3,14 @@
 import argparse
 import hashlib
 import json
+import os
 import sqlite3
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode
 from uuid import UUID, NAMESPACE_URL, uuid5
 
 from value_stream.app.generation import concrete_model
@@ -113,7 +115,7 @@ def build(output_dir: Path, *, task_count: int | None = None) -> dict[str, Any]:
     if any((output_dir / name).exists() for name in names):
         raise FileExistsError("Refusing to overwrite sample output")
     output_dir.mkdir(parents=True, exist_ok=True)
-    frozen = json.loads(Path(__file__).with_name("sample_spec.json").read_text())
+    frozen = json.loads(Path(__file__).with_name("sample_spec.json").read_text(encoding="utf-8"))
     tasks = TaskSetSpec.model_validate(frozen["task_spec"])
     if task_count is not None:
         tasks.count = task_count
@@ -200,7 +202,6 @@ def build(output_dir: Path, *, task_count: int | None = None) -> dict[str, Any]:
         slug: str, name: str, runs: list[UUID], tab: str, scenario: UUID | None = None
     ) -> None:
         """Record stable manifest identities alongside their exact relative URL."""
-        from urllib.parse import urlencode
 
         pairs = [("workspace", str(workspace.id))] + [("run", str(run)) for run in runs]
         if scenario is not None:
@@ -208,12 +209,14 @@ def build(output_dir: Path, *, task_count: int | None = None) -> dict[str, Any]:
         pairs.append(("tab", tab))
         examples.append(
             dict(
-                slug=slug,
-                name=name,
-                workspace_id=str(workspace.id),
-                run_ids=[str(run) for run in runs],
-                scenario_id=str(scenario) if scenario else None,
-                url="/?" + urlencode(pairs),
+                {
+                    "slug": slug,
+                    "name": name,
+                    "workspace_id": str(workspace.id),
+                    "run_ids": [str(run) for run in runs],
+                    "scenario_id": str(scenario) if scenario else None,
+                    "url": "/?" + urlencode(pairs),
+                }
             )
         )
 
@@ -252,23 +255,30 @@ def build(output_dir: Path, *, task_count: int | None = None) -> dict[str, Any]:
                 scenario.id,
             )
     manifest = dict(
-        format_version=1,
-        release="readme-v1",
-        databases={
-            kind: dict(
-                filename=name, sha256=hashlib.sha256((output_dir / name).read_bytes()).hexdigest()
-            )
-            for kind, name in zip(("application", "simulation"), names[:2])
-        },
-        examples=examples,
-        regeneration=dict(
-            task_spec=tasks.model_dump(mode="json"),
-            definition=definition.model_dump(mode="json"),
-            comparison=dict(efficiency_max=11),
-            engine_version=ENGINE_VERSION,
-            generator_version=GENERATOR_VERSION,
-            namespace=str(NAMESPACE),
-        ),
+        {
+            "format_version": 1,
+            "release": "readme-v1",
+            "databases": {
+                kind: dict(
+                    {
+                        "filename": name,
+                        "sha256": hashlib.sha256((output_dir / name).read_bytes()).hexdigest(),
+                    }
+                )
+                for kind, name in zip(("application", "simulation"), names[:2])
+            },
+            "examples": examples,
+            "regeneration": dict(
+                {
+                    "task_spec": tasks.model_dump(mode="json"),
+                    "definition": definition.model_dump(mode="json"),
+                    "comparison": dict({"efficiency_max": 11}),
+                    "engine_version": ENGINE_VERSION,
+                    "generator_version": GENERATOR_VERSION,
+                    "namespace": str(NAMESPACE),
+                }
+            ),
+        }
     )
     (output_dir / names[2]).write_text(json.dumps(manifest, indent=2) + "\n")
     return manifest
@@ -278,6 +288,14 @@ def main() -> None:
     """Build release artifacts explicitly; generation is never part of startup."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, required=True)
+
+    output_dir = parser.parse_args().output_dir
+    output_dir_path = os.path.realpath(output_dir)
+    base_dir = os.path.realpath(os.getcwd())
+
+    if output_dir_path != base_dir and not output_dir_path.startswith(base_dir + os.sep):
+        raise ValueError(f"path {output_dir!r} is outside of the current directory")
+
     build(parser.parse_args().output_dir)
 
 
