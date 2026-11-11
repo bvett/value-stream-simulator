@@ -209,12 +209,14 @@ def build(output_dir: Path, *, task_count: int | None = None) -> dict[str, Any]:
         pairs.append(("tab", tab))
         examples.append(
             dict(
-                slug=slug,
-                name=name,
-                workspace_id=str(workspace.id),
-                run_ids=[str(run) for run in runs],
-                scenario_id=str(scenario) if scenario else None,
-                url="/?" + urlencode(pairs),
+                {
+                    "slug": slug,
+                    "name": name,
+                    "workspace_id": str(workspace.id),
+                    "run_ids": [str(run) for run in runs],
+                    "scenario_id": str(scenario) if scenario else None,
+                    "url": "/?" + urlencode(pairs),
+                }
             )
         )
 
@@ -253,23 +255,30 @@ def build(output_dir: Path, *, task_count: int | None = None) -> dict[str, Any]:
                 scenario.id,
             )
     manifest = dict(
-        format_version=1,
-        release="readme-v1",
-        databases={
-            kind: dict(
-                filename=name, sha256=hashlib.sha256((output_dir / name).read_bytes()).hexdigest()
-            )
-            for kind, name in zip(("application", "simulation"), names[:2])
-        },
-        examples=examples,
-        regeneration=dict(
-            task_spec=tasks.model_dump(mode="json"),
-            definition=definition.model_dump(mode="json"),
-            comparison=dict(efficiency_max=11),
-            engine_version=ENGINE_VERSION,
-            generator_version=GENERATOR_VERSION,
-            namespace=str(NAMESPACE),
-        ),
+        {
+            "format_version": 1,
+            "release": "readme-v1",
+            "databases": {
+                kind: dict(
+                    {
+                        "filename": name,
+                        "sha256": hashlib.sha256((output_dir / name).read_bytes()).hexdigest(),
+                    }
+                )
+                for kind, name in zip(("application", "simulation"), names[:2])
+            },
+            "examples": examples,
+            "regeneration": dict(
+                {
+                    "task_spec": tasks.model_dump(mode="json"),
+                    "definition": definition.model_dump(mode="json"),
+                    "comparison": dict({"efficiency_max": 11}),
+                    "engine_version": ENGINE_VERSION,
+                    "generator_version": GENERATOR_VERSION,
+                    "namespace": str(NAMESPACE),
+                }
+            ),
+        }
     )
     (output_dir / names[2]).write_text(json.dumps(manifest, indent=2) + "\n")
     return manifest
