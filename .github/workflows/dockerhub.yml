@@ -30,11 +30,21 @@ jobs:
         with:
           images: |
             bvett/value-stream-studio
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          platforms: |
+            linux/arm64
+            linux/amd64
+            windows/amd64
+
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
           push: true
           context: .
           file: Dockerfile.app
-          tags: bvett/value-stream-studio:latest
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
