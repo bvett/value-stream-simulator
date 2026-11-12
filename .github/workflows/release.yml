@@ -60,3 +60,4 @@ jobs:
       attestations: write
       id-token: write
       contents: read
+    secrets: inherit
