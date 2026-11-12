@@ -21,6 +21,7 @@ jobs:
     secrets: inherit
     needs:
       - test
+      - validate
 
   validate:
     uses: ./.github/workflows/validate.yml
