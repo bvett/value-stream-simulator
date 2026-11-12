@@ -55,3 +55,7 @@ jobs:
     needs:
       - check-version
       - validate
+    permissions:
+      packages: write
+      attestations: write
+      id-token: write
