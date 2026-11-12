@@ -28,8 +28,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: |
-            bvett/value-stream-studio
+          images: bvett/value-stream-studio
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
@@ -41,7 +41,7 @@ jobs:
           push: true
           context: .
           file: Dockerfile.app
-          tags: bvett/value-stream-studio:latest
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: |
             linux/arm64
