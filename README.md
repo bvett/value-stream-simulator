@@ -23,6 +23,41 @@ Value Stream Simulator is a tool that models a software delivery ecosystem then 
 
 ## Installation
 
+Value Stream Studio is distributed as a Docker image and Python package. Use whichever method is more convenient.
+
+### Docker
+
+1. Install either [Docker Engine](https://docs.docker.com/engine/install) (Linux) or [Docker Desktop](https://docs.docker.com/desktop/) (Windows, Mac, Linux) and ensure the Docker engine is running.
+
+2. Create _docker-compose.yml_ :
+
+```yaml
+# docker-compose.yml
+services:
+  app:
+    image: bvett/value-stream-studio:latest
+    volumes:
+      - data:/data
+    ports:
+      - "8081:8081"
+volumes:
+  data:
+```
+
+3. Start the application from the directory containing _docker-compose.yml_ :
+
+```shell
+docker compose up -d
+```
+
+4. To stop the application:
+
+```shell
+docker compose down
+```
+
+### Python
+
 1. Install Python >= 3.11:
 
 - Python >= 3.11:
@@ -64,7 +99,7 @@ python -m value_stream.app
 
 ## Usage
 
-After starting the application service, open the [Value Stream Simulation Studio](http://127.0.0.1:8081):
+After starting the application service, open the Value Stream Simulation Studio at http://127.0.0.1:8081:
 ![Landing Page](./src/doc/img/readme/landing.png)
 
 ### Managing Workspaces
