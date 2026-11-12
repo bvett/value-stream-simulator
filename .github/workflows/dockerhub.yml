@@ -34,11 +34,6 @@ jobs:
         uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-        with:
-          platforms: |
-            linux/arm64
-            linux/amd64
-            windows/amd64
 
       - name: Build and push
         uses: docker/build-push-action@v7
@@ -48,3 +43,7 @@ jobs:
           file: Dockerfile.app
           tags: bvett/value-stream-studio:latest
           labels: ${{ steps.meta.outputs.labels }}
+          platforms: |
+            linux/arm64
+            linux/amd64
+            windows/amd64
