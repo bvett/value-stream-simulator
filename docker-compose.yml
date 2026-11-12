@@ -1,0 +1,9 @@
+services:
+  app:
+    image: bvett/value-stream-studio:latest
+    volumes:
+      - data:/data
+    ports:
+      - "8081:8081" 
+volumes:
+  data:
