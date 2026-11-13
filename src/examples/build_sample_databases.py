@@ -296,7 +296,7 @@ def main() -> None:
     if output_dir_path != base_dir and not output_dir_path.startswith(base_dir + os.sep):
         raise ValueError(f"path {output_dir!r} is outside of the current directory")
 
-    build(parser.parse_args().output_dir_path)
+    build(output_dir_path)
 
 
 if __name__ == "__main__":
