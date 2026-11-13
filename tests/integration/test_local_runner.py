@@ -5,7 +5,6 @@ from value_stream.service.persistence.config import DatabaseConfig
 
 from value_stream.client import SimulationRunner
 from value_stream.client.web.errors import BatchSimulationError
-from value_stream.client.views import ResultViewer
 from value_stream.resources import Developer, QATester, Toolchain
 from value_stream.simulation import Model, SimulationResult
 from value_stream.task import Task
@@ -31,7 +30,6 @@ class TestLocalRunner(unittest.TestCase):
             self.assertTrue(all(isinstance(r, SimulationResult) for r in results))
             self.assertIs(results[0].summary_result.model, models[0])
             self.assertIs(results[1].metadata.model, models[1])
-            self.assertEqual(len(ResultViewer(results).data), 2)
 
     def test_reuses_local_service(self) -> None:
         first = SimulationRunner()

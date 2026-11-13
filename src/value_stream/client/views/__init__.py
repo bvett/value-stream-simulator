@@ -1,3 +1,1 @@
-from .result_viewer import ResultViewer
-
-__all__ = ["ResultViewer"]
+__all__ = []
