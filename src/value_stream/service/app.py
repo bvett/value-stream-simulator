@@ -33,6 +33,8 @@ from .settings import ServiceSettings
 from .persistence.config import DatabaseConfig
 from .persistence.job_store import SqliteJobStore
 
+from ..__version__ import __version__
+
 logger = logging.getLogger(__name__)
 
 
@@ -151,7 +153,7 @@ def create_app(
 
     application = FastAPI(
         title="Value Stream Simulation Service",
-        version="1.0.0",
+        version=__version__,
         lifespan=lifespan,
     )
     application.add_middleware(BodyLimitMiddleware, max_body_bytes=settings.max_body_bytes)
