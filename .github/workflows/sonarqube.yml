@@ -19,6 +19,15 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: coverage-artifacts-3.11
+
+      - name: Set Sonar Project Version
+        run: |
+          if [[ -n "$GITHUB_REF" && "$GITHUB_REF" == refs/tags/* ]]; then
+            echo $'\n' >> sonar-project.properties
+            echo "sonar.projectVersion=${GITHUB_REF##*/}" >> sonar-project.properties
+          else
+            echo $'\nsonar.projectVersion=latest' >> sonar-project.properties
+          fi
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9
         env:
