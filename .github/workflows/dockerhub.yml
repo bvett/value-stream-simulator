@@ -11,6 +11,9 @@ jobs:
   publish-to-dockerhub:
     name: Build and publish Docker images to DockerHub
     runs-on: ubuntu-latest
+    environment:
+      name: docker-hub
+      url: https://hub.docker.com/r/bvett/value-stream-studio
     permissions:
       packages: write
       attestations: write
